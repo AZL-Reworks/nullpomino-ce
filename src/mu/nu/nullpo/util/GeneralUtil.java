@@ -367,8 +367,7 @@ public class GeneralUtil {
      * @param startIndex First element which will be combined
      * @return Combined string
      */
-    public static String StringCombine(String[] strings, String separator,
-                                       int startIndex) {
+    public static String StringCombine(String[] strings, String separator, int startIndex) {
         String res = "";
         for (int i = startIndex; i < strings.length; i++) {
             res += strings[i];
