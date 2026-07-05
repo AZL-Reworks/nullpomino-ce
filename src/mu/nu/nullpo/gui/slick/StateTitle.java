@@ -114,7 +114,7 @@ public class StateTitle extends DummyMenuChooseState {
         g.drawImage(ResourceHolder.imgTitle, 0, 0);
 
         // Menu
-        NormalFont.printFontGrid(1, 1, "NULLPOMINO CE", NormalFont.COLOR_ORANGE);
+        NormalFont.printFontGrid(1, 1, "NULLPOMINO COMMUNITY EXTENSION", NormalFont.COLOR_ORANGE);
         NormalFont.printFontGrid(1, 2, "VERSION " + GameManager.getVersionString(), NormalFont.COLOR_ORANGE);
 
         renderChoices(2, 4, CHOICES);

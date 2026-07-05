@@ -1,5 +1,5 @@
 NullpoMino CE
-Version 8.0.0d
+Version 8.0.0
 
 1. What is this?
 A falling block puzzle game using Java, forked from NullpoMino.
