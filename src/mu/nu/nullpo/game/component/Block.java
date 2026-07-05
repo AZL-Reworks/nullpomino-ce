@@ -192,6 +192,11 @@ public class Block implements Serializable {
     public int color;
 
     /**
+     * Extra tint the block has. Stored in RGB in the lower 48 bytes.
+     */
+    public long tint;
+
+    /**
      * Blockの絵柄
      */
     public int skin;
@@ -324,6 +329,7 @@ public class Block implements Serializable {
         countdown = 0;
         secondaryColor = 0;
         bonusValue = 0;
+        tint = 0x0000FFFFFFFFFFFFL;
     }
 
     /**
@@ -344,6 +350,7 @@ public class Block implements Serializable {
         countdown = b.countdown;
         secondaryColor = b.secondaryColor;
         bonusValue = b.bonusValue;
+        tint = b.tint;
 
         if (b.customAttributes != null) {
             customAttributes = new HashMap<>(b.customAttributes);
