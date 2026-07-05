@@ -46,7 +46,7 @@ public interface Wallkick {
      * </ul>
      * By default, <code>COLLISION</code>is used.
      */
-    enum Execution {COLLISION, ALWAYS}
+    enum Execution { COLLISION, ALWAYS }
 
     /**
      * Get the current wallkick system's execution type.

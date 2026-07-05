@@ -179,9 +179,7 @@ public class RendererSlick extends EventReceiver {
     public void drawScoreFont(GameEngine engine, int playerID, int x, int y, String str, int color, float scale) {
         if (engine.owner.menuOnly) return;
         int size = (scale == 0.5f) ? 8 : 16;
-        NormalFont.printFont(getScoreDisplayPositionX(engine, playerID) + (x * size),
-            getScoreDisplayPositionY(engine, playerID) + (y * size),
-            str, color, scale);
+        NormalFont.printFont(getScoreDisplayPositionX(engine, playerID) + (x * size), getScoreDisplayPositionY(engine, playerID) + (y * size), str, color, scale);
     }
 
     /*
@@ -190,9 +188,7 @@ public class RendererSlick extends EventReceiver {
     @Override
     public void drawTTFScoreFont(GameEngine engine, int playerID, int x, int y, String str, int color) {
         if (engine.owner.menuOnly) return;
-        NormalFont.printTTFFont(getScoreDisplayPositionX(engine, playerID) + (x * 16),
-            getScoreDisplayPositionY(engine, playerID) + (y * 16),
-            str, color);
+        NormalFont.printTTFFont(getScoreDisplayPositionX(engine, playerID) + (x * 16), getScoreDisplayPositionY(engine, playerID) + (y * 16), str, color);
     }
 
     /*
@@ -334,12 +330,9 @@ public class RendererSlick extends EventReceiver {
 
         int size = (int) (16 * scale);
         Image img = null;
-        if (scale == 0.5f)
-            img = ResourceHolder.imgSmallBlockList.get(skin);
-        else if (scale == 2.0f)
-            img = ResourceHolder.imgBigBlockList.get(skin);
-        else
-            img = ResourceHolder.imgNormalBlockList.get(skin);
+        if (scale == 0.5f) img = ResourceHolder.imgSmallBlockList.get(skin);
+        else if (scale == 2.0f) img = ResourceHolder.imgBigBlockList.get(skin);
+        else img = ResourceHolder.imgNormalBlockList.get(skin);
 
         int sx = color * size;
         if (bone) sx += 9 * size;
@@ -450,8 +443,7 @@ public class RendererSlick extends EventReceiver {
     }
 
     protected void drawBlockForceVisible(int x, int y, Block blk, float scale) {
-        drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness,
-            (0.5f * blk.alpha) + 0.5f, scale, blk.attribute);
+        drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness, (0.5f * blk.alpha) + 0.5f, scale, blk.attribute);
     }
 
     /**
@@ -539,6 +531,16 @@ public class RendererSlick extends EventReceiver {
         }
     }
 
+    // Use fillRect to draw a line. Scales better than draw line.
+    private void fillRectByCorners(float x1, float y1, float x2, float y2) {
+        final float tlX = Math.min(x1, x2);
+        final float tlY = Math.min(y1, y2);
+        final float brX = Math.max(x1, x2);
+        final float brY = Math.max(y1, y2);
+
+        graphics.fillRect(tlX, tlY, (brX - tlX) + 1, (brY - tlY) + 1);
+    }
+
     /**
      * 現在操作中のBlockピースのghost を描画
      *
@@ -577,20 +579,17 @@ public class RendererSlick extends EventReceiver {
                             graphics.setColor(Color.white);
 
                             if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-                                graphics.drawLine(x3, y3, x3 + ls, y3);
-                                graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
+                                fillRectByCorners(x3, y3, x3 + ls, y3 + 1);
                             }
                             if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-                                graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
-                                graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
+                                fillRectByCorners(x3, y3 - 1 + ls, x3 + ls, y3 + ls);
                             }
                             if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-                                graphics.drawLine(x3, y3, x3, y3 + ls);
-                                graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
+                                fillRectByCorners(x3, y3, x3 + 1, y3 + ls);
                             }
                             if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-                                graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
-                                graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
+                                fillRectByCorners(x3 - 1 + ls, y3, x3 + ls, y3 + ls);
+                                ;
                             }
                             if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
                                 graphics.fillRect(x3, y3, 2, 2);
@@ -636,20 +635,19 @@ public class RendererSlick extends EventReceiver {
                         graphics.setColor(Color.white);
 
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-                            graphics.drawLine(x3, y3, x3 + ls, y3);
-                            graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
+                            fillRectByCorners(x3, y3, x3 + ls, y3 + 1);
                         }
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-                            graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
-                            graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
+                            fillRectByCorners(x3, y3 - 1 + ls, x3 + ls, y3 + ls);
+                            ;
                         }
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-                            graphics.drawLine(x3, y3, x3, y3 + ls);
-                            graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
+                            fillRectByCorners(x3, y3, x3 + 1, y3 + ls);
+                            ;
                         }
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-                            graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
-                            graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
+                            fillRectByCorners(x3 - 1 + ls, y3, x3 + ls, y3 + ls);
+                            ;
                         }
                         if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
                             graphics.fillRect(x3, y3, 2, 2);
@@ -701,14 +699,10 @@ public class RendererSlick extends EventReceiver {
                             Color color = getColorByID(colorID);
                             graphics.setColor(color);
 
-                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP))
-                                graphics.fillRect(x3, y3, ls, 2);
-                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
-                                graphics.fillRect(x3, y3 + ls - 1, ls, 2);
-                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT))
-                                graphics.fillRect(x3, y3, 2, ls);
-                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT))
-                                graphics.fillRect(x3 + ls - 1, y3, 2, ls);
+                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) graphics.fillRect(x3, y3, ls, 2);
+                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) graphics.fillRect(x3, y3 + ls - 1, ls, 2);
+                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) graphics.fillRect(x3, y3, 2, ls);
+                            if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) graphics.fillRect(x3 + ls - 1, y3, 2, ls);
                             if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP))
                                 graphics.fillRect(x3, y3, 2, 2);
                             if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
@@ -740,20 +734,16 @@ public class RendererSlick extends EventReceiver {
                         graphics.setColor(Color.white);
 
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-                            graphics.drawLine(x3, y3, x3 + ls, y3);
-                            graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
+                            fillRectByCorners(x3, y3, x3 + ls, y3 + 1);
                         }
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-                            graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
-                            graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
+                            fillRectByCorners(x3, y3 - 1 + ls, x3 + ls, y3 + ls);
                         }
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-                            graphics.drawLine(x3, y3, x3, y3 + ls);
-                            graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
+                            fillRectByCorners(x3, y3, x3 + 1, y3 + ls);
                         }
                         if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-                            graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
-                            graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
+                            fillRectByCorners(x3 - 1 + ls, y3, x3 + ls, y3 + ls);
                         }
                         if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
                             graphics.fillRect(x3, y3, 2, 2);
@@ -817,8 +807,7 @@ public class RendererSlick extends EventReceiver {
 
                 if ((field != null) && (blk != null) && (blk.color > Block.BLOCK_COLOR_NONE)) {
                     if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
-                        drawBlock(x2, y2, Block.BLOCK_COLOR_NONE, blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE),
-                            blk.darkness, blk.alpha, scale, blk.attribute);
+                        drawBlock(x2, y2, Block.BLOCK_COLOR_NONE, blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness, blk.alpha, scale, blk.attribute);
                     } else if (engine.owner.replayMode && engine.owner.replayShowInvisible) {
                         drawBlockForceVisible(x2, y2, blk, scale);
                     } else if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE)) {
@@ -829,22 +818,40 @@ public class RendererSlick extends EventReceiver {
                         Color filter = new Color(Color.white);
                         filter.a = blk.alpha;
                         graphics.setColor(filter);
-                        int ls = (blksize - 1);
+                        final int ls = (blksize - 1);
+
                         if (engine.blockOutlineType == GameEngine.BLOCK_OUTLINE_NORMAL) {
-                            if (field.getBlockColor(j, i - 1) == Block.BLOCK_COLOR_NONE) graphics.drawLine(x2, y2, x2 + ls, y2);
-                            if (field.getBlockColor(j, i + 1) == Block.BLOCK_COLOR_NONE) graphics.drawLine(x2, y2 + ls, x2 + ls, y2 + ls);
-                            if (field.getBlockColor(j - 1, i) == Block.BLOCK_COLOR_NONE) graphics.drawLine(x2, y2, x2, y2 + ls);
-                            if (field.getBlockColor(j + 1, i) == Block.BLOCK_COLOR_NONE) graphics.drawLine(x2 + ls, y2, x2 + ls, y2 + ls);
+                            if (field.getBlockColor(j, i - 1) == Block.BLOCK_COLOR_NONE) fillRectByCorners(x2, y2, x2 + ls, y2);
+                            if (field.getBlockColor(j, i + 1) == Block.BLOCK_COLOR_NONE) fillRectByCorners(x2, y2 + ls, x2 + ls, y2 + ls);
+                            if (field.getBlockColor(j - 1, i) == Block.BLOCK_COLOR_NONE) fillRectByCorners(x2, y2, x2, y2 + ls);
+                            if (field.getBlockColor(j + 1, i) == Block.BLOCK_COLOR_NONE) fillRectByCorners(x2 + ls, y2, x2 + ls, y2 + ls);
+
+                            // CORNER -- Added by Azullia to make the game look a little better
+                            // TOPLEFT
+                            if (field.getBlockColor(j - 1, i - 1) == Block.BLOCK_COLOR_NONE && field.getBlockColor(j, i - 1) > Block.BLOCK_COLOR_NONE && field.getBlockColor(j - 1, i) > Block.BLOCK_COLOR_NONE && !field.getBlock(j, i - 1).getAttribute(Block.BLOCK_ATTRIBUTE_BONE) && !field.getBlock(j - 1, i).getAttribute(Block.BLOCK_ATTRIBUTE_BONE))
+                                fillRectByCorners(x2, y2, x2, y2);
+
+                            // TOPRIGHT
+                            if (field.getBlockColor(j + 1, i - 1) == Block.BLOCK_COLOR_NONE && field.getBlockColor(j, i - 1) > Block.BLOCK_COLOR_NONE && field.getBlockColor(j + 1, i) > Block.BLOCK_COLOR_NONE && !field.getBlock(j, i - 1).getAttribute(Block.BLOCK_ATTRIBUTE_BONE) && !field.getBlock(j + 1, i).getAttribute(Block.BLOCK_ATTRIBUTE_BONE))
+                                fillRectByCorners(x2 + ls, y2, x2 + ls, y2);
+
+                            // BOTLEFT
+                            if (field.getBlockColor(j - 1, i + 1) == Block.BLOCK_COLOR_NONE && field.getBlockColor(j, i + 1) > Block.BLOCK_COLOR_NONE && field.getBlockColor(j - 1, i) > Block.BLOCK_COLOR_NONE && !field.getBlock(j, i + 1).getAttribute(Block.BLOCK_ATTRIBUTE_BONE) && !field.getBlock(j - 1, i).getAttribute(Block.BLOCK_ATTRIBUTE_BONE))
+                                fillRectByCorners(x2, y2 + ls, x2, y2 + ls);
+
+                            // BOTRIGHT
+                            if (field.getBlockColor(j + 1, i + 1) == Block.BLOCK_COLOR_NONE && field.getBlockColor(j, i + 1) > Block.BLOCK_COLOR_NONE && field.getBlockColor(j + 1, i) > Block.BLOCK_COLOR_NONE && !field.getBlock(j, i + 1).getAttribute(Block.BLOCK_ATTRIBUTE_BONE) && !field.getBlock(j + 1, i).getAttribute(Block.BLOCK_ATTRIBUTE_BONE))
+                                fillRectByCorners(x2 + ls, y2 + ls, x2 + ls, y2 + ls);
                         } else if (engine.blockOutlineType == GameEngine.BLOCK_OUTLINE_CONNECT) {
-                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) graphics.drawLine(x2, y2, x2 + ls, y2);
-                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) graphics.drawLine(x2, y2 + ls, x2 + ls, y2 + ls);
-                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) graphics.drawLine(x2, y2, x2, y2 + ls);
-                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) graphics.drawLine(x2 + ls, y2, x2 + ls, y2 + ls);
+                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) fillRectByCorners(x2, y2, x2 + ls, y2);
+                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) fillRectByCorners(x2, y2 + ls, x2 + ls, y2 + ls);
+                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) fillRectByCorners(x2, y2, x2, y2 + ls);
+                            if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) fillRectByCorners(x2 + ls, y2, x2 + ls, y2 + ls);
                         } else if (engine.blockOutlineType == GameEngine.BLOCK_OUTLINE_SAMECOLOR) {
-                            if (field.getBlockColor(j, i - 1) != blk.color) graphics.drawLine(x2, y2, x2 + ls, y2);
-                            if (field.getBlockColor(j, i + 1) != blk.color) graphics.drawLine(x2, y2 + ls, x2 + ls, y2 + ls);
-                            if (field.getBlockColor(j - 1, i) != blk.color) graphics.drawLine(x2, y2, x2, y2 + ls);
-                            if (field.getBlockColor(j + 1, i) != blk.color) graphics.drawLine(x2 + ls, y2, x2 + ls, y2 + ls);
+                            if (field.getBlockColor(j, i - 1) != blk.color) fillRectByCorners(x2, y2, x2 + ls, y2);
+                            if (field.getBlockColor(j, i + 1) != blk.color) fillRectByCorners(x2, y2 + ls, x2 + ls, y2 + ls);
+                            if (field.getBlockColor(j - 1, i) != blk.color) fillRectByCorners(x2, y2, x2, y2 + ls);
+                            if (field.getBlockColor(j + 1, i) != blk.color) fillRectByCorners(x2 + ls, y2, x2 + ls, y2 + ls);
                         }
                     }
 
@@ -877,10 +884,8 @@ public class RendererSlick extends EventReceiver {
         if (graphics == null) return;
 
         int size = 4;
-        if (displaysize == -1)
-            size = 2;
-        else if (displaysize == 1)
-            size = 8;
+        if (displaysize == -1) size = 2;
+        else if (displaysize == 1) size = 8;
         int width = 10;
         int height = 20;
         int offsetX = 0;
@@ -1206,10 +1211,8 @@ public class RendererSlick extends EventReceiver {
                     Piece piece = engine.getNextObject(engine.nextPieceCount + i + 3);
 
                     if (piece != null) {
-                        if (showmeter)
-                            drawPiece(x + 176, y + (i * 40) + 88 - ((piece.getMaximumBlockY() + 1) * 8), piece, 0.5f);
-                        else
-                            drawPiece(x + 168, y + (i * 40) + 88 - ((piece.getMaximumBlockY() + 1) * 8), piece, 0.5f);
+                        if (showmeter) drawPiece(x + 176, y + (i * 40) + 88 - ((piece.getMaximumBlockY() + 1) * 8), piece, 0.5f);
+                        else drawPiece(x + 168, y + (i * 40) + 88 - ((piece.getMaximumBlockY() + 1) * 8), piece, 0.5f);
                     }
                 }
             }
@@ -1277,22 +1280,17 @@ public class RendererSlick extends EventReceiver {
             int shadowY = engine.nowPieceBottomY + piece.getMinimumBlockY();
 
             for (int i = 0; i < engine.ruleopt.nextDisplay - 1; i++) {
-                if (i >= 3)
-                    break;
+                if (i >= 3) break;
 
                 Piece next = engine.getNextObject(engine.nextPieceCount + i);
 
                 if (next != null) {
                     int size = ((piece.big || engine.displaysize == 1) ? 2 : 1);
-                    int shadowCenter = blksize * piece.getMinimumBlockX() + blksize
-                        * (piece.getWidth() + size) / 2;
-                    int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2
-                        * (next.getWidth() + 1) / 2;
+                    int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
+                    int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
                     int vPos = blksize * shadowY - (i + 1) * 24 - 8;
 
-                    if (vPos >= -blksize / 2)
-                        drawPiece(x + blksize * shadowX + shadowCenter - nextCenter, y
-                            + vPos, next, 0.5f * scale, 0.1f);
+                    if (vPos >= -blksize / 2) drawPiece(x + blksize * shadowX + shadowCenter - nextCenter, y + vPos, next, 0.5f * scale, 0.1f);
                 }
             }
         }
@@ -1423,18 +1421,12 @@ public class RendererSlick extends EventReceiver {
             int color = blk.getDrawColor();
             // 通常Block
             if ((color >= Block.BLOCK_COLOR_GRAY) && (color <= Block.BLOCK_COLOR_PURPLE) && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-                EffectObject obj = new EffectObject(1,
-                    getFieldDisplayPositionX(engine, playerID) + 4 + (x * 16),
-                    getFieldDisplayPositionY(engine, playerID) + 52 + (y * 16),
-                    color);
+                EffectObject obj = new EffectObject(1, getFieldDisplayPositionX(engine, playerID) + 4 + (x * 16), getFieldDisplayPositionY(engine, playerID) + 52 + (y * 16), color);
                 effectlist.add(obj);
             }
             // 宝石Block
             else if (blk.isGemBlock()) {
-                EffectObject obj = new EffectObject(2,
-                    getFieldDisplayPositionX(engine, playerID) + 4 + (x * 16),
-                    getFieldDisplayPositionY(engine, playerID) + 52 + (y * 16),
-                    color);
+                EffectObject obj = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + (x * 16), getFieldDisplayPositionY(engine, playerID) + 52 + (y * 16), color);
                 effectlist.add(obj);
             }
         }
@@ -1453,19 +1445,13 @@ public class RendererSlick extends EventReceiver {
         int offsetY = getFieldDisplayPositionY(engine, playerID);
 
         if (engine.displaysize != -1) {
-            if (engine.statc[1] == 0)
-                NormalFont.printFont(offsetX + 4, offsetY + 204, "EXCELLENT!", COLOR_ORANGE, 1.0f);
-            else if (engine.owner.getPlayers() < 3)
-                NormalFont.printFont(offsetX + 52, offsetY + 204, "WIN!", COLOR_ORANGE, 1.0f);
-            else
-                NormalFont.printFont(offsetX + 4, offsetY + 204, "1ST PLACE!", COLOR_ORANGE, 1.0f);
+            if (engine.statc[1] == 0) NormalFont.printFont(offsetX + 4, offsetY + 204, "EXCELLENT!", COLOR_ORANGE, 1.0f);
+            else if (engine.owner.getPlayers() < 3) NormalFont.printFont(offsetX + 52, offsetY + 204, "WIN!", COLOR_ORANGE, 1.0f);
+            else NormalFont.printFont(offsetX + 4, offsetY + 204, "1ST PLACE!", COLOR_ORANGE, 1.0f);
         } else {
-            if (engine.statc[1] == 0)
-                NormalFont.printFont(offsetX + 4, offsetY + 80, "EXCELLENT!", COLOR_ORANGE, 0.5f);
-            else if (engine.owner.getPlayers() < 3)
-                NormalFont.printFont(offsetX + 33, offsetY + 80, "WIN!", COLOR_ORANGE, 0.5f);
-            else
-                NormalFont.printFont(offsetX + 4, offsetY + 80, "1ST PLACE!", COLOR_ORANGE, 0.5f);
+            if (engine.statc[1] == 0) NormalFont.printFont(offsetX + 4, offsetY + 80, "EXCELLENT!", COLOR_ORANGE, 0.5f);
+            else if (engine.owner.getPlayers() < 3) NormalFont.printFont(offsetX + 33, offsetY + 80, "WIN!", COLOR_ORANGE, 0.5f);
+            else NormalFont.printFont(offsetX + 4, offsetY + 80, "1ST PLACE!", COLOR_ORANGE, 0.5f);
         }
     }
 
@@ -1483,19 +1469,13 @@ public class RendererSlick extends EventReceiver {
             int offsetY = getFieldDisplayPositionY(engine, playerID);
 
             if (engine.displaysize != -1) {
-                if (engine.owner.getPlayers() < 2)
-                    NormalFont.printFont(offsetX + 12, offsetY + 204, "GAME OVER", COLOR_WHITE, 1.0f);
-                else if (engine.owner.getWinner() == -2)
-                    NormalFont.printFont(offsetX + 52, offsetY + 204, "DRAW", COLOR_GREEN, 1.0f);
-                else if (engine.owner.getPlayers() < 3)
-                    NormalFont.printFont(offsetX + 52, offsetY + 204, "LOSE", COLOR_WHITE, 1.0f);
+                if (engine.owner.getPlayers() < 2) NormalFont.printFont(offsetX + 12, offsetY + 204, "GAME OVER", COLOR_WHITE, 1.0f);
+                else if (engine.owner.getWinner() == -2) NormalFont.printFont(offsetX + 52, offsetY + 204, "DRAW", COLOR_GREEN, 1.0f);
+                else if (engine.owner.getPlayers() < 3) NormalFont.printFont(offsetX + 52, offsetY + 204, "LOSE", COLOR_WHITE, 1.0f);
             } else {
-                if (engine.owner.getPlayers() < 2)
-                    NormalFont.printFont(offsetX + 4, offsetY + 80, "GAME OVER", COLOR_WHITE, 0.5f);
-                else if (engine.owner.getWinner() == -2)
-                    NormalFont.printFont(offsetX + 28, offsetY + 80, "DRAW", COLOR_GREEN, 0.5f);
-                else if (engine.owner.getPlayers() < 3)
-                    NormalFont.printFont(offsetX + 28, offsetY + 80, "LOSE", COLOR_WHITE, 0.5f);
+                if (engine.owner.getPlayers() < 2) NormalFont.printFont(offsetX + 4, offsetY + 80, "GAME OVER", COLOR_WHITE, 0.5f);
+                else if (engine.owner.getWinner() == -2) NormalFont.printFont(offsetX + 28, offsetY + 80, "DRAW", COLOR_GREEN, 0.5f);
+                else if (engine.owner.getPlayers() < 3) NormalFont.printFont(offsetX + 28, offsetY + 80, "LOSE", COLOR_WHITE, 0.5f);
             }
         }
     }
@@ -1511,16 +1491,12 @@ public class RendererSlick extends EventReceiver {
 
         int tempColor;
 
-        if (engine.statc[0] == 0)
-            tempColor = COLOR_RED;
-        else
-            tempColor = COLOR_WHITE;
+        if (engine.statc[0] == 0) tempColor = COLOR_RED;
+        else tempColor = COLOR_WHITE;
         NormalFont.printFont(getFieldDisplayPositionX(engine, playerID) + 12, getFieldDisplayPositionY(engine, playerID) + 340, "RETRY", tempColor, 1.0f);
 
-        if (engine.statc[0] == 1)
-            tempColor = COLOR_RED;
-        else
-            tempColor = COLOR_WHITE;
+        if (engine.statc[0] == 1) tempColor = COLOR_RED;
+        else tempColor = COLOR_WHITE;
         NormalFont.printFont(getFieldDisplayPositionX(engine, playerID) + 108, getFieldDisplayPositionY(engine, playerID) + 340, "END", tempColor, 1.0f);
     }
 
