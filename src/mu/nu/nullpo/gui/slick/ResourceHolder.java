@@ -313,6 +313,7 @@ public class ResourceHolder {
         Image img = null;
         try {
             img = new Image(filename);
+            img.setFilter(Image.FILTER_NEAREST);
         } catch (Throwable e) {
             log.error("Failed to load image from " + filename, e);
             try {
@@ -334,6 +335,7 @@ public class ResourceHolder {
         BigImage bigImg = null;
         try {
             bigImg = new BigImage(filename);
+            bigImg.setFilter(BigImage.FILTER_NEAREST);
         } catch (Throwable e) {
             log.error("Failed to load big image from " + filename, e);
         }
