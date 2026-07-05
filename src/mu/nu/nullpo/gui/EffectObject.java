@@ -32,56 +32,56 @@ package mu.nu.nullpo.gui;
  * 各種エフェクト state
  */
 public class EffectObject {
-	/** エフェクト type */
-	public int effect;
+    /** エフェクト type */
+    public int effect;
 
-	/** X-coordinate */
-	public int x;
+    /** X-coordinate */
+    public int x;
 
-	/** Y-coordinate */
-	public int y;
+    /** Y-coordinate */
+    public int y;
 
-	/** エフェクトのパラメータ (Block colorなど) */
-	public int param;
+    /** エフェクトのパラメータ (Block colorなど) */
+    public int param;
 
-	/** アニメーション counter */
-	public int anim;
+    /** アニメーション counter */
+    public int anim;
 
-	/**
-	 * Constructor
-	 */
-	public EffectObject() {
-		effect = 0;
-		x = 0;
-		y = 0;
-		param = 0;
-		anim = 0;
-	}
+    /**
+     * Constructor
+     */
+    public EffectObject() {
+        effect = 0;
+        x = 0;
+        y = 0;
+        param = 0;
+        anim = 0;
+    }
 
-	/**
-	 * パラメータ付きConstructor
-	 * @param effect エフェクト type
-	 * @param x X-coordinate
-	 * @param y Y-coordinate
-	 * @param param エフェクトのパラメータ (Block colorなど）
-	 */
-	public EffectObject(int effect, int x, int y, int param) {
-		this.effect = effect;
-		this.x = x;
-		this.y = y;
-		this.param = param;
-		anim = 0;
-	}
+    /**
+     * パラメータ付きConstructor
+     * @param effect エフェクト type
+     * @param x X-coordinate
+     * @param y Y-coordinate
+     * @param param エフェクトのパラメータ (Block colorなど）
+     */
+    public EffectObject(int effect, int x, int y, int param) {
+        this.effect = effect;
+        this.x = x;
+        this.y = y;
+        this.param = param;
+        anim = 0;
+    }
 
-	/**
-	 * Copy constructor
-	 * @param src Copy source
-	 */
-	public EffectObject(EffectObject src) {
-		this.effect = src.effect;
-		this.x = src.x;
-		this.y = src.y;
-		this.param = src.param;
-		this.anim = src.anim;
-	}
+    /**
+     * Copy constructor
+     * @param src Copy source
+     */
+    public EffectObject(EffectObject src) {
+        this.effect = src.effect;
+        this.x = src.x;
+        this.y = src.y;
+        this.param = src.param;
+        this.anim = src.anim;
+    }
 }

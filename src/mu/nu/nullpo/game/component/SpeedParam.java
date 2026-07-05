@@ -34,69 +34,69 @@ import java.io.Serializable;
  * Blockピースの落下速度や出現待ち timeなどの data
  */
 public class SpeedParam implements Serializable {
-	/** Serial version ID */
-	private static final long serialVersionUID = -955934100998757270L;
+    /** Serial version ID */
+    private static final long serialVersionUID = -955934100998757270L;
 
-	/** 落下速度 */
-	public int gravity;
+    /** 落下速度 */
+    public int gravity;
 
-	/** 落下速度の分母 (gravity==denominatorなら1Gになる) */
-	public int denominator;
+    /** 落下速度の分母 (gravity==denominatorなら1Gになる) */
+    public int denominator;
 
-	/** 出現待ち time */
-	public int are;
+    /** 出現待ち time */
+    public int are;
 
-	/** Line clear後の出現待ち time */
-	public int areLine;
+    /** Line clear後の出現待ち time */
+    public int areLine;
 
-	/** Line clear time */
-	public int lineDelay;
+    /** Line clear time */
+    public int lineDelay;
 
-	/** 固定 time */
-	public int lockDelay;
+    /** 固定 time */
+    public int lockDelay;
 
-	/** 横移動 time */
-	public int das;
+    /** 横移動 time */
+    public int das;
 
-	/**
-	 * Constructor
-	 */
-	public SpeedParam() {
-		reset();
-	}
+    /**
+     * Constructor
+     */
+    public SpeedParam() {
+        reset();
+    }
 
-	/**
-	 * Copy constructor
-	 * @param s Copy source
-	 */
-	public SpeedParam(SpeedParam s) {
-		copy(s);
-	}
+    /**
+     * Copy constructor
+     * @param s Copy source
+     */
+    public SpeedParam(SpeedParam s) {
+        copy(s);
+    }
 
-	/**
-	 * Reset to defaults
-	 */
-	public void reset() {
-		gravity = 4;
-		denominator = 256;
-		are = 24;
-		areLine = 24;
-		lineDelay = 40;
-		lockDelay = 30;
-		das = 14;
-	}
+    /**
+     * Reset to defaults
+     */
+    public void reset() {
+        gravity = 4;
+        denominator = 256;
+        are = 24;
+        areLine = 24;
+        lineDelay = 40;
+        lockDelay = 30;
+        das = 14;
+    }
 
-	/**
-	 * 別のSpeedParamからコピー
-	 * @param s Copy source
-	 */
-	public void copy(SpeedParam s) {
-		gravity = s.gravity;
-		denominator = s.denominator;
-		are = s.are;
-		areLine = s.areLine;
-		lineDelay = s.lineDelay;
-		lockDelay = s.lockDelay;
-		das = s.das;
-	}
+    /**
+     * 別のSpeedParamからコピー
+     * @param s Copy source
+     */
+    public void copy(SpeedParam s) {
+        gravity = s.gravity;
+        denominator = s.denominator;
+        are = s.are;
+        areLine = s.areLine;
+        lineDelay = s.lineDelay;
+        lockDelay = s.lockDelay;
+        das = s.das;
+    }
 }

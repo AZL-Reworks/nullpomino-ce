@@ -32,14 +32,14 @@ package mu.nu.nullpo.gui.net;
  * 新Versionチェッカー用Listener
  */
 public interface UpdateCheckerListener {
-	/**
-	 * 更新 check 開始時
-	 */
-	public void onUpdateCheckerStart();
+    /**
+     * 更新 check 開始時
+     */
+    public void onUpdateCheckerStart();
 
-	/**
-	 * 更新 check 終了時
-	 * @param status 状態(失敗するとSTATUS_ERROR, 成功するとSTATUS_COMPLETE)
-	 */
-	public void onUpdateCheckerEnd(int status);
+    /**
+     * 更新 check 終了時
+     * @param status 状態(失敗するとSTATUS_ERROR, 成功するとSTATUS_COMPLETE)
+     */
+    public void onUpdateCheckerEnd(int status);
 }

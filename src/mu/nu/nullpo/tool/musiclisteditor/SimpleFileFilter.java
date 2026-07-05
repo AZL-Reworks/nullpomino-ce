@@ -36,72 +36,72 @@ import javax.swing.filechooser.FileFilter;
  * シンプルなファイルフィルタ
  */
 public class SimpleFileFilter extends FileFilter {
-	/** 拡張子 */
-	protected String extension;
+    /** 拡張子 */
+    protected String extension;
 
-	/** 表示名 */
-	protected String description;
+    /** 表示名 */
+    protected String description;
 
-	/**
-	 * Constructor
-	 */
-	public SimpleFileFilter() {
-		super();
-		this.extension = "";
-		this.description = "";
-	}
+    /**
+     * Constructor
+     */
+    public SimpleFileFilter() {
+        super();
+        this.extension = "";
+        this.description = "";
+    }
 
-	/**
-	 * Constructor
-	 * @param extension 拡張子
-	 */
-	public SimpleFileFilter(String extension) {
-		super();
-		this.extension = extension;
-		this.description = "";
-	}
+    /**
+     * Constructor
+     * @param extension 拡張子
+     */
+    public SimpleFileFilter(String extension) {
+        super();
+        this.extension = extension;
+        this.description = "";
+    }
 
-	/**
-	 * Constructor
-	 * @param extension 拡張子
-	 * @param description 表示名
-	 */
-	public SimpleFileFilter(String extension, String description) {
-		super();
-		this.extension = extension;
-		this.description = description;
-	}
+    /**
+     * Constructor
+     * @param extension 拡張子
+     * @param description 表示名
+     */
+    public SimpleFileFilter(String extension, String description) {
+        super();
+        this.extension = extension;
+        this.description = description;
+    }
 
-	@Override
-	public boolean accept(File f) {
-		if(f.isDirectory()) return true;
-		if(f.getName().endsWith(extension)) return true;
-		return false;
-	}
+    @Override
+    public boolean accept(File f) {
+        if(f.isDirectory()) return true;
+        if(f.getName().endsWith(extension)) return true;
+        return false;
+    }
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
+    @Override
+    public String getDescription() {
+        return description;
+    }
 
-	/**
-	 * @param description セットする description
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    /**
+     * @param description セットする description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	/**
-	 * @return extension
-	 */
-	public String getExtension() {
-		return extension;
-	}
+    /**
+     * @return extension
+     */
+    public String getExtension() {
+        return extension;
+    }
 
-	/**
-	 * @param extension セットする extension
-	 */
-	public void setExtension(String extension) {
-		this.extension = extension;
-	}
+    /**
+     * @param extension セットする extension
+     */
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
 }

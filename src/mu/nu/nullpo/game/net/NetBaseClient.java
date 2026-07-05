@@ -41,305 +41,305 @@ import org.apache.log4j.Logger;
  * クライアント(基本部分)
  */
 public class NetBaseClient extends Thread {
-	/** Log */
-	static final Logger log = Logger.getLogger(NetBaseClient.class);
+    /** Log */
+    static final Logger log = Logger.getLogger(NetBaseClient.class);
 
-	/**  default のポート number */
-	public static final int DEFAULT_PORT = 9200;
+    /**  default のポート number */
+    public static final int DEFAULT_PORT = 9200;
 
-	/** 読み込みバッファのサイズ */
-	public static final int BUF_SIZE = 2048;
+    /** 読み込みバッファのサイズ */
+    public static final int BUF_SIZE = 2048;
 
-	/** Default ping interval (1000=1s) */
-	public static final int PING_INTERVAL = 5 * 1000;
+    /** Default ping interval (1000=1s) */
+    public static final int PING_INTERVAL = 5 * 1000;
 
-	/** この countだけpingを打っても反応がない場合は自動切断 */
-	public static final int PING_AUTO_DISCONNECT_COUNT = 6;
+    /** この countだけpingを打っても反応がない場合は自動切断 */
+    public static final int PING_AUTO_DISCONNECT_COUNT = 6;
 
-	/** trueの間スレッドが動く */
-	public volatile boolean threadRunning;
+    /** trueの間スレッドが動く */
+    public volatile boolean threadRunning;
 
-	/** 正 always 接続している間true */
-	public volatile boolean connectedFlag;
+    /** 正 always 接続している間true */
+    public volatile boolean connectedFlag;
 
-	/** 接続用ソケット */
-	protected Socket socket;
+    /** 接続用ソケット */
+    protected Socket socket;
 
-	/** 接続先ホスト */
-	protected String host;
+    /** 接続先ホスト */
+    protected String host;
 
-	/** 接続先ポート number */
-	protected int port;
+    /** 接続先ポート number */
+    protected int port;
 
-	/** IP address */
-	protected String ip;
+    /** IP address */
+    protected String ip;
 
-	/** 前回の不完全パケット */
-	protected StringBuilder notCompletePacketBuffer;
+    /** 前回の不完全パケット */
+    protected StringBuilder notCompletePacketBuffer;
 
-	/** メッセージ受け取りインターフェース */
-	protected LinkedList<NetMessageListener> listeners = new LinkedList<NetMessageListener>();
+    /** メッセージ受け取りインターフェース */
+    protected LinkedList<NetMessageListener> listeners = new LinkedList<NetMessageListener>();
 
-	/** ping打った count(サーバーからpongメッセージを受信するとリセット) */
-	protected int pingCount;
+    /** ping打った count(サーバーからpongメッセージを受信するとリセット) */
+    protected int pingCount;
 
-	/** Ping task */
-	protected TimerTask taskPing;
+    /** Ping task */
+    protected TimerTask taskPing;
 
-	/** 自動ping打ちTimer */
-	protected Timer timerPing;
+    /** 自動ping打ちTimer */
+    protected Timer timerPing;
 
-	/**
-	 * Default constructor
-	 */
-	public NetBaseClient() {
-		super();
-		this.host = null;
-		this.port = DEFAULT_PORT;
-	}
+    /**
+     * Default constructor
+     */
+    public NetBaseClient() {
+        super();
+        this.host = null;
+        this.port = DEFAULT_PORT;
+    }
 
-	/**
-	 * Constructor
-	 * @param host 接続先ホスト
-	 */
-	public NetBaseClient(String host) {
-		super("NET_"+host);
-		this.host = host;
-		this.port = DEFAULT_PORT;
-	}
+    /**
+     * Constructor
+     * @param host 接続先ホスト
+     */
+    public NetBaseClient(String host) {
+        super("NET_"+host);
+        this.host = host;
+        this.port = DEFAULT_PORT;
+    }
 
-	/**
-	 * Constructor
-	 * @param host 接続先ホスト
-	 * @param port 接続先ポート number
-	 */
-	public NetBaseClient(String host, int port) {
-		super("NET_"+host+":"+port);
-		this.host = host;
-		this.port = port;
-	}
+    /**
+     * Constructor
+     * @param host 接続先ホスト
+     * @param port 接続先ポート number
+     */
+    public NetBaseClient(String host, int port) {
+        super("NET_"+host+":"+port);
+        this.host = host;
+        this.port = port;
+    }
 
-	/*
-	 * スレッドの処理
-	 */
-	@Override
-	public void run() {
-		threadRunning = true;
-		connectedFlag = false;
-		log.info("Connecting to " + host + ":" + port);
+    /*
+     * スレッドの処理
+     */
+    @Override
+    public void run() {
+        threadRunning = true;
+        connectedFlag = false;
+        log.info("Connecting to " + host + ":" + port);
 
-		Throwable exDisconnectReason = null;
+        Throwable exDisconnectReason = null;
 
-		try {
-			// 接続
-			socket = new Socket(host, port);
-			connectedFlag = true;
-			ip = socket.getInetAddress().getHostAddress();
+        try {
+            // 接続
+            socket = new Socket(host, port);
+            connectedFlag = true;
+            ip = socket.getInetAddress().getHostAddress();
 
-			// ping打ちTimer準備
-			startPingTask();
+            // ping打ちTimer準備
+            startPingTask();
 
-			// メッセージ受信
-			byte[] buf = new byte[BUF_SIZE];
-			int size;
+            // メッセージ受信
+            byte[] buf = new byte[BUF_SIZE];
+            int size;
 
-			while( (threadRunning) && ((size = socket.getInputStream().read(buf)) > 0) ) {
-				String message = new String(buf, 0, size, "UTF-8");
-				//log.debug(message);
+            while( (threadRunning) && ((size = socket.getInputStream().read(buf)) > 0) ) {
+                String message = new String(buf, 0, size, "UTF-8");
+                //log.debug(message);
 
-				// 受信したメッセージに応じていろいろ処理をする
-				StringBuilder packetBuffer = new StringBuilder();
-				if(notCompletePacketBuffer != null) packetBuffer.append(notCompletePacketBuffer);
-				packetBuffer.append(message);
+                // 受信したメッセージに応じていろいろ処理をする
+                StringBuilder packetBuffer = new StringBuilder();
+                if(notCompletePacketBuffer != null) packetBuffer.append(notCompletePacketBuffer);
+                packetBuffer.append(message);
 
-				int index;
-				while((index = packetBuffer.indexOf("\n")) != -1) {
-					String msgNow = packetBuffer.substring(0, index);
-					processPacket(msgNow);
-					packetBuffer = packetBuffer.replace(0, index+1, "");
-				}
+                int index;
+                while((index = packetBuffer.indexOf("\n")) != -1) {
+                    String msgNow = packetBuffer.substring(0, index);
+                    processPacket(msgNow);
+                    packetBuffer = packetBuffer.replace(0, index+1, "");
+                }
 
-				// 不完全パケットがある場合
-				if(packetBuffer.length() > 0) {
-					notCompletePacketBuffer = packetBuffer;
-				} else {
-					notCompletePacketBuffer = null;
-				}
-			}
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 Not Supported", e);
-		} catch (Exception e) {
-			log.info("Socket disconnected", e);
-			exDisconnectReason = e;
-		}
+                // 不完全パケットがある場合
+                if(packetBuffer.length() > 0) {
+                    notCompletePacketBuffer = packetBuffer;
+                } else {
+                    notCompletePacketBuffer = null;
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new Error("UTF-8 Not Supported", e);
+        } catch (Exception e) {
+            log.info("Socket disconnected", e);
+            exDisconnectReason = e;
+        }
 
-		if(timerPing != null) timerPing.cancel();
-		connectedFlag = false;
-		threadRunning = false;
+        if(timerPing != null) timerPing.cancel();
+        connectedFlag = false;
+        threadRunning = false;
 
-		// Listener
-		for(int i = 0; i < listeners.size(); i++) {
-			try {
-				listeners.get(i).netOnDisconnect(this, exDisconnectReason);
-			} catch (Exception e2) {
-				log.debug("Uncaught Exception on NetMessageListener #" + i + " (disconnect event)", e2);
-			}
-		}
-	}
+        // Listener
+        for(int i = 0; i < listeners.size(); i++) {
+            try {
+                listeners.get(i).netOnDisconnect(this, exDisconnectReason);
+            } catch (Exception e2) {
+                log.debug("Uncaught Exception on NetMessageListener #" + i + " (disconnect event)", e2);
+            }
+        }
+    }
 
-	/**
-	 * 受信したメッセージに応じていろいろ処理をする
-	 * @param fullMessage 受信したメッセージ
-	 * @throws IOException 何かエラーがあったとき
-	 */
-	protected void processPacket(String fullMessage) throws IOException {
-		String[] message = fullMessage.split("\t");	// タブ区切り
+    /**
+     * 受信したメッセージに応じていろいろ処理をする
+     * @param fullMessage 受信したメッセージ
+     * @throws IOException 何かエラーがあったとき
+     */
+    protected void processPacket(String fullMessage) throws IOException {
+        String[] message = fullMessage.split("\t");    // タブ区切り
 
-		// ping返答
-		if(message[0].equals("pong")) {
-			if(pingCount >= 2) {
-				log.debug("pong " + pingCount);
-			}
-			pingCount = 0;
-		}
+        // ping返答
+        if(message[0].equals("pong")) {
+            if(pingCount >= 2) {
+                log.debug("pong " + pingCount);
+            }
+            pingCount = 0;
+        }
 
-		// Listener呼び出し
-		for(int i = 0; i < listeners.size(); i++) {
-			try {
-				listeners.get(i).netOnMessage(this, message);
-			} catch (Exception e) {
-				log.error("Uncaught Exception on NetMessageListener #" + i + " (message event)", e);
-			}
-		}
-	}
+        // Listener呼び出し
+        for(int i = 0; i < listeners.size(); i++) {
+            try {
+                listeners.get(i).netOnMessage(this, message);
+            } catch (Exception e) {
+                log.error("Uncaught Exception on NetMessageListener #" + i + " (message event)", e);
+            }
+        }
+    }
 
-	/**
-	 * サーバーにメッセージを送信
-	 * @param bytes 送信するメッセージ
-	 * @return true if successful
-	 */
-	public boolean send(byte[] bytes) {
-		try {
-			socket.getOutputStream().write(bytes);
-		} catch (Exception e) {
-			log.error("Failed to send message", e);
-			return false;
-		}
-		return true;
-	}
+    /**
+     * サーバーにメッセージを送信
+     * @param bytes 送信するメッセージ
+     * @return true if successful
+     */
+    public boolean send(byte[] bytes) {
+        try {
+            socket.getOutputStream().write(bytes);
+        } catch (Exception e) {
+            log.error("Failed to send message", e);
+            return false;
+        }
+        return true;
+    }
 
-	/**
-	 * サーバーにメッセージを送信
-	 * @param msg 送信するメッセージ
-	 * @return true if successful
-	 */
-	public boolean send(String msg) {
-		try {
-			socket.getOutputStream().write(NetUtil.stringToBytes(msg));
-		} catch (Exception e) {
-			log.error("Failed to send message (" + msg + ")", e);
-			return false;
-		}
-		return true;
-	}
+    /**
+     * サーバーにメッセージを送信
+     * @param msg 送信するメッセージ
+     * @return true if successful
+     */
+    public boolean send(String msg) {
+        try {
+            socket.getOutputStream().write(NetUtil.stringToBytes(msg));
+        } catch (Exception e) {
+            log.error("Failed to send message (" + msg + ")", e);
+            return false;
+        }
+        return true;
+    }
 
-	/**
-	 * @return 正 always 接続されているとtrue
-	 */
-	public boolean isConnected() {
-		return (socket == null) ? false : (socket.isConnected() && connectedFlag);
-	}
+    /**
+     * @return 正 always 接続されているとtrue
+     */
+    public boolean isConnected() {
+        return (socket == null) ? false : (socket.isConnected() && connectedFlag);
+    }
 
-	/**
-	 * @return 接続先ホスト
-	 */
-	public String getHost() {
-		return host;
-	}
+    /**
+     * @return 接続先ホスト
+     */
+    public String getHost() {
+        return host;
+    }
 
-	/**
-	 * @return 接続先ポート number
-	 */
-	public int getPort() {
-		return port;
-	}
+    /**
+     * @return 接続先ポート number
+     */
+    public int getPort() {
+        return port;
+    }
 
-	/**
-	 * @return Server's IP address
-	 */
-	public String getIP() {
-		return ip;
-	}
+    /**
+     * @return Server's IP address
+     */
+    public String getIP() {
+        return ip;
+    }
 
-	/**
-	 * 新しいNetMessageListenerを追加
-	 * @param l 追加するNetMessageListener
-	 */
-	public void addListener(NetMessageListener l) {
-		if(!listeners.contains(l)) listeners.add(l);
-	}
+    /**
+     * 新しいNetMessageListenerを追加
+     * @param l 追加するNetMessageListener
+     */
+    public void addListener(NetMessageListener l) {
+        if(!listeners.contains(l)) listeners.add(l);
+    }
 
-	/**
-	 * 指定したNetMessageListenerを削除
-	 * @param l 削除するNetMessageListener
-	 * @return 実際に削除されたらtrue, もともと追加されてなかったらfalse
-	 */
-	public boolean removeListener(NetMessageListener l) {
-		return listeners.remove(l);
-	}
+    /**
+     * 指定したNetMessageListenerを削除
+     * @param l 削除するNetMessageListener
+     * @return 実際に削除されたらtrue, もともと追加されてなかったらfalse
+     */
+    public boolean removeListener(NetMessageListener l) {
+        return listeners.remove(l);
+    }
 
-	/**
-	 * Start Ping timer task
-	 */
-	public void startPingTask() {
-		startPingTask(PING_INTERVAL);
-	}
+    /**
+     * Start Ping timer task
+     */
+    public void startPingTask() {
+        startPingTask(PING_INTERVAL);
+    }
 
-	/**
-	 * Start Ping timer task
-	 * @param interval Interval
-	 */
-	public void startPingTask(long interval) {
-		log.debug("Ping interval:" + interval);
-		if(timerPing != null) timerPing.cancel();
-		if(interval <= 0) return;
-		pingCount = 0;
-		taskPing = new PingTask();
-		timerPing = new Timer(true);
-		timerPing.schedule(taskPing, interval, interval);
-	}
+    /**
+     * Start Ping timer task
+     * @param interval Interval
+     */
+    public void startPingTask(long interval) {
+        log.debug("Ping interval:" + interval);
+        if(timerPing != null) timerPing.cancel();
+        if(interval <= 0) return;
+        pingCount = 0;
+        taskPing = new PingTask();
+        timerPing = new Timer(true);
+        timerPing.schedule(taskPing, interval, interval);
+    }
 
-	/**
-	 * Stop the Ping timer task
-	 */
-	public void stopPingTask() {
-		if(timerPing != null) timerPing.cancel();
-	}
+    /**
+     * Stop the Ping timer task
+     */
+    public void stopPingTask() {
+        if(timerPing != null) timerPing.cancel();
+    }
 
-	/**
-	 * Ping task
-	 */
-	protected class PingTask extends TimerTask {
-		@Override
-		public void run() {
-			if(isConnected()) {
-				if(pingCount >= PING_AUTO_DISCONNECT_COUNT) {
-					log.error("Ping timeout");
-					threadRunning = false;
-					connectedFlag = false;
-					timerPing.cancel();
-				} else {
-					send("ping\n");
-					pingCount++;
+    /**
+     * Ping task
+     */
+    protected class PingTask extends TimerTask {
+        @Override
+        public void run() {
+            if(isConnected()) {
+                if(pingCount >= PING_AUTO_DISCONNECT_COUNT) {
+                    log.error("Ping timeout");
+                    threadRunning = false;
+                    connectedFlag = false;
+                    timerPing.cancel();
+                } else {
+                    send("ping\n");
+                    pingCount++;
 
-					if(pingCount >= (PING_AUTO_DISCONNECT_COUNT / 2)) {
-						log.debug("Ping " + pingCount + "/" + PING_AUTO_DISCONNECT_COUNT);
-					}
-				}
-			} else {
-				log.info("Ping Timer Cancelled");
-				timerPing.cancel();
-			}
-		}
-	}
+                    if(pingCount >= (PING_AUTO_DISCONNECT_COUNT / 2)) {
+                        log.debug("Ping " + pingCount + "/" + PING_AUTO_DISCONNECT_COUNT);
+                    }
+                }
+            } else {
+                log.info("Ping Timer Cancelled");
+                timerPing.cancel();
+            }
+        }
+    }
 }

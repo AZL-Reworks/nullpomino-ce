@@ -74,2056 +74,2056 @@ import biz.source_code.base64Coder.Base64Coder;
  * The code is based on <a href="http://rox-xmlrpc.sourceforge.net/niotut/">James Greenfield's The Rox Java NIO Tutorial</a>
  */
 public class NetServer {
-	/** Log */
-	static Logger log = Logger.getLogger(NetServer.class);
+    /** Log */
+    static Logger log = Logger.getLogger(NetServer.class);
 
-	/** Default port number */
-	public static final int DEFAULT_PORT = 9200;
+    /** Default port number */
+    public static final int DEFAULT_PORT = 9200;
 
-	/** Read buffer size */
-	public static final int BUF_SIZE = 8192;
+    /** Read buffer size */
+    public static final int BUF_SIZE = 8192;
 
-	/** Rule data send buffer size */
-	public static final int RULE_BUF_SIZE = 512;
+    /** Rule data send buffer size */
+    public static final int RULE_BUF_SIZE = 512;
 
-	/** Default value of ratingNormalMaxDiff */
-	public static final double NORMAL_MAX_DIFF = 16;
+    /** Default value of ratingNormalMaxDiff */
+    public static final double NORMAL_MAX_DIFF = 16;
 
-	/** Default value of ratingProvisionalGames */
-	public static final int PROVISIONAL_GAMES = 50;
+    /** Default value of ratingProvisionalGames */
+    public static final int PROVISIONAL_GAMES = 50;
 
-	/** Default value of maxMPRanking */
-	public static final int DEFAULT_MAX_MPRANKING = 100;
+    /** Default value of maxMPRanking */
+    public static final int DEFAULT_MAX_MPRANKING = 100;
 
-	/** Default value of maxSPRanking */
-	public static final int DEFAULT_MAX_SPRANKING = 100;
+    /** Default value of maxSPRanking */
+    public static final int DEFAULT_MAX_SPRANKING = 100;
 
-	/** Default minimum gamerate */
-	public static final float DEFAULT_MIN_GAMERATE = 80f;
+    /** Default minimum gamerate */
+    public static final float DEFAULT_MIN_GAMERATE = 80f;
 
-	/** Default time of timeout */
-	public static final long DEFAULT_TIMEOUT_TIME = 1000 * 60 * 1;
+    /** Default time of timeout */
+    public static final long DEFAULT_TIMEOUT_TIME = 1000 * 60 * 1;
 
-	/** Default number of lobby chat histories */
-	public static final int DEFAULT_MAX_LOBBYCHAT_HISTORY = 10;
+    /** Default number of lobby chat histories */
+    public static final int DEFAULT_MAX_LOBBYCHAT_HISTORY = 10;
 
-	/** Default number of room chat histories */
-	public static final int DEFAULT_MAX_ROOMCHAT_HISTORY = 10;
+    /** Default number of room chat histories */
+    public static final int DEFAULT_MAX_ROOMCHAT_HISTORY = 10;
 
-	/** Server config file */
-	private static CustomProperties propServer;
+    /** Server config file */
+    private static CustomProperties propServer;
 
-	/** Server Rated presets file */
-	private static CustomProperties propPresets;
+    /** Server Rated presets file */
+    private static CustomProperties propPresets;
 
-	/** Properties of player data list (mainly for rating) */
-	private static CustomProperties propPlayerData;
+    /** Properties of player data list (mainly for rating) */
+    private static CustomProperties propPlayerData;
 
-	/** Properties of multiplayer leaderboard */
-	private static CustomProperties propMPRanking;
+    /** Properties of multiplayer leaderboard */
+    private static CustomProperties propMPRanking;
 
-	/** Properties of single player all-time leaderboard */
-	private static CustomProperties propSPRankingAlltime;
+    /** Properties of single player all-time leaderboard */
+    private static CustomProperties propSPRankingAlltime;
 
-	/** Properties of single player daily leaderboard */
-	private static CustomProperties propSPRankingDaily;
+    /** Properties of single player daily leaderboard */
+    private static CustomProperties propSPRankingDaily;
 
-	/** Properties of single player personal best */
-	private static CustomProperties propSPPersonalBest;
+    /** Properties of single player personal best */
+    private static CustomProperties propSPPersonalBest;
 
-	/** True to allow hostname display (If false, it will display IP only) */
-	private static boolean allowDNSAccess;
+    /** True to allow hostname display (If false, it will display IP only) */
+    private static boolean allowDNSAccess;
 
-	/** Timeout time (0=Disable) */
-	private static long timeoutTime;
+    /** Timeout time (0=Disable) */
+    private static long timeoutTime;
 
-	/** Client's ping interval */
-	private static long clientPingInterval;
+    /** Client's ping interval */
+    private static long clientPingInterval;
 
-	/** Default rating */
-	private static int ratingDefault;
+    /** Default rating */
+    private static int ratingDefault;
 
-	/** The maximum possible adjustment per game. (K-value) */
-	private static double ratingNormalMaxDiff;
+    /** The maximum possible adjustment per game. (K-value) */
+    private static double ratingNormalMaxDiff;
 
-	/** After playing this number of games, the rating logic will take account of number of games played. */
-	private static int ratingProvisionalGames;
+    /** After playing this number of games, the rating logic will take account of number of games played. */
+    private static int ratingProvisionalGames;
 
-	/** Min/Max range of rating */
-	private static int ratingMin, ratingMax;
+    /** Min/Max range of rating */
+    private static int ratingMin, ratingMax;
 
-	/** Allow same IP player for rating change */
-	private static boolean ratingAllowSameIP;
+    /** Allow same IP player for rating change */
+    private static boolean ratingAllowSameIP;
 
-	/** Max entry of multiplayer leaderboard */
-	private static int maxMPRanking;
+    /** Max entry of multiplayer leaderboard */
+    private static int maxMPRanking;
 
-	/** Max entry of singleplayer leaderboard */
-	private static int maxSPRanking;
+    /** Max entry of singleplayer leaderboard */
+    private static int maxSPRanking;
 
-	/** TimeZone of daily single player leaderboard */
-	private static String spDailyTimeZone;
+    /** TimeZone of daily single player leaderboard */
+    private static String spDailyTimeZone;
 
-	/** Minimum game rate of single player leaderboard */
-	private static float spMinGameRate;
+    /** Minimum game rate of single player leaderboard */
+    private static float spMinGameRate;
 
-	/** Max entry of lobby chat history */
-	private static int maxLobbyChatHistory;
+    /** Max entry of lobby chat history */
+    private static int maxLobbyChatHistory;
 
-	/** Max entry of room chat history */
-	private static int maxRoomChatHistory;
+    /** Max entry of room chat history */
+    private static int maxRoomChatHistory;
 
-	/** Rated room info presets (compressed NetRoomInfo Strings) */
-	private static LinkedList<String> ratedInfoList;
+    /** Rated room info presets (compressed NetRoomInfo Strings) */
+    private static LinkedList<String> ratedInfoList;
 
-	/** Rule list for rated game. */
-	private static LinkedList<RuleOptions>[] ruleList;
+    /** Rule list for rated game. */
+    private static LinkedList<RuleOptions>[] ruleList;
 
-	/** Setting ID list for rated game. */
-	private static LinkedList<Integer>[] ruleSettingIDList;
+    /** Setting ID list for rated game. */
+    private static LinkedList<Integer>[] ruleSettingIDList;
 
-	/** Multiplayer leaderboard list. */
-	private static LinkedList<NetPlayerInfo>[] mpRankingList;
+    /** Multiplayer leaderboard list. */
+    private static LinkedList<NetPlayerInfo>[] mpRankingList;
 
-	/** Single player mode list. */
-	private static LinkedList<String>[] spModeList;
+    /** Single player mode list. */
+    private static LinkedList<String>[] spModeList;
 
-	/** Single player all-time leaderboard list */
-	private static LinkedList<NetSPRanking> spRankingListAlltime;
+    /** Single player all-time leaderboard list */
+    private static LinkedList<NetSPRanking> spRankingListAlltime;
 
-	/** Single player daily leaderboard list */
-	private static LinkedList<NetSPRanking> spRankingListDaily;
+    /** Single player daily leaderboard list */
+    private static LinkedList<NetSPRanking> spRankingListDaily;
 
-	/** Last-update time of single player daily leaderboard */
-	private static Calendar spDailyLastUpdate;
+    /** Last-update time of single player daily leaderboard */
+    private static Calendar spDailyLastUpdate;
 
-	/** Ban list */
-	private static LinkedList<NetServerBan> banList;
+    /** Ban list */
+    private static LinkedList<NetServerBan> banList;
 
-	/** Lobby chat message history */
-	private static LinkedList<NetChatMessage> lobbyChatList = new LinkedList<NetChatMessage>();
+    /** Lobby chat message history */
+    private static LinkedList<NetChatMessage> lobbyChatList = new LinkedList<NetChatMessage>();
 
-	/** List of SocketChannel */
-	private LinkedList<SocketChannel> channelList = new LinkedList<SocketChannel>();
+    /** List of SocketChannel */
+    private LinkedList<SocketChannel> channelList = new LinkedList<SocketChannel>();
 
-	/** Last communication time */
-	private Map<SocketChannel, Long> lastCommTimeMap = new HashMap<SocketChannel, Long>();
+    /** Last communication time */
+    private Map<SocketChannel, Long> lastCommTimeMap = new HashMap<SocketChannel, Long>();
 
-	/** Incomplete packet buffer */
-	private Map<SocketChannel, StringBuilder> notCompletePacketMap = new HashMap<SocketChannel, StringBuilder>();
+    /** Incomplete packet buffer */
+    private Map<SocketChannel, StringBuilder> notCompletePacketMap = new HashMap<SocketChannel, StringBuilder>();
 
-	/** Player info */
-	private Map<SocketChannel, NetPlayerInfo> playerInfoMap = new HashMap<SocketChannel, NetPlayerInfo>();
+    /** Player info */
+    private Map<SocketChannel, NetPlayerInfo> playerInfoMap = new HashMap<SocketChannel, NetPlayerInfo>();
 
 
-	/** Room info list */
-	private LinkedList<NetRoomInfo> roomInfoList = new LinkedList<NetRoomInfo>();
+    /** Room info list */
+    private LinkedList<NetRoomInfo> roomInfoList = new LinkedList<NetRoomInfo>();
 
-	/** Observer list */
-	private LinkedList<SocketChannel> observerList = new LinkedList<SocketChannel>();
-
-	/** Admin list */
-	private LinkedList<SocketChannel> adminList = new LinkedList<SocketChannel>();
-
-	/** Number of players connected so far (Used for assigning player ID) */
-	private int playerCount = 0;
-
-	/** Number of rooms created so far (Used for room ID) */
-	private int roomCount = 0;
-
-	/** RNG for map selection */
-	private Random rand = new Random();
-
-	/** true if shutdown is requested by the admin */
-	private boolean shutdownRequested = false;
-
-	/** The port to listen on */
-	private int port;
-
-	/** The channel on which we'll accept connections */
-	private ServerSocketChannel serverChannel;
-
-	/** The selector we'll be monitoring */
-	private Selector selector;
-
-	/** The buffer into which we'll read data when it's available */
-	private ByteBuffer readBuffer;
-
-	/** A list of ChangeRequest instances */
-	private LinkedList<ChangeRequest> pendingChanges = new LinkedList<ChangeRequest>();
-
-	/** Maps a SocketChannel to a list of ByteBuffer instances */
-	private HashMap<SocketChannel, List<ByteBuffer>> pendingData = new HashMap<SocketChannel, List<ByteBuffer>>();
-
-	/**
-	 * Load rated-game room presets from the server config
-	 */
-	private static void loadPresetList() {
-		propPresets = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/etc/netserver_presets.cfg");
-			propPresets.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.warn("Failed to load config file", e);
-		}
-
-		ratedInfoList = new LinkedList<String>();
-
-		String strInfo = ""; int i = 0;
-		while (strInfo != null){	//Iterate over the available presets in the server config
-			strInfo = propPresets.getProperty("0.preset." + (i++));
-			if(strInfo != null){
-				ratedInfoList.add(strInfo);
-			}
-		}
-		log.info("Loaded " + ratedInfoList.size() + " presets.");
-	}
-
-	/**
-	 * Load rated-game rule list
-	 */
-	private static void loadRuleList() {
-		log.info("Loading Rule List...");
-
-		ruleList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		ruleSettingIDList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			ruleList[i] = new LinkedList<RuleOptions>();
-			ruleSettingIDList[i] = new LinkedList<Integer>();
-		}
-
-		try {
-			BufferedReader txtRuleList = new BufferedReader(new FileReader("config/etc/netserver_rulelist.lst"));
-			int style = 0;
-
-			String str = null;
-			while((str = txtRuleList.readLine()) != null) {
-				if((str.length() < 1) || str.startsWith("#")) {
-					// Empty or a comment line. Do nothing.
-				} else if(str.startsWith(":")) {
-					// Game style
-					String strStyle = str.substring(1);
-
-					style = -1;
-					for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-						if(strStyle.equalsIgnoreCase(GameEngine.GAMESTYLE_NAMES[i])) {
-							style = i;
-							break;
-						}
-					}
-
-					if(style == -1) {
-						log.warn("{StyleChange} Unknown Style:" + str);
-						style = 0;
-					} else {
-						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + strStyle);
-					}
-				} else {
-					// Rule file
-					try {
-						int settingID = 0;
-						String[] strTempArray = str.split(";");
-						if(strTempArray.length > 1) {
-							settingID = Integer.parseInt(strTempArray[1]);
-						}
-
-						log.debug("{RuleLoad} StyleID:" + style + " RuleFile:" + strTempArray[0] + " SettingID:" + settingID);
-
-						FileInputStream in = new FileInputStream(strTempArray[0]);
-						CustomProperties prop = new CustomProperties();
-						prop.load(in);
-						in.close();
-
-						RuleOptions rule = new RuleOptions();
-						rule.readProperty(prop, 0);
-
-						ruleList[style].add(rule);
-						ruleSettingIDList[style].add(Integer.valueOf(settingID));
-					} catch (Exception e2) {
-						log.warn("Failed to load rule file", e2);
-					}
-				}
-			}
-
-			txtRuleList.close();
-		} catch (Exception e) {
-			log.warn("Failed to load rule list", e);
-		}
-	}
-
-	/**
-	 * Load multiplayer leaderboard
-	 */
-	private static void loadMPRankingList() {
-		log.info("Loading Multiplayer Ranking...");
-
-		mpRankingList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			mpRankingList[i] = new LinkedList<NetPlayerInfo>();
-		}
-
-		for(int style = 0; style < GameEngine.MAX_GAMESTYLE; style++) {
-			int count = propMPRanking.getProperty(style + ".mpranking.count", 0);
-			if(count > maxMPRanking) count = maxMPRanking;
-
-			for(int i = 0; i < count; i++) {
-				NetPlayerInfo p = new NetPlayerInfo();
-				p.strName = propMPRanking.getProperty(style + ".mpranking.strName." + i, "");
-				p.rating[style] = propMPRanking.getProperty(style + ".mpranking.rating." + i, ratingDefault);
-				p.playCount[style] = propMPRanking.getProperty(style + ".mpranking.playCount." + i, 0);
-				p.winCount[style] = propMPRanking.getProperty(style + ".mpranking.winCount." + i, 0);
-				mpRankingList[style].add(p);
-			}
-		}
-	}
-
-	/**
-	 * Find a player in multiplayer leaderboard.
-	 * @param style Game Style
-	 * @param p NetPlayerInfo (can be null, returns -1 if so)
-	 * @return Index in mpRankingList[style] (-1 if not found)
-	 */
-	private static int mpRankingIndexOf(int style, NetPlayerInfo p) {
-		if(p == null) return -1;
-		return mpRankingIndexOf(style, p.strName);
-	}
-
-	/**
-	 * Find a player in multiplayer leaderboard.
-	 * @param style Game Style
-	 * @param name Player name in String (can be null, returns -1 if so)
-	 * @return Index in mpRankingList[style] (-1 if not found)
-	 */
-	private static int mpRankingIndexOf(int style, String name) {
-		if(name == null) return -1;
-		for(int i = 0; i < mpRankingList[style].size(); i++) {
-			NetPlayerInfo p2 = (NetPlayerInfo)mpRankingList[style].get(i);
-			if(name.equals(p2.strName)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * Update multiplayer leaderboard.
-	 * @param style Game Style
-	 * @param p NetPlayerInfo
-	 * @return New place (-1 if not ranked)
-	 */
-	private static int mpRankingUpdate(int style, NetPlayerInfo p) {
-		// Remove existing record
-		int prevRecord = mpRankingIndexOf(style, p);
-		if(prevRecord != -1) mpRankingList[style].remove(prevRecord);
-
-		// Insert new record
-		int place = -1;
-		boolean rankin = false;
-		for(int i = 0; i < mpRankingList[style].size(); i++) {
-			NetPlayerInfo p2 = (NetPlayerInfo)mpRankingList[style].get(i);
-			if(p.rating[style] > p2.rating[style]) {
-				mpRankingList[style].add(i, p);
-				place = i;
-				rankin = true;
-				break;
-			}
-		}
-
-		// Couldn't rank in? Add to last.
-		if(!rankin) {
-			mpRankingList[style].addLast(p);
-			place = mpRankingList[style].size() - 1;
-		}
-
-		// Remove anything after maxMPRanking
-		while(mpRankingList[style].size() >= maxMPRanking) mpRankingList[style].removeLast();
-
-		// Done
-		return (place >= maxMPRanking) ? -1 : place;
-	}
-
-	/**
-	 * Write player data properties (propPlayerData) to a file
-	 */
-	private static void writeMPRankingToFile() {
-		for(int style = 0; style < GameEngine.MAX_GAMESTYLE; style++) {
-			int count = mpRankingList[style].size();
-			if(count > maxMPRanking) count = maxMPRanking;
-			propMPRanking.setProperty(style + ".mpranking.count", count);
-
-			for(int i = 0; i < count; i++) {
-				NetPlayerInfo p = (NetPlayerInfo)mpRankingList[style].get(i);
-				propMPRanking.setProperty(style + ".mpranking.strName." + i, p.strName);
-				propMPRanking.setProperty(style + ".mpranking.rating." + i, p.rating[style]);
-				propMPRanking.setProperty(style + ".mpranking.playCount." + i, p.playCount[style]);
-				propMPRanking.setProperty(style + ".mpranking.winCount." + i, p.winCount[style]);
-			}
-		}
-
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/netserver_mpranking.cfg");
-			propMPRanking.store(out, "NullpoMino NetServer Multiplayer Leaderboard");
-			out.close();
-		} catch (IOException e) {
-			log.error("Failed to write multiplayer ranking data", e);
-		}
-	}
-
-	/**
-	 * Load single player leaderboard
-	 */
-	private static void loadSPRankingList() {
-		log.info("Loading Single Player Ranking...");
-
-		spRankingListAlltime = new LinkedList<NetSPRanking>();
-		spRankingListDaily = new LinkedList<NetSPRanking>();
-
-		// Load mode list
-		spModeList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			spModeList[i] = new LinkedList<String>();
-		}
-
-		// Daily last-update
-		TimeZone z = (spDailyTimeZone.length() > 0) ? TimeZone.getTimeZone(spDailyTimeZone) : TimeZone.getDefault();
-		spDailyLastUpdate = GeneralUtil.importCalendarString(propSPRankingDaily.getProperty("daily.lastupdate", ""));
-		if(spDailyLastUpdate != null) spDailyLastUpdate.setTimeZone(z);
-
-		try {
-			BufferedReader in = new BufferedReader(new FileReader("config/list/netlobby_singlemode.lst"));
-
-			String str = null;
-			int style = 0;
-
-			while((str = in.readLine()) != null) {
-				if((str.length() <= 0) || str.startsWith("#")) {
-					// Empty line or comment line. Ignore it.
-				} else if(str.startsWith(":")) {
-					// Game style tag
-					String strStyle = str.substring(1);
-
-					style = -1;
-					for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-						if(strStyle.equalsIgnoreCase(GameEngine.GAMESTYLE_NAMES[i])) {
-							style = i;
-							break;
-						}
-					}
-
-					if(style == -1) {
-						log.warn("{StyleChange} Unknown Style:" + str);
-						style = 0;
-					} else {
-						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + strStyle);
-					}
-				} else {
-					// Game mode name
-					String[] strSplit = str.split(",");
-					String strModeName = strSplit[0];
-					int rankingType = 0;
-					int maxGameType = 0;
-					if(strSplit.length > 1) rankingType = Integer.parseInt(strSplit[1]);
-					if(strSplit.length > 2) maxGameType = Integer.parseInt(strSplit[2]);
-
-					log.debug("{Mode} Name:" + strModeName + " RankingType:" + rankingType + " MaxGameType:" + maxGameType);
-
-					spModeList[style].add(strModeName);
-
-					for(int i = 0; i < ruleList[style].size()+1; i++) {
-						String ruleName;
-						if (i < ruleList[style].size()) {
-							RuleOptions ruleOpt = (RuleOptions)ruleList[style].get(i);
-							ruleName = ruleOpt.strRuleName;
-						} else {
-							ruleName = "any";
-						}
-
-						for(int j = 0; j < maxGameType+1; j++) {
-							for(int k = 0; k < 2; k++) {
-								NetSPRanking rankingData = new NetSPRanking();
-								rankingData.strModeName = strModeName;
-								rankingData.strRuleName = ruleName;
-								rankingData.gameType = j;
-								rankingData.rankingType = rankingType;
-								rankingData.style = style;
-								rankingData.maxRecords = maxSPRanking;
-
-								if(k == 0) {
-									rankingData.readProperty(propSPRankingAlltime);
-									spRankingListAlltime.add(rankingData);
-									log.debug(rankingData.strRuleName + "," + rankingData.strModeName + "," + rankingData.gameType);
-								} else {
-									rankingData.readProperty(propSPRankingDaily);
-									spRankingListDaily.add(rankingData);
-								}
-							}
-						}
-					}
-				}
-			}
-
-			in.close();
-		} catch (Exception e) {
-			log.warn("Failed to load single player mode list", e);
-		}
-	}
-
-	/**
-	 * Get specific all-time NetSPRanking
-	 * @param rule Rule Name
-	 * @param mode Mode Name
-	 * @param gtype Game Type
-	 * @return NetSPRanking (null if not found)
-	 */
-	private static NetSPRanking getSPRanking(String rule, String mode, int gtype) {
-		return getSPRanking(rule, mode, gtype, false);
-	}
-
-	/**
-	 * Get specific NetSPRanking
-	 * @param rule Rule Name ("all" to get a merged table)
-	 * @param mode Mode Name
-	 * @param gtype Game Type
-	 * @param isDaily <code>true</code> to get daily ranking, <code>false</code> to get all-time ranking
-	 * @return NetSPRanking (null if not found)
-	 */
-	private static NetSPRanking getSPRanking(String rule, String mode, int gtype, boolean isDaily) {
-		if (rule.equals("all")) {
-			return getSPRankingAllRules(mode,gtype,isDaily);
-		}
-		LinkedList<NetSPRanking> list = isDaily ? spRankingListDaily : spRankingListAlltime;
-		for(NetSPRanking r : list) {
-			if(r.strRuleName.equals(rule) && r.strModeName.equals(mode) && r.gameType == gtype) {
-				return r;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Get NetSPRanking for all rule types
-	 * @param mode Mode Name
-	 * @param gtype Game Type
-	 * @param isDaily <code>true</code> to get daily ranking, <code>false</code> to get all-time ranking
-	 * @return NetSPRanking (null if not found or there are none)
-	 */
-	private static NetSPRanking getSPRankingAllRules(String mode, int gtype, boolean isDaily) {
-		LinkedList<NetSPRanking> list = isDaily ? spRankingListDaily : spRankingListAlltime;
-		LinkedList<NetSPRanking> allRanks = new LinkedList<NetSPRanking>();
-		for(NetSPRanking r : list) {
-			if(r.strModeName.equals(mode) && r.gameType == gtype) {
-				allRanks.add(r);
-			}
-		}
-		NetSPRanking merged = NetSPRanking.mergeRankings(allRanks);
-		merged.strRuleName = "all";
-		return merged;
-	}
-
-	/**
-	 * Update the last-update variable of daily ranking, and wipe the records if needed
-	 * @return <code>true</code> if the records are wiped
-	 */
-	private static boolean updateSPDailyRanking() {
-		TimeZone z = (spDailyTimeZone.length() > 0) ? TimeZone.getTimeZone(spDailyTimeZone) : TimeZone.getDefault();
-		Calendar c = Calendar.getInstance(z);
-		Calendar oldLastUpdate = spDailyLastUpdate;
-
-		spDailyLastUpdate = c;
-		propSPRankingDaily.setProperty("daily.lastupdate", GeneralUtil.exportCalendarString(spDailyLastUpdate));
-
-		if(oldLastUpdate != null) {
-			log.debug("SP daily ranking previous-update:" + GeneralUtil.getCalendarString(oldLastUpdate));
-		}
-		log.debug("SP daily ranking last-update:" + GeneralUtil.getCalendarString(c));
-
-		if((oldLastUpdate == null) || (c.get(Calendar.DATE) == oldLastUpdate.get(Calendar.DATE))) {
-			return false;
-		}
-
-		for(NetSPRanking r: spRankingListDaily) {
-			r.listRecord.clear();
-		}
-		log.info("SP daily ranking wiped");
-
-		return true;
-	}
-
-	/**
-	 * Write single player ranking to a file
-	 */
-	private static void writeSPRankingToFile() {
-		// All-time
-		for(NetSPRanking r: spRankingListAlltime) {
-			r.writeProperty(propSPRankingAlltime);
-		}
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/netserver_spranking.cfg");
-			propSPRankingAlltime.store(out, "NullpoMino NetServer Single Player All-time Leaderboard");
-			out.close();
-		} catch (IOException e) {
-			log.error("Failed to write single player all-time ranking data", e);
-		}
-
-		// Daily
-		for(NetSPRanking r: spRankingListDaily) {
-			r.writeProperty(propSPRankingDaily);
-		}
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/netserver_spranking_daily.cfg");
-			propSPRankingDaily.store(out, "NullpoMino NetServer Single Player Daily Leaderboard");
-			out.close();
-		} catch (IOException e) {
-			log.error("Failed to write single player daily ranking data", e);
-		}
-	}
-
-	/**
-	 * Get player data from propPlayerData
-	 * @param pInfo NetPlayerInfo
-	 */
-	private static void getPlayerDataFromProperty(NetPlayerInfo pInfo) {
-		if(pInfo.isTripUse) {
-			for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-				pInfo.rating[i] = propPlayerData.getProperty("p.rating." + i + "." + pInfo.strName, ratingDefault);
-				pInfo.playCount[i] = propPlayerData.getProperty("p.playCount." + i + "." + pInfo.strName, 0);
-				pInfo.winCount[i] = propPlayerData.getProperty("p.winCount." + i + "." + pInfo.strName, 0);
-			}
-			pInfo.spPersonalBest.strPlayerName = pInfo.strName;
-			pInfo.spPersonalBest.readProperty(propPlayerData);
-		} else {
-			for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-				pInfo.rating[i] = ratingDefault;
-				pInfo.playCount[i] = 0;
-				pInfo.winCount[i] = 0;
-			}
-			pInfo.spPersonalBest.strPlayerName = pInfo.strName;
-		}
-	}
-
-	/**
-	 * Set player data to propPlayerData
-	 * @param pInfo NetPlayerInfo
-	 */
-	private static void setPlayerDataToProperty(NetPlayerInfo pInfo) {
-		if(pInfo.isTripUse) {
-			for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-				propPlayerData.setProperty("p.rating." + i + "." + pInfo.strName, pInfo.rating[i]);
-				propPlayerData.setProperty("p.playCount." + i + "." + pInfo.strName, pInfo.playCount[i]);
-				propPlayerData.setProperty("p.winCount." + i + "." + pInfo.strName, pInfo.winCount[i]);
-			}
-			pInfo.spPersonalBest.strPlayerName = pInfo.strName;
-			pInfo.spPersonalBest.writeProperty(propPlayerData);
-		}
-	}
-
-	/**
-	 * Write player data properties (propPlayerData) to a file
-	 */
-	private static void writePlayerDataToFile() {
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/netserver_playerdata.cfg");
-			propPlayerData.store(out, "NullpoMino NetServer PlayerData");
-			out.close();
-		} catch (IOException e) {
-			log.error("Failed to write player data", e);
-		}
-	}
-
-	/**
-	 * Load ban list from a file
-	 */
-	private static void loadBanList() {
-		banList = new LinkedList<NetServerBan>();
-
-		try {
-			BufferedReader txtBanList = new BufferedReader(new FileReader("config/setting/netserver_banlist.cfg"));
-
-			String str;
-			while((str = txtBanList.readLine()) != null) {
-				if(str.length() > 0) {
-					NetServerBan ban = new NetServerBan();
-					ban.importString(str);
-					if(!ban.isExpired()) banList.add(ban);
-				}
-			}
-		} catch (IOException e) {
-			log.debug("Ban list file doesn't exist");
-		} catch (Exception e) {
-			log.warn("Failed to load ban list", e);
-		}
-	}
-
-	/**
-	 * Write ban list to a file
-	 */
-	private static void saveBanList() {
-		try {
-			FileWriter outFile = new FileWriter("config/setting/netserver_banlist.cfg");
-			PrintWriter out = new PrintWriter(outFile);
-
-			for(NetServerBan ban: banList) {
-				out.println(ban.exportString());
-			}
-
-			out.flush();
-			out.close();
-
-			log.info("Ban list saved");
-		} catch (Exception e) {
-			log.error("Failed to save ban list", e);
-		}
-	}
-
-	/**
-	 * Load lobby chat history file
-	 */
-	private static void loadLobbyChatHistory() {
-		if(lobbyChatList == null) lobbyChatList = new LinkedList<NetChatMessage>();
-		else lobbyChatList.clear();
-
-		try {
-			BufferedReader txtLobbyChat = new BufferedReader(new FileReader("config/setting/netserver_lobbychat.cfg"));
-
-			String str;
-			while((str = txtLobbyChat.readLine()) != null) {
-				if(str.length() > 0) {
-					NetChatMessage chat = new NetChatMessage();
-					chat.importString(str);
-					lobbyChatList.add(chat);
-				}
-			}
-		} catch (IOException e) {
-			log.debug("Lobby chat history doesn't exist");
-		} catch (Exception e) {
-			log.info("Failed to load lobby chat history", e);
-		}
-
-		while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
-	}
-
-	/**
-	 * Save lobby chat history file
-	 */
-	private static void saveLobbyChatHistory() {
-		try {
-			FileWriter outFile = new FileWriter("config/setting/netserver_lobbychat.cfg");
-			PrintWriter out = new PrintWriter(outFile);
-
-			while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
-
-			for(NetChatMessage chat: lobbyChatList) {
-				out.println(chat.exportString());
-			}
-
-			out.flush();
-			out.close();
-
-			log.debug("Lobby chat history saved");
-		} catch (Exception e) {
-			log.error("Failed to save lobby chat history file", e);
-		}
-	}
-
-	/**
-	 * Get IP address
-	 * @param client SocketChannel
-	 * @return IP address
-	 */
-	private static String getHostAddress(SocketChannel client) {
-		try {
-			return client.socket().getInetAddress().getHostAddress();
-		} catch (Exception e) {}
-		return "";
-	}
-
-	/**
-	 * Get Hostname
-	 * @param client SocketChannel
-	 * @return Hostname
-	 */
-	private static String getHostName(SocketChannel client) {
-		if(!allowDNSAccess) return getHostAddress(client);
-		try {
-			return client.socket().getInetAddress().getHostName();
-		} catch (Exception e) {}
-		return "";
-	}
-
-	/**
-	 * Get both Hostname and IP address
-	 * @param client SocketChannel
-	 * @return Hostname and IP address
-	 */
-	private static String getHostFull(SocketChannel client) {
-		if(!allowDNSAccess) return getHostAddress(client);
-		try {
-			return getHostName(client) + " (" + getHostAddress(client) + ")";
-		} catch (Exception e) {}
-		return "";
-	}
-
-	/**
-	 * Main (Entry point)
-	 * @param args optional command-line arguments (0: server port  1: netserver.cfg path)
-	 */
-	public static void main(String[] args) {
-		// Init log system (should be first!)
-		PropertyConfigurator.configure("config/etc/log_server.cfg");
-
-		// get netserver.cfg file path from 2nd command-line argument, if specified
-		String servcfg = "config/etc/netserver.cfg";  // default location
-		if (args.length >= 2) {
-			servcfg = args[1];
-		}
-
-		// Load server config file
-		propServer = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream(servcfg);
-			propServer.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.warn("Failed to load config file", e);
-		}
-
-		// Fetch port number from config file
-		int port = propServer.getProperty("netserver.port", DEFAULT_PORT);
-
-		if(args.length > 0) {
-			// If command-line option is used, change port number to the new one
-			try {
-				port = Integer.parseInt(args[0]);
-			} catch (NumberFormatException e) {}
-		}
-
-		// Run
-		new NetServer(port).run();
-	}
-
-	/**
-	 * Constructor
-	 */
-	public NetServer() {
-		init(DEFAULT_PORT);
-	}
-
-	/**
-	 * Constructor
-	 * @param port The port to listen on
-	 */
-	public NetServer(int port) {
-		init(port);
-	}
-
-	/**
-	 * Initialize
-	 * @param port The port to listen on
-	 */
-	private void init(int port) {
-		this.port = port;
-
-		// Load player data file
-		propPlayerData = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netserver_playerdata.cfg");
-			propPlayerData.load(in);
-			in.close();
-		} catch (IOException e) {}
-
-		// Load multiplayer leaderboard file
-		propMPRanking = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netserver_mpranking.cfg");
-			propMPRanking.load(in);
-			in.close();
-		} catch (IOException e) {}
-
-		// Load single player leaderboard file
-		propSPRankingAlltime = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netserver_spranking.cfg");
-			propSPRankingAlltime.load(in);
-			in.close();
-		} catch (IOException e) {}
-
-		propSPRankingDaily = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netserver_spranking_daily.cfg");
-			propSPRankingDaily.load(in);
-			in.close();
-		} catch (IOException e) {}
-
-		// Load single player personal best
-		propSPPersonalBest = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netserver_sppersonalbest.cfg");
-			propSPPersonalBest.load(in);
-			in.close();
-		} catch (IOException e) {}
-
-		// Load settings
-		allowDNSAccess = propServer.getProperty("netserver.allowDNSAccess", true);
-		timeoutTime = propServer.getProperty("netserver.timeoutTime", DEFAULT_TIMEOUT_TIME);
-		clientPingInterval = propServer.getProperty("netserver.clientPingInterval", (long)(5 * 1000));
-		ratingDefault = propServer.getProperty("netserver.ratingDefault", NetPlayerInfo.DEFAULT_MULTIPLAYER_RATING);
-		ratingNormalMaxDiff = propServer.getProperty("netserver.ratingNormalMaxDiff", NORMAL_MAX_DIFF);
-		ratingProvisionalGames = propServer.getProperty("netserver.ratingProvisionalGames", PROVISIONAL_GAMES);
-		ratingMin = propServer.getProperty("netserver.ratingMin", 0);
-		ratingMax = propServer.getProperty("netserver.ratingMax", 99999);
-		ratingAllowSameIP = propServer.getProperty("netserver.ratingAllowSameIP", true);
-		maxMPRanking = propServer.getProperty("netserver.maxMPRanking", DEFAULT_MAX_MPRANKING);
-		maxSPRanking = propServer.getProperty("netserver.maxSPRanking", DEFAULT_MAX_SPRANKING);
-		spDailyTimeZone = propServer.getProperty("netserver.spDailyTimeZone", "");
-		spMinGameRate = propServer.getProperty("netserver.spMinGameRate", DEFAULT_MIN_GAMERATE);
-		maxLobbyChatHistory = propServer.getProperty("netserver.maxLobbyChatHistory", DEFAULT_MAX_LOBBYCHAT_HISTORY);
-		maxRoomChatHistory = propServer.getProperty("netserver.maxRoomChatHistory", DEFAULT_MAX_ROOMCHAT_HISTORY);
-
-		// Load rules for rated game
-		loadRuleList();
-
-		// Load room info presets for rated multiplayer games
-		loadPresetList();
-
-		// Load multiplayer leaderboard
-		loadMPRankingList();
-		propMPRanking.clear();	// Clear all entries in order to reduce file size
-
-		// Load single player leaderboard
-		loadSPRankingList();
-		propSPRankingAlltime.clear();	// Clear all entries in order to reduce file size
-		propSPRankingDaily.clear();
-
-		// Load ban list
-		loadBanList();
-
-		// Load lobby chat history
-		loadLobbyChatHistory();
-	}
-
-	/**
-	 * Initialize the selector
-	 * @return The selector we'll be monitoring
-	 * @throws IOException When the selector can't be created (Usually when the port is already in use)
-	 */
-	private Selector initSelector() throws IOException {
-		// Create a new selector
-		Selector socketSelector = SelectorProvider.provider().openSelector();
-
-		// Create a new non-blocking server socket channel
-		this.serverChannel = ServerSocketChannel.open();
-		serverChannel.configureBlocking(false);
-
-		// Bind the server socket to the specified address and port
-		InetSocketAddress isa = new InetSocketAddress(this.port);
-		serverChannel.socket().bind(isa);
-
-		// Register the server socket channel, indicating an interest in
-		// accepting new connections
-		serverChannel.register(socketSelector, SelectionKey.OP_ACCEPT);
-
-		return socketSelector;
-	}
-
-	/**
-	 * Server mainloop
-	 */
-	public void run() {
-		// Startup
-		try {
-			this.selector = initSelector();
-		} catch (IOException e) {
-			log.fatal("Failed to startup the server", e);
-			return;
-		}
-
-		// Mainloop
-		while(!shutdownRequested) {
-			try {
-				try {
-					// Process any pending changes
-					synchronized (this.pendingChanges) {
-						Iterator<ChangeRequest> changes = this.pendingChanges.iterator();
-						while (changes.hasNext()) {
-							ChangeRequest change = (ChangeRequest) changes.next();
-							SelectionKey key = change.socket.keyFor(this.selector);
-
-							if(key.isValid()) {
-								switch (change.type) {
-								case ChangeRequest.DISCONNECT:
-									// Delayed disconnect
-									List<ByteBuffer> queue = this.pendingData.get(change.socket);
-									if((queue == null) || queue.isEmpty()) {
-										try {
-											changes.remove();
-											logout(key);
-										} catch (ConcurrentModificationException e) {
-											log.debug("ConcurrentModificationException on delayed disconnect", e);
-										}
-									}
-									break;
-								case ChangeRequest.CHANGEOPS:
-									// interestOps Change
-									key.interestOps(change.ops);
-									changes.remove();
-									break;
-								}
-							} else {
-								changes.remove();
-							}
-						}
-						//this.pendingChanges.clear();
-					}
-
-					// Wait for an event one of the registered channels
-					this.selector.select();
-
-					// Iterate over the set of keys for which events are available
-					Iterator<SelectionKey> selectedKeys = this.selector.selectedKeys().iterator();
-					while (selectedKeys.hasNext()) {
-						SelectionKey key = (SelectionKey) selectedKeys.next();
-						selectedKeys.remove();
-
-						if (!key.isValid()) {
-							continue;
-						}
-
-						try {
-							// Check what event is available and deal with it
-							if (key.isAcceptable()) {
-								doAccept(key);
-							} else if (key.isReadable()) {
-								doRead(key);
-							} else if (key.isWritable()) {
-								doWrite(key);
-							}
-						} catch (NetServerDisconnectRequestedException e) {
-							// Intended Disconnect
-							log.debug("Socket disconnected by NetServerDisconnectRequestedException");
-							logout(key);
-						} catch (IOException e) {
-							// Disconnect when something bad happens
-							log.info("Socket disconnected by IOException", e);
-							logout(key);
-						} catch (Exception e) {
-							log.warn("Socket disconnected by Non-IOException", e);
-							logout(key);
-						}
-					}
-				} catch (ConcurrentModificationException e) {
-					log.debug("ConcurrentModificationException on server mainloop", e);
-				}
-			} catch (IOException e) {
-				log.fatal("IOException on server mainloop", e);
-			} catch (Throwable e) {
-				log.fatal("Non-IOException throwed on server mainloop", e);
-			}
-		}
-
-		log.warn("Server Shutdown!");
-	}
-
-	/**
-	 * Accept a new client
-	 * @param key SelectionKey
-	 * @throws IOException When something bad happens
-	 */
-	private void doAccept(SelectionKey key) throws IOException {
-		// For an accept to be pending the channel must be a server socket channel.
-		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
-
-		// Accept the connection and make it non-blocking
-		SocketChannel socketChannel = serverSocketChannel.accept();
-		socketChannel.configureBlocking(false);
-
-		// Register the new SocketChannel with our Selector, indicating
-		// we'd like to be notified when there's data waiting to be read
-		socketChannel.register(this.selector, SelectionKey.OP_READ);
-
-		// Add to list
-		channelList.add(socketChannel);
-		lastCommTimeMap.put(socketChannel, System.currentTimeMillis());
-		adminSendClientList();
-
-		NetServerBan ban = getBan(socketChannel);
-		if(ban != null) {
-			// Banned
-			log.info("Connection is banned:" + getHostName(socketChannel));
-			Calendar endDate = ban.getEndDate();
-			String strStart = GeneralUtil.exportCalendarString(ban.startDate);
-			String strExpire = (endDate == null) ? "" : GeneralUtil.exportCalendarString(endDate);
-			send(socketChannel, "banned\t" + strStart + "\t" + strExpire + "\n");
-			synchronized (this.pendingChanges) {
-			  this.pendingChanges.add(new ChangeRequest(socketChannel, ChangeRequest.DISCONNECT, 0));
-			}
-		} else {
-			// Send welcome message
-			log.debug("Accept:" + getHostName(socketChannel));
-			send(socketChannel, "welcome\t" + GameManager.getVersionMajor() + "\t" + playerInfoMap.size() + "\t" + observerList.size() + "\t" +
-				GameManager.getVersionMinor() + "\t" + GameManager.getVersionString() + "\t" + clientPingInterval + "\n");
-		}
-	}
-
-	/**
-	 * Receive message(s) from client
-	 * @param key SelectionKey
-	 * @throws IOException When something bad happens
-	 */
-	private void doRead(SelectionKey key) throws IOException {
-		SocketChannel socketChannel = (SocketChannel) key.channel();
-
-		// Clear out our read buffer so it's ready for new data
-		if(this.readBuffer == null) {
-			this.readBuffer = ByteBuffer.allocate(BUF_SIZE);
-		} else {
-			this.readBuffer.clear();
-		}
-
-		// Attempt to read off the channel
-		int numRead;
-		try {
-			numRead = socketChannel.read(this.readBuffer);
-		} catch (IOException e) {
-			// The remote forcibly closed the connection, cancel
-			// the selection key and close the channel.
-			throw e;
-		}
-
-		if (numRead == -1) {
-			// Remote entity shut the socket down cleanly. Do the
-			// same from our end and cancel the channel.
-			throw new NetServerDisconnectRequestedException("Connection is closed (numBytesRead is -1)");
-		}
-
-		// Process the packet
-		readBuffer.flip();
-
-		byte[] bytes = new byte[readBuffer.limit()];
-		readBuffer.get(bytes);
-
-		String message = NetUtil.bytesToString(bytes);
-
-		// Previous incomplete packet buffer (null if none are present)
-		StringBuilder notCompletePacketBuffer = notCompletePacketMap.remove(socketChannel);
-
-		// The new packet buffer
-		StringBuilder packetBuffer = new StringBuilder();
-		if(notCompletePacketBuffer != null) packetBuffer.append(notCompletePacketBuffer);
-		packetBuffer.append(message);
-
-		int index;
-		while((index = packetBuffer.indexOf("\n")) != -1) {
-			String msgNow = packetBuffer.substring(0, index);
-			processPacket(socketChannel, msgNow);
-			packetBuffer = packetBuffer.replace(0, index+1, "");
-		}
-
-		// Place new incomplete packet buffer
-		if(packetBuffer.length() > 0) {
-			notCompletePacketMap.put(socketChannel, packetBuffer);
-		}
-	}
-
-	/**
-	 * Write message(s) to client
-	 * @param key SelectionKey
-	 * @throws IOException When something bad happens
-	 */
-	private void doWrite(SelectionKey key) throws IOException {
-		SocketChannel socketChannel = (SocketChannel) key.channel();
-
-		synchronized (this.pendingData) {
-			List<ByteBuffer> queue = (List<ByteBuffer>) this.pendingData.get(socketChannel);
-
-			// Write until there's not more data ...
-			while (!queue.isEmpty()) {
-				ByteBuffer buf = (ByteBuffer) queue.get(0);
-				socketChannel.write(buf);
-				if (buf.remaining() > 0) {
-					// ... or the socket's buffer fills up
-					break;
-				}
-				queue.remove(0);
-			}
-
-			if (queue.isEmpty()) {
-				// We wrote away all data, so we're no longer interested
-				// in writing on this socket. Switch back to waiting for
-				// data.
-				key.interestOps(SelectionKey.OP_READ);
-			}
-		}
-	}
-
-	/**
-	 * Logout
-	 * @param key SelectionKey
-	 */
-	private void logout(SelectionKey key) {
-		key.cancel();
-
-		SelectableChannel ch = key.channel();
-		if(ch instanceof SocketChannel) {
-			logout((SocketChannel)ch);
-		}
-	}
-
-	/**
-	 * Logout
-	 * @param channel SocketChannel
-	 */
-	private void logout(SocketChannel channel) {
-		if(channel == null) return;
-
-		String remoteAddr = getHostFull(channel);
-		log.info("Logout: " + remoteAddr);
-
-		try {
-			channel.register(selector, 0);
-		} catch (CancelledKeyException e) {
-			// CancelledKeyException. This is normal
-		} catch (Exception e) {
-			log.debug("Exception throwed on logout (channel.register)", e);
-		}
-		try {
-			channel.finishConnect();
-		} catch (Exception e) {
-			log.debug("Exception throwed on logout (channel.finishConnect)", e);
-		}
-		try {
-			channel.close();
-		} catch (Exception e) {
-			log.debug("Exception throwed on logout (channel.close)", e);
-		}
-
-		try {
-			channelList.remove(channel);
-			lastCommTimeMap.remove(channel);
-			notCompletePacketMap.remove(channel);
-
-			List<ByteBuffer> queue = (List<ByteBuffer>) this.pendingData.get(channel);
-			if(queue != null) queue.clear();
-
-			NetPlayerInfo pInfo = playerInfoMap.remove(channel);
-			if(pInfo != null) {
-				log.info(pInfo.strName + " has logged out");
-
-				playerDead(pInfo);
-				pInfo.connected = false;
-				pInfo.ready = false;
-
-				LinkedList<NetRoomInfo> deleteList = new LinkedList<NetRoomInfo>();	// Room delete check list
-
-				for(NetRoomInfo roomInfo: roomInfoList) {
-					if(roomInfo.playerList.contains(pInfo)) {
-						roomInfo.playerList.remove(pInfo);
-						roomInfo.playerQueue.remove(pInfo);
-						roomInfo.exitSeat(pInfo);
-						deleteList.add(roomInfo);
-					}
-				}
-
-				for(NetRoomInfo roomInfo: deleteList) {
-					if(!deleteRoom(roomInfo)) {
-						joinAllQueuePlayers(roomInfo);
-
-						if(!gameFinished(roomInfo)) {
-							if(!gameStartIfPossible(roomInfo)) {
-								autoStartTimerCheck(roomInfo);
-								broadcastRoomInfoUpdate(roomInfo);
-							}
-						}
-					}
-				}
-			}
-			if(observerList.remove(channel) == true) {
-				log.info("Observer logout (" + remoteAddr + ")");
-			}
-			if(adminList.remove(channel) == true) {
-				log.info("Admin logout (" + remoteAddr + ")");
-			}
-
-			if(pInfo != null) {
-				broadcastPlayerInfoUpdate(pInfo, "playerlogout");
-				pInfo.delete();
-			}
-			broadcastUserCountToAll();
-			adminSendClientList();
-
-			log.debug("Channel close success");
-		} catch (Exception e) {
-			log.warn("Exception throwed on logout", e);
-		}
-
-		if(channelList.isEmpty()) {
-			cleanup();
-		} else if(playerInfoMap.isEmpty()) {
-			roomInfoList.clear();
-		}
-	}
-
-	/**
-	 * Cleanup (after all clients are disconnected)
-	 */
-	private void cleanup() {
-		log.info("Cleanup");
-
-		channelList.clear();
-		lastCommTimeMap.clear();
-		notCompletePacketMap.clear();
-		observerList.clear();
-		adminList.clear();
-		playerInfoMap.clear();
-		roomInfoList.clear();
-		synchronized (this.pendingData) {
-		  this.pendingData.clear();
-		}
-		if(this.readBuffer != null) this.readBuffer.clear();
-
-		System.gc();
-	}
-
-	/**
-	 * Kill timeout (dead) connections
-	 * @param timeout Timeout in millsecond
-	 * @return Number of connections killed
-	 */
-	private int killTimeoutConnections(long timeout) {
-		if(timeout <= 0) return 0;
-
-		LinkedList<SocketChannel> clients = new LinkedList<SocketChannel>(channelList);
-		int killCount = 0;
-
-		for(SocketChannel client: clients) {
-			Long lasttimeL = lastCommTimeMap.get(client);
-
-			if(lasttimeL != null) {
-				long lasttime = lasttimeL.longValue();
-				long nowtime = System.currentTimeMillis();
-
-				if(nowtime - lasttime >= timeout) {
-					logout(client);
-					killCount++;
-				}
-			}
-		}
-
-		if(killCount > 0) log.info("Killed " + killCount + " dead connections");
-
-		return killCount;
-	}
-
-	/**
-	 * Send a message
-	 * @param client SocketChannel
-	 * @param bytes Message to send (byte[])
-	 */
-	public void send(SocketChannel client, byte[] bytes) {
-		synchronized (this.pendingChanges) {
-			// Indicate we want the interest ops set changed
-			this.pendingChanges.add(new ChangeRequest(client, ChangeRequest.CHANGEOPS, SelectionKey.OP_WRITE));
-
-			// And queue the data we want written
-			synchronized (this.pendingData) {
-				List<ByteBuffer> queue = (List<ByteBuffer>) this.pendingData.get(client);
-				if (queue == null) {
-					queue = new ArrayList<ByteBuffer>();
-					this.pendingData.put(client, queue);
-				}
-				queue.add(ByteBuffer.wrap(bytes));
-			}
-		}
-
-		// Finally, wake up our selecting thread so it can make the required changes
-		this.selector.wakeup();
-	}
-
-	/**
-	 * Send a message
-	 * @param client SocketChannel
-	 * @param msg Message to send (String)
-	 */
-	public void send(SocketChannel client, String msg)  {
-		send(client, NetUtil.stringToBytes(msg));
-	}
-
-	/**
-	 * Send a message
-	 * @param pInfo NetPlayerInfo
-	 * @param bytes Message to send (byte[])
-	 */
-	public void send(NetPlayerInfo pInfo, byte[] bytes) {
-		SocketChannel ch = getSocketChannelByPlayer(pInfo);
-		if(ch == null) return;
-		send(ch, bytes);
-	}
-
-	/**
-	 * Send a message
-	 * @param pInfo NetPlayerInfo
-	 * @param msg Message to send (String)
-	 */
-	public void send(NetPlayerInfo pInfo, String msg) {
-		SocketChannel ch = getSocketChannelByPlayer(pInfo);
-		if(ch == null) return;
-		send(ch, NetUtil.stringToBytes(msg));
-	}
-
-	/**
-	 * Broadcast a message to all players
-	 * @param msg Message to send (String)
-	 */
-	public void broadcast(String msg) {
-		synchronized(channelList) {
-			for(SocketChannel ch: channelList) {
-				NetPlayerInfo p = playerInfoMap.get(ch);
-
-				if(p != null) {
-					send(ch, msg);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Broadcast a message to all players in specific room
-	 * @param msg Message to send (String)
-	 * @param roomID Room ID (-1:Lobby)
-	 */
-	public void broadcast(String msg, int roomID) {
-		synchronized(channelList) {
-			for(SocketChannel ch: channelList) {
-				NetPlayerInfo p = playerInfoMap.get(ch);
-
-				if((p != null) && (roomID == p.roomID)) {
-					send(ch, msg);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Broadcast a message to all players in specific room, except for the specified player
-	 * @param msg Message to send (String)
-	 * @param roomID Room ID (-1:Lobby)
-	 * @param pInfo The player to avoid sending message
-	 */
-	public void broadcast(String msg, int roomID, NetPlayerInfo pInfo) {
-		synchronized(channelList) {
-			for(SocketChannel ch: channelList) {
-				NetPlayerInfo p = playerInfoMap.get(ch);
-
-				if((p != null) && (p.uid != pInfo.uid) && (roomID == p.roomID)) {
-					send(ch, msg);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Broadcast a message to all observers
-	 * @param msg Message to send (String)
-	 */
-	public void broadcastObserver(String msg) {
-		for(SocketChannel ch: observerList) {
-			send(ch, msg);
-		}
-	}
-
-	/**
-	 * Broadcast client count (observers and players) to everyone
-	 */
-	public void broadcastUserCountToAll() {
-		String msg = "observerupdate\t" + playerInfoMap.size() + "\t" + observerList.size() + "\n";
-		broadcast(msg);
-		broadcastObserver(msg);
-		writeServerStatusFile();
-	}
-
-	/**
-	 * Broadcast a message to all admins
-	 * @param msg Message to send (String)
-	 */
-	public void broadcastAdmin(String msg) {
-		for(SocketChannel ch: adminList) {
-			send(ch, msg);
-		}
-	}
-
-	/**
-	 * Get SocketChannel from NetPlayerInfo
-	 * @param pInfo Player
-	 * @return SocketChannel (null if not found)
-	 */
-	public SocketChannel getSocketChannelByPlayer(NetPlayerInfo pInfo) {
-		synchronized(channelList) {
-			for(SocketChannel ch: channelList) {
-				NetPlayerInfo p = playerInfoMap.get(ch);
-
-				if((p != null) && (p.uid == pInfo.uid)) {
-					return ch;
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Process a packet.
-	 * @param client The SocketChannel who sent this packet
-	 * @param fullMessage The string of packet
-	 * @throws IOException When something bad happens
-	 */
-	private void processPacket(SocketChannel client, String fullMessage) throws IOException {
-		// Check ban
-		if(checkConnectionOnBanlist(client)) {
-			throw new NetServerDisconnectRequestedException("Connection banned");
-		}
-
-		// Setup Variables
-		String[] message = fullMessage.split("\t");	// Split by \t
-		NetPlayerInfo pInfo = playerInfoMap.get(client);	// NetPlayerInfo of this client. null if not logged in.
-
-		// Update last communication time
-		lastCommTimeMap.put(client, System.currentTimeMillis());
-
-		// Get information of this server.
-		if(message[0].equals("getinfo")) {
-			int loggedInUsersCount = playerInfoMap.size();
-			int observerCount = observerList.size();
-			send(client, "getinfo\t" + GameManager.getVersionMajor() + "\t" + loggedInUsersCount + "\t" + observerCount + "\n");
-			return;
-		}
-		// Disconnect request.
-		if(message[0].equals("disconnect")) {
-			throw new NetServerDisconnectRequestedException("Disconnect requested by the client (this is normal)");
-		}
-		// Ping
-		if(message[0].equals("ping")) {
-			//ping\t[ID]
-			if(message.length > 1) {
-				int id = Integer.parseInt(message[1]);
-				send(client, "pong\t" + id + "\n");
-			} else {
-				send(client, "pong\n");
-			}
-
-			// Kill dead connections
-			killTimeoutConnections(timeoutTime);
-
-			return;
-		}
-		// Observer login
-		if(message[0].equals("observerlogin")) {
-			//observer\t[VERSION]
-
-			// Ignore it if already logged in
-			if(observerList.contains(client)) return;
-			if(adminList.contains(client)) return;
-			if(playerInfoMap.containsKey(client)) return;
-
-			// Version check
-			float serverVer = GameManager.getVersionMajor();
-			float clientVer = Float.parseFloat(message[1]);
-			if(serverVer != clientVer) {
-				send(client, "observerloginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
-				//logout(client);
-				synchronized (this.pendingChanges) {
-				  this.pendingChanges.add(new ChangeRequest(client, ChangeRequest.DISCONNECT, 0));
-				}
-				return;
-			}
-
-			// Kill dead connections
-			killTimeoutConnections(timeoutTime);
-
-			// Success
-			observerList.add(client);
-			send(client, "observerloginsuccess\n");
-			broadcastUserCountToAll();
-			adminSendClientList();
-
-			log.info("New observer has logged in (" + client.toString() + ")");
-			return;
-		}
-		// Player login
-		if(message[0].equals("login")) {
-			//login\t[VERSION]\t[NAME]\t[COUNTRY]\t[TEAM]
-
-			// Ignore it if already logged in
-			if(observerList.contains(client)) return;
-			if(adminList.contains(client)) return;
-			if(playerInfoMap.containsKey(client)) return;
-
-			// Version check
-			float serverVer = GameManager.getVersionMajor();
-			float clientVer = Float.parseFloat(message[1]);
-			if(serverVer != clientVer) {
-				send(client, "loginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
-				//logout(client);
-				synchronized (this.pendingChanges) {
-				  this.pendingChanges.add(new ChangeRequest(client, ChangeRequest.DISCONNECT, 0));
-				}
-				return;
-			}
-
-			// Kill dead connections
-			killTimeoutConnections(timeoutTime);
-
-			// Tripcode
-			String originalName = NetUtil.urlDecode(message[2]);
-			int sharpIndex = originalName.indexOf('#');
-			boolean isTripUse = false;
-
-			if(sharpIndex != -1) {
-				String strTripKey = originalName.substring(sharpIndex + 1);
-				String strTripCode = NetUtil.createTripCode(strTripKey, propServer.getProperty("netserver.tripcodemax", 10));
-
-				if(sharpIndex > 0) {
-					String strTemp = originalName.substring(0, sharpIndex);
-					originalName = strTemp.replace('!', '?') + " !" + strTripCode;
-				} else {
-					originalName = "!" + strTripCode;
-				}
-
-				isTripUse = true;
-			} else {
-				originalName = originalName.replace('!', '?');
-			}
-
-			// Decide name (change to something else if needed)
-			if(originalName.length() < 1) originalName = "noname";
-			String name = originalName;
-
-			if(isTripUse) {
-				// Kill the connection of the same name player
-				NetPlayerInfo pInfo2 = searchPlayerByName(name);
-				if((pInfo2 != null) && (pInfo2.channel != null)) {
-					logout(pInfo2.channel);
-				}
-			} else {
-				// Change to "Name(n)" if the player of the same name exists
-				int nameCount = 0;
-				while(searchPlayerByName(name) != null) {
-					name = originalName + "(" + nameCount + ")";
-					nameCount++;
-				}
-			}
-
-			// Set variables
-			pInfo = new NetPlayerInfo();
-			pInfo.strName = name;
-			if(message.length > 3) pInfo.strCountry = message[3];
-			if(message.length > 4) pInfo.strTeam = NetUtil.urlDecode(message[4]);
-			pInfo.uid = playerCount;
-			pInfo.connected = true;
-			pInfo.isTripUse = isTripUse;
-
-			pInfo.strRealHost = getHostName(client);
-			pInfo.strRealIP = getHostAddress(client);
-			pInfo.channel = client;
-
-			int showhosttype = propServer.getProperty("netserver.showhosttype", 0);
-			if(showhosttype == 1) {
-				pInfo.strHost = getHostAddress(client);
-			} else if(showhosttype == 2) {
-				pInfo.strHost = getHostName(client);
-			} else if(showhosttype == 3) {
-				pInfo.strHost = Crypt.crypt(propServer.getProperty("netserver.hostsalt", "AA"), getHostAddress(client));
-
-				int maxlen = propServer.getProperty("netserver.hostcryptmax", 8);
-				if(pInfo.strHost.length() > maxlen) {
-					pInfo.strHost = pInfo.strHost.substring(pInfo.strHost.length() - maxlen);
-				}
-			} else if(showhosttype == 4) {
-				pInfo.strHost = Crypt.crypt(propServer.getProperty("netserver.hostsalt", "AA"), getHostName(client));
-
-				int maxlen = propServer.getProperty("netserver.hostcryptmax", 8);
-				if(pInfo.strHost.length() > maxlen) {
-					pInfo.strHost = pInfo.strHost.substring(pInfo.strHost.length() - maxlen);
-				}
-			}
-
-			// Load rating
-			getPlayerDataFromProperty(pInfo);
-			//log.info("Play:" + pInfo.playCount[0] + " Win:" + pInfo.winCount[0]);
-
-			// Success
-			playerInfoMap.put(client, pInfo);
-			playerCount++;
-			send(client, "loginsuccess\t" + NetUtil.urlEncode(pInfo.strName) + "\t" + pInfo.uid + "\n");
-			log.info(pInfo.strName + " has logged in (Host:" + getHostName(client) + " Team:" + pInfo.strTeam + ")");
-
-			sendRatedRuleList(client);
-			sendPlayerList(client);
-			sendRoomList(client);
-
-			broadcastPlayerInfoUpdate(pInfo, "playernew");
-			broadcastUserCountToAll();
-			adminSendClientList();
-
-			// Send lobby chat history
-			while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
-			for(NetChatMessage chat: lobbyChatList) {
-				send(client, "lobbychath\t" + NetUtil.urlEncode(chat.strUserName) + "\t" +
-					GeneralUtil.exportCalendarString(chat.timestamp) + "\t" + NetUtil.urlEncode(chat.strMessage) + "\n");
-			}
-
-			return;
-		}
-		// Send rated presets to client
-		if(message[0].equals("getpresets")){
-			String str = "ratedpresets";
-
-			Iterator<String> iter = ratedInfoList.iterator();
-			while(iter.hasNext()){
-				str += "\t" + iter.next();
-			}
-
-			str += "\n";
-
-			send(client, str);
-
-			//log.info("Sent preset message: " + str);
-
-			return;
-		}
-		// Send rule data to server (Client->Server)
-		if(message[0].equals("ruledata")) {
-			//ruledata\t[ADLER32CHECKSUM]\t[RULEDATA]
-
-			if(pInfo != null) {
-				String strData = message[2];
-
-				// Is checksum correct?
-				Adler32 checksumObj = new Adler32();
-				checksumObj.update(NetUtil.stringToBytes(strData));
-				long sChecksum = checksumObj.getValue();
-				long cChecksum = Long.parseLong(message[1]);
-
-				// OK
-				if(sChecksum == cChecksum) {
-					String strRuleData = NetUtil.decompressString(strData);
-
-					CustomProperties prop = new CustomProperties();
-					prop.decode(strRuleData);
-					pInfo.ruleOpt = new RuleOptions();
-					pInfo.ruleOpt.readProperty(prop, 0);
-					send(client, "ruledatasuccess\n");
-				}
-				// FAIL
-				else {
-					send(client, "ruledatafail\t" + sChecksum + "\n");
-				}
-			}
-			return;
-		}
-		// Get rule data from server (Server->Client)
-		if(message[0].equals("ruleget")) {
-			//ruleget\t[UID]
-
-			if(pInfo != null) {
-				int uid = Integer.parseInt(message[1]);
-				NetPlayerInfo p = searchPlayerByUID(uid);
-
-				if(p != null) {
-					if(p.ruleOpt == null) p.ruleOpt = new RuleOptions();
-
-					CustomProperties prop = new CustomProperties();
-					p.ruleOpt.writeProperty(prop, 0);
-					String strRuleTemp = prop.encode("RuleData " + p.strName);
-					String strRuleData = NetUtil.compressString(strRuleTemp);
-
-					// Checksum
-					Adler32 checksumObj = new Adler32();
-					checksumObj.update(NetUtil.stringToBytes(strRuleData));
-					long sChecksum = checksumObj.getValue();
-
-					send(client, "rulegetsuccess\t" + uid + "\t" + sChecksum + "\t" + strRuleData + "\n");
-				} else {
-					send(client, "rulegetfail\t" + uid + "\n");
-				}
-			}
-			return;
-		}
-		// Send rated-game rule data (Server->Client)
-		if(message[0].equals("rulegetrated")) {
-			//rulegetrated\t[STYLE]\t[NAME]
-
-			if(pInfo != null) {
-				int style = Integer.parseInt(message[1]);
-				String name = message[2];
-				RuleOptions rule = getRatedRule(style, name);
-
-				if(rule != null) {
-					CustomProperties prop = new CustomProperties();
-					rule.writeProperty(prop, 0);
-					String strRuleTemp = prop.encode("Rated RuleData " + rule.strRuleName);
-					String strRuleData = NetUtil.compressString(strRuleTemp);
-
-					// Checksum
-					Adler32 checksumObj = new Adler32();
-					checksumObj.update(NetUtil.stringToBytes(strRuleData));
-					long sChecksum = checksumObj.getValue();
-
-					send(client, "rulegetratedsuccess\t" + style + "\t" + name + "\t" + sChecksum + "\t" + strRuleData + "\n");
-				} else {
-					send(client, "rulegetratedfail\t" + style + "\t" + name + "\n");
-				}
-			}
-		}
-		// Lobby chat
-		if(message[0].equals("lobbychat")) {
-			//lobbychat\t[MESSAGE]
-
-			if(pInfo != null) {
-				NetChatMessage chat = new NetChatMessage(NetUtil.urlDecode(message[1]), pInfo);
-				chat.outputLog();
-				lobbyChatList.add(chat);
-				while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
-				saveLobbyChatHistory();
-
-				broadcast("lobbychat\t" + chat.uid + "\t" + NetUtil.urlEncode(chat.strUserName) + "\t" +
-						GeneralUtil.exportCalendarString(chat.timestamp) + "\t" + NetUtil.urlEncode(chat.strMessage) + "\n");
-			}
-			return;
-		}
-		// Room chat
-		if(message[0].equals("chat")) {
-			//chat\t[MESSAGE]
-
-			if((pInfo != null) && (pInfo.roomID != -1)) {
-				NetRoomInfo roomInfo = getRoomInfo(pInfo.roomID);
-				if(roomInfo != null) {
-					NetChatMessage chat = new NetChatMessage(NetUtil.urlDecode(message[1]), pInfo, roomInfo);
-					chat.outputLog();
-					roomInfo.chatList.add(chat);
-					while(roomInfo.chatList.size() > maxRoomChatHistory) roomInfo.chatList.removeFirst();
-
-					broadcast("chat\t" + chat.uid + "\t" + NetUtil.urlEncode(chat.strUserName) + "\t" +
-						GeneralUtil.exportCalendarString(chat.timestamp) + "\t" + NetUtil.urlEncode(chat.strMessage) + "\n", pInfo.roomID);
-				}
-			}
-			return;
-		}
-		// Get multiplayer leaderboard
-		if(message[0].equals("mpranking")) {
-			//mpranking\t[STYLE]
-
-			int style = Integer.parseInt(message[1]);
-			int myRank = mpRankingIndexOf(style, pInfo);
-
-			String strPData = "";
-			int prevRating = -1;
-			int nowRank = 0;
-			for(int i = 0; i < mpRankingList[style].size(); i++) {
-				NetPlayerInfo p = (NetPlayerInfo)mpRankingList[style].get(i);
-				if((i == 0) || (p.rating[style] < prevRating)) {
-					prevRating = p.rating[style];
-					nowRank = i;
-				}
-				strPData += (nowRank) + ";" + NetUtil.urlEncode(p.strName) + ";" +
-							p.rating[style] + ";" + p.playCount[style] + ";" + p.winCount[style] + "\t";
-			}
-			if((myRank == -1) && (pInfo != null)) {
-				NetPlayerInfo p = pInfo;
-				strPData += (-1) + ";" + NetUtil.urlEncode(p.strName) + ";" +
-							p.rating[style] + ";" + p.playCount[style] + ";" + p.winCount[style] + "\t";
-			}
-			String strPDataC = NetUtil.compressString(strPData);
-
-			String strMsg = "mpranking\t" + style + "\t" + myRank + "\t" + strPDataC + "\n";
-			send(client, strMsg);
-		}
-		// Single player room
-		if(message[0].equals("singleroomcreate")) {
-			//singleroomcreate\t[roomName]\t[mode]\t[rule]
-			if((pInfo != null) && (pInfo.roomID == -1)) {
-				NetRoomInfo roomInfo = new NetRoomInfo();
-
-				roomInfo.singleplayer = true;
-				roomInfo.strMode = NetUtil.urlDecode(message[2]);
-
-				roomInfo.strName = NetUtil.urlDecode(message[1]);
-				if(roomInfo.strName.length() < 1) roomInfo.strName = "Single:" + roomInfo.strMode;
-
-				roomInfo.maxPlayers = 1;
-
-				if(message.length > 3) {
-					roomInfo.ruleName = NetUtil.urlDecode(message[3]);
-					roomInfo.ruleOpt = new RuleOptions(getRatedRule(0, roomInfo.ruleName));
-					roomInfo.ruleLock = true;
-					roomInfo.rated = true;
-				} else {
-					roomInfo.ruleName = pInfo.ruleOpt.strRuleName;
-					roomInfo.ruleOpt = new RuleOptions(pInfo.ruleOpt);
-					roomInfo.ruleLock = false;
-					roomInfo.rated = false;
-				}
-
-				roomInfo.roomID = roomCount;
-
-				roomCount++;
-				if(roomCount == -1) roomCount = 0;
-
-				roomInfoList.add(roomInfo);
-
-				pInfo.roomID = roomInfo.roomID;
-				pInfo.resetPlayState();
-				pInfo.playCountNow = 0;
-				pInfo.winCountNow = 0;
-
-				roomInfo.playerList.add(pInfo);
-				pInfo.seatID = roomInfo.joinSeat(pInfo);
-
-				// Send rule data if rated room
-				if(roomInfo.rated) {
-					CustomProperties prop = new CustomProperties();
-					roomInfo.ruleOpt.writeProperty(prop, 0);
-					String strRuleTemp = prop.encode("RuleData");
-					String strRuleData = NetUtil.compressString(strRuleTemp);
-					send(client, "rulelock\t" + strRuleData + "\n");
-				}
-
-				broadcastPlayerInfoUpdate(pInfo);
-				broadcastRoomInfoUpdate(roomInfo, "roomcreate");
-				send(client, "roomcreatesuccess\t" + roomInfo.roomID + "\t0\t-1\n");
-
-				log.info("NewSingleRoom ID:" + roomInfo.roomID + " Title:" + roomInfo.strName);
-			}
-		}
-		// Multiplayer room
-		if(message[0].equals("roomcreate")) {
-			if((pInfo != null) && (pInfo.roomID == -1)) {
-				String strRoomInfo = NetUtil.urlDecode(message[2]);
-				NetRoomInfo roomInfo = new NetRoomInfo(strRoomInfo);
-
-				roomInfo.strName = NetUtil.urlDecode(message[1]);
-				if(roomInfo.strName.length() < 1) roomInfo.strName = "No Title";
-
-				if(roomInfo.maxPlayers < 1) roomInfo.maxPlayers = 1;
-				if(roomInfo.maxPlayers > 6) roomInfo.maxPlayers = 6;
-
-				if(roomInfo.ruleLock) {
-					roomInfo.ruleName = pInfo.ruleOpt.strRuleName;
-					roomInfo.ruleOpt = new RuleOptions(pInfo.ruleOpt);
-				}
-
-				roomInfo.strMode = NetUtil.urlDecode(message[3]);
-
-				// Set map
-				if(roomInfo.useMap && (message.length > 4)) {
-					String strDecompressed = NetUtil.decompressString(message[34]);
-					String[] strMaps = strDecompressed.split("\t");
-
-					int maxMap = strMaps.length;
-
-					for(int i = 0; i < maxMap; i++) {
-						String strMap = strMaps[i];
-						roomInfo.mapList.add(strMap);
-					}
-
-					if(roomInfo.mapList.isEmpty()) {
-						log.debug("Room" + roomInfo.roomID + ": No maps");
-						roomInfo.useMap = false;
-					} else {
-						log.debug("Room" + roomInfo.roomID + ": Received " + roomInfo.mapList.size() + " maps");
-					}
-				}
-
-				roomInfo.roomID = roomCount;
-
-				roomCount++;
-				if(roomCount == -1) roomCount = 0;
-
-				roomInfoList.add(roomInfo);
-
-				pInfo.roomID = roomInfo.roomID;
-				pInfo.resetPlayState();
-				pInfo.playCountNow = 0;
-				pInfo.winCountNow = 0;
-
-				roomInfo.playerList.add(pInfo);
-				pInfo.seatID = roomInfo.joinSeat(pInfo);
-
-				// Send rule data if rule-lock is enabled
-				if(roomInfo.ruleLock) {
-					CustomProperties prop = new CustomProperties();
-					roomInfo.ruleOpt.writeProperty(prop, 0);
-					String strRuleTemp = prop.encode("RuleData");
-					String strRuleData = NetUtil.compressString(strRuleTemp);
-					send(client, "rulelock\t" + strRuleData + "\n");
-					//log.info("rulelock\t" + strRuleData);
-				}
-
-				broadcastPlayerInfoUpdate(pInfo);
-				broadcastRoomInfoUpdate(roomInfo, "roomcreate");
-				send(client, "roomcreatesuccess\t" + roomInfo.roomID + "\t" + pInfo.seatID + "\t-1\n");
-
-				log.info("NewRoom ID:" + roomInfo.roomID + " Title:" + roomInfo.strName + " RuleLock:" + roomInfo.ruleLock +
-						 " Map:" + roomInfo.useMap + " Mode:" + roomInfo.strMode);
-			}
-			return;
-		}
-		if(message[0].equals("ratedroomcreate")){
-			if((pInfo != null) && (pInfo.roomID == -1)) {
-				int i = Integer.parseInt(message[3]);
-				String strPreset = NetUtil.decompressString(ratedInfoList.get(i));
-				NetRoomInfo roomInfo = new NetRoomInfo(strPreset);
-
-				roomInfo.strName = NetUtil.urlDecode(message[1]);
-				if(roomInfo.strName.length() < 1) roomInfo.strName = "No Title";
-
-				roomInfo.maxPlayers = Integer.parseInt(message[2]);
-				if(roomInfo.maxPlayers < 1) roomInfo.maxPlayers = 1;
-				if(roomInfo.maxPlayers > 6) roomInfo.maxPlayers = 6;
-
-				roomInfo.strMode = NetUtil.urlDecode(message[4]);
-
-				roomInfo.rated = true;
-				roomInfo.ruleLock = false; //TODO: implement rule whitelists or rule locks in presets where it is relevant
-
-				roomInfo.roomID = roomCount; //TODO: fix copy-paste code
-
-				roomCount++;
-				if(roomCount == -1) roomCount = 0;
-
-				roomInfoList.add(roomInfo);
-
-				pInfo.roomID = roomInfo.roomID;
-				pInfo.resetPlayState();
-				pInfo.playCountNow = 0;
-				pInfo.winCountNow = 0;
-
-				roomInfo.playerList.add(pInfo);
-				pInfo.seatID = roomInfo.joinSeat(pInfo);
-
-				broadcastPlayerInfoUpdate(pInfo);
-				broadcastRoomInfoUpdate(roomInfo, "roomcreate");
-				send(client, "roomcreatesuccess\t" + roomInfo.roomID + "\t" + pInfo.seatID + "\t-1\n");
-
-				log.info("NewRatedRoom ID:" + roomInfo.roomID + " Title:" + roomInfo.strName + " RuleLock:" + roomInfo.ruleLock +
-						 " Map:" + roomInfo.useMap + " Mode:" + roomInfo.strMode);
-			}
-			return;
-		}
-		// Join room (If roomID is -1, the player will return to lobby)
-		if(message[0].equals("roomjoin")) {
-			//roomjoin\t[ROOMID]\t[WATCH]
-
-			if(pInfo != null) {
-				int roomID = Integer.parseInt(message[1]);
-				boolean watch = Boolean.parseBoolean(message[2]);
-				NetRoomInfo prevRoom = getRoomInfo(pInfo.roomID);
-				NetRoomInfo newRoom = getRoomInfo(roomID);
-
-				if(roomID < 0) {
-					// Return to lobby
-					if(prevRoom != null) {
-						int seatID = pInfo.seatID;
-						broadcast("playerleave\t" + pInfo.uid + "\t" + NetUtil.urlEncode(pInfo.strName) + "\t" + seatID + "\n",
-								prevRoom.roomID, pInfo);
+    /** Observer list */
+    private LinkedList<SocketChannel> observerList = new LinkedList<SocketChannel>();
+
+    /** Admin list */
+    private LinkedList<SocketChannel> adminList = new LinkedList<SocketChannel>();
+
+    /** Number of players connected so far (Used for assigning player ID) */
+    private int playerCount = 0;
+
+    /** Number of rooms created so far (Used for room ID) */
+    private int roomCount = 0;
+
+    /** RNG for map selection */
+    private Random rand = new Random();
+
+    /** true if shutdown is requested by the admin */
+    private boolean shutdownRequested = false;
+
+    /** The port to listen on */
+    private int port;
+
+    /** The channel on which we'll accept connections */
+    private ServerSocketChannel serverChannel;
+
+    /** The selector we'll be monitoring */
+    private Selector selector;
+
+    /** The buffer into which we'll read data when it's available */
+    private ByteBuffer readBuffer;
+
+    /** A list of ChangeRequest instances */
+    private LinkedList<ChangeRequest> pendingChanges = new LinkedList<ChangeRequest>();
+
+    /** Maps a SocketChannel to a list of ByteBuffer instances */
+    private HashMap<SocketChannel, List<ByteBuffer>> pendingData = new HashMap<SocketChannel, List<ByteBuffer>>();
+
+    /**
+     * Load rated-game room presets from the server config
+     */
+    private static void loadPresetList() {
+        propPresets = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/etc/netserver_presets.cfg");
+            propPresets.load(in);
+            in.close();
+        } catch (IOException e) {
+            log.warn("Failed to load config file", e);
+        }
+
+        ratedInfoList = new LinkedList<String>();
+
+        String strInfo = ""; int i = 0;
+        while (strInfo != null){    //Iterate over the available presets in the server config
+            strInfo = propPresets.getProperty("0.preset." + (i++));
+            if(strInfo != null){
+                ratedInfoList.add(strInfo);
+            }
+        }
+        log.info("Loaded " + ratedInfoList.size() + " presets.");
+    }
+
+    /**
+     * Load rated-game rule list
+     */
+    private static void loadRuleList() {
+        log.info("Loading Rule List...");
+
+        ruleList = new LinkedList[GameEngine.MAX_GAMESTYLE];
+        ruleSettingIDList = new LinkedList[GameEngine.MAX_GAMESTYLE];
+        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+            ruleList[i] = new LinkedList<RuleOptions>();
+            ruleSettingIDList[i] = new LinkedList<Integer>();
+        }
+
+        try {
+            BufferedReader txtRuleList = new BufferedReader(new FileReader("config/etc/netserver_rulelist.lst"));
+            int style = 0;
+
+            String str = null;
+            while((str = txtRuleList.readLine()) != null) {
+                if((str.length() < 1) || str.startsWith("#")) {
+                    // Empty or a comment line. Do nothing.
+                } else if(str.startsWith(":")) {
+                    // Game style
+                    String strStyle = str.substring(1);
+
+                    style = -1;
+                    for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+                        if(strStyle.equalsIgnoreCase(GameEngine.GAMESTYLE_NAMES[i])) {
+                            style = i;
+                            break;
+                        }
+                    }
+
+                    if(style == -1) {
+                        log.warn("{StyleChange} Unknown Style:" + str);
+                        style = 0;
+                    } else {
+                        log.debug("{StyleChange} StyleID:" + style + " StyleName:" + strStyle);
+                    }
+                } else {
+                    // Rule file
+                    try {
+                        int settingID = 0;
+                        String[] strTempArray = str.split(";");
+                        if(strTempArray.length > 1) {
+                            settingID = Integer.parseInt(strTempArray[1]);
+                        }
+
+                        log.debug("{RuleLoad} StyleID:" + style + " RuleFile:" + strTempArray[0] + " SettingID:" + settingID);
+
+                        FileInputStream in = new FileInputStream(strTempArray[0]);
+                        CustomProperties prop = new CustomProperties();
+                        prop.load(in);
+                        in.close();
+
+                        RuleOptions rule = new RuleOptions();
+                        rule.readProperty(prop, 0);
+
+                        ruleList[style].add(rule);
+                        ruleSettingIDList[style].add(Integer.valueOf(settingID));
+                    } catch (Exception e2) {
+                        log.warn("Failed to load rule file", e2);
+                    }
+                }
+            }
+
+            txtRuleList.close();
+        } catch (Exception e) {
+            log.warn("Failed to load rule list", e);
+        }
+    }
+
+    /**
+     * Load multiplayer leaderboard
+     */
+    private static void loadMPRankingList() {
+        log.info("Loading Multiplayer Ranking...");
+
+        mpRankingList = new LinkedList[GameEngine.MAX_GAMESTYLE];
+        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+            mpRankingList[i] = new LinkedList<NetPlayerInfo>();
+        }
+
+        for(int style = 0; style < GameEngine.MAX_GAMESTYLE; style++) {
+            int count = propMPRanking.getProperty(style + ".mpranking.count", 0);
+            if(count > maxMPRanking) count = maxMPRanking;
+
+            for(int i = 0; i < count; i++) {
+                NetPlayerInfo p = new NetPlayerInfo();
+                p.strName = propMPRanking.getProperty(style + ".mpranking.strName." + i, "");
+                p.rating[style] = propMPRanking.getProperty(style + ".mpranking.rating." + i, ratingDefault);
+                p.playCount[style] = propMPRanking.getProperty(style + ".mpranking.playCount." + i, 0);
+                p.winCount[style] = propMPRanking.getProperty(style + ".mpranking.winCount." + i, 0);
+                mpRankingList[style].add(p);
+            }
+        }
+    }
+
+    /**
+     * Find a player in multiplayer leaderboard.
+     * @param style Game Style
+     * @param p NetPlayerInfo (can be null, returns -1 if so)
+     * @return Index in mpRankingList[style] (-1 if not found)
+     */
+    private static int mpRankingIndexOf(int style, NetPlayerInfo p) {
+        if(p == null) return -1;
+        return mpRankingIndexOf(style, p.strName);
+    }
+
+    /**
+     * Find a player in multiplayer leaderboard.
+     * @param style Game Style
+     * @param name Player name in String (can be null, returns -1 if so)
+     * @return Index in mpRankingList[style] (-1 if not found)
+     */
+    private static int mpRankingIndexOf(int style, String name) {
+        if(name == null) return -1;
+        for(int i = 0; i < mpRankingList[style].size(); i++) {
+            NetPlayerInfo p2 = (NetPlayerInfo)mpRankingList[style].get(i);
+            if(name.equals(p2.strName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Update multiplayer leaderboard.
+     * @param style Game Style
+     * @param p NetPlayerInfo
+     * @return New place (-1 if not ranked)
+     */
+    private static int mpRankingUpdate(int style, NetPlayerInfo p) {
+        // Remove existing record
+        int prevRecord = mpRankingIndexOf(style, p);
+        if(prevRecord != -1) mpRankingList[style].remove(prevRecord);
+
+        // Insert new record
+        int place = -1;
+        boolean rankin = false;
+        for(int i = 0; i < mpRankingList[style].size(); i++) {
+            NetPlayerInfo p2 = (NetPlayerInfo)mpRankingList[style].get(i);
+            if(p.rating[style] > p2.rating[style]) {
+                mpRankingList[style].add(i, p);
+                place = i;
+                rankin = true;
+                break;
+            }
+        }
+
+        // Couldn't rank in? Add to last.
+        if(!rankin) {
+            mpRankingList[style].addLast(p);
+            place = mpRankingList[style].size() - 1;
+        }
+
+        // Remove anything after maxMPRanking
+        while(mpRankingList[style].size() >= maxMPRanking) mpRankingList[style].removeLast();
+
+        // Done
+        return (place >= maxMPRanking) ? -1 : place;
+    }
+
+    /**
+     * Write player data properties (propPlayerData) to a file
+     */
+    private static void writeMPRankingToFile() {
+        for(int style = 0; style < GameEngine.MAX_GAMESTYLE; style++) {
+            int count = mpRankingList[style].size();
+            if(count > maxMPRanking) count = maxMPRanking;
+            propMPRanking.setProperty(style + ".mpranking.count", count);
+
+            for(int i = 0; i < count; i++) {
+                NetPlayerInfo p = (NetPlayerInfo)mpRankingList[style].get(i);
+                propMPRanking.setProperty(style + ".mpranking.strName." + i, p.strName);
+                propMPRanking.setProperty(style + ".mpranking.rating." + i, p.rating[style]);
+                propMPRanking.setProperty(style + ".mpranking.playCount." + i, p.playCount[style]);
+                propMPRanking.setProperty(style + ".mpranking.winCount." + i, p.winCount[style]);
+            }
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream("config/setting/netserver_mpranking.cfg");
+            propMPRanking.store(out, "NullpoMino NetServer Multiplayer Leaderboard");
+            out.close();
+        } catch (IOException e) {
+            log.error("Failed to write multiplayer ranking data", e);
+        }
+    }
+
+    /**
+     * Load single player leaderboard
+     */
+    private static void loadSPRankingList() {
+        log.info("Loading Single Player Ranking...");
+
+        spRankingListAlltime = new LinkedList<NetSPRanking>();
+        spRankingListDaily = new LinkedList<NetSPRanking>();
+
+        // Load mode list
+        spModeList = new LinkedList[GameEngine.MAX_GAMESTYLE];
+        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+            spModeList[i] = new LinkedList<String>();
+        }
+
+        // Daily last-update
+        TimeZone z = (spDailyTimeZone.length() > 0) ? TimeZone.getTimeZone(spDailyTimeZone) : TimeZone.getDefault();
+        spDailyLastUpdate = GeneralUtil.importCalendarString(propSPRankingDaily.getProperty("daily.lastupdate", ""));
+        if(spDailyLastUpdate != null) spDailyLastUpdate.setTimeZone(z);
+
+        try {
+            BufferedReader in = new BufferedReader(new FileReader("config/list/netlobby_singlemode.lst"));
+
+            String str = null;
+            int style = 0;
+
+            while((str = in.readLine()) != null) {
+                if((str.length() <= 0) || str.startsWith("#")) {
+                    // Empty line or comment line. Ignore it.
+                } else if(str.startsWith(":")) {
+                    // Game style tag
+                    String strStyle = str.substring(1);
+
+                    style = -1;
+                    for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+                        if(strStyle.equalsIgnoreCase(GameEngine.GAMESTYLE_NAMES[i])) {
+                            style = i;
+                            break;
+                        }
+                    }
+
+                    if(style == -1) {
+                        log.warn("{StyleChange} Unknown Style:" + str);
+                        style = 0;
+                    } else {
+                        log.debug("{StyleChange} StyleID:" + style + " StyleName:" + strStyle);
+                    }
+                } else {
+                    // Game mode name
+                    String[] strSplit = str.split(",");
+                    String strModeName = strSplit[0];
+                    int rankingType = 0;
+                    int maxGameType = 0;
+                    if(strSplit.length > 1) rankingType = Integer.parseInt(strSplit[1]);
+                    if(strSplit.length > 2) maxGameType = Integer.parseInt(strSplit[2]);
+
+                    log.debug("{Mode} Name:" + strModeName + " RankingType:" + rankingType + " MaxGameType:" + maxGameType);
+
+                    spModeList[style].add(strModeName);
+
+                    for(int i = 0; i < ruleList[style].size()+1; i++) {
+                        String ruleName;
+                        if (i < ruleList[style].size()) {
+                            RuleOptions ruleOpt = (RuleOptions)ruleList[style].get(i);
+                            ruleName = ruleOpt.strRuleName;
+                        } else {
+                            ruleName = "any";
+                        }
+
+                        for(int j = 0; j < maxGameType+1; j++) {
+                            for(int k = 0; k < 2; k++) {
+                                NetSPRanking rankingData = new NetSPRanking();
+                                rankingData.strModeName = strModeName;
+                                rankingData.strRuleName = ruleName;
+                                rankingData.gameType = j;
+                                rankingData.rankingType = rankingType;
+                                rankingData.style = style;
+                                rankingData.maxRecords = maxSPRanking;
+
+                                if(k == 0) {
+                                    rankingData.readProperty(propSPRankingAlltime);
+                                    spRankingListAlltime.add(rankingData);
+                                    log.debug(rankingData.strRuleName + "," + rankingData.strModeName + "," + rankingData.gameType);
+                                } else {
+                                    rankingData.readProperty(propSPRankingDaily);
+                                    spRankingListDaily.add(rankingData);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            in.close();
+        } catch (Exception e) {
+            log.warn("Failed to load single player mode list", e);
+        }
+    }
+
+    /**
+     * Get specific all-time NetSPRanking
+     * @param rule Rule Name
+     * @param mode Mode Name
+     * @param gtype Game Type
+     * @return NetSPRanking (null if not found)
+     */
+    private static NetSPRanking getSPRanking(String rule, String mode, int gtype) {
+        return getSPRanking(rule, mode, gtype, false);
+    }
+
+    /**
+     * Get specific NetSPRanking
+     * @param rule Rule Name ("all" to get a merged table)
+     * @param mode Mode Name
+     * @param gtype Game Type
+     * @param isDaily <code>true</code> to get daily ranking, <code>false</code> to get all-time ranking
+     * @return NetSPRanking (null if not found)
+     */
+    private static NetSPRanking getSPRanking(String rule, String mode, int gtype, boolean isDaily) {
+        if (rule.equals("all")) {
+            return getSPRankingAllRules(mode,gtype,isDaily);
+        }
+        LinkedList<NetSPRanking> list = isDaily ? spRankingListDaily : spRankingListAlltime;
+        for(NetSPRanking r : list) {
+            if(r.strRuleName.equals(rule) && r.strModeName.equals(mode) && r.gameType == gtype) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get NetSPRanking for all rule types
+     * @param mode Mode Name
+     * @param gtype Game Type
+     * @param isDaily <code>true</code> to get daily ranking, <code>false</code> to get all-time ranking
+     * @return NetSPRanking (null if not found or there are none)
+     */
+    private static NetSPRanking getSPRankingAllRules(String mode, int gtype, boolean isDaily) {
+        LinkedList<NetSPRanking> list = isDaily ? spRankingListDaily : spRankingListAlltime;
+        LinkedList<NetSPRanking> allRanks = new LinkedList<NetSPRanking>();
+        for(NetSPRanking r : list) {
+            if(r.strModeName.equals(mode) && r.gameType == gtype) {
+                allRanks.add(r);
+            }
+        }
+        NetSPRanking merged = NetSPRanking.mergeRankings(allRanks);
+        merged.strRuleName = "all";
+        return merged;
+    }
+
+    /**
+     * Update the last-update variable of daily ranking, and wipe the records if needed
+     * @return <code>true</code> if the records are wiped
+     */
+    private static boolean updateSPDailyRanking() {
+        TimeZone z = (spDailyTimeZone.length() > 0) ? TimeZone.getTimeZone(spDailyTimeZone) : TimeZone.getDefault();
+        Calendar c = Calendar.getInstance(z);
+        Calendar oldLastUpdate = spDailyLastUpdate;
+
+        spDailyLastUpdate = c;
+        propSPRankingDaily.setProperty("daily.lastupdate", GeneralUtil.exportCalendarString(spDailyLastUpdate));
+
+        if(oldLastUpdate != null) {
+            log.debug("SP daily ranking previous-update:" + GeneralUtil.getCalendarString(oldLastUpdate));
+        }
+        log.debug("SP daily ranking last-update:" + GeneralUtil.getCalendarString(c));
+
+        if((oldLastUpdate == null) || (c.get(Calendar.DATE) == oldLastUpdate.get(Calendar.DATE))) {
+            return false;
+        }
+
+        for(NetSPRanking r: spRankingListDaily) {
+            r.listRecord.clear();
+        }
+        log.info("SP daily ranking wiped");
+
+        return true;
+    }
+
+    /**
+     * Write single player ranking to a file
+     */
+    private static void writeSPRankingToFile() {
+        // All-time
+        for(NetSPRanking r: spRankingListAlltime) {
+            r.writeProperty(propSPRankingAlltime);
+        }
+        try {
+            FileOutputStream out = new FileOutputStream("config/setting/netserver_spranking.cfg");
+            propSPRankingAlltime.store(out, "NullpoMino NetServer Single Player All-time Leaderboard");
+            out.close();
+        } catch (IOException e) {
+            log.error("Failed to write single player all-time ranking data", e);
+        }
+
+        // Daily
+        for(NetSPRanking r: spRankingListDaily) {
+            r.writeProperty(propSPRankingDaily);
+        }
+        try {
+            FileOutputStream out = new FileOutputStream("config/setting/netserver_spranking_daily.cfg");
+            propSPRankingDaily.store(out, "NullpoMino NetServer Single Player Daily Leaderboard");
+            out.close();
+        } catch (IOException e) {
+            log.error("Failed to write single player daily ranking data", e);
+        }
+    }
+
+    /**
+     * Get player data from propPlayerData
+     * @param pInfo NetPlayerInfo
+     */
+    private static void getPlayerDataFromProperty(NetPlayerInfo pInfo) {
+        if(pInfo.isTripUse) {
+            for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+                pInfo.rating[i] = propPlayerData.getProperty("p.rating." + i + "." + pInfo.strName, ratingDefault);
+                pInfo.playCount[i] = propPlayerData.getProperty("p.playCount." + i + "." + pInfo.strName, 0);
+                pInfo.winCount[i] = propPlayerData.getProperty("p.winCount." + i + "." + pInfo.strName, 0);
+            }
+            pInfo.spPersonalBest.strPlayerName = pInfo.strName;
+            pInfo.spPersonalBest.readProperty(propPlayerData);
+        } else {
+            for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+                pInfo.rating[i] = ratingDefault;
+                pInfo.playCount[i] = 0;
+                pInfo.winCount[i] = 0;
+            }
+            pInfo.spPersonalBest.strPlayerName = pInfo.strName;
+        }
+    }
+
+    /**
+     * Set player data to propPlayerData
+     * @param pInfo NetPlayerInfo
+     */
+    private static void setPlayerDataToProperty(NetPlayerInfo pInfo) {
+        if(pInfo.isTripUse) {
+            for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+                propPlayerData.setProperty("p.rating." + i + "." + pInfo.strName, pInfo.rating[i]);
+                propPlayerData.setProperty("p.playCount." + i + "." + pInfo.strName, pInfo.playCount[i]);
+                propPlayerData.setProperty("p.winCount." + i + "." + pInfo.strName, pInfo.winCount[i]);
+            }
+            pInfo.spPersonalBest.strPlayerName = pInfo.strName;
+            pInfo.spPersonalBest.writeProperty(propPlayerData);
+        }
+    }
+
+    /**
+     * Write player data properties (propPlayerData) to a file
+     */
+    private static void writePlayerDataToFile() {
+        try {
+            FileOutputStream out = new FileOutputStream("config/setting/netserver_playerdata.cfg");
+            propPlayerData.store(out, "NullpoMino NetServer PlayerData");
+            out.close();
+        } catch (IOException e) {
+            log.error("Failed to write player data", e);
+        }
+    }
+
+    /**
+     * Load ban list from a file
+     */
+    private static void loadBanList() {
+        banList = new LinkedList<NetServerBan>();
+
+        try {
+            BufferedReader txtBanList = new BufferedReader(new FileReader("config/setting/netserver_banlist.cfg"));
+
+            String str;
+            while((str = txtBanList.readLine()) != null) {
+                if(str.length() > 0) {
+                    NetServerBan ban = new NetServerBan();
+                    ban.importString(str);
+                    if(!ban.isExpired()) banList.add(ban);
+                }
+            }
+        } catch (IOException e) {
+            log.debug("Ban list file doesn't exist");
+        } catch (Exception e) {
+            log.warn("Failed to load ban list", e);
+        }
+    }
+
+    /**
+     * Write ban list to a file
+     */
+    private static void saveBanList() {
+        try {
+            FileWriter outFile = new FileWriter("config/setting/netserver_banlist.cfg");
+            PrintWriter out = new PrintWriter(outFile);
+
+            for(NetServerBan ban: banList) {
+                out.println(ban.exportString());
+            }
+
+            out.flush();
+            out.close();
+
+            log.info("Ban list saved");
+        } catch (Exception e) {
+            log.error("Failed to save ban list", e);
+        }
+    }
+
+    /**
+     * Load lobby chat history file
+     */
+    private static void loadLobbyChatHistory() {
+        if(lobbyChatList == null) lobbyChatList = new LinkedList<NetChatMessage>();
+        else lobbyChatList.clear();
+
+        try {
+            BufferedReader txtLobbyChat = new BufferedReader(new FileReader("config/setting/netserver_lobbychat.cfg"));
+
+            String str;
+            while((str = txtLobbyChat.readLine()) != null) {
+                if(str.length() > 0) {
+                    NetChatMessage chat = new NetChatMessage();
+                    chat.importString(str);
+                    lobbyChatList.add(chat);
+                }
+            }
+        } catch (IOException e) {
+            log.debug("Lobby chat history doesn't exist");
+        } catch (Exception e) {
+            log.info("Failed to load lobby chat history", e);
+        }
+
+        while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
+    }
+
+    /**
+     * Save lobby chat history file
+     */
+    private static void saveLobbyChatHistory() {
+        try {
+            FileWriter outFile = new FileWriter("config/setting/netserver_lobbychat.cfg");
+            PrintWriter out = new PrintWriter(outFile);
+
+            while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
+
+            for(NetChatMessage chat: lobbyChatList) {
+                out.println(chat.exportString());
+            }
+
+            out.flush();
+            out.close();
+
+            log.debug("Lobby chat history saved");
+        } catch (Exception e) {
+            log.error("Failed to save lobby chat history file", e);
+        }
+    }
+
+    /**
+     * Get IP address
+     * @param client SocketChannel
+     * @return IP address
+     */
+    private static String getHostAddress(SocketChannel client) {
+        try {
+            return client.socket().getInetAddress().getHostAddress();
+        } catch (Exception e) {}
+        return "";
+    }
+
+    /**
+     * Get Hostname
+     * @param client SocketChannel
+     * @return Hostname
+     */
+    private static String getHostName(SocketChannel client) {
+        if(!allowDNSAccess) return getHostAddress(client);
+        try {
+            return client.socket().getInetAddress().getHostName();
+        } catch (Exception e) {}
+        return "";
+    }
+
+    /**
+     * Get both Hostname and IP address
+     * @param client SocketChannel
+     * @return Hostname and IP address
+     */
+    private static String getHostFull(SocketChannel client) {
+        if(!allowDNSAccess) return getHostAddress(client);
+        try {
+            return getHostName(client) + " (" + getHostAddress(client) + ")";
+        } catch (Exception e) {}
+        return "";
+    }
+
+    /**
+     * Main (Entry point)
+     * @param args optional command-line arguments (0: server port  1: netserver.cfg path)
+     */
+    public static void main(String[] args) {
+        // Init log system (should be first!)
+        PropertyConfigurator.configure("config/etc/log_server.cfg");
+
+        // get netserver.cfg file path from 2nd command-line argument, if specified
+        String servcfg = "config/etc/netserver.cfg";  // default location
+        if (args.length >= 2) {
+            servcfg = args[1];
+        }
+
+        // Load server config file
+        propServer = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream(servcfg);
+            propServer.load(in);
+            in.close();
+        } catch (IOException e) {
+            log.warn("Failed to load config file", e);
+        }
+
+        // Fetch port number from config file
+        int port = propServer.getProperty("netserver.port", DEFAULT_PORT);
+
+        if(args.length > 0) {
+            // If command-line option is used, change port number to the new one
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {}
+        }
+
+        // Run
+        new NetServer(port).run();
+    }
+
+    /**
+     * Constructor
+     */
+    public NetServer() {
+        init(DEFAULT_PORT);
+    }
+
+    /**
+     * Constructor
+     * @param port The port to listen on
+     */
+    public NetServer(int port) {
+        init(port);
+    }
+
+    /**
+     * Initialize
+     * @param port The port to listen on
+     */
+    private void init(int port) {
+        this.port = port;
+
+        // Load player data file
+        propPlayerData = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/setting/netserver_playerdata.cfg");
+            propPlayerData.load(in);
+            in.close();
+        } catch (IOException e) {}
+
+        // Load multiplayer leaderboard file
+        propMPRanking = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/setting/netserver_mpranking.cfg");
+            propMPRanking.load(in);
+            in.close();
+        } catch (IOException e) {}
+
+        // Load single player leaderboard file
+        propSPRankingAlltime = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/setting/netserver_spranking.cfg");
+            propSPRankingAlltime.load(in);
+            in.close();
+        } catch (IOException e) {}
+
+        propSPRankingDaily = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/setting/netserver_spranking_daily.cfg");
+            propSPRankingDaily.load(in);
+            in.close();
+        } catch (IOException e) {}
+
+        // Load single player personal best
+        propSPPersonalBest = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/setting/netserver_sppersonalbest.cfg");
+            propSPPersonalBest.load(in);
+            in.close();
+        } catch (IOException e) {}
+
+        // Load settings
+        allowDNSAccess = propServer.getProperty("netserver.allowDNSAccess", true);
+        timeoutTime = propServer.getProperty("netserver.timeoutTime", DEFAULT_TIMEOUT_TIME);
+        clientPingInterval = propServer.getProperty("netserver.clientPingInterval", (long)(5 * 1000));
+        ratingDefault = propServer.getProperty("netserver.ratingDefault", NetPlayerInfo.DEFAULT_MULTIPLAYER_RATING);
+        ratingNormalMaxDiff = propServer.getProperty("netserver.ratingNormalMaxDiff", NORMAL_MAX_DIFF);
+        ratingProvisionalGames = propServer.getProperty("netserver.ratingProvisionalGames", PROVISIONAL_GAMES);
+        ratingMin = propServer.getProperty("netserver.ratingMin", 0);
+        ratingMax = propServer.getProperty("netserver.ratingMax", 99999);
+        ratingAllowSameIP = propServer.getProperty("netserver.ratingAllowSameIP", true);
+        maxMPRanking = propServer.getProperty("netserver.maxMPRanking", DEFAULT_MAX_MPRANKING);
+        maxSPRanking = propServer.getProperty("netserver.maxSPRanking", DEFAULT_MAX_SPRANKING);
+        spDailyTimeZone = propServer.getProperty("netserver.spDailyTimeZone", "");
+        spMinGameRate = propServer.getProperty("netserver.spMinGameRate", DEFAULT_MIN_GAMERATE);
+        maxLobbyChatHistory = propServer.getProperty("netserver.maxLobbyChatHistory", DEFAULT_MAX_LOBBYCHAT_HISTORY);
+        maxRoomChatHistory = propServer.getProperty("netserver.maxRoomChatHistory", DEFAULT_MAX_ROOMCHAT_HISTORY);
+
+        // Load rules for rated game
+        loadRuleList();
+
+        // Load room info presets for rated multiplayer games
+        loadPresetList();
+
+        // Load multiplayer leaderboard
+        loadMPRankingList();
+        propMPRanking.clear();    // Clear all entries in order to reduce file size
+
+        // Load single player leaderboard
+        loadSPRankingList();
+        propSPRankingAlltime.clear();    // Clear all entries in order to reduce file size
+        propSPRankingDaily.clear();
+
+        // Load ban list
+        loadBanList();
+
+        // Load lobby chat history
+        loadLobbyChatHistory();
+    }
+
+    /**
+     * Initialize the selector
+     * @return The selector we'll be monitoring
+     * @throws IOException When the selector can't be created (Usually when the port is already in use)
+     */
+    private Selector initSelector() throws IOException {
+        // Create a new selector
+        Selector socketSelector = SelectorProvider.provider().openSelector();
+
+        // Create a new non-blocking server socket channel
+        this.serverChannel = ServerSocketChannel.open();
+        serverChannel.configureBlocking(false);
+
+        // Bind the server socket to the specified address and port
+        InetSocketAddress isa = new InetSocketAddress(this.port);
+        serverChannel.socket().bind(isa);
+
+        // Register the server socket channel, indicating an interest in
+        // accepting new connections
+        serverChannel.register(socketSelector, SelectionKey.OP_ACCEPT);
+
+        return socketSelector;
+    }
+
+    /**
+     * Server mainloop
+     */
+    public void run() {
+        // Startup
+        try {
+            this.selector = initSelector();
+        } catch (IOException e) {
+            log.fatal("Failed to startup the server", e);
+            return;
+        }
+
+        // Mainloop
+        while(!shutdownRequested) {
+            try {
+                try {
+                    // Process any pending changes
+                    synchronized (this.pendingChanges) {
+                        Iterator<ChangeRequest> changes = this.pendingChanges.iterator();
+                        while (changes.hasNext()) {
+                            ChangeRequest change = (ChangeRequest) changes.next();
+                            SelectionKey key = change.socket.keyFor(this.selector);
+
+                            if(key.isValid()) {
+                                switch (change.type) {
+                                case ChangeRequest.DISCONNECT:
+                                    // Delayed disconnect
+                                    List<ByteBuffer> queue = this.pendingData.get(change.socket);
+                                    if((queue == null) || queue.isEmpty()) {
+                                        try {
+                                            changes.remove();
+                                            logout(key);
+                                        } catch (ConcurrentModificationException e) {
+                                            log.debug("ConcurrentModificationException on delayed disconnect", e);
+                                        }
+                                    }
+                                    break;
+                                case ChangeRequest.CHANGEOPS:
+                                    // interestOps Change
+                                    key.interestOps(change.ops);
+                                    changes.remove();
+                                    break;
+                                }
+                            } else {
+                                changes.remove();
+                            }
+                        }
+                        //this.pendingChanges.clear();
+                    }
+
+                    // Wait for an event one of the registered channels
+                    this.selector.select();
+
+                    // Iterate over the set of keys for which events are available
+                    Iterator<SelectionKey> selectedKeys = this.selector.selectedKeys().iterator();
+                    while (selectedKeys.hasNext()) {
+                        SelectionKey key = (SelectionKey) selectedKeys.next();
+                        selectedKeys.remove();
+
+                        if (!key.isValid()) {
+                            continue;
+                        }
+
+                        try {
+                            // Check what event is available and deal with it
+                            if (key.isAcceptable()) {
+                                doAccept(key);
+                            } else if (key.isReadable()) {
+                                doRead(key);
+                            } else if (key.isWritable()) {
+                                doWrite(key);
+                            }
+                        } catch (NetServerDisconnectRequestedException e) {
+                            // Intended Disconnect
+                            log.debug("Socket disconnected by NetServerDisconnectRequestedException");
+                            logout(key);
+                        } catch (IOException e) {
+                            // Disconnect when something bad happens
+                            log.info("Socket disconnected by IOException", e);
+                            logout(key);
+                        } catch (Exception e) {
+                            log.warn("Socket disconnected by Non-IOException", e);
+                            logout(key);
+                        }
+                    }
+                } catch (ConcurrentModificationException e) {
+                    log.debug("ConcurrentModificationException on server mainloop", e);
+                }
+            } catch (IOException e) {
+                log.fatal("IOException on server mainloop", e);
+            } catch (Throwable e) {
+                log.fatal("Non-IOException throwed on server mainloop", e);
+            }
+        }
+
+        log.warn("Server Shutdown!");
+    }
+
+    /**
+     * Accept a new client
+     * @param key SelectionKey
+     * @throws IOException When something bad happens
+     */
+    private void doAccept(SelectionKey key) throws IOException {
+        // For an accept to be pending the channel must be a server socket channel.
+        ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
+
+        // Accept the connection and make it non-blocking
+        SocketChannel socketChannel = serverSocketChannel.accept();
+        socketChannel.configureBlocking(false);
+
+        // Register the new SocketChannel with our Selector, indicating
+        // we'd like to be notified when there's data waiting to be read
+        socketChannel.register(this.selector, SelectionKey.OP_READ);
+
+        // Add to list
+        channelList.add(socketChannel);
+        lastCommTimeMap.put(socketChannel, System.currentTimeMillis());
+        adminSendClientList();
+
+        NetServerBan ban = getBan(socketChannel);
+        if(ban != null) {
+            // Banned
+            log.info("Connection is banned:" + getHostName(socketChannel));
+            Calendar endDate = ban.getEndDate();
+            String strStart = GeneralUtil.exportCalendarString(ban.startDate);
+            String strExpire = (endDate == null) ? "" : GeneralUtil.exportCalendarString(endDate);
+            send(socketChannel, "banned\t" + strStart + "\t" + strExpire + "\n");
+            synchronized (this.pendingChanges) {
+              this.pendingChanges.add(new ChangeRequest(socketChannel, ChangeRequest.DISCONNECT, 0));
+            }
+        } else {
+            // Send welcome message
+            log.debug("Accept:" + getHostName(socketChannel));
+            send(socketChannel, "welcome\t" + GameManager.getVersionMajor() + "\t" + playerInfoMap.size() + "\t" + observerList.size() + "\t" +
+                GameManager.getVersionMinor() + "\t" + GameManager.getVersionString() + "\t" + clientPingInterval + "\n");
+        }
+    }
+
+    /**
+     * Receive message(s) from client
+     * @param key SelectionKey
+     * @throws IOException When something bad happens
+     */
+    private void doRead(SelectionKey key) throws IOException {
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+
+        // Clear out our read buffer so it's ready for new data
+        if(this.readBuffer == null) {
+            this.readBuffer = ByteBuffer.allocate(BUF_SIZE);
+        } else {
+            this.readBuffer.clear();
+        }
+
+        // Attempt to read off the channel
+        int numRead;
+        try {
+            numRead = socketChannel.read(this.readBuffer);
+        } catch (IOException e) {
+            // The remote forcibly closed the connection, cancel
+            // the selection key and close the channel.
+            throw e;
+        }
+
+        if (numRead == -1) {
+            // Remote entity shut the socket down cleanly. Do the
+            // same from our end and cancel the channel.
+            throw new NetServerDisconnectRequestedException("Connection is closed (numBytesRead is -1)");
+        }
+
+        // Process the packet
+        readBuffer.flip();
+
+        byte[] bytes = new byte[readBuffer.limit()];
+        readBuffer.get(bytes);
+
+        String message = NetUtil.bytesToString(bytes);
+
+        // Previous incomplete packet buffer (null if none are present)
+        StringBuilder notCompletePacketBuffer = notCompletePacketMap.remove(socketChannel);
+
+        // The new packet buffer
+        StringBuilder packetBuffer = new StringBuilder();
+        if(notCompletePacketBuffer != null) packetBuffer.append(notCompletePacketBuffer);
+        packetBuffer.append(message);
+
+        int index;
+        while((index = packetBuffer.indexOf("\n")) != -1) {
+            String msgNow = packetBuffer.substring(0, index);
+            processPacket(socketChannel, msgNow);
+            packetBuffer = packetBuffer.replace(0, index+1, "");
+        }
+
+        // Place new incomplete packet buffer
+        if(packetBuffer.length() > 0) {
+            notCompletePacketMap.put(socketChannel, packetBuffer);
+        }
+    }
+
+    /**
+     * Write message(s) to client
+     * @param key SelectionKey
+     * @throws IOException When something bad happens
+     */
+    private void doWrite(SelectionKey key) throws IOException {
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+
+        synchronized (this.pendingData) {
+            List<ByteBuffer> queue = (List<ByteBuffer>) this.pendingData.get(socketChannel);
+
+            // Write until there's not more data ...
+            while (!queue.isEmpty()) {
+                ByteBuffer buf = (ByteBuffer) queue.get(0);
+                socketChannel.write(buf);
+                if (buf.remaining() > 0) {
+                    // ... or the socket's buffer fills up
+                    break;
+                }
+                queue.remove(0);
+            }
+
+            if (queue.isEmpty()) {
+                // We wrote away all data, so we're no longer interested
+                // in writing on this socket. Switch back to waiting for
+                // data.
+                key.interestOps(SelectionKey.OP_READ);
+            }
+        }
+    }
+
+    /**
+     * Logout
+     * @param key SelectionKey
+     */
+    private void logout(SelectionKey key) {
+        key.cancel();
+
+        SelectableChannel ch = key.channel();
+        if(ch instanceof SocketChannel) {
+            logout((SocketChannel)ch);
+        }
+    }
+
+    /**
+     * Logout
+     * @param channel SocketChannel
+     */
+    private void logout(SocketChannel channel) {
+        if(channel == null) return;
+
+        String remoteAddr = getHostFull(channel);
+        log.info("Logout: " + remoteAddr);
+
+        try {
+            channel.register(selector, 0);
+        } catch (CancelledKeyException e) {
+            // CancelledKeyException. This is normal
+        } catch (Exception e) {
+            log.debug("Exception throwed on logout (channel.register)", e);
+        }
+        try {
+            channel.finishConnect();
+        } catch (Exception e) {
+            log.debug("Exception throwed on logout (channel.finishConnect)", e);
+        }
+        try {
+            channel.close();
+        } catch (Exception e) {
+            log.debug("Exception throwed on logout (channel.close)", e);
+        }
+
+        try {
+            channelList.remove(channel);
+            lastCommTimeMap.remove(channel);
+            notCompletePacketMap.remove(channel);
+
+            List<ByteBuffer> queue = (List<ByteBuffer>) this.pendingData.get(channel);
+            if(queue != null) queue.clear();
+
+            NetPlayerInfo pInfo = playerInfoMap.remove(channel);
+            if(pInfo != null) {
+                log.info(pInfo.strName + " has logged out");
+
+                playerDead(pInfo);
+                pInfo.connected = false;
+                pInfo.ready = false;
+
+                LinkedList<NetRoomInfo> deleteList = new LinkedList<NetRoomInfo>();    // Room delete check list
+
+                for(NetRoomInfo roomInfo: roomInfoList) {
+                    if(roomInfo.playerList.contains(pInfo)) {
+                        roomInfo.playerList.remove(pInfo);
+                        roomInfo.playerQueue.remove(pInfo);
+                        roomInfo.exitSeat(pInfo);
+                        deleteList.add(roomInfo);
+                    }
+                }
+
+                for(NetRoomInfo roomInfo: deleteList) {
+                    if(!deleteRoom(roomInfo)) {
+                        joinAllQueuePlayers(roomInfo);
+
+                        if(!gameFinished(roomInfo)) {
+                            if(!gameStartIfPossible(roomInfo)) {
+                                autoStartTimerCheck(roomInfo);
+                                broadcastRoomInfoUpdate(roomInfo);
+                            }
+                        }
+                    }
+                }
+            }
+            if(observerList.remove(channel) == true) {
+                log.info("Observer logout (" + remoteAddr + ")");
+            }
+            if(adminList.remove(channel) == true) {
+                log.info("Admin logout (" + remoteAddr + ")");
+            }
+
+            if(pInfo != null) {
+                broadcastPlayerInfoUpdate(pInfo, "playerlogout");
+                pInfo.delete();
+            }
+            broadcastUserCountToAll();
+            adminSendClientList();
+
+            log.debug("Channel close success");
+        } catch (Exception e) {
+            log.warn("Exception throwed on logout", e);
+        }
+
+        if(channelList.isEmpty()) {
+            cleanup();
+        } else if(playerInfoMap.isEmpty()) {
+            roomInfoList.clear();
+        }
+    }
+
+    /**
+     * Cleanup (after all clients are disconnected)
+     */
+    private void cleanup() {
+        log.info("Cleanup");
+
+        channelList.clear();
+        lastCommTimeMap.clear();
+        notCompletePacketMap.clear();
+        observerList.clear();
+        adminList.clear();
+        playerInfoMap.clear();
+        roomInfoList.clear();
+        synchronized (this.pendingData) {
+          this.pendingData.clear();
+        }
+        if(this.readBuffer != null) this.readBuffer.clear();
+
+        System.gc();
+    }
+
+    /**
+     * Kill timeout (dead) connections
+     * @param timeout Timeout in millsecond
+     * @return Number of connections killed
+     */
+    private int killTimeoutConnections(long timeout) {
+        if(timeout <= 0) return 0;
+
+        LinkedList<SocketChannel> clients = new LinkedList<SocketChannel>(channelList);
+        int killCount = 0;
+
+        for(SocketChannel client: clients) {
+            Long lasttimeL = lastCommTimeMap.get(client);
+
+            if(lasttimeL != null) {
+                long lasttime = lasttimeL.longValue();
+                long nowtime = System.currentTimeMillis();
+
+                if(nowtime - lasttime >= timeout) {
+                    logout(client);
+                    killCount++;
+                }
+            }
+        }
+
+        if(killCount > 0) log.info("Killed " + killCount + " dead connections");
+
+        return killCount;
+    }
+
+    /**
+     * Send a message
+     * @param client SocketChannel
+     * @param bytes Message to send (byte[])
+     */
+    public void send(SocketChannel client, byte[] bytes) {
+        synchronized (this.pendingChanges) {
+            // Indicate we want the interest ops set changed
+            this.pendingChanges.add(new ChangeRequest(client, ChangeRequest.CHANGEOPS, SelectionKey.OP_WRITE));
+
+            // And queue the data we want written
+            synchronized (this.pendingData) {
+                List<ByteBuffer> queue = (List<ByteBuffer>) this.pendingData.get(client);
+                if (queue == null) {
+                    queue = new ArrayList<ByteBuffer>();
+                    this.pendingData.put(client, queue);
+                }
+                queue.add(ByteBuffer.wrap(bytes));
+            }
+        }
+
+        // Finally, wake up our selecting thread so it can make the required changes
+        this.selector.wakeup();
+    }
+
+    /**
+     * Send a message
+     * @param client SocketChannel
+     * @param msg Message to send (String)
+     */
+    public void send(SocketChannel client, String msg)  {
+        send(client, NetUtil.stringToBytes(msg));
+    }
+
+    /**
+     * Send a message
+     * @param pInfo NetPlayerInfo
+     * @param bytes Message to send (byte[])
+     */
+    public void send(NetPlayerInfo pInfo, byte[] bytes) {
+        SocketChannel ch = getSocketChannelByPlayer(pInfo);
+        if(ch == null) return;
+        send(ch, bytes);
+    }
+
+    /**
+     * Send a message
+     * @param pInfo NetPlayerInfo
+     * @param msg Message to send (String)
+     */
+    public void send(NetPlayerInfo pInfo, String msg) {
+        SocketChannel ch = getSocketChannelByPlayer(pInfo);
+        if(ch == null) return;
+        send(ch, NetUtil.stringToBytes(msg));
+    }
+
+    /**
+     * Broadcast a message to all players
+     * @param msg Message to send (String)
+     */
+    public void broadcast(String msg) {
+        synchronized(channelList) {
+            for(SocketChannel ch: channelList) {
+                NetPlayerInfo p = playerInfoMap.get(ch);
+
+                if(p != null) {
+                    send(ch, msg);
+                }
+            }
+        }
+    }
+
+    /**
+     * Broadcast a message to all players in specific room
+     * @param msg Message to send (String)
+     * @param roomID Room ID (-1:Lobby)
+     */
+    public void broadcast(String msg, int roomID) {
+        synchronized(channelList) {
+            for(SocketChannel ch: channelList) {
+                NetPlayerInfo p = playerInfoMap.get(ch);
+
+                if((p != null) && (roomID == p.roomID)) {
+                    send(ch, msg);
+                }
+            }
+        }
+    }
+
+    /**
+     * Broadcast a message to all players in specific room, except for the specified player
+     * @param msg Message to send (String)
+     * @param roomID Room ID (-1:Lobby)
+     * @param pInfo The player to avoid sending message
+     */
+    public void broadcast(String msg, int roomID, NetPlayerInfo pInfo) {
+        synchronized(channelList) {
+            for(SocketChannel ch: channelList) {
+                NetPlayerInfo p = playerInfoMap.get(ch);
+
+                if((p != null) && (p.uid != pInfo.uid) && (roomID == p.roomID)) {
+                    send(ch, msg);
+                }
+            }
+        }
+    }
+
+    /**
+     * Broadcast a message to all observers
+     * @param msg Message to send (String)
+     */
+    public void broadcastObserver(String msg) {
+        for(SocketChannel ch: observerList) {
+            send(ch, msg);
+        }
+    }
+
+    /**
+     * Broadcast client count (observers and players) to everyone
+     */
+    public void broadcastUserCountToAll() {
+        String msg = "observerupdate\t" + playerInfoMap.size() + "\t" + observerList.size() + "\n";
+        broadcast(msg);
+        broadcastObserver(msg);
+        writeServerStatusFile();
+    }
+
+    /**
+     * Broadcast a message to all admins
+     * @param msg Message to send (String)
+     */
+    public void broadcastAdmin(String msg) {
+        for(SocketChannel ch: adminList) {
+            send(ch, msg);
+        }
+    }
+
+    /**
+     * Get SocketChannel from NetPlayerInfo
+     * @param pInfo Player
+     * @return SocketChannel (null if not found)
+     */
+    public SocketChannel getSocketChannelByPlayer(NetPlayerInfo pInfo) {
+        synchronized(channelList) {
+            for(SocketChannel ch: channelList) {
+                NetPlayerInfo p = playerInfoMap.get(ch);
+
+                if((p != null) && (p.uid == pInfo.uid)) {
+                    return ch;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Process a packet.
+     * @param client The SocketChannel who sent this packet
+     * @param fullMessage The string of packet
+     * @throws IOException When something bad happens
+     */
+    private void processPacket(SocketChannel client, String fullMessage) throws IOException {
+        // Check ban
+        if(checkConnectionOnBanlist(client)) {
+            throw new NetServerDisconnectRequestedException("Connection banned");
+        }
+
+        // Setup Variables
+        String[] message = fullMessage.split("\t");    // Split by \t
+        NetPlayerInfo pInfo = playerInfoMap.get(client);    // NetPlayerInfo of this client. null if not logged in.
+
+        // Update last communication time
+        lastCommTimeMap.put(client, System.currentTimeMillis());
+
+        // Get information of this server.
+        if(message[0].equals("getinfo")) {
+            int loggedInUsersCount = playerInfoMap.size();
+            int observerCount = observerList.size();
+            send(client, "getinfo\t" + GameManager.getVersionMajor() + "\t" + loggedInUsersCount + "\t" + observerCount + "\n");
+            return;
+        }
+        // Disconnect request.
+        if(message[0].equals("disconnect")) {
+            throw new NetServerDisconnectRequestedException("Disconnect requested by the client (this is normal)");
+        }
+        // Ping
+        if(message[0].equals("ping")) {
+            //ping\t[ID]
+            if(message.length > 1) {
+                int id = Integer.parseInt(message[1]);
+                send(client, "pong\t" + id + "\n");
+            } else {
+                send(client, "pong\n");
+            }
+
+            // Kill dead connections
+            killTimeoutConnections(timeoutTime);
+
+            return;
+        }
+        // Observer login
+        if(message[0].equals("observerlogin")) {
+            //observer\t[VERSION]
+
+            // Ignore it if already logged in
+            if(observerList.contains(client)) return;
+            if(adminList.contains(client)) return;
+            if(playerInfoMap.containsKey(client)) return;
+
+            // Version check
+            float serverVer = GameManager.getVersionMajor();
+            float clientVer = Float.parseFloat(message[1]);
+            if(serverVer != clientVer) {
+                send(client, "observerloginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
+                //logout(client);
+                synchronized (this.pendingChanges) {
+                  this.pendingChanges.add(new ChangeRequest(client, ChangeRequest.DISCONNECT, 0));
+                }
+                return;
+            }
+
+            // Kill dead connections
+            killTimeoutConnections(timeoutTime);
+
+            // Success
+            observerList.add(client);
+            send(client, "observerloginsuccess\n");
+            broadcastUserCountToAll();
+            adminSendClientList();
+
+            log.info("New observer has logged in (" + client.toString() + ")");
+            return;
+        }
+        // Player login
+        if(message[0].equals("login")) {
+            //login\t[VERSION]\t[NAME]\t[COUNTRY]\t[TEAM]
+
+            // Ignore it if already logged in
+            if(observerList.contains(client)) return;
+            if(adminList.contains(client)) return;
+            if(playerInfoMap.containsKey(client)) return;
+
+            // Version check
+            float serverVer = GameManager.getVersionMajor();
+            float clientVer = Float.parseFloat(message[1]);
+            if(serverVer != clientVer) {
+                send(client, "loginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
+                //logout(client);
+                synchronized (this.pendingChanges) {
+                  this.pendingChanges.add(new ChangeRequest(client, ChangeRequest.DISCONNECT, 0));
+                }
+                return;
+            }
+
+            // Kill dead connections
+            killTimeoutConnections(timeoutTime);
+
+            // Tripcode
+            String originalName = NetUtil.urlDecode(message[2]);
+            int sharpIndex = originalName.indexOf('#');
+            boolean isTripUse = false;
+
+            if(sharpIndex != -1) {
+                String strTripKey = originalName.substring(sharpIndex + 1);
+                String strTripCode = NetUtil.createTripCode(strTripKey, propServer.getProperty("netserver.tripcodemax", 10));
+
+                if(sharpIndex > 0) {
+                    String strTemp = originalName.substring(0, sharpIndex);
+                    originalName = strTemp.replace('!', '?') + " !" + strTripCode;
+                } else {
+                    originalName = "!" + strTripCode;
+                }
+
+                isTripUse = true;
+            } else {
+                originalName = originalName.replace('!', '?');
+            }
+
+            // Decide name (change to something else if needed)
+            if(originalName.length() < 1) originalName = "noname";
+            String name = originalName;
+
+            if(isTripUse) {
+                // Kill the connection of the same name player
+                NetPlayerInfo pInfo2 = searchPlayerByName(name);
+                if((pInfo2 != null) && (pInfo2.channel != null)) {
+                    logout(pInfo2.channel);
+                }
+            } else {
+                // Change to "Name(n)" if the player of the same name exists
+                int nameCount = 0;
+                while(searchPlayerByName(name) != null) {
+                    name = originalName + "(" + nameCount + ")";
+                    nameCount++;
+                }
+            }
+
+            // Set variables
+            pInfo = new NetPlayerInfo();
+            pInfo.strName = name;
+            if(message.length > 3) pInfo.strCountry = message[3];
+            if(message.length > 4) pInfo.strTeam = NetUtil.urlDecode(message[4]);
+            pInfo.uid = playerCount;
+            pInfo.connected = true;
+            pInfo.isTripUse = isTripUse;
+
+            pInfo.strRealHost = getHostName(client);
+            pInfo.strRealIP = getHostAddress(client);
+            pInfo.channel = client;
+
+            int showhosttype = propServer.getProperty("netserver.showhosttype", 0);
+            if(showhosttype == 1) {
+                pInfo.strHost = getHostAddress(client);
+            } else if(showhosttype == 2) {
+                pInfo.strHost = getHostName(client);
+            } else if(showhosttype == 3) {
+                pInfo.strHost = Crypt.crypt(propServer.getProperty("netserver.hostsalt", "AA"), getHostAddress(client));
+
+                int maxlen = propServer.getProperty("netserver.hostcryptmax", 8);
+                if(pInfo.strHost.length() > maxlen) {
+                    pInfo.strHost = pInfo.strHost.substring(pInfo.strHost.length() - maxlen);
+                }
+            } else if(showhosttype == 4) {
+                pInfo.strHost = Crypt.crypt(propServer.getProperty("netserver.hostsalt", "AA"), getHostName(client));
+
+                int maxlen = propServer.getProperty("netserver.hostcryptmax", 8);
+                if(pInfo.strHost.length() > maxlen) {
+                    pInfo.strHost = pInfo.strHost.substring(pInfo.strHost.length() - maxlen);
+                }
+            }
+
+            // Load rating
+            getPlayerDataFromProperty(pInfo);
+            //log.info("Play:" + pInfo.playCount[0] + " Win:" + pInfo.winCount[0]);
+
+            // Success
+            playerInfoMap.put(client, pInfo);
+            playerCount++;
+            send(client, "loginsuccess\t" + NetUtil.urlEncode(pInfo.strName) + "\t" + pInfo.uid + "\n");
+            log.info(pInfo.strName + " has logged in (Host:" + getHostName(client) + " Team:" + pInfo.strTeam + ")");
+
+            sendRatedRuleList(client);
+            sendPlayerList(client);
+            sendRoomList(client);
+
+            broadcastPlayerInfoUpdate(pInfo, "playernew");
+            broadcastUserCountToAll();
+            adminSendClientList();
+
+            // Send lobby chat history
+            while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
+            for(NetChatMessage chat: lobbyChatList) {
+                send(client, "lobbychath\t" + NetUtil.urlEncode(chat.strUserName) + "\t" +
+                    GeneralUtil.exportCalendarString(chat.timestamp) + "\t" + NetUtil.urlEncode(chat.strMessage) + "\n");
+            }
+
+            return;
+        }
+        // Send rated presets to client
+        if(message[0].equals("getpresets")){
+            String str = "ratedpresets";
+
+            Iterator<String> iter = ratedInfoList.iterator();
+            while(iter.hasNext()){
+                str += "\t" + iter.next();
+            }
+
+            str += "\n";
+
+            send(client, str);
+
+            //log.info("Sent preset message: " + str);
+
+            return;
+        }
+        // Send rule data to server (Client->Server)
+        if(message[0].equals("ruledata")) {
+            //ruledata\t[ADLER32CHECKSUM]\t[RULEDATA]
+
+            if(pInfo != null) {
+                String strData = message[2];
+
+                // Is checksum correct?
+                Adler32 checksumObj = new Adler32();
+                checksumObj.update(NetUtil.stringToBytes(strData));
+                long sChecksum = checksumObj.getValue();
+                long cChecksum = Long.parseLong(message[1]);
+
+                // OK
+                if(sChecksum == cChecksum) {
+                    String strRuleData = NetUtil.decompressString(strData);
+
+                    CustomProperties prop = new CustomProperties();
+                    prop.decode(strRuleData);
+                    pInfo.ruleOpt = new RuleOptions();
+                    pInfo.ruleOpt.readProperty(prop, 0);
+                    send(client, "ruledatasuccess\n");
+                }
+                // FAIL
+                else {
+                    send(client, "ruledatafail\t" + sChecksum + "\n");
+                }
+            }
+            return;
+        }
+        // Get rule data from server (Server->Client)
+        if(message[0].equals("ruleget")) {
+            //ruleget\t[UID]
+
+            if(pInfo != null) {
+                int uid = Integer.parseInt(message[1]);
+                NetPlayerInfo p = searchPlayerByUID(uid);
+
+                if(p != null) {
+                    if(p.ruleOpt == null) p.ruleOpt = new RuleOptions();
+
+                    CustomProperties prop = new CustomProperties();
+                    p.ruleOpt.writeProperty(prop, 0);
+                    String strRuleTemp = prop.encode("RuleData " + p.strName);
+                    String strRuleData = NetUtil.compressString(strRuleTemp);
+
+                    // Checksum
+                    Adler32 checksumObj = new Adler32();
+                    checksumObj.update(NetUtil.stringToBytes(strRuleData));
+                    long sChecksum = checksumObj.getValue();
+
+                    send(client, "rulegetsuccess\t" + uid + "\t" + sChecksum + "\t" + strRuleData + "\n");
+                } else {
+                    send(client, "rulegetfail\t" + uid + "\n");
+                }
+            }
+            return;
+        }
+        // Send rated-game rule data (Server->Client)
+        if(message[0].equals("rulegetrated")) {
+            //rulegetrated\t[STYLE]\t[NAME]
+
+            if(pInfo != null) {
+                int style = Integer.parseInt(message[1]);
+                String name = message[2];
+                RuleOptions rule = getRatedRule(style, name);
+
+                if(rule != null) {
+                    CustomProperties prop = new CustomProperties();
+                    rule.writeProperty(prop, 0);
+                    String strRuleTemp = prop.encode("Rated RuleData " + rule.strRuleName);
+                    String strRuleData = NetUtil.compressString(strRuleTemp);
+
+                    // Checksum
+                    Adler32 checksumObj = new Adler32();
+                    checksumObj.update(NetUtil.stringToBytes(strRuleData));
+                    long sChecksum = checksumObj.getValue();
+
+                    send(client, "rulegetratedsuccess\t" + style + "\t" + name + "\t" + sChecksum + "\t" + strRuleData + "\n");
+                } else {
+                    send(client, "rulegetratedfail\t" + style + "\t" + name + "\n");
+                }
+            }
+        }
+        // Lobby chat
+        if(message[0].equals("lobbychat")) {
+            //lobbychat\t[MESSAGE]
+
+            if(pInfo != null) {
+                NetChatMessage chat = new NetChatMessage(NetUtil.urlDecode(message[1]), pInfo);
+                chat.outputLog();
+                lobbyChatList.add(chat);
+                while(lobbyChatList.size() > maxLobbyChatHistory) lobbyChatList.removeFirst();
+                saveLobbyChatHistory();
+
+                broadcast("lobbychat\t" + chat.uid + "\t" + NetUtil.urlEncode(chat.strUserName) + "\t" +
+                        GeneralUtil.exportCalendarString(chat.timestamp) + "\t" + NetUtil.urlEncode(chat.strMessage) + "\n");
+            }
+            return;
+        }
+        // Room chat
+        if(message[0].equals("chat")) {
+            //chat\t[MESSAGE]
+
+            if((pInfo != null) && (pInfo.roomID != -1)) {
+                NetRoomInfo roomInfo = getRoomInfo(pInfo.roomID);
+                if(roomInfo != null) {
+                    NetChatMessage chat = new NetChatMessage(NetUtil.urlDecode(message[1]), pInfo, roomInfo);
+                    chat.outputLog();
+                    roomInfo.chatList.add(chat);
+                    while(roomInfo.chatList.size() > maxRoomChatHistory) roomInfo.chatList.removeFirst();
+
+                    broadcast("chat\t" + chat.uid + "\t" + NetUtil.urlEncode(chat.strUserName) + "\t" +
+                        GeneralUtil.exportCalendarString(chat.timestamp) + "\t" + NetUtil.urlEncode(chat.strMessage) + "\n", pInfo.roomID);
+                }
+            }
+            return;
+        }
+        // Get multiplayer leaderboard
+        if(message[0].equals("mpranking")) {
+            //mpranking\t[STYLE]
+
+            int style = Integer.parseInt(message[1]);
+            int myRank = mpRankingIndexOf(style, pInfo);
+
+            String strPData = "";
+            int prevRating = -1;
+            int nowRank = 0;
+            for(int i = 0; i < mpRankingList[style].size(); i++) {
+                NetPlayerInfo p = (NetPlayerInfo)mpRankingList[style].get(i);
+                if((i == 0) || (p.rating[style] < prevRating)) {
+                    prevRating = p.rating[style];
+                    nowRank = i;
+                }
+                strPData += (nowRank) + ";" + NetUtil.urlEncode(p.strName) + ";" +
+                            p.rating[style] + ";" + p.playCount[style] + ";" + p.winCount[style] + "\t";
+            }
+            if((myRank == -1) && (pInfo != null)) {
+                NetPlayerInfo p = pInfo;
+                strPData += (-1) + ";" + NetUtil.urlEncode(p.strName) + ";" +
+                            p.rating[style] + ";" + p.playCount[style] + ";" + p.winCount[style] + "\t";
+            }
+            String strPDataC = NetUtil.compressString(strPData);
+
+            String strMsg = "mpranking\t" + style + "\t" + myRank + "\t" + strPDataC + "\n";
+            send(client, strMsg);
+        }
+        // Single player room
+        if(message[0].equals("singleroomcreate")) {
+            //singleroomcreate\t[roomName]\t[mode]\t[rule]
+            if((pInfo != null) && (pInfo.roomID == -1)) {
+                NetRoomInfo roomInfo = new NetRoomInfo();
+
+                roomInfo.singleplayer = true;
+                roomInfo.strMode = NetUtil.urlDecode(message[2]);
+
+                roomInfo.strName = NetUtil.urlDecode(message[1]);
+                if(roomInfo.strName.length() < 1) roomInfo.strName = "Single:" + roomInfo.strMode;
+
+                roomInfo.maxPlayers = 1;
+
+                if(message.length > 3) {
+                    roomInfo.ruleName = NetUtil.urlDecode(message[3]);
+                    roomInfo.ruleOpt = new RuleOptions(getRatedRule(0, roomInfo.ruleName));
+                    roomInfo.ruleLock = true;
+                    roomInfo.rated = true;
+                } else {
+                    roomInfo.ruleName = pInfo.ruleOpt.strRuleName;
+                    roomInfo.ruleOpt = new RuleOptions(pInfo.ruleOpt);
+                    roomInfo.ruleLock = false;
+                    roomInfo.rated = false;
+                }
+
+                roomInfo.roomID = roomCount;
+
+                roomCount++;
+                if(roomCount == -1) roomCount = 0;
+
+                roomInfoList.add(roomInfo);
+
+                pInfo.roomID = roomInfo.roomID;
+                pInfo.resetPlayState();
+                pInfo.playCountNow = 0;
+                pInfo.winCountNow = 0;
+
+                roomInfo.playerList.add(pInfo);
+                pInfo.seatID = roomInfo.joinSeat(pInfo);
+
+                // Send rule data if rated room
+                if(roomInfo.rated) {
+                    CustomProperties prop = new CustomProperties();
+                    roomInfo.ruleOpt.writeProperty(prop, 0);
+                    String strRuleTemp = prop.encode("RuleData");
+                    String strRuleData = NetUtil.compressString(strRuleTemp);
+                    send(client, "rulelock\t" + strRuleData + "\n");
+                }
+
+                broadcastPlayerInfoUpdate(pInfo);
+                broadcastRoomInfoUpdate(roomInfo, "roomcreate");
+                send(client, "roomcreatesuccess\t" + roomInfo.roomID + "\t0\t-1\n");
+
+                log.info("NewSingleRoom ID:" + roomInfo.roomID + " Title:" + roomInfo.strName);
+            }
+        }
+        // Multiplayer room
+        if(message[0].equals("roomcreate")) {
+            if((pInfo != null) && (pInfo.roomID == -1)) {
+                String strRoomInfo = NetUtil.urlDecode(message[2]);
+                NetRoomInfo roomInfo = new NetRoomInfo(strRoomInfo);
+
+                roomInfo.strName = NetUtil.urlDecode(message[1]);
+                if(roomInfo.strName.length() < 1) roomInfo.strName = "No Title";
+
+                if(roomInfo.maxPlayers < 1) roomInfo.maxPlayers = 1;
+                if(roomInfo.maxPlayers > 6) roomInfo.maxPlayers = 6;
+
+                if(roomInfo.ruleLock) {
+                    roomInfo.ruleName = pInfo.ruleOpt.strRuleName;
+                    roomInfo.ruleOpt = new RuleOptions(pInfo.ruleOpt);
+                }
+
+                roomInfo.strMode = NetUtil.urlDecode(message[3]);
+
+                // Set map
+                if(roomInfo.useMap && (message.length > 4)) {
+                    String strDecompressed = NetUtil.decompressString(message[34]);
+                    String[] strMaps = strDecompressed.split("\t");
+
+                    int maxMap = strMaps.length;
+
+                    for(int i = 0; i < maxMap; i++) {
+                        String strMap = strMaps[i];
+                        roomInfo.mapList.add(strMap);
+                    }
+
+                    if(roomInfo.mapList.isEmpty()) {
+                        log.debug("Room" + roomInfo.roomID + ": No maps");
+                        roomInfo.useMap = false;
+                    } else {
+                        log.debug("Room" + roomInfo.roomID + ": Received " + roomInfo.mapList.size() + " maps");
+                    }
+                }
+
+                roomInfo.roomID = roomCount;
+
+                roomCount++;
+                if(roomCount == -1) roomCount = 0;
+
+                roomInfoList.add(roomInfo);
+
+                pInfo.roomID = roomInfo.roomID;
+                pInfo.resetPlayState();
+                pInfo.playCountNow = 0;
+                pInfo.winCountNow = 0;
+
+                roomInfo.playerList.add(pInfo);
+                pInfo.seatID = roomInfo.joinSeat(pInfo);
+
+                // Send rule data if rule-lock is enabled
+                if(roomInfo.ruleLock) {
+                    CustomProperties prop = new CustomProperties();
+                    roomInfo.ruleOpt.writeProperty(prop, 0);
+                    String strRuleTemp = prop.encode("RuleData");
+                    String strRuleData = NetUtil.compressString(strRuleTemp);
+                    send(client, "rulelock\t" + strRuleData + "\n");
+                    //log.info("rulelock\t" + strRuleData);
+                }
+
+                broadcastPlayerInfoUpdate(pInfo);
+                broadcastRoomInfoUpdate(roomInfo, "roomcreate");
+                send(client, "roomcreatesuccess\t" + roomInfo.roomID + "\t" + pInfo.seatID + "\t-1\n");
+
+                log.info("NewRoom ID:" + roomInfo.roomID + " Title:" + roomInfo.strName + " RuleLock:" + roomInfo.ruleLock +
+                         " Map:" + roomInfo.useMap + " Mode:" + roomInfo.strMode);
+            }
+            return;
+        }
+        if(message[0].equals("ratedroomcreate")){
+            if((pInfo != null) && (pInfo.roomID == -1)) {
+                int i = Integer.parseInt(message[3]);
+                String strPreset = NetUtil.decompressString(ratedInfoList.get(i));
+                NetRoomInfo roomInfo = new NetRoomInfo(strPreset);
+
+                roomInfo.strName = NetUtil.urlDecode(message[1]);
+                if(roomInfo.strName.length() < 1) roomInfo.strName = "No Title";
+
+                roomInfo.maxPlayers = Integer.parseInt(message[2]);
+                if(roomInfo.maxPlayers < 1) roomInfo.maxPlayers = 1;
+                if(roomInfo.maxPlayers > 6) roomInfo.maxPlayers = 6;
+
+                roomInfo.strMode = NetUtil.urlDecode(message[4]);
+
+                roomInfo.rated = true;
+                roomInfo.ruleLock = false; //TODO: implement rule whitelists or rule locks in presets where it is relevant
+
+                roomInfo.roomID = roomCount; //TODO: fix copy-paste code
+
+                roomCount++;
+                if(roomCount == -1) roomCount = 0;
+
+                roomInfoList.add(roomInfo);
+
+                pInfo.roomID = roomInfo.roomID;
+                pInfo.resetPlayState();
+                pInfo.playCountNow = 0;
+                pInfo.winCountNow = 0;
+
+                roomInfo.playerList.add(pInfo);
+                pInfo.seatID = roomInfo.joinSeat(pInfo);
+
+                broadcastPlayerInfoUpdate(pInfo);
+                broadcastRoomInfoUpdate(roomInfo, "roomcreate");
+                send(client, "roomcreatesuccess\t" + roomInfo.roomID + "\t" + pInfo.seatID + "\t-1\n");
+
+                log.info("NewRatedRoom ID:" + roomInfo.roomID + " Title:" + roomInfo.strName + " RuleLock:" + roomInfo.ruleLock +
+                         " Map:" + roomInfo.useMap + " Mode:" + roomInfo.strMode);
+            }
+            return;
+        }
+        // Join room (If roomID is -1, the player will return to lobby)
+        if(message[0].equals("roomjoin")) {
+            //roomjoin\t[ROOMID]\t[WATCH]
+
+            if(pInfo != null) {
+                int roomID = Integer.parseInt(message[1]);
+                boolean watch = Boolean.parseBoolean(message[2]);
+                NetRoomInfo prevRoom = getRoomInfo(pInfo.roomID);
+                NetRoomInfo newRoom = getRoomInfo(roomID);
+
+                if(roomID < 0) {
+                    // Return to lobby
+                    if(prevRoom != null) {
+                        int seatID = pInfo.seatID;
+                        broadcast("playerleave\t" + pInfo.uid + "\t" + NetUtil.urlEncode(pInfo.strName) + "\t" + seatID + "\n",
+    							prevRoom.roomID, pInfo);
 						playerDead(pInfo);
 						pInfo.ready = false;
 						prevRoom.exitSeat(pInfo);

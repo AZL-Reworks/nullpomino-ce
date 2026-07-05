@@ -42,405 +42,405 @@ import mu.nu.nullpo.util.GeneralUtil;
  * AVALANCHE VS-BATTLE mode (Release Candidate 1)
  */
 public class AvalancheVSMode extends AvalancheVSDummyMode {
-	/** Current version */
-	private static final int CURRENT_VERSION = 0;
+    /** Current version */
+    private static final int CURRENT_VERSION = 0;
 
-	/** Chain multipliers in Fever */
-	private static final int[] FEVER_POWERS = {
-		4, 10, 18, 21, 29, 46, 76, 113, 150, 223, 259, 266, 313, 364, 398, 432, 468, 504, 540, 576, 612, 648, 684, 720 //Arle
-	};
+    /** Chain multipliers in Fever */
+    private static final int[] FEVER_POWERS = {
+        4, 10, 18, 21, 29, 46, 76, 113, 150, 223, 259, 266, 313, 364, 398, 432, 468, 504, 540, 576, 612, 648, 684, 720 //Arle
+    };
 
-	/** Names of fever point criteria settings */
-	private static final String[] FEVER_POINT_CRITERIA_NAMES = {"COUNTER", "CLEAR", "BOTH"};
+    /** Names of fever point criteria settings */
+    private static final String[] FEVER_POINT_CRITERIA_NAMES = {"COUNTER", "CLEAR", "BOTH"};
 
-	/** Constants for fever point criteria settings */
-	private static final int FEVER_POINT_CRITERIA_COUNTER = 0, FEVER_POINT_CRITERIA_CLEAR = 1
-			/*,FEVER_POINT_CRITERIA_BOTH = 2*/;
+    /** Constants for fever point criteria settings */
+    private static final int FEVER_POINT_CRITERIA_COUNTER = 0, FEVER_POINT_CRITERIA_CLEAR = 1
+            /*,FEVER_POINT_CRITERIA_BOTH = 2*/;
 
-	/** Names of fever time criteria settings */
-	private static final String[] FEVER_TIME_CRITERIA_NAMES = {"COUNTER", "ATTACK"};
+    /** Names of fever time criteria settings */
+    private static final String[] FEVER_TIME_CRITERIA_NAMES = {"COUNTER", "ATTACK"};
 
-	/** Constants for fever time criteria settings */
-	private static final int FEVER_TIME_CRITERIA_COUNTER = 0, FEVER_TIME_CRITERIA_ATTACK = 1;
+    /** Constants for fever time criteria settings */
+    private static final int FEVER_TIME_CRITERIA_COUNTER = 0, FEVER_TIME_CRITERIA_ATTACK = 1;
 
-	/** Fever meter colors */
-	private static final int[] FEVER_METER_COLORS =
-	{
-		EventReceiver.COLOR_RED,
-		EventReceiver.COLOR_ORANGE,
-		EventReceiver.COLOR_YELLOW,
-		EventReceiver.COLOR_GREEN,
-		EventReceiver.COLOR_CYAN,
-		EventReceiver.COLOR_BLUE,
-		EventReceiver.COLOR_DARKBLUE,
-		EventReceiver.COLOR_PURPLE,
-		EventReceiver.COLOR_PINK
-	};
+    /** Fever meter colors */
+    private static final int[] FEVER_METER_COLORS =
+    {
+        EventReceiver.COLOR_RED,
+        EventReceiver.COLOR_ORANGE,
+        EventReceiver.COLOR_YELLOW,
+        EventReceiver.COLOR_GREEN,
+        EventReceiver.COLOR_CYAN,
+        EventReceiver.COLOR_BLUE,
+        EventReceiver.COLOR_DARKBLUE,
+        EventReceiver.COLOR_PURPLE,
+        EventReceiver.COLOR_PINK
+    };
 
-	/** Version */
-	private int version;
+    /** Version */
+    private int version;
 
-	/** Fever points needed to enter Fever Mode */
-	private int[] feverThreshold;
+    /** Fever points needed to enter Fever Mode */
+    private int[] feverThreshold;
 
-	/** Fever points */
-	private int[] feverPoints;
+    /** Fever points */
+    private int[] feverPoints;
 
-	/** Fever time */
-	private int[] feverTime;
+    /** Fever time */
+    private int[] feverTime;
 
-	/** Minimum and maximum fever time */
-	private int[] feverTimeMin, feverTimeMax;
+    /** Minimum and maximum fever time */
+    private int[] feverTimeMin, feverTimeMax;
 
-	/** Flag set to true when player is in Fever Mode */
-	private boolean[] inFever;
+    /** Flag set to true when player is in Fever Mode */
+    private boolean[] inFever;
 
-	/** Backup fields for Fever Mode */
-	private Field[] feverBackupField;
+    /** Backup fields for Fever Mode */
+    private Field[] feverBackupField;
 
-	/** Time added to limit */
-	private int[] feverTimeLimitAdd;
+    /** Time added to limit */
+    private int[] feverTimeLimitAdd;
 
-	/** Time to display added time */
-	private int[] feverTimeLimitAddDisplay;
+    /** Time to display added time */
+    private int[] feverTimeLimitAddDisplay;
 
-	/** Second ojama counter for Fever Mode */
-	private int[] ojamaFever;
+    /** Second ojama counter for Fever Mode */
+    private int[] ojamaFever;
 
-	/** Set to true when opponent starts chain while in Fever Mode */
-	private boolean[] ojamaAddToFever;
+    /** Set to true when opponent starts chain while in Fever Mode */
+    private boolean[] ojamaAddToFever;
 
-	/** Chain levels for Fever Mode */
-	private int[] feverChain;
+    /** Chain levels for Fever Mode */
+    private int[] feverChain;
 
-	/** Criteria to add a fever point */
-	private int[] feverPointCriteria;
+    /** Criteria to add a fever point */
+    private int[] feverPointCriteria;
 
-	/** Criteria to add 1 second of fever time */
-	private int[] feverTimeCriteria;
+    /** Criteria to add 1 second of fever time */
+    private int[] feverTimeCriteria;
 
-	/** Fever power multiplier */
-	private int[] feverPower;
+    /** Fever power multiplier */
+    private int[] feverPower;
 
-	/** True to show fever points as meter, false to show numerical counts */
-	private boolean[] feverShowMeter;
+    /** True to show fever points as meter, false to show numerical counts */
+    private boolean[] feverShowMeter;
 
-	/** True to show ojama on meter, false to show fever points */
-	private boolean[] ojamaMeter;
+    /** True to show ojama on meter, false to show fever points */
+    private boolean[] ojamaMeter;
 
-	/*
-	 * Mode name
-	 */
-	@Override
-	public String getName() {
-		return "AVALANCHE VS-BATTLE (RC1)";
-	}
+    /*
+     * Mode name
+     */
+    @Override
+    public String getName() {
+        return "AVALANCHE VS-BATTLE (RC1)";
+    }
 
-	/*
-	 * Mode initialization
-	 */
-	@Override
-	public void modeInit(GameManager manager) {
-		super.modeInit(manager);
-		feverThreshold = new int[MAX_PLAYERS];
-		feverPoints = new int[MAX_PLAYERS];
-		feverTime = new int[MAX_PLAYERS];
-		feverTimeMin = new int[MAX_PLAYERS];
-		feverTimeMax = new int[MAX_PLAYERS];
-		inFever = new boolean[MAX_PLAYERS];
-		feverBackupField = new Field[MAX_PLAYERS];
-		feverTimeLimitAdd = new int[MAX_PLAYERS];
-		feverTimeLimitAddDisplay = new int[MAX_PLAYERS];
-		ojamaFever = new int[MAX_PLAYERS];
-		ojamaAddToFever = new boolean[MAX_PLAYERS];
-		feverChain = new int[MAX_PLAYERS];
-		feverShowMeter = new boolean[MAX_PLAYERS];
-		ojamaMeter = new boolean[MAX_PLAYERS];
-		feverPointCriteria = new int[MAX_PLAYERS];
-		feverTimeCriteria = new int[MAX_PLAYERS];
-		feverPower = new int[MAX_PLAYERS];
-	}
+    /*
+     * Mode initialization
+     */
+    @Override
+    public void modeInit(GameManager manager) {
+        super.modeInit(manager);
+        feverThreshold = new int[MAX_PLAYERS];
+        feverPoints = new int[MAX_PLAYERS];
+        feverTime = new int[MAX_PLAYERS];
+        feverTimeMin = new int[MAX_PLAYERS];
+        feverTimeMax = new int[MAX_PLAYERS];
+        inFever = new boolean[MAX_PLAYERS];
+        feverBackupField = new Field[MAX_PLAYERS];
+        feverTimeLimitAdd = new int[MAX_PLAYERS];
+        feverTimeLimitAddDisplay = new int[MAX_PLAYERS];
+        ojamaFever = new int[MAX_PLAYERS];
+        ojamaAddToFever = new boolean[MAX_PLAYERS];
+        feverChain = new int[MAX_PLAYERS];
+        feverShowMeter = new boolean[MAX_PLAYERS];
+        ojamaMeter = new boolean[MAX_PLAYERS];
+        feverPointCriteria = new int[MAX_PLAYERS];
+        feverTimeCriteria = new int[MAX_PLAYERS];
+        feverPower = new int[MAX_PLAYERS];
+    }
 
-	/**
-	 * Load settings not related to speeds
-	 * @param engine GameEngine
-	 * @param prop Property file to read from
-	 */
-	private void loadOtherSetting(GameEngine engine, CustomProperties prop) {
-		super.loadOtherSetting(engine, prop, "");
-		int playerID = engine.playerID;
-		ojamaRate[playerID] = prop.getProperty("avalanchevs.ojamaRate.p" + playerID, 120);
-		ojamaHard[playerID] = prop.getProperty("avalanchevs.ojamaHard.p" + playerID, 0);
-		feverThreshold[playerID] = prop.getProperty("avalanchevs.feverThreshold.p" + playerID, 0);
-		feverTimeMin[playerID] = prop.getProperty("avalanchevs.feverTimeMin.p" + playerID, 15);
-		feverTimeMax[playerID] = prop.getProperty("avalanchevs.feverTimeMax.p" + playerID, 30);
-		feverShowMeter[playerID] = prop.getProperty("avalanchevs.feverShowMeter.p" + playerID, true);
-		ojamaMeter[playerID] = prop.getProperty("avalanchevs.ojamaMeter.p" + playerID, true);
-		feverPointCriteria[playerID] = prop.getProperty("avalanchevs.feverPointCriteria.p" + playerID, 0);
-		feverTimeCriteria[playerID] = prop.getProperty("avalanchevs.feverTimeCriteria.p" + playerID, 0);
-		feverPower[playerID] = prop.getProperty("avalanchevs.feverPower.p" + playerID, 10);
-	}
+    /**
+     * Load settings not related to speeds
+     * @param engine GameEngine
+     * @param prop Property file to read from
+     */
+    private void loadOtherSetting(GameEngine engine, CustomProperties prop) {
+        super.loadOtherSetting(engine, prop, "");
+        int playerID = engine.playerID;
+        ojamaRate[playerID] = prop.getProperty("avalanchevs.ojamaRate.p" + playerID, 120);
+        ojamaHard[playerID] = prop.getProperty("avalanchevs.ojamaHard.p" + playerID, 0);
+        feverThreshold[playerID] = prop.getProperty("avalanchevs.feverThreshold.p" + playerID, 0);
+        feverTimeMin[playerID] = prop.getProperty("avalanchevs.feverTimeMin.p" + playerID, 15);
+        feverTimeMax[playerID] = prop.getProperty("avalanchevs.feverTimeMax.p" + playerID, 30);
+        feverShowMeter[playerID] = prop.getProperty("avalanchevs.feverShowMeter.p" + playerID, true);
+        ojamaMeter[playerID] = prop.getProperty("avalanchevs.ojamaMeter.p" + playerID, true);
+        feverPointCriteria[playerID] = prop.getProperty("avalanchevs.feverPointCriteria.p" + playerID, 0);
+        feverTimeCriteria[playerID] = prop.getProperty("avalanchevs.feverTimeCriteria.p" + playerID, 0);
+        feverPower[playerID] = prop.getProperty("avalanchevs.feverPower.p" + playerID, 10);
+    }
 
-	/**
-	 * Save settings not related to speeds
-	 * @param engine GameEngine
-	 * @param prop Property file to save to
-	 */
-	private void saveOtherSetting(GameEngine engine, CustomProperties prop) {
-		super.saveOtherSetting(engine, prop, "");
-		int playerID = engine.playerID;
-		prop.setProperty("avalanchevs.feverThreshold.p" + playerID, feverThreshold[playerID]);
-		prop.setProperty("avalanchevs.feverTimeMin.p" + playerID, feverTimeMin[playerID]);
-		prop.setProperty("avalanchevs.feverTimeMax.p" + playerID, feverTimeMax[playerID]);
-		prop.setProperty("avalanchevs.feverShowMeter.p" + playerID, feverShowMeter[playerID]);
-		prop.setProperty("avalanchevs.ojamaMeter.p" + playerID, ojamaMeter[playerID]);
-		prop.setProperty("avalanchevs.feverPointCriteria.p" + playerID, feverPointCriteria[playerID]);
-		prop.setProperty("avalanchevs.feverTimeCriteria.p" + playerID, feverTimeCriteria[playerID]);
-		prop.setProperty("avalanchevs.feverPower.p" + playerID, feverPower[playerID]);
-	}
+    /**
+     * Save settings not related to speeds
+     * @param engine GameEngine
+     * @param prop Property file to save to
+     */
+    private void saveOtherSetting(GameEngine engine, CustomProperties prop) {
+        super.saveOtherSetting(engine, prop, "");
+        int playerID = engine.playerID;
+        prop.setProperty("avalanchevs.feverThreshold.p" + playerID, feverThreshold[playerID]);
+        prop.setProperty("avalanchevs.feverTimeMin.p" + playerID, feverTimeMin[playerID]);
+        prop.setProperty("avalanchevs.feverTimeMax.p" + playerID, feverTimeMax[playerID]);
+        prop.setProperty("avalanchevs.feverShowMeter.p" + playerID, feverShowMeter[playerID]);
+        prop.setProperty("avalanchevs.ojamaMeter.p" + playerID, ojamaMeter[playerID]);
+        prop.setProperty("avalanchevs.feverPointCriteria.p" + playerID, feverPointCriteria[playerID]);
+        prop.setProperty("avalanchevs.feverTimeCriteria.p" + playerID, feverTimeCriteria[playerID]);
+        prop.setProperty("avalanchevs.feverPower.p" + playerID, feverPower[playerID]);
+    }
 
-	/*
-	 * Initialization for each player
-	 */
-	@Override
-	public void playerInit(GameEngine engine, int playerID) {
-		super.playerInit(engine, playerID);
-		ojamaFever[playerID] = 0;
-		feverPoints[playerID] = 0;
-		feverTime[playerID] = feverTimeMin[playerID] * 60;
-		feverTimeLimitAdd[playerID] = 0;
-		feverTimeLimitAddDisplay[playerID] = 0;
-		inFever[playerID] = false;
-		feverBackupField[playerID] = null;
+    /*
+     * Initialization for each player
+     */
+    @Override
+    public void playerInit(GameEngine engine, int playerID) {
+        super.playerInit(engine, playerID);
+        ojamaFever[playerID] = 0;
+        feverPoints[playerID] = 0;
+        feverTime[playerID] = feverTimeMin[playerID] * 60;
+        feverTimeLimitAdd[playerID] = 0;
+        feverTimeLimitAddDisplay[playerID] = 0;
+        inFever[playerID] = false;
+        feverBackupField[playerID] = null;
 
-		if(engine.owner.replayMode == false) {
-			loadOtherSetting(engine, engine.owner.modeConfig);
-			loadPreset(engine, engine.owner.modeConfig, -1 - playerID, "");
-			version = CURRENT_VERSION;
-		} else {
-			loadOtherSetting(engine, engine.owner.replayProp);
-			loadPreset(engine, engine.owner.replayProp, -1 - playerID, "");
-			version = owner.replayProp.getProperty("avalanchevs.version", 0);
-		}
-	}
+        if(engine.owner.replayMode == false) {
+            loadOtherSetting(engine, engine.owner.modeConfig);
+            loadPreset(engine, engine.owner.modeConfig, -1 - playerID, "");
+            version = CURRENT_VERSION;
+        } else {
+            loadOtherSetting(engine, engine.owner.replayProp);
+            loadPreset(engine, engine.owner.replayProp, -1 - playerID, "");
+            version = owner.replayProp.getProperty("avalanchevs.version", 0);
+        }
+    }
 
-	/*
-	 * Called at settings screen
-	 */
-	@Override
-	public boolean onSetting(GameEngine engine, int playerID) {
-		// Menu
-		if((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
-			// Configuration changes
-			int change = updateCursor(engine, 41);
+    /*
+     * Called at settings screen
+     */
+    @Override
+    public boolean onSetting(GameEngine engine, int playerID) {
+        // Menu
+        if((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
+            // Configuration changes
+            int change = updateCursor(engine, 41);
 
-			if(change != 0) {
-				engine.playSE("change");
+            if(change != 0) {
+                engine.playSE("change");
 
-				int m = 1;
-				if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
-				if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
+                int m = 1;
+                if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
+                if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
 
-				switch(engine.statc[2]) {
-				case 0:
-					engine.speed.gravity += change * m;
-					if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
-					if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
-					break;
-				case 1:
-					engine.speed.denominator += change * m;
-					if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
-					if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
-					break;
-				case 2:
-					engine.speed.are += change;
-					if(engine.speed.are < 0) engine.speed.are = 99;
-					if(engine.speed.are > 99) engine.speed.are = 0;
-					break;
-				case 3:
-					engine.speed.areLine += change;
-					if(engine.speed.areLine < 0) engine.speed.areLine = 99;
-					if(engine.speed.areLine > 99) engine.speed.areLine = 0;
-					break;
-				case 4:
-					engine.speed.lineDelay += change;
-					if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
-					if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
-					break;
-				case 5:
-					if (m >= 10) engine.speed.lockDelay += change*10;
-					else engine.speed.lockDelay += change;
-					if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 999;
-					if(engine.speed.lockDelay > 999) engine.speed.lockDelay = 0;
-					break;
-				case 6:
-					engine.speed.das += change;
-					if(engine.speed.das < 0) engine.speed.das = 99;
-					if(engine.speed.das > 99) engine.speed.das = 0;
-					break;
-				case 7:
-					engine.cascadeDelay += change;
-					if(engine.cascadeDelay < 0) engine.cascadeDelay = 20;
-					if(engine.cascadeDelay > 20) engine.cascadeDelay = 0;
-					break;
-				case 8:
-					engine.cascadeClearDelay += change;
-					if(engine.cascadeClearDelay < 0) engine.cascadeClearDelay = 99;
-					if(engine.cascadeClearDelay > 99) engine.cascadeClearDelay = 0;
-					break;
-				case 9:
-					ojamaCounterMode[playerID] += change;
-					if(ojamaCounterMode[playerID] < 0) ojamaCounterMode[playerID] = 2;
-					if(ojamaCounterMode[playerID] > 2) ojamaCounterMode[playerID] = 0;
-					break;
-				case 10:
-					if (m >= 10) maxAttack[playerID] += change*10;
-					else maxAttack[playerID] += change;
-					if(maxAttack[playerID] < 0) maxAttack[playerID] = 99;
-					if(maxAttack[playerID] > 99) maxAttack[playerID] = 0;
-					break;
-				case 11:
-					numColors[playerID] += change;
-					if(numColors[playerID] < 3) numColors[playerID] = 5;
-					if(numColors[playerID] > 5) numColors[playerID] = 3;
-					break;
-				case 12:
-					rensaShibari[playerID] += change;
-					if(rensaShibari[playerID] < 1) rensaShibari[playerID] = 20;
-					if(rensaShibari[playerID] > 20) rensaShibari[playerID] = 1;
-					break;
-				case 13:
-					engine.colorClearSize += change;
-					if(engine.colorClearSize < 2) engine.colorClearSize = 36;
-					if(engine.colorClearSize > 36) engine.colorClearSize = 2;
-					break;
-				case 14:
-					if (m >= 10) ojamaRate[playerID] += change*100;
-					else ojamaRate[playerID] += change*10;
-					if(ojamaRate[playerID] < 10) ojamaRate[playerID] = 1000;
-					if(ojamaRate[playerID] > 1000) ojamaRate[playerID] = 10;
-					break;
-				case 15:
-					if (m > 10) hurryupSeconds[playerID] += change*m/10;
-					else hurryupSeconds[playerID] += change;
-					if(hurryupSeconds[playerID] < 0) hurryupSeconds[playerID] = 300;
-					if(hurryupSeconds[playerID] > 300) hurryupSeconds[playerID] = 0;
-					break;
-				case 16:
-					newChainPower[playerID] = !newChainPower[playerID];
-					break;
-				case 17:
-					outlineType[playerID] += change;
-					if(outlineType[playerID] < 0) outlineType[playerID] = 2;
-					if(outlineType[playerID] > 2) outlineType[playerID] = 0;
-					break;
-				case 18:
-					chainDisplayType[playerID] += change;
-					if(chainDisplayType[playerID] < 0) chainDisplayType[playerID] = 3;
-					if(chainDisplayType[playerID] > 3) chainDisplayType[playerID] = 0;
-					break;
-				case 19:
-					cascadeSlow[playerID] = !cascadeSlow[playerID];
-					break;
-				case 20:
-					big[playerID] = !big[playerID];
-					break;
-				case 21:
-					zenKeshiType[playerID] += change;
-					if(zenKeshiType[playerID] < 0) zenKeshiType[playerID] = 2;
-					if(zenKeshiType[playerID] > 2) zenKeshiType[playerID] = 0;
-					break;
-				case 22:
-					ojamaHard[playerID] += change;
-					if(ojamaHard[playerID] < 0) ojamaHard[playerID] = 9;
-					if(ojamaHard[playerID] > 9) ojamaHard[playerID] = 0;
-					break;
-				case 23:
-					dangerColumnDouble[playerID] = !dangerColumnDouble[playerID];
-					break;
-				case 24:
-					dangerColumnShowX[playerID] = !dangerColumnShowX[playerID];
-					break;
-				case 25:
-					feverThreshold[playerID] += change;
-					if(feverThreshold[playerID] < 0) feverThreshold[playerID] = 9;
-					if(feverThreshold[playerID] > 9) feverThreshold[playerID] = 0;
-					break;
-				case 26:
-					feverMapSet[playerID] += change;
-					if(feverMapSet[playerID] < 0) feverMapSet[playerID] = FEVER_MAPS.length-1;
-					if(feverMapSet[playerID] >= FEVER_MAPS.length) feverMapSet[playerID] = 0;
-					break;
-				case 27:
-					if (m >= 10) feverTimeMin[playerID] += change*10;
-					else feverTimeMin[playerID] += change;
-					if(feverTimeMin[playerID] < 1) feverTimeMin[playerID] = feverTimeMax[playerID];
-					if(feverTimeMin[playerID] > feverTimeMax[playerID]) feverTimeMin[playerID] = 1;
-					break;
-				case 28:
-					if (m >= 10) feverTimeMax[playerID] += change*10;
-					else feverTimeMax[playerID] += change;
-					if(feverTimeMax[playerID] < feverTimeMin[playerID]) feverTimeMax[playerID] = 99;
-					if(feverTimeMax[playerID] > 99) feverTimeMax[playerID] = feverTimeMin[playerID];
-					break;
-				case 29:
-					feverShowMeter[playerID] = !feverShowMeter[playerID];
-					break;
-				case 30:
-					feverPointCriteria[playerID] += change;
-					if(feverPointCriteria[playerID] < 0) feverPointCriteria[playerID] = 2;
-					if(feverPointCriteria[playerID] > 2) feverPointCriteria[playerID] = 0;
-					break;
-				case 31:
-					feverTimeCriteria[playerID] += change;
-					if(feverTimeCriteria[playerID] < 0) feverTimeCriteria[playerID] = 1;
-					if(feverTimeCriteria[playerID] > 1) feverTimeCriteria[playerID] = 0;
-					break;
-				case 32:
-					feverPower[playerID] += change;
-					if(feverPower[playerID] < 0) feverPower[playerID] = 20;
-					if(feverPower[playerID] > 20) feverPower[playerID] = 0;
-					break;
-				case 33:
-					if (feverThreshold[playerID] > 0)
-						ojamaMeter[playerID] = !ojamaMeter[playerID];
-					else
-						ojamaMeter[playerID] = true;
-					break;
-				case 34:
-					useMap[playerID] = !useMap[playerID];
-					if(!useMap[playerID]) {
-						if(engine.field != null) engine.field.reset();
-					} else {
-						loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-					}
-					break;
-				case 35:
-					mapSet[playerID] += change;
-					if(mapSet[playerID] < 0) mapSet[playerID] = 99;
-					if(mapSet[playerID] > 99) mapSet[playerID] = 0;
-					if(useMap[playerID]) {
-						mapNumber[playerID] = -1;
-						loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-					}
-					break;
-				case 36:
-					if(useMap[playerID]) {
-						mapNumber[playerID] += change;
-						if(mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
-						if(mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
-						loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-					} else {
-						mapNumber[playerID] = -1;
-					}
-					break;
-				case 37:
-					bgmno += change;
-					if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
-					if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
-					break;
-				case 38:
-					enableSE[playerID] = !enableSE[playerID];
+                switch(engine.statc[2]) {
+                case 0:
+                    engine.speed.gravity += change * m;
+                    if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
+                    if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
+                    break;
+                case 1:
+                    engine.speed.denominator += change * m;
+                    if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
+                    if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
+                    break;
+                case 2:
+                    engine.speed.are += change;
+                    if(engine.speed.are < 0) engine.speed.are = 99;
+                    if(engine.speed.are > 99) engine.speed.are = 0;
+                    break;
+                case 3:
+                    engine.speed.areLine += change;
+                    if(engine.speed.areLine < 0) engine.speed.areLine = 99;
+                    if(engine.speed.areLine > 99) engine.speed.areLine = 0;
+                    break;
+                case 4:
+                    engine.speed.lineDelay += change;
+                    if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
+                    if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
+                    break;
+                case 5:
+                    if (m >= 10) engine.speed.lockDelay += change*10;
+                    else engine.speed.lockDelay += change;
+                    if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 999;
+                    if(engine.speed.lockDelay > 999) engine.speed.lockDelay = 0;
+                    break;
+                case 6:
+                    engine.speed.das += change;
+                    if(engine.speed.das < 0) engine.speed.das = 99;
+                    if(engine.speed.das > 99) engine.speed.das = 0;
+                    break;
+                case 7:
+                    engine.cascadeDelay += change;
+                    if(engine.cascadeDelay < 0) engine.cascadeDelay = 20;
+                    if(engine.cascadeDelay > 20) engine.cascadeDelay = 0;
+                    break;
+                case 8:
+                    engine.cascadeClearDelay += change;
+                    if(engine.cascadeClearDelay < 0) engine.cascadeClearDelay = 99;
+                    if(engine.cascadeClearDelay > 99) engine.cascadeClearDelay = 0;
+                    break;
+                case 9:
+                    ojamaCounterMode[playerID] += change;
+                    if(ojamaCounterMode[playerID] < 0) ojamaCounterMode[playerID] = 2;
+                    if(ojamaCounterMode[playerID] > 2) ojamaCounterMode[playerID] = 0;
+                    break;
+                case 10:
+                    if (m >= 10) maxAttack[playerID] += change*10;
+                    else maxAttack[playerID] += change;
+                    if(maxAttack[playerID] < 0) maxAttack[playerID] = 99;
+                    if(maxAttack[playerID] > 99) maxAttack[playerID] = 0;
+                    break;
+                case 11:
+                    numColors[playerID] += change;
+                    if(numColors[playerID] < 3) numColors[playerID] = 5;
+                    if(numColors[playerID] > 5) numColors[playerID] = 3;
+                    break;
+                case 12:
+                    rensaShibari[playerID] += change;
+                    if(rensaShibari[playerID] < 1) rensaShibari[playerID] = 20;
+                    if(rensaShibari[playerID] > 20) rensaShibari[playerID] = 1;
+                    break;
+                case 13:
+                    engine.colorClearSize += change;
+                    if(engine.colorClearSize < 2) engine.colorClearSize = 36;
+                    if(engine.colorClearSize > 36) engine.colorClearSize = 2;
+                    break;
+                case 14:
+                    if (m >= 10) ojamaRate[playerID] += change*100;
+                    else ojamaRate[playerID] += change*10;
+                    if(ojamaRate[playerID] < 10) ojamaRate[playerID] = 1000;
+                    if(ojamaRate[playerID] > 1000) ojamaRate[playerID] = 10;
+                    break;
+                case 15:
+                    if (m > 10) hurryupSeconds[playerID] += change*m/10;
+                    else hurryupSeconds[playerID] += change;
+                    if(hurryupSeconds[playerID] < 0) hurryupSeconds[playerID] = 300;
+                    if(hurryupSeconds[playerID] > 300) hurryupSeconds[playerID] = 0;
+                    break;
+                case 16:
+                    newChainPower[playerID] = !newChainPower[playerID];
+                    break;
+                case 17:
+                    outlineType[playerID] += change;
+                    if(outlineType[playerID] < 0) outlineType[playerID] = 2;
+                    if(outlineType[playerID] > 2) outlineType[playerID] = 0;
+                    break;
+                case 18:
+                    chainDisplayType[playerID] += change;
+                    if(chainDisplayType[playerID] < 0) chainDisplayType[playerID] = 3;
+                    if(chainDisplayType[playerID] > 3) chainDisplayType[playerID] = 0;
+                    break;
+                case 19:
+                    cascadeSlow[playerID] = !cascadeSlow[playerID];
+                    break;
+                case 20:
+                    big[playerID] = !big[playerID];
+                    break;
+                case 21:
+                    zenKeshiType[playerID] += change;
+                    if(zenKeshiType[playerID] < 0) zenKeshiType[playerID] = 2;
+                    if(zenKeshiType[playerID] > 2) zenKeshiType[playerID] = 0;
+                    break;
+                case 22:
+                    ojamaHard[playerID] += change;
+                    if(ojamaHard[playerID] < 0) ojamaHard[playerID] = 9;
+                    if(ojamaHard[playerID] > 9) ojamaHard[playerID] = 0;
+                    break;
+                case 23:
+                    dangerColumnDouble[playerID] = !dangerColumnDouble[playerID];
+                    break;
+                case 24:
+                    dangerColumnShowX[playerID] = !dangerColumnShowX[playerID];
+                    break;
+                case 25:
+                    feverThreshold[playerID] += change;
+                    if(feverThreshold[playerID] < 0) feverThreshold[playerID] = 9;
+                    if(feverThreshold[playerID] > 9) feverThreshold[playerID] = 0;
+                    break;
+                case 26:
+                    feverMapSet[playerID] += change;
+                    if(feverMapSet[playerID] < 0) feverMapSet[playerID] = FEVER_MAPS.length-1;
+                    if(feverMapSet[playerID] >= FEVER_MAPS.length) feverMapSet[playerID] = 0;
+                    break;
+                case 27:
+                    if (m >= 10) feverTimeMin[playerID] += change*10;
+                    else feverTimeMin[playerID] += change;
+                    if(feverTimeMin[playerID] < 1) feverTimeMin[playerID] = feverTimeMax[playerID];
+                    if(feverTimeMin[playerID] > feverTimeMax[playerID]) feverTimeMin[playerID] = 1;
+                    break;
+                case 28:
+                    if (m >= 10) feverTimeMax[playerID] += change*10;
+                    else feverTimeMax[playerID] += change;
+                    if(feverTimeMax[playerID] < feverTimeMin[playerID]) feverTimeMax[playerID] = 99;
+                    if(feverTimeMax[playerID] > 99) feverTimeMax[playerID] = feverTimeMin[playerID];
+                    break;
+                case 29:
+                    feverShowMeter[playerID] = !feverShowMeter[playerID];
+                    break;
+                case 30:
+                    feverPointCriteria[playerID] += change;
+                    if(feverPointCriteria[playerID] < 0) feverPointCriteria[playerID] = 2;
+                    if(feverPointCriteria[playerID] > 2) feverPointCriteria[playerID] = 0;
+                    break;
+                case 31:
+                    feverTimeCriteria[playerID] += change;
+                    if(feverTimeCriteria[playerID] < 0) feverTimeCriteria[playerID] = 1;
+                    if(feverTimeCriteria[playerID] > 1) feverTimeCriteria[playerID] = 0;
+                    break;
+                case 32:
+                    feverPower[playerID] += change;
+                    if(feverPower[playerID] < 0) feverPower[playerID] = 20;
+                    if(feverPower[playerID] > 20) feverPower[playerID] = 0;
+                    break;
+                case 33:
+                    if (feverThreshold[playerID] > 0)
+                        ojamaMeter[playerID] = !ojamaMeter[playerID];
+                    else
+                        ojamaMeter[playerID] = true;
+                    break;
+                case 34:
+                    useMap[playerID] = !useMap[playerID];
+                    if(!useMap[playerID]) {
+                        if(engine.field != null) engine.field.reset();
+                    } else {
+                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                    }
+                    break;
+                case 35:
+                    mapSet[playerID] += change;
+                    if(mapSet[playerID] < 0) mapSet[playerID] = 99;
+                    if(mapSet[playerID] > 99) mapSet[playerID] = 0;
+                    if(useMap[playerID]) {
+                        mapNumber[playerID] = -1;
+                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                    }
+                    break;
+                case 36:
+                    if(useMap[playerID]) {
+                        mapNumber[playerID] += change;
+                        if(mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
+                        if(mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
+                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                    } else {
+                        mapNumber[playerID] = -1;
+                    }
+                    break;
+                case 37:
+                    bgmno += change;
+                    if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
+                    if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
+                    break;
+                case 38:
+                	enableSE[playerID] = !enableSE[playerID];
 					break;
 				case 39:
 					bigDisplay = !bigDisplay;

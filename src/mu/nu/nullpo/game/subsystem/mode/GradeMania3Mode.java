@@ -44,537 +44,537 @@ import org.apache.log4j.Logger;
  * GRADE MANIA 3 Mode
  */
 public class GradeMania3Mode extends DummyMode {
-	/** Log */
-	static final Logger log = Logger.getLogger(GradeMania3Mode.class);
-
-	/** Current version */
-	private static final int CURRENT_VERSION = 2;
-
-	/** Section COOL criteria Time */
-	private static final int[] tableTimeCool =
-	{
-		3120, 3120, 2940, 2700, 2700, 2520, 2520, 2280, 2280, 0
-	};
-
-	/** Section REGRET criteria Time */
-	private static final int[] tableTimeRegret =
-	{
-		5400, 4500, 4500, 4080, 3600, 3600, 3000, 3000, 3000, 3000
-	};
-
-	/** 落下速度 table */
-	private static final int[] tableGravityValue =
-	{
-		4, 6, 8, 10, 12, 16, 32, 48, 64, 80, 96, 112, 128, 144, 4, 32, 64, 96, 128, 160, 192, 224, 256, 512, 768, 1024, 1280, 1024, 768, -1
-	};
-
-	/** 落下速度が変わる level */
-	private static final int[] tableGravityChangeLevel =
-	{
-		30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 170, 200, 220, 230, 233, 236, 239, 243, 247, 251, 300, 330, 360, 400, 420, 450, 500, 10000
-	};
-
-	/** ARE table */
-	private static final int[] tableARE       = {23, 23, 23, 23, 23, 23, 23, 14, 10, 10,  4,  3,  2};
-
-	/** ARE after line clear table */
-	private static final int[] tableARELine   = {23, 23, 23, 23, 23, 23, 14, 10,  4,  4,  4,  3,  2};
-
-	/** Line clear time table */
-	private static final int[] tableLineDelay = {40, 40, 40, 40, 40, 25, 16, 12,  6,  6,  6,  6,  6};
-
-	/** 固定 time table */
-	private static final int[] tableLockDelay = {31, 31, 31, 31, 31, 31, 31, 31, 31, 18, 18, 16, 16};
-
-	/** DAS table */
-	private static final int[] tableDAS       = {15, 15, 15, 15, 15,  9,  9,  9,  9,  7,  7,  7,  7};
-
-	/** BGM fadeout level */
-	private static final int[] tableBGMFadeout = {485,685,-1};
-
-	/** BGM change level */
-	private static final int[] tableBGMChange  = {500,700,-1};
-
-	/** Line clear時に入る段位 point */
-	private static final int[][] tableGradePoint =
-	{
-		{10,10,10,10,10, 5, 5, 5, 5, 5, 2},
-		{20,20,20,15,15,15,10,10,10,10,12},
-		{40,30,30,30,20,20,20,15,15,15,13},
-		{50,40,40,40,40,30,30,30,30,30,30},
-	};
-
-	/** 段位 pointのCombo bonus */
-	private static final float[][] tableGradeComboBonus =
-	{
-		{1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f},
-		{1.0f,1.2f,1.2f,1.4f,1.4f,1.4f,1.4f,1.5f,1.5f,2.0f},
-		{1.0f,1.4f,1.5f,1.6f,1.7f,1.8f,1.9f,2.0f,2.1f,2.5f},
-		{1.0f,1.5f,1.8f,2.0f,2.2f,2.3f,2.4f,2.5f,2.6f,3.0f},
-	};
+    /** Log */
+    static final Logger log = Logger.getLogger(GradeMania3Mode.class);
+
+    /** Current version */
+    private static final int CURRENT_VERSION = 2;
+
+    /** Section COOL criteria Time */
+    private static final int[] tableTimeCool =
+    {
+        3120, 3120, 2940, 2700, 2700, 2520, 2520, 2280, 2280, 0
+    };
+
+    /** Section REGRET criteria Time */
+    private static final int[] tableTimeRegret =
+    {
+        5400, 4500, 4500, 4080, 3600, 3600, 3000, 3000, 3000, 3000
+    };
+
+    /** 落下速度 table */
+    private static final int[] tableGravityValue =
+    {
+        4, 6, 8, 10, 12, 16, 32, 48, 64, 80, 96, 112, 128, 144, 4, 32, 64, 96, 128, 160, 192, 224, 256, 512, 768, 1024, 1280, 1024, 768, -1
+    };
+
+    /** 落下速度が変わる level */
+    private static final int[] tableGravityChangeLevel =
+    {
+        30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 170, 200, 220, 230, 233, 236, 239, 243, 247, 251, 300, 330, 360, 400, 420, 450, 500, 10000
+    };
+
+    /** ARE table */
+    private static final int[] tableARE       = {23, 23, 23, 23, 23, 23, 23, 14, 10, 10,  4,  3,  2};
+
+    /** ARE after line clear table */
+    private static final int[] tableARELine   = {23, 23, 23, 23, 23, 23, 14, 10,  4,  4,  4,  3,  2};
+
+    /** Line clear time table */
+    private static final int[] tableLineDelay = {40, 40, 40, 40, 40, 25, 16, 12,  6,  6,  6,  6,  6};
+
+    /** 固定 time table */
+    private static final int[] tableLockDelay = {31, 31, 31, 31, 31, 31, 31, 31, 31, 18, 18, 16, 16};
+
+    /** DAS table */
+    private static final int[] tableDAS       = {15, 15, 15, 15, 15,  9,  9,  9,  9,  7,  7,  7,  7};
+
+    /** BGM fadeout level */
+    private static final int[] tableBGMFadeout = {485,685,-1};
+
+    /** BGM change level */
+    private static final int[] tableBGMChange  = {500,700,-1};
+
+    /** Line clear時に入る段位 point */
+    private static final int[][] tableGradePoint =
+    {
+        {10,10,10,10,10, 5, 5, 5, 5, 5, 2},
+        {20,20,20,15,15,15,10,10,10,10,12},
+        {40,30,30,30,20,20,20,15,15,15,13},
+        {50,40,40,40,40,30,30,30,30,30,30},
+    };
+
+    /** 段位 pointのCombo bonus */
+    private static final float[][] tableGradeComboBonus =
+    {
+        {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f},
+        {1.0f,1.2f,1.2f,1.4f,1.4f,1.4f,1.4f,1.5f,1.5f,2.0f},
+        {1.0f,1.4f,1.5f,1.6f,1.7f,1.8f,1.9f,2.0f,2.1f,2.5f},
+        {1.0f,1.5f,1.8f,2.0f,2.2f,2.3f,2.4f,2.5f,2.6f,3.0f},
+    };
 
-	/** 実際の段位を上げるのに必要な内部段位 */
-	private static final int[] tableGradeChange =
-	{
-		1, 2, 3, 4, 5, 7, 9, 12, 15, 18, 19, 20, 23, 25, 27, 29, 31, -1
-	};
+    /** 実際の段位を上げるのに必要な内部段位 */
+    private static final int[] tableGradeChange =
+    {
+        1, 2, 3, 4, 5, 7, 9, 12, 15, 18, 19, 20, 23, 25, 27, 29, 31, -1
+    };
 
-	/** 段位 pointが1つ減る time */
-	private static final int[] tableGradeDecayRate =
-	{
-		125, 80, 80, 50, 45, 45, 45, 40, 40, 40, 40, 40, 30, 30, 30, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 10, 10
-	};
+    /** 段位 pointが1つ減る time */
+    private static final int[] tableGradeDecayRate =
+    {
+        125, 80, 80, 50, 45, 45, 45, 40, 40, 40, 40, 40, 30, 30, 30, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 10, 10
+    };
 
-	///** 段位のcount */
-	//private static final int GRADE_MAX = 33;
+    ///** 段位のcount */
+    //private static final int GRADE_MAX = 33;
 
-	/** 段位のName */
-	private static final String[] tableGradeName =
-	{
-		 "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",	//  0～ 8
-		"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",	//  9～17
-		"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9",	// 18～26
-		 "M", "MK", "MV", "MO", "MM", "GM"						// 27～32
-	};
+    /** 段位のName */
+    private static final String[] tableGradeName =
+    {
+         "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",    //  0～ 8
+        "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",    //  9～17
+        "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9",    // 18～26
+         "M", "MK", "MV", "MO", "MM", "GM"                        // 27～32
+    };
 
-	/** 裏段位のName */
-	private static final String[] tableSecretGradeName =
-	{
-		 "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",	//  0～ 8
-		"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",	//  9～17
-		"GM"													// 18
-	};
+    /** 裏段位のName */
+    private static final String[] tableSecretGradeName =
+    {
+         "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",    //  0～ 8
+        "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",    //  9～17
+        "GM"                                                    // 18
+    };
 
-	/** LV999 roll time */
-	private static final int ROLLTIMELIMIT = 3238;
+    /** LV999 roll time */
+    private static final int ROLLTIMELIMIT = 3238;
 
-	/** Number of entries in rankings */
-	private static final int RANKING_MAX = 10;
+    /** Number of entries in rankings */
+    private static final int RANKING_MAX = 10;
 
-	/** Number of ranking types */
-	private static final int RANKING_TYPE = 2;
+    /** Number of ranking types */
+    private static final int RANKING_TYPE = 2;
 
-	/** 段位履歴のサイズ */
-	private static final int GRADE_HISTORY_SIZE = 7;
+    /** 段位履歴のサイズ */
+    private static final int GRADE_HISTORY_SIZE = 7;
 
-	/** 段位認定試験の発生確率(EXAM_CHANCE分の1の確率で発生) */
-	private static final int EXAM_CHANCE = 3;
+    /** 段位認定試験の発生確率(EXAM_CHANCE分の1の確率で発生) */
+    private static final int EXAM_CHANCE = 3;
 
-	/** Number of sections */
-	private static final int SECTION_MAX = 10;
+    /** Number of sections */
+    private static final int SECTION_MAX = 10;
 
-	/** Default section time */
-	private static final int DEFAULT_SECTION_TIME = 5400;
+    /** Default section time */
+    private static final int DEFAULT_SECTION_TIME = 5400;
 
-	/** GameManager that owns this mode */
-	private GameManager owner;
+    /** GameManager that owns this mode */
+    private GameManager owner;
 
-	/** Drawing and event handling EventReceiver */
-	private EventReceiver receiver;
+    /** Drawing and event handling EventReceiver */
+    private EventReceiver receiver;
 
-	/** Current 落下速度の number (tableGravityChangeLevelの levelに到達するたびに1つ増える) */
-	private int gravityindex;
+    /** Current 落下速度の number (tableGravityChangeLevelの levelに到達するたびに1つ増える) */
+    private int gravityindex;
 
-	/** Next Section の level (これ-1のときに levelストップする) */
-	private int nextseclv;
+    /** Next Section の level (これ-1のときに levelストップする) */
+    private int nextseclv;
 
-	/** 内部 level */
-	private int internalLevel;
+    /** 内部 level */
+    private int internalLevel;
 
-	/** Levelが増えた flag */
-	private boolean lvupflag;
+    /** Levelが増えた flag */
+    private boolean lvupflag;
 
-	/** 最終結果などに表示される実際の段位 */
-	private int grade;
+    /** 最終結果などに表示される実際の段位 */
+    private int grade;
 
-	/** メインの段位 */
-	private int gradeBasicReal;
+    /** メインの段位 */
+    private int gradeBasicReal;
 
-	/** メインの段位の内部段位 */
-	private int gradeBasicInternal;
+    /** メインの段位の内部段位 */
+    private int gradeBasicInternal;
 
-	/** メインの段位の内部段位 point */
-	private int gradeBasicPoint;
+    /** メインの段位の内部段位 point */
+    private int gradeBasicPoint;
 
-	/** メインの段位の内部段位 pointが1つ減る time */
-	private int gradeBasicDecay;
+    /** メインの段位の内部段位 pointが1つ減る time */
+    private int gradeBasicDecay;
 
-	/** 最後に段位が上がった time */
-	private int lastGradeTime;
+    /** 最後に段位が上がった time */
+    private int lastGradeTime;
 
-	/** Hard dropした段count */
-	private int harddropBonus;
+    /** Hard dropした段count */
+    private int harddropBonus;
 
-	/** Combo bonus */
-	private int comboValue;
+    /** Combo bonus */
+    private int comboValue;
 
-	/** Most recent increase in score */
-	private int lastscore;
+    /** Most recent increase in score */
+    private int lastscore;
 
-	/** 獲得Render scoreがされる残り time */
-	private int scgettime;
+    /** 獲得Render scoreがされる残り time */
+    private int scgettime;
 
-	/** このSection でCOOLを出すとtrue */
-	private boolean cool;
+    /** このSection でCOOLを出すとtrue */
+    private boolean cool;
 
-	/** COOL count */
-	private int coolcount;
+    /** COOL count */
+    private int coolcount;
 
-	/** 直前のSection でCOOLを出したらtrue */
-	private boolean previouscool;
+    /** 直前のSection でCOOLを出したらtrue */
+    private boolean previouscool;
 
-	/** 直前のSection での level70通過Time */
-	private int coolprevtime;
+    /** 直前のSection での level70通過Time */
+    private int coolprevtime;
 
-	/** このSection でCOOL check をしたらtrue */
-	private boolean coolchecked;
+    /** このSection でCOOL check をしたらtrue */
+    private boolean coolchecked;
 
-	/** このSection でCOOL表示をしたらtrue */
-	private boolean cooldisplayed;
+    /** このSection でCOOL表示をしたらtrue */
+    private boolean cooldisplayed;
 
-	/** COOL display time frame count */
-	private int cooldispframe;
+    /** COOL display time frame count */
+    private int cooldispframe;
 
-	/** REGRET display time frame count */
-	private int regretdispframe;
+    /** REGRET display time frame count */
+    private int regretdispframe;
 
-	/** COOL section flags*/
-	private boolean[] coolsection;
+    /** COOL section flags*/
+    private boolean[] coolsection;
 
-	/** REGRET section flags*/
-	private boolean[] regretsection;
+    /** REGRET section flags*/
+    private boolean[] regretsection;
 
-	/** Section time display color-code type */
-	private int stcolor;
+    /** Section time display color-code type */
+    private int stcolor;
 
-	/** Roll 経過 time */
-	private int rolltime;
+    /** Roll 経過 time */
+    private int rolltime;
 
-	/** Roll completely cleared flag */
-	private int rollclear;
+    /** Roll completely cleared flag */
+    private int rollclear;
 
-	/** Roll started flag */
-	private boolean rollstarted;
+    /** Roll started flag */
+    private boolean rollstarted;
 
-	/** 裏段位 */
-	private int secretGrade;
+    /** 裏段位 */
+    private int secretGrade;
 
-	/** Current BGM */
-	private int bgmlv;
+    /** Current BGM */
+    private int bgmlv;
 
-	/** 段位表示を光らせる残り frame count */
-	private int gradeflash;
+    /** 段位表示を光らせる残り frame count */
+    private int gradeflash;
 
-	/** Section Time */
-	private int[] sectiontime;
+    /** Section Time */
+    private int[] sectiontime;
 
-	/** 新記録が出たSection はtrue */
-	private boolean[] sectionIsNewRecord;
+    /** 新記録が出たSection はtrue */
+    private boolean[] sectionIsNewRecord;
 
-	/** Cleared Section count */
-	private int sectionscomp;
+    /** Cleared Section count */
+    private int sectionscomp;
 
-	/** Average Section Time */
-	private int sectionavgtime;
+    /** Average Section Time */
+    private int sectionavgtime;
 
-	/** 直前のSection Time */
-	private int sectionlasttime;
+    /** 直前のSection Time */
+    private int sectionlasttime;
 
-	/** 消えRoll started flag */
-	private boolean mrollFlag;
+    /** 消えRoll started flag */
+    private boolean mrollFlag;
 
-	/** Roll 中に稼いだ point (段位上昇用) */
-	private float rollPoints;
+    /** Roll 中に稼いだ point (段位上昇用) */
+    private float rollPoints;
 
-	/** Roll 中に稼いだ point (合計) */
-	private float rollPointsTotal;
+    /** Roll 中に稼いだ point (合計) */
+    private float rollPointsTotal;
 
-	/** AC medal 状態 */
-	private int medalAC;
+    /** AC medal 状態 */
+    private int medalAC;
 
-	/** ST medal 状態 */
-	private int medalST;
+    /** ST medal 状態 */
+    private int medalST;
 
-	/** SK medal 状態 */
-	private int medalSK;
+    /** SK medal 状態 */
+    private int medalSK;
 
-	/** CO medal 状態 */
-	private int medalCO;
+    /** CO medal 状態 */
+    private int medalCO;
 
-	/** Section Time記録表示中ならtrue */
-	private boolean isShowBestSectionTime;
+    /** Section Time記録表示中ならtrue */
+    private boolean isShowBestSectionTime;
 
-	/** Level at start */
-	private int startlevel;
+    /** Level at start */
+    private int startlevel;
 
-	/** When true, always ghost ON */
-	private boolean alwaysghost;
+    /** When true, always ghost ON */
+    private boolean alwaysghost;
 
-	/** When true, always 20G */
-	private boolean always20g;
+    /** When true, always 20G */
+    private boolean always20g;
 
-	/** When true, levelstop sound is enabled */
-	private boolean lvstopse;
+    /** When true, levelstop sound is enabled */
+    private boolean lvstopse;
 
-	/** BigMode */
-	private boolean big;
+    /** BigMode */
+    private boolean big;
 
-	/** When true, section time display is enabled */
-	private boolean showsectiontime;
+    /** When true, section time display is enabled */
+    private boolean showsectiontime;
 
-	/** 段位表示 */
-	private boolean gradedisp;
+    /** 段位表示 */
+    private boolean gradedisp;
 
-	/** LV500の足切りTime */
-	private int lv500torikan;
+    /** LV500の足切りTime */
+    private int lv500torikan;
 
-	/** 昇格・降格試験 is enabled */
-	private boolean enableexam;
+    /** 昇格・降格試験 is enabled */
+    private boolean enableexam;
 
-	/** Version */
-	private int version;
+    /** Version */
+    private int version;
 
-	/** Current round's ranking rank */
-	private int rankingRank;
+    /** Current round's ranking rank */
+    private int rankingRank;
 
-	/** Rankings' 段位 */
-	private int[][] rankingGrade;
+    /** Rankings' 段位 */
+    private int[][] rankingGrade;
 
-	/** Rankings' levels */
-	private int[][] rankingLevel;
+    /** Rankings' levels */
+    private int[][] rankingLevel;
 
-	/** Rankings' times */
-	private int[][] rankingTime;
+    /** Rankings' times */
+    private int[][] rankingTime;
 
-	/** Rankings' Roll completely cleared flag */
-	private int[][] rankingRollclear;
+    /** Rankings' Roll completely cleared flag */
+    private int[][] rankingRollclear;
 
-	/** Section Time記録 */
-	private int[][] bestSectionTime;
+    /** Section Time記録 */
+    private int[][] bestSectionTime;
 
-	/** 段位履歴 (昇格・降格試験用) */
-	private int[] gradeHistory;
+    /** 段位履歴 (昇格・降格試験用) */
+    private int[] gradeHistory;
 
-	/** 昇格試験の目標段位 */
-	private int promotionalExam;
+    /** 昇格試験の目標段位 */
+    private int promotionalExam;
 
-	/** Current 認定段位 */
-	private int qualifiedGrade;
+    /** Current 認定段位 */
+    private int qualifiedGrade;
 
-	/** 降格試験 point (30以上溜まると降格試験発生) */
-	private int demotionPoints;
+    /** 降格試験 point (30以上溜まると降格試験発生) */
+    private int demotionPoints;
 
-	/** 昇格試験 flag */
-	private boolean promotionFlag;
+    /** 昇格試験 flag */
+    private boolean promotionFlag;
 
-	/** 降格試験 flag */
-	private boolean demotionFlag;
+    /** 降格試験 flag */
+    private boolean demotionFlag;
 
-	/** 降格試験での目標段位 */
-	private int demotionExamGrade;
+    /** 降格試験での目標段位 */
+    private int demotionExamGrade;
 
-	/** 試験開始前演出の frame count */
-	private int readyframe;
+    /** 試験開始前演出の frame count */
+    private int readyframe;
 
-	/** 試験終了演出の frame count */
-	private int passframe;
+    /** 試験終了演出の frame count */
+    private int passframe;
 
-	/*
-	 * Mode name
-	 */
-	@Override
-	public String getName() {
-		return "GRADE MANIA 3";
-	}
+    /*
+     * Mode name
+     */
+    @Override
+    public String getName() {
+        return "GRADE MANIA 3";
+    }
 
-	/*
-	 * Initialization
-	 */
-	@Override
-	public void playerInit(GameEngine engine, int playerID) {
-		owner = engine.owner;
-		receiver = engine.owner.receiver;
-
-		gravityindex = 0;
-		nextseclv = 0;
-		internalLevel = 0;
-		lvupflag = true;
-		grade = 0;
-		gradeBasicReal = 0;
-		gradeBasicInternal = 0;
-		gradeBasicPoint = 0;
-		gradeBasicDecay = 0;
-		lastGradeTime = 0;
-		harddropBonus = 0;
-		comboValue = 0;
-		lastscore = 0;
-		scgettime = 0;
-		cool = false;
-		coolcount = 0;
-		previouscool = false;
-		coolprevtime = 0;
-		coolchecked = false;
-		cooldisplayed = false;
-		cooldispframe = 0;
-		regretdispframe = 0;
-		rolltime = 0;
-		rollclear = 0;
-		rollstarted = false;
-		secretGrade = 0;
-		bgmlv = 0;
-		gradeflash = 0;
-		sectiontime = new int[SECTION_MAX];
-		sectionIsNewRecord = new boolean[SECTION_MAX];
-		regretsection = new boolean[SECTION_MAX];
-		coolsection = new boolean[SECTION_MAX];
-		sectionscomp = 0;
-		sectionavgtime = 0;
-		sectionlasttime = 0;
-		mrollFlag = false;
-		rollPoints = 0f;
-		rollPointsTotal = 0f;
-		medalAC = 0;
-		medalST = 0;
-		medalSK = 0;
-		medalCO = 0;
-		isShowBestSectionTime = false;
-		startlevel = 0;
-		alwaysghost = false;
-		always20g = false;
-		lvstopse = false;
-		big = false;
-		gradedisp = false;
-		lv500torikan = 25200;
-		enableexam = false;
-
-		promotionalExam = 0;
-		qualifiedGrade = 0;
-		demotionPoints = 0;
-		readyframe = 0;
-		passframe = 0;
-		gradeHistory = new int[GRADE_HISTORY_SIZE];
-		promotionFlag = false;
-		demotionFlag = false;
-		demotionExamGrade = 0;
-
-		rankingRank = -1;
-		rankingGrade = new int[RANKING_MAX][RANKING_TYPE];
-		rankingLevel = new int[RANKING_MAX][RANKING_TYPE];
-		rankingTime = new int[RANKING_MAX][RANKING_TYPE];
-		rankingRollclear = new int[RANKING_MAX][RANKING_TYPE];
-		bestSectionTime = new int[SECTION_MAX][RANKING_TYPE];
-
-		engine.tspinEnable = false;
-		engine.b2bEnable = false;
-		engine.framecolor = GameEngine.FRAME_COLOR_BLUE;
-		engine.comboType = GameEngine.COMBO_TYPE_DOUBLE;
-		engine.bighalf = true;
-		engine.bigmove = true;
-		engine.staffrollEnable = true;
-		engine.staffrollNoDeath = false;
-
-		if(owner.replayMode == false) {
-			loadSetting(owner.modeConfig);
-			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-			version = CURRENT_VERSION;
-		} else {
-			loadSetting(owner.replayProp);
-			version = owner.replayProp.getProperty("grademania3.version", 0);
-
-			for(int i = 0; i < SECTION_MAX; i++) {
-				bestSectionTime[i][enableexam ? 1 : 0] = DEFAULT_SECTION_TIME;
-			}
-
-			if(enableexam) {
-				promotionalExam = owner.replayProp.getProperty("grademania3.exam", 0);
-				demotionPoints = owner.replayProp.getProperty("grademania3.demopoint", 0);
-				demotionExamGrade = owner.replayProp.getProperty("grademania3.demotionExamGrade", 0);
-				if (promotionalExam > 0) {
-					promotionFlag = true;
-					readyframe = 100;
-					passframe = 600;
-				} else if (demotionPoints >= 30) {
-					demotionFlag = true;
-					passframe = 600;
-				}
-
-				log.debug("** Exam data from replay START **");
-				log.debug("Promotional Exam Grade:" + getGradeName(promotionalExam) + " (" + promotionalExam + ")");
-				log.debug("Promotional Exam Flag:" + promotionFlag);
-				log.debug("Demotion Points:" + demotionPoints);
-				log.debug("Demotional Exam Grade:" + getGradeName(demotionExamGrade) + " (" + demotionExamGrade + ")");
-				log.debug("Demotional Exam Flag:" + demotionFlag);
-				log.debug("*** Exam data from replay END ***");
-			}
-		}
-
-		owner.backgroundStatus.bg = startlevel;
-	}
-
-	/**
-	 * Load settings from property file
-	 * @param prop Property file
-	 */
-	private void loadSetting(CustomProperties prop) {
-		startlevel = prop.getProperty("grademania3.startlevel", 0);
-		alwaysghost = prop.getProperty("grademania3.alwaysghost", false);
-		always20g = prop.getProperty("grademania3.always20g", false);
-		lvstopse = prop.getProperty("grademania3.lvstopse", true);
-		showsectiontime = prop.getProperty("grademania3.showsectiontime", false);
-		big = prop.getProperty("grademania3.big", false);
-		gradedisp = prop.getProperty("grademania3.gradedisp", false);
-		lv500torikan = prop.getProperty("grademania3.lv500torikan", 25200);
-		enableexam = prop.getProperty("grademania3.enableexam", false);
-		stcolor = prop.getProperty("grademania3.stcolor", 1);
-	}
-
-	/**
-	 * Save settings to property file
-	 * @param prop Property file
-	 */
-	private void saveSetting(CustomProperties prop) {
-		prop.setProperty("grademania3.startlevel", startlevel);
-		prop.setProperty("grademania3.alwaysghost", alwaysghost);
-		prop.setProperty("grademania3.always20g", always20g);
-		prop.setProperty("grademania3.lvstopse", lvstopse);
-		prop.setProperty("grademania3.showsectiontime", showsectiontime);
-		prop.setProperty("grademania3.big", big);
-		prop.setProperty("grademania3.gradedisp", gradedisp);
-		prop.setProperty("grademania3.lv500torikan", lv500torikan);
-		prop.setProperty("grademania3.enableexam", enableexam);
-		prop.setProperty("grademania3.stcolor", stcolor);
-	}
-
-	/**
-	 * Set BGM at start of game
-	 * @param engine GameEngine
-	 */
-	private void setStartBgmlv(GameEngine engine) {
-		bgmlv = 0;
-		while((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) bgmlv++;
-	}
-
-	/**
-	 * Update falling speed
-	 * @param engine GameEngine
-	 */
-	private void setSpeed(GameEngine engine) {
-		if((always20g == true) || (engine.statistics.time >= 54000)) {
-			engine.speed.gravity = -1;
-		} else {
-			while(internalLevel >= tableGravityChangeLevel[gravityindex]) gravityindex++;
-			engine.speed.gravity = tableGravityValue[gravityindex];
-		}
-
-		if(engine.statistics.time >= 54000) {
-			engine.speed.are = 2;
-			engine.speed.areLine = 1;
-			engine.speed.lineDelay = 3;
-			engine.speed.lockDelay = 13;
-			engine.speed.das = 5;
-		} else {
-			int section = internalLevel / 100;
-			if(section > tableARE.length - 1) section = tableARE.length - 1;
+    /*
+     * Initialization
+     */
+    @Override
+    public void playerInit(GameEngine engine, int playerID) {
+        owner = engine.owner;
+        receiver = engine.owner.receiver;
+
+        gravityindex = 0;
+        nextseclv = 0;
+        internalLevel = 0;
+        lvupflag = true;
+        grade = 0;
+        gradeBasicReal = 0;
+        gradeBasicInternal = 0;
+        gradeBasicPoint = 0;
+        gradeBasicDecay = 0;
+        lastGradeTime = 0;
+        harddropBonus = 0;
+        comboValue = 0;
+        lastscore = 0;
+        scgettime = 0;
+        cool = false;
+        coolcount = 0;
+        previouscool = false;
+        coolprevtime = 0;
+        coolchecked = false;
+        cooldisplayed = false;
+        cooldispframe = 0;
+        regretdispframe = 0;
+        rolltime = 0;
+        rollclear = 0;
+        rollstarted = false;
+        secretGrade = 0;
+        bgmlv = 0;
+        gradeflash = 0;
+        sectiontime = new int[SECTION_MAX];
+        sectionIsNewRecord = new boolean[SECTION_MAX];
+        regretsection = new boolean[SECTION_MAX];
+        coolsection = new boolean[SECTION_MAX];
+        sectionscomp = 0;
+        sectionavgtime = 0;
+        sectionlasttime = 0;
+        mrollFlag = false;
+        rollPoints = 0f;
+        rollPointsTotal = 0f;
+        medalAC = 0;
+        medalST = 0;
+        medalSK = 0;
+        medalCO = 0;
+        isShowBestSectionTime = false;
+        startlevel = 0;
+        alwaysghost = false;
+        always20g = false;
+        lvstopse = false;
+        big = false;
+        gradedisp = false;
+        lv500torikan = 25200;
+        enableexam = false;
+
+        promotionalExam = 0;
+        qualifiedGrade = 0;
+        demotionPoints = 0;
+        readyframe = 0;
+        passframe = 0;
+        gradeHistory = new int[GRADE_HISTORY_SIZE];
+        promotionFlag = false;
+        demotionFlag = false;
+        demotionExamGrade = 0;
+
+        rankingRank = -1;
+        rankingGrade = new int[RANKING_MAX][RANKING_TYPE];
+        rankingLevel = new int[RANKING_MAX][RANKING_TYPE];
+        rankingTime = new int[RANKING_MAX][RANKING_TYPE];
+        rankingRollclear = new int[RANKING_MAX][RANKING_TYPE];
+        bestSectionTime = new int[SECTION_MAX][RANKING_TYPE];
+
+        engine.tspinEnable = false;
+        engine.b2bEnable = false;
+        engine.framecolor = GameEngine.FRAME_COLOR_BLUE;
+        engine.comboType = GameEngine.COMBO_TYPE_DOUBLE;
+        engine.bighalf = true;
+        engine.bigmove = true;
+        engine.staffrollEnable = true;
+        engine.staffrollNoDeath = false;
+
+        if(owner.replayMode == false) {
+            loadSetting(owner.modeConfig);
+            loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+            version = CURRENT_VERSION;
+        } else {
+            loadSetting(owner.replayProp);
+            version = owner.replayProp.getProperty("grademania3.version", 0);
+
+            for(int i = 0; i < SECTION_MAX; i++) {
+                bestSectionTime[i][enableexam ? 1 : 0] = DEFAULT_SECTION_TIME;
+            }
+
+            if(enableexam) {
+                promotionalExam = owner.replayProp.getProperty("grademania3.exam", 0);
+                demotionPoints = owner.replayProp.getProperty("grademania3.demopoint", 0);
+                demotionExamGrade = owner.replayProp.getProperty("grademania3.demotionExamGrade", 0);
+                if (promotionalExam > 0) {
+                    promotionFlag = true;
+                    readyframe = 100;
+                    passframe = 600;
+                } else if (demotionPoints >= 30) {
+                    demotionFlag = true;
+                    passframe = 600;
+                }
+
+                log.debug("** Exam data from replay START **");
+                log.debug("Promotional Exam Grade:" + getGradeName(promotionalExam) + " (" + promotionalExam + ")");
+                log.debug("Promotional Exam Flag:" + promotionFlag);
+                log.debug("Demotion Points:" + demotionPoints);
+                log.debug("Demotional Exam Grade:" + getGradeName(demotionExamGrade) + " (" + demotionExamGrade + ")");
+                log.debug("Demotional Exam Flag:" + demotionFlag);
+                log.debug("*** Exam data from replay END ***");
+            }
+        }
+
+        owner.backgroundStatus.bg = startlevel;
+    }
+
+    /**
+     * Load settings from property file
+     * @param prop Property file
+     */
+    private void loadSetting(CustomProperties prop) {
+        startlevel = prop.getProperty("grademania3.startlevel", 0);
+        alwaysghost = prop.getProperty("grademania3.alwaysghost", false);
+        always20g = prop.getProperty("grademania3.always20g", false);
+        lvstopse = prop.getProperty("grademania3.lvstopse", true);
+        showsectiontime = prop.getProperty("grademania3.showsectiontime", false);
+        big = prop.getProperty("grademania3.big", false);
+        gradedisp = prop.getProperty("grademania3.gradedisp", false);
+        lv500torikan = prop.getProperty("grademania3.lv500torikan", 25200);
+        enableexam = prop.getProperty("grademania3.enableexam", false);
+        stcolor = prop.getProperty("grademania3.stcolor", 1);
+    }
+
+    /**
+     * Save settings to property file
+     * @param prop Property file
+     */
+    private void saveSetting(CustomProperties prop) {
+        prop.setProperty("grademania3.startlevel", startlevel);
+        prop.setProperty("grademania3.alwaysghost", alwaysghost);
+        prop.setProperty("grademania3.always20g", always20g);
+        prop.setProperty("grademania3.lvstopse", lvstopse);
+        prop.setProperty("grademania3.showsectiontime", showsectiontime);
+        prop.setProperty("grademania3.big", big);
+        prop.setProperty("grademania3.gradedisp", gradedisp);
+        prop.setProperty("grademania3.lv500torikan", lv500torikan);
+        prop.setProperty("grademania3.enableexam", enableexam);
+        prop.setProperty("grademania3.stcolor", stcolor);
+    }
+
+    /**
+     * Set BGM at start of game
+     * @param engine GameEngine
+     */
+    private void setStartBgmlv(GameEngine engine) {
+        bgmlv = 0;
+        while((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) bgmlv++;
+    }
+
+    /**
+     * Update falling speed
+     * @param engine GameEngine
+     */
+    private void setSpeed(GameEngine engine) {
+        if((always20g == true) || (engine.statistics.time >= 54000)) {
+            engine.speed.gravity = -1;
+        } else {
+            while(internalLevel >= tableGravityChangeLevel[gravityindex]) gravityindex++;
+            engine.speed.gravity = tableGravityValue[gravityindex];
+        }
+
+        if(engine.statistics.time >= 54000) {
+            engine.speed.are = 2;
+            engine.speed.areLine = 1;
+            engine.speed.lineDelay = 3;
+            engine.speed.lockDelay = 13;
+            engine.speed.das = 5;
+        } else {
+            int section = internalLevel / 100;
+    		if(section > tableARE.length - 1) section = tableARE.length - 1;
 			engine.speed.are = tableARE[section];
 			engine.speed.areLine = tableARELine[section];
 			engine.speed.lineDelay = tableLineDelay[section];

@@ -15,301 +15,301 @@ import org.apache.log4j.Logger;
  *         Poochy.Spambucket@gmail.com
  */
 public class Nohoho extends DummyAI implements Runnable {
-	/** Log */
-	static Logger log = Logger.getLogger(Nohoho.class);
+    /** Log */
+    static Logger log = Logger.getLogger(Nohoho.class);
 
-	/** 接地したあとのX-coordinate */
-	public int bestXSub;
+    /** 接地したあとのX-coordinate */
+    public int bestXSub;
 
-	/** 接地したあとのY-coordinate */
-	public int bestYSub;
+    /** 接地したあとのY-coordinate */
+    public int bestYSub;
 
-	/** 接地したあとのDirection(-1: None) */
-	public int bestRtSub;
+    /** 接地したあとのDirection(-1: None) */
+    public int bestRtSub;
 
-	/** 最善手のEvaluation score */
-	public int bestPts;
+    /** 最善手のEvaluation score */
+    public int bestPts;
 
-	/** 移動を遅らせる用の変count */
-	public int delay;
+    /** 移動を遅らせる用の変count */
+    public int delay;
 
-	/** The GameEngine that owns this AI */
-	public GameEngine gEngine;
+    /** The GameEngine that owns this AI */
+    public GameEngine gEngine;
 
-	/** The GameManager that owns this AI */
-	public GameManager gManager;
+    /** The GameManager that owns this AI */
+    public GameManager gManager;
 
-	/** When true,スレッドにThink routineの実行を指示 */
-	public boolean thinkRequest;
+    /** When true,スレッドにThink routineの実行を指示 */
+    public boolean thinkRequest;
 
-	/** true when thread is executing the think routine. */
-	public boolean thinking;
+    /** true when thread is executing the think routine. */
+    public boolean thinking;
 
-	/** スレッドを停止させる time */
-	public int thinkDelay;
+    /** スレッドを停止させる time */
+    public int thinkDelay;
 
-	/** When true,スレッド動作中 */
-	public volatile boolean threadRunning;
+    /** When true,スレッド動作中 */
+    public volatile boolean threadRunning;
 
-	/** Thread for executing the think routine */
-	public Thread thread;
+    /** Thread for executing the think routine */
+    public Thread thread;
 
-	/** Number of frames for which piece has been stuck */
-	protected int stuckDelay;
+    /** Number of frames for which piece has been stuck */
+    protected int stuckDelay;
 
-	/** Status of last frame */
-	protected int lastInput, lastX, lastY, lastRt;
-	/** Number of consecutive frames with same piece status */
-	protected int sameStatusTime;
-	/** DAS charge status. -1 = left, 0 = none, 1 = right */
-	protected int setDAS;
-	/** Last input if done in ARE */
-	protected int inputARE;
-	/** Maximum妥協 level */
-	protected static final int MAX_THINK_DEPTH = 2;
-	/** Set to true to print debug information */
-	protected static final boolean DEBUG_ALL = true;
-	/** Did the thinking thread finish successfully? */
-	protected boolean thinkComplete;
-	/** Did the thinking thread find a possible position? */
-	protected boolean thinkSuccess;
-	/** Was the game in ARE as of the last frame? */
-	protected boolean inARE;
+    /** Status of last frame */
+    protected int lastInput, lastX, lastY, lastRt;
+    /** Number of consecutive frames with same piece status */
+    protected int sameStatusTime;
+    /** DAS charge status. -1 = left, 0 = none, 1 = right */
+    protected int setDAS;
+    /** Last input if done in ARE */
+    protected int inputARE;
+    /** Maximum妥協 level */
+    protected static final int MAX_THINK_DEPTH = 2;
+    /** Set to true to print debug information */
+    protected static final boolean DEBUG_ALL = true;
+    /** Did the thinking thread finish successfully? */
+    protected boolean thinkComplete;
+    /** Did the thinking thread find a possible position? */
+    protected boolean thinkSuccess;
+    /** Was the game in ARE as of the last frame? */
+    protected boolean inARE;
 
-	/*
-	 * AI's name
-	 */
-	public String getName() {
-		return "Avalanche-R V0.01";
-	}
+    /*
+     * AI's name
+     */
+    public String getName() {
+        return "Avalanche-R V0.01";
+    }
 
-	/*
-	 * Called at initialization
-	 */
-	public void init(GameEngine engine, int playerID) {
-		delay = 0;
-		gEngine = engine;
-		gManager = engine.owner;
-		thinkRequest = false;
-		thinking = false;
-		threadRunning = false;
-		setDAS = 0;
+    /*
+     * Called at initialization
+     */
+    public void init(GameEngine engine, int playerID) {
+        delay = 0;
+        gEngine = engine;
+        gManager = engine.owner;
+        thinkRequest = false;
+        thinking = false;
+        threadRunning = false;
+        setDAS = 0;
 
-		stuckDelay = 0;
-		inputARE = 0;
-		lastInput = 0;
-		lastX = -1;
-		lastY = -1;
-		lastRt = -1;
-		sameStatusTime = 0;
-		thinkComplete = false;
-		thinkSuccess = false;
-		inARE = false;
+        stuckDelay = 0;
+        inputARE = 0;
+        lastInput = 0;
+        lastX = -1;
+        lastY = -1;
+        lastRt = -1;
+        sameStatusTime = 0;
+        thinkComplete = false;
+        thinkSuccess = false;
+        inARE = false;
 
-		if( ((thread == null) || !thread.isAlive()) && (engine.aiUseThread) ) {
-			thread = new Thread(this, "AI_" + playerID);
-			thread.setDaemon(true);
-			thread.start();
-			thinkDelay = engine.aiThinkDelay;
-			thinkCurrentPieceNo = 0;
-			thinkLastPieceNo = 0;
-		}
-	}
+        if( ((thread == null) || !thread.isAlive()) && (engine.aiUseThread) ) {
+            thread = new Thread(this, "AI_" + playerID);
+            thread.setDaemon(true);
+            thread.start();
+            thinkDelay = engine.aiThinkDelay;
+            thinkCurrentPieceNo = 0;
+            thinkLastPieceNo = 0;
+        }
+    }
 
-	/*
-	 * 終了処理
-	 */
-	public void shutdown(GameEngine engine, int playerID) {
-		if((thread != null) && (thread.isAlive())) {
-			thread.interrupt();
-			threadRunning = false;
-			thread = null;
-		}
-	}
+    /*
+     * 終了処理
+     */
+    public void shutdown(GameEngine engine, int playerID) {
+        if((thread != null) && (thread.isAlive())) {
+            thread.interrupt();
+            threadRunning = false;
+            thread = null;
+        }
+    }
 
-	/*
-	 * Called whenever a new piece is spawned
-	 */
-	public void newPiece(GameEngine engine, int playerID) {
-		if(!engine.aiUseThread) {
-			thinkBestPosition(engine, playerID);
-		} else if ((!thinking && !thinkComplete) || !engine.aiPrethink) {
-			thinkRequest = true;
-			thinkCurrentPieceNo++;
-		}
-	}
+    /*
+     * Called whenever a new piece is spawned
+     */
+    public void newPiece(GameEngine engine, int playerID) {
+        if(!engine.aiUseThread) {
+            thinkBestPosition(engine, playerID);
+        } else if ((!thinking && !thinkComplete) || !engine.aiPrethink) {
+            thinkRequest = true;
+            thinkCurrentPieceNo++;
+        }
+    }
 
-	/*
-	 * Called at the start of each frame
-	 */
-	public void onFirst(GameEngine engine, int playerID) {
-		if (engine.aiPrethink && engine.getARE() > 0 && engine.getARELine() > 0)
-		{
-			inputARE = 0;
-			boolean newInARE = engine.stat == GameEngine.STAT_ARE ||
-				engine.stat == GameEngine.STAT_READY;
-			if ((newInARE && !inARE) || (!thinking && !thinkSuccess))
-			{
-				if (DEBUG_ALL) log.debug("Begin pre-think of next piece.");
-				thinkComplete = false;
-				thinkRequest = true;
-			}
-			inARE = newInARE;
-		}
-	}
+    /*
+     * Called at the start of each frame
+     */
+    public void onFirst(GameEngine engine, int playerID) {
+        if (engine.aiPrethink && engine.getARE() > 0 && engine.getARELine() > 0)
+        {
+            inputARE = 0;
+            boolean newInARE = engine.stat == GameEngine.STAT_ARE ||
+                engine.stat == GameEngine.STAT_READY;
+            if ((newInARE && !inARE) || (!thinking && !thinkSuccess))
+            {
+                if (DEBUG_ALL) log.debug("Begin pre-think of next piece.");
+                thinkComplete = false;
+                thinkRequest = true;
+            }
+            inARE = newInARE;
+        }
+    }
 
-	/*
-	 * Called after every frame
-	 */
-	public void onLast(GameEngine engine, int playerID) {
-	}
+    /*
+     * Called after every frame
+     */
+    public void onLast(GameEngine engine, int playerID) {
+    }
 
-	/*
-	 * Set button input states
-	 */
-	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
-		if( (engine.nowPieceObject != null) && (engine.stat == GameEngine.STAT_MOVE) &&
-			(delay >= engine.aiMoveDelay) && (engine.statc[0] > 0) &&
-		    (!engine.aiUseThread || (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo))) )
-		{
-			inputARE = 0;
-			int input = 0;	// Button input data
-			Piece pieceNow = checkOffset(engine.nowPieceObject, engine);
-			int nowX = engine.nowPieceX;
-			int nowY = engine.nowPieceY;
-			int rt = pieceNow.direction;
-			Field fld = engine.field;
-			boolean pieceTouchGround = pieceNow.checkCollision(nowX, nowY + 1, fld);
+    /*
+     * Set button input states
+     */
+    public void setControl(GameEngine engine, int playerID, Controller ctrl) {
+        if( (engine.nowPieceObject != null) && (engine.stat == GameEngine.STAT_MOVE) &&
+            (delay >= engine.aiMoveDelay) && (engine.statc[0] > 0) &&
+            (!engine.aiUseThread || (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo))) )
+        {
+            inputARE = 0;
+            int input = 0;    // Button input data
+            Piece pieceNow = checkOffset(engine.nowPieceObject, engine);
+            int nowX = engine.nowPieceX;
+            int nowY = engine.nowPieceY;
+            int rt = pieceNow.direction;
+            Field fld = engine.field;
+            boolean pieceTouchGround = pieceNow.checkCollision(nowX, nowY + 1, fld);
 
-			int moveDir = 0; //-1 = left,  1 = right
-			int rotateDir = 0; //-1 = left,  1 = right
-			int drop = 0; //1 = up, -1 = down
-			boolean sync = false; //true = delay either rotate or movement for synchro move if needed.
+            int moveDir = 0; //-1 = left,  1 = right
+            int rotateDir = 0; //-1 = left,  1 = right
+            int drop = 0; //1 = up, -1 = down
+            boolean sync = false; //true = delay either rotate or movement for synchro move if needed.
 
-			//If stuck, rethink.
-			if (pieceTouchGround && rt == bestRt &&
-					(pieceNow.getMostMovableRight(nowX, nowY, rt, engine.field) < bestX ||
-					pieceNow.getMostMovableLeft(nowX, nowY, rt, engine.field) > bestX))
-				stuckDelay++;
-			else
-				stuckDelay = 0;
-			if (stuckDelay > 4)
-			{
-				thinkRequest = true;
-				thinkComplete = false;
-				if (DEBUG_ALL) log.debug("Needs rethink - piece is stuck!");
-			}
-			if (nowX == lastX && nowY == lastY && rt == lastRt && lastInput != 0)
-			{
-				sameStatusTime++;
-				if (sameStatusTime > 4)
-				{
-					thinkRequest = true;
-					thinkComplete = false;
-					if (DEBUG_ALL) log.debug("Needs rethink - piece is stuck, last inputs had no effect!");
-				}
-			}
-			if (engine.nowPieceRotateCount >= 8)
-			{
-				thinkRequest = true;
-				thinkComplete = false;
-				if (DEBUG_ALL) log.debug("Needs rethink - piece is stuck, too many rotations!");
-			}
-			else
-				sameStatusTime = 0;
-			if((bestHold == true) && thinkComplete && engine.isHoldOK()) {
-				// Hold
-				input |= Controller.BUTTON_BIT_D;
-			} else {
-				if (DEBUG_ALL) log.debug("bestX = " + bestX + ", nowX = " + nowX +
-						", bestY = " + bestY + ", nowY = " + nowY +
-						", bestRt = " + bestRt + ", rt = " + rt +
-						", bestXSub = " + bestXSub + ", bestYSub = " + bestYSub + ", bestRtSub = " + bestRtSub);
-				// Rotation
-				boolean best180 = Math.abs(rt - bestRt) == 2;
-				if(rt != bestRt)
-				{
-					int lrot = engine.getRotateDirection(-1);
-					int rrot = engine.getRotateDirection(1);
-					if (DEBUG_ALL) log.debug("lrot = " + lrot + ", rrot = " + rrot);
+            //If stuck, rethink.
+            if (pieceTouchGround && rt == bestRt &&
+                    (pieceNow.getMostMovableRight(nowX, nowY, rt, engine.field) < bestX ||
+                    pieceNow.getMostMovableLeft(nowX, nowY, rt, engine.field) > bestX))
+                stuckDelay++;
+            else
+                stuckDelay = 0;
+            if (stuckDelay > 4)
+            {
+                thinkRequest = true;
+                thinkComplete = false;
+                if (DEBUG_ALL) log.debug("Needs rethink - piece is stuck!");
+            }
+            if (nowX == lastX && nowY == lastY && rt == lastRt && lastInput != 0)
+            {
+                sameStatusTime++;
+                if (sameStatusTime > 4)
+                {
+                    thinkRequest = true;
+                    thinkComplete = false;
+                    if (DEBUG_ALL) log.debug("Needs rethink - piece is stuck, last inputs had no effect!");
+                }
+            }
+            if (engine.nowPieceRotateCount >= 8)
+            {
+                thinkRequest = true;
+                thinkComplete = false;
+                if (DEBUG_ALL) log.debug("Needs rethink - piece is stuck, too many rotations!");
+            }
+            else
+                sameStatusTime = 0;
+            if((bestHold == true) && thinkComplete && engine.isHoldOK()) {
+                // Hold
+                input |= Controller.BUTTON_BIT_D;
+            } else {
+                if (DEBUG_ALL) log.debug("bestX = " + bestX + ", nowX = " + nowX +
+                        ", bestY = " + bestY + ", nowY = " + nowY +
+                        ", bestRt = " + bestRt + ", rt = " + rt +
+                        ", bestXSub = " + bestXSub + ", bestYSub = " + bestYSub + ", bestRtSub = " + bestRtSub);
+                // Rotation
+                boolean best180 = Math.abs(rt - bestRt) == 2;
+                if(rt != bestRt)
+                {
+                    int lrot = engine.getRotateDirection(-1);
+                    int rrot = engine.getRotateDirection(1);
+                    if (DEBUG_ALL) log.debug("lrot = " + lrot + ", rrot = " + rrot);
 
-					if(best180 && (engine.ruleopt.rotateButtonAllowDouble) && !ctrl.isPress(Controller.BUTTON_E))
-						input |= Controller.BUTTON_BIT_E;
-					else if (bestRt == rrot)
-						rotateDir = 1;
-					else if(bestRt == lrot)
-						rotateDir = -1;
-					else if (engine.ruleopt.rotateButtonAllowReverse && best180 && (rt&1) == 1)
-					{
-						if(rrot == Piece.DIRECTION_UP)
-							rotateDir = 1;
-						else
-							rotateDir = -1;
-					}
-					else
-						rotateDir = 1;
-				}
+                    if(best180 && (engine.ruleopt.rotateButtonAllowDouble) && !ctrl.isPress(Controller.BUTTON_E))
+                        input |= Controller.BUTTON_BIT_E;
+                    else if (bestRt == rrot)
+                        rotateDir = 1;
+                    else if(bestRt == lrot)
+                        rotateDir = -1;
+                    else if (engine.ruleopt.rotateButtonAllowReverse && best180 && (rt&1) == 1)
+                    {
+                        if(rrot == Piece.DIRECTION_UP)
+                            rotateDir = 1;
+                        else
+                            rotateDir = -1;
+                    }
+                    else
+                        rotateDir = 1;
+                }
 
-				// 到達可能な位置かどうか
-				int minX = pieceNow.getMostMovableLeft(nowX, nowY, rt, fld);
-				int maxX = pieceNow.getMostMovableRight(nowX, nowY, rt, fld);
+                // 到達可能な位置かどうか
+                int minX = pieceNow.getMostMovableLeft(nowX, nowY, rt, fld);
+                int maxX = pieceNow.getMostMovableRight(nowX, nowY, rt, fld);
 
-				if( ((bestX < minX - 1) || (bestX > maxX + 1) || (bestY < nowY)) && (rt == bestRt) ) {
-					// 到達不能なので再度思考する
-					//thinkBestPosition(engine, playerID);
-					thinkRequest = true;
-					thinkComplete = false;
-					//thinkCurrentPieceNo++;
-					//System.out.println("rethink c:" + thinkCurrentPieceNo + " l:" + thinkLastPieceNo);
-					if (DEBUG_ALL) log.debug("Needs rethink - cannot reach desired position");
-				} else {
-					// 到達できる場合
-					if((nowX == bestX) && (pieceTouchGround)) {
-						if (rt == bestRt) {
-							// 接地rotation
-							if(bestRtSub != -1) {
-								bestRt = bestRtSub;
-								bestRtSub = -1;
-							}
-							// ずらし移動
-							if(bestX != bestXSub) {
-								bestX = bestXSub;
-								bestY = bestYSub;
-							}
-						}
-					}
-					if (nowX > bestX)
-						moveDir = -1;
-					else if(nowX < bestX)
-						moveDir = 1;
-					else if((nowX == bestX) && (rt == bestRt)) {
-						moveDir = 0;
-						setDAS = 0;
-						// 目標到達
-						if((bestRtSub == -1) && (bestX == bestXSub)) {
-							if (pieceTouchGround && engine.ruleopt.softdropLock)
-								drop = -1;
-							else if(engine.ruleopt.harddropEnable)
-								drop = 1;
-							else if(engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
-								drop = -1;
-						} else {
-							if(engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock)
-								drop = 1;
-							else if(engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
-								drop = -1;
-						}
-					}
-				}
-			}
+                if( ((bestX < minX - 1) || (bestX > maxX + 1) || (bestY < nowY)) && (rt == bestRt) ) {
+                    // 到達不能なので再度思考する
+                    //thinkBestPosition(engine, playerID);
+                    thinkRequest = true;
+                    thinkComplete = false;
+                    //thinkCurrentPieceNo++;
+                    //System.out.println("rethink c:" + thinkCurrentPieceNo + " l:" + thinkLastPieceNo);
+                    if (DEBUG_ALL) log.debug("Needs rethink - cannot reach desired position");
+                } else {
+                    // 到達できる場合
+                    if((nowX == bestX) && (pieceTouchGround)) {
+                        if (rt == bestRt) {
+                            // 接地rotation
+                            if(bestRtSub != -1) {
+                                bestRt = bestRtSub;
+                                bestRtSub = -1;
+                            }
+                            // ずらし移動
+                            if(bestX != bestXSub) {
+                                bestX = bestXSub;
+                                bestY = bestYSub;
+                            }
+                        }
+                    }
+                    if (nowX > bestX)
+                        moveDir = -1;
+                    else if(nowX < bestX)
+                        moveDir = 1;
+                    else if((nowX == bestX) && (rt == bestRt)) {
+                        moveDir = 0;
+                        setDAS = 0;
+                        // 目標到達
+                        if((bestRtSub == -1) && (bestX == bestXSub)) {
+                            if (pieceTouchGround && engine.ruleopt.softdropLock)
+                                drop = -1;
+                            else if(engine.ruleopt.harddropEnable)
+                                drop = 1;
+                            else if(engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
+                                drop = -1;
+                        } else {
+                            if(engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock)
+                                drop = 1;
+                            else if(engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
+                                drop = -1;
+                        }
+                    }
+                }
+            }
 
-			//Convert parameters to input
-			boolean useDAS = engine.dasCount >= engine.getDAS() && moveDir == setDAS;
-			if(moveDir == -1 && (!ctrl.isPress(Controller.BUTTON_LEFT) || useDAS))
-				input |= Controller.BUTTON_BIT_LEFT;
-			else if(moveDir == 1 && (!ctrl.isPress(Controller.BUTTON_RIGHT) || useDAS))
-				input |= Controller.BUTTON_BIT_RIGHT;
-			if(drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
+            //Convert parameters to input
+            boolean useDAS = engine.dasCount >= engine.getDAS() && moveDir == setDAS;
+            if(moveDir == -1 && (!ctrl.isPress(Controller.BUTTON_LEFT) || useDAS))
+                input |= Controller.BUTTON_BIT_LEFT;
+            else if(moveDir == 1 && (!ctrl.isPress(Controller.BUTTON_RIGHT) || useDAS))
+                input |= Controller.BUTTON_BIT_RIGHT;
+        	if(drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
 				input |= Controller.BUTTON_BIT_UP;
 			else if(drop == -1)
 				input |= Controller.BUTTON_BIT_DOWN;

@@ -1,5 +1,5 @@
-PoochyBot			ポチボット
-10 June 2010			2010年6月10日
+PoochyBot            ポチボット
+10 June 2010            2010年6月10日
 
 PoochyBot.java contains all the source code for PoochyBot. It should go in the
 /src/org/game_host/hebo/nullpomino/game/subsystem/ai/ directory like all the

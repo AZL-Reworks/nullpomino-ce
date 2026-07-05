@@ -40,701 +40,701 @@ import mu.nu.nullpo.util.GeneralUtil;
  * TIME ATTACK mode (Original from NullpoUE build 010210 by Zircean. This mode is heavily modified from the original.)
  */
 public class TimeAttackMode extends NetDummyMode {
-	/** Current version of this mode */
-	private static final int CURRENT_VERSION = 1;
-
-	/** Gravity tables */
-	private static final int tableGravity[][] =
-	{
-		{ 4, 12, 48, 72, 96, 128, 256, 384, 512, 768, 1024, 1280, -1},	// NORMAL
-		{84,128,256,512,768,1024,1280,  -1},							// HIGH SPEED 1
-		{-1},															// HIGH SPEED 2
-		{-1},															// ANOTHER
-		{-1},															// ANOTHER 2
-		{ 4, 12, 48, 72, 96, 128, 256, 384, 512, 768, 1024, 1280, -1},	// NORMAL 200
-		{-1},															// ANOTHER 200
-		{ 1,  3, 15, 30, 60, 120, 180, 240, 300, 300, -1},				// BASIC
-		{-1},															// HELL
-		{-1},															// HELL-X
-		{-1},															// VOID
-	};
-
-	/** Denominator table */
-	private static final int tableDenominator[] =
-	{
-		256,	// NORMAL
-		256,	// HIGH SPEED 1
-		256,	// HIGH SPEED 2
-		256,	// ANOTHER
-		256,	// ANOTHER2
-		256,	// NORMAL 200
-		256,	// ANOTHER 200
-		60,		// BASIC
-		256,	// HELL
-		256,	// HELL-X
-		256,	// VOID
-	};
-
-	/** Max level table */
-	private static final int tableGoalLevel[] =
-	{
-		15,	// NORMAL
-		15,	// HIGH SPEED 1
-		15,	// HIGH SPEED 2
-		15,	// ANOTHER
-		15,	// ANOTHER2
-		20,	// NORMAL 200
-		20,	// ANOTHER 200
-		20,	// BASIC
-		20,	// HELL
-		20,	// HELL-X
-		20,	// VOID
-	};
-
-	/** Level timer tables */
-	private static final int tableLevelTimer[][] =
-	{
-		{7200, 7200, 5400},										// NORMAL
-		{7200, 7200, 5400},										// HIGH SPEED 1
-		{7200, 7200, 5400},										// HIGH SPEED 2
-		{3600},													// ANOTHER
-		{7200, 7200, 5400},										// ANOTHER 2
-		{7200, 7200, 5400},										// NORMAL 200
-		{3600},													// ANOTHER 200
-		{1800, 1800, 1800, 1800, 1800, 1500, 1500, 1500, 1500, 1500,
-			1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 900},	// BASIC
-		{1800, 1800, 1800, 1800, 1800, 1500, 1500, 1500, 1500, 1500,
-			1200, 1200, 1200, 1020, 900, 1200, 1020, 900, 840},	// HELL
-		{1800, 1800, 1800, 1800, 1800, 1500, 1500, 1500, 1500, 1500,
-			1200, 1200, 1200, 1020, 900, 1200, 1020, 900, 840},	// HELL-X
-		{1800, 1200, 900, 900, 900, 840, 840, 840, 840, 840, 720,
-			720, 720, 720, 720, 540, 480, 420, 360, 300},		// VOID
-	};
-
-	/** Speed table for ANOTHER */
-	private static final int tableAnother[][] =
-	{
-		{18,14,14,14,12,12,10, 8, 7, 6}, // ARE
-		{14, 8, 8, 5, 5, 5, 5, 5, 5, 5}, // Line delay
-		{28,24,22,20,18,14,14,13,13,13}, // Lock delay
-		{10,10, 9, 9, 9, 8, 8, 7, 7, 7}  // DAS
-	};
-
-	/** Speed table for NORMAL 200 */
-	private static final int tableNormal200[][] =
-	{
-		{25,25,25,25,25,25,25,25,25,25,25,25,25,25,22,16,16,12,12,10},	// ARE
-		{25,25,25,25,25,25,25,25,25,25,25,25,25,25,16,16,16,12,12, 8},	// Line delay
-		{30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,25,24,22,20,17},	// Lock delay
-		{15,15,15,15,15,15,15,15,15,15,15,15,15,15,12,10, 9, 8, 8, 6}	// DAS
-	};
-
-	/** Speed table for VOID */
-	private static final int tableVoid[][] =
-	{
-		{ 2, 2,1,1,1,0,0,0,0,0,0,0,0,0,0,0},	// ARE
-		{ 3, 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},	// Line delay
-		{11,10,9,9,9,9,9,9,9,9,9,9,9,9,9,8},	// Lock delay
-		{ 7, 5,5,4,4,3,3,3,3,3,3,3,3,3,3,2}		// DAS
-	};
-
-	/** Speed table for BASIC */
-	private static final int tableBasic[][] =
-	{
-		{26,26,26,26,26,26,26,26,26,26,15,11,11,11,11,10, 9, 5, 3, 2}, // ARE
-		{40,40,40,30,30,25,25,25,25,25,20,15,12,10, 6, 5, 4, 3, 3, 3}, // Line delay
-		{28,28,28,26,26,26,26,26,25,25,25,23,23,23,20,20,18,18,14,11}, // Lock delay
-		{15,15,15,15,15,15,15,15,15,15,10, 9, 9, 8, 8, 7, 7, 7, 7, 7}  // DAS
-	};
-
-	/** BGM change lines table */
-	private static final int tableBGMChange[][] =
-	{
-		{50, 100},	// NORMAL
-		{50, 100},	// HI-SPEED 1
-		{50, 100},	// HI-SPEED 2
-		{40, 100},	// ANOTHER
-		{40, 100},	// ANOTHER2
-		{50, 150},	// NORMAL 200
-		{40, 150},	// ANOTHER 200
-		{50, 150},	// BASIC
-		{50, 150},	// HELL
-		{50, 150},	// HELL-X
-		{},			// VOID
-	};
-
-	/** BGM fadeout lines table */
-	private static final int tableBGMFadeout[][] =
-	{
-		{45, 95, 145},	// NORMAL
-		{45, 95, 145},	// HI-SPEED 1
-		{45, 95, 145},	// HI-SPEED 2
-		{35, 95, 145},	// ANOTHER
-		{35, 95, 145},	// ANOTHER2
-		{45, 145, 195},	// NORMAL 200
-		{45, 145, 195},	// ANOTHER 200
-		{45, 145, 195},	// BASIC
-		{45, 145, 195},	// HELL
-		{45, 145, 195},	// HELL-X
-		{195},			// VOID
-	};
-
-	/** BGM kind table */
-	private static final int tableBGMNumber[][] =
-	{
-		{BGMStatus.BGM_SPECIAL1, BGMStatus.BGM_NORMAL2,  BGMStatus.BGM_NORMAL3},	// NORMAL
-		{BGMStatus.BGM_NORMAL1,  BGMStatus.BGM_NORMAL3,  BGMStatus.BGM_NORMAL6},	// HI-SPEED 1
-		{BGMStatus.BGM_NORMAL3,  BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4},	// HI-SPEED 2
-		{BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5},	// ANOTHER
-		{BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5},	// ANOTHER2
-		{BGMStatus.BGM_SPECIAL1, BGMStatus.BGM_NORMAL2,  BGMStatus.BGM_NORMAL3},	// NORMAL 200
-		{BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5},	// ANOTHER 200
-		{BGMStatus.BGM_NORMAL1,  BGMStatus.BGM_NORMAL2,  BGMStatus.BGM_NORMAL3},	// BASIC
-		{BGMStatus.BGM_PUZZLE4,  BGMStatus.BGM_SPECIAL4, BGMStatus.BGM_SPECIAL2},	// HELL
-		{BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5,  BGMStatus.BGM_SPECIAL3},	// HELL-X
-		{BGMStatus.BGM_NORMAL6},	// VOID
-	};
-
-	/** Game types */
-	private static final int GAMETYPE_NORMAL = 0,
-							 GAMETYPE_HIGHSPEED1 = 1,
-							 GAMETYPE_HIGHSPEED2 = 2,
-							 GAMETYPE_ANOTHER = 3,
-							 GAMETYPE_ANOTHER2 = 4,
-							 GAMETYPE_NORMAL200 = 5,
-							 GAMETYPE_ANOTHER200 = 6,
-							 GAMETYPE_BASIC = 7,
-							 GAMETYPE_HELL = 8,
-							 GAMETYPE_HELLX = 9,
-							 GAMETYPE_VOID = 10;
-
-	/** Number of game types */
-	private static final int GAMETYPE_MAX = 11;
-
-	/** Game type names (short) */
-	private static final String[] GAMETYPE_NAME = {"NORMAL","HISPEED1","HISPEED2","ANOTHER","ANOTHER2",
-		"NORM200","ANOTH200","BASIC","HELL","HELL-X","VOID"};
-
-	/** Game type names (long) */
-	private static final String[] GAMETYPE_NAME_LONG = {"NORMAL","HIGH SPEED 1","HIGH SPEED 2","ANOTHER","ANOTHER 2",
-		"NORMAL 200","ANOTHER 200","BASIC","HELL","HELL-X","VOID"};
-
-	/** HELL-X fade table */
-	private static final int tableHellXFade[] = {-1,-1,-1,-1,-1,150,150,150,150,150,
-		150,150,150,150,150,120,120,120,120,60};
-
-	/** Ending time limit */
-	private static final int ROLLTIMELIMIT = 3238;
-
-	/** Number of ranking records */
-	private static final int RANKING_MAX = 10;
-
-	/** Number of ranking types */
-	private static final int RANKING_TYPE = 11;
-
-	/** EventReceiver object (This receives many game events, can also be used for drawing the fonts.) */
-	private EventReceiver receiver;
-
-	/** Remaining level time */
-	private int levelTimer;
-
-	/** Original level time */
-	private int levelTimerMax;
-
-	/** Current lines (for levelup) */
-	private int norm;
-
-	/** Current BGM number */
-	private int bgmlv;
-
-	/** Elapsed ending time */
-	private int rolltime;
-
-	/** Ending started flag */
-	private boolean rollstarted;
-
-	/** Section time */
-	private int[] sectiontime;
-
-	/** Number of sections completed */
-	private int sectionscomp;
-
-	/** Average section time */
-	private int sectionavgtime;
-
-	/** Game type */
-	private int goaltype;
-
-	/** Selected starting level */
-	private int startlevel;
-
-	/** Big mode on/off */
-	private boolean big;
-
-	/** Show section time */
-	private boolean showsectiontime;
-
-	/** Version of this mode */
-	private int version;
-
-	/** Your place on leaderboard (-1: out of rank) */
-	private int rankingRank;
-
-	/** Line records */
-	private int[][] rankingLines;
-
-	/** Time records */
-	private int[][] rankingTime;
-
-	/** Game completed flag records */
-	private int[][] rankingRollclear;
-
-	/**
-	 * Returns the name of this mode
-	 */
-	@Override
-	public String getName() {
-		return "TIME ATTACK";
-	}
-
-	/**
-	 * This function will be called when the game enters the main game screen.
-	 */
-	@Override
-	public void playerInit(GameEngine engine, int playerID) {
-		owner = engine.owner;
-		receiver = engine.owner.receiver;
-
-		norm = 0;
-		goaltype = 0;
-		startlevel = 0;
-		rolltime = 0;
-		rollstarted = false;
-		sectiontime = new int[20];
-		sectionscomp = 0;
-		sectionavgtime = 0;
-		big = false;
-		showsectiontime = true;
-
-		rankingRank = -1;
-		rankingLines = new int[RANKING_TYPE][RANKING_MAX];
-		rankingTime = new int[RANKING_TYPE][RANKING_MAX];
-		rankingRollclear = new int[RANKING_TYPE][RANKING_MAX];
-
-		engine.tspinEnable = false;
-		engine.b2bEnable = false;
-		engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
-		engine.framecolor = GameEngine.FRAME_COLOR_GRAY;
-		engine.bighalf = true;
-		engine.bigmove = true;
-		engine.staffrollEnable = false;
-		engine.staffrollNoDeath = false;
-
-		netPlayerInit(engine, playerID);
-
-		if(owner.replayMode == false) {
-			loadSetting(owner.modeConfig);
-			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-			version = CURRENT_VERSION;
-		} else {
-			loadSetting(owner.replayProp);
-
-			// NET: Load name
-			netPlayerName = engine.owner.replayProp.getProperty(playerID + ".net.netPlayerName", "");
-		}
-
-		engine.owner.backgroundStatus.bg = startlevel;
-	}
-
-	/**
-	 * Set the gravity speed and some other things
-	 * @param engine GameEngine object
-	 */
-	private void setSpeed(GameEngine engine) {
-		// Gravity speed
-		int gravlv = engine.statistics.level;
-		if(gravlv < 0) gravlv = 0;
-		if(gravlv >= tableGravity[goaltype].length) gravlv = tableGravity[goaltype].length - 1;
-		engine.speed.gravity = tableGravity[goaltype][gravlv];
-		engine.speed.denominator = tableDenominator[goaltype];
-
-		// Other speed values
-		int speedlv = engine.statistics.level;
-		if(speedlv < 0) speedlv = 0;
-
-		switch(goaltype) {
-		case GAMETYPE_NORMAL:
-		case GAMETYPE_HIGHSPEED1:
-		case GAMETYPE_HIGHSPEED2:
-			engine.speed.are = 25;
-			engine.speed.areLine = 25;
-			engine.speed.lineDelay = 41;
-			engine.speed.lockDelay = 30;
-			engine.speed.das = 15;
-			break;
-		case GAMETYPE_ANOTHER:
-		case GAMETYPE_ANOTHER200:
-			if(speedlv >= tableAnother[0].length) speedlv = tableAnother[0].length - 1;
-			engine.speed.are = tableAnother[0][speedlv];
-			engine.speed.areLine = tableAnother[0][speedlv];
-			engine.speed.lineDelay = tableAnother[1][speedlv];
-			engine.speed.lockDelay = tableAnother[2][speedlv];
-			engine.speed.das = tableAnother[3][speedlv];
-			break;
-		case GAMETYPE_ANOTHER2:
-			engine.speed.are = 6;
-			engine.speed.areLine = 6;
-			engine.speed.lineDelay = 4;
-			engine.speed.lockDelay = 13;
-			engine.speed.das = 7;
-			break;
-		case GAMETYPE_NORMAL200:
-			if(speedlv >= tableNormal200[0].length) speedlv = tableNormal200[0].length - 1;
-			engine.speed.are = tableNormal200[0][speedlv];
-			engine.speed.areLine = tableNormal200[0][speedlv];
-			engine.speed.lineDelay = tableNormal200[1][speedlv];
-			engine.speed.lockDelay = tableNormal200[2][speedlv];
-			engine.speed.das = tableNormal200[3][speedlv];
-			break;
-		case GAMETYPE_BASIC:
-			if(speedlv >= tableBasic[0].length) speedlv = tableBasic[0].length - 1;
-			engine.speed.are = tableBasic[0][speedlv];
-			engine.speed.areLine = tableBasic[0][speedlv];
-			engine.speed.lineDelay = tableBasic[1][speedlv];
-			engine.speed.lockDelay = tableBasic[2][speedlv];
-			engine.speed.das = tableBasic[3][speedlv];
-			break;
-		case GAMETYPE_HELL:
-		case GAMETYPE_HELLX:
-			engine.speed.are = 2;
-			engine.speed.areLine = 2;
-			engine.speed.lineDelay = 3;
-			engine.speed.lockDelay = 11;
-			engine.speed.das = 7;
-			break;
-		case GAMETYPE_VOID:
-			if(speedlv >= tableVoid[0].length) speedlv = tableVoid[0].length - 1;
-			engine.speed.are = tableVoid[0][speedlv];
-			engine.speed.areLine = tableVoid[0][speedlv];
-			engine.speed.lineDelay = tableVoid[1][speedlv];
-			engine.speed.lockDelay = tableVoid[2][speedlv];
-			engine.speed.das = tableVoid[3][speedlv];
-			break;
-		}
-
-		// Level timer
-		int timelv = engine.statistics.level;
-		if(timelv < 0) timelv = 0;
-		if(timelv >= tableLevelTimer[goaltype].length) timelv = tableLevelTimer[goaltype].length - 1;
-		levelTimerMax = levelTimer = tableLevelTimer[goaltype][timelv];
-
-		// Show outline only
-		if(goaltype == GAMETYPE_HELL) {
-			engine.blockShowOutlineOnly = true;
-		}
-		// Bone blocks
-		if( (goaltype == GAMETYPE_HELLX) || ((goaltype == GAMETYPE_HELL) && (engine.statistics.level >= 15)) || (goaltype == GAMETYPE_VOID) ) {
-			engine.bone = true;
-		}
-		// Block fade for HELL-X
-		if(goaltype == GAMETYPE_HELLX) {
-			int fadelv = engine.statistics.level;
-			if(fadelv < 0) fadelv = 0;
-			if(fadelv >= tableHellXFade.length) fadelv = tableHellXFade.length - 1;
-			engine.blockHidden = tableHellXFade[fadelv];
-		}
-
-		// for test
-		/*
-		engine.speed.are = 25;
-		engine.speed.areLine = 25;
-		engine.speed.lineDelay = 10;
-		engine.speed.lockDelay = 30;
-		engine.speed.das = 12;
-		levelTimerMax = levelTimer = 3600 * 3;
-		*/
-	}
-
-	/**
-	 * Set the starting bgmlv
-	 * @param engine GameEngine
-	 */
-	private void setStartBgmlv(GameEngine engine) {
-		bgmlv = 0;
-		while((bgmlv < tableBGMChange[goaltype].length) && (norm >= tableBGMChange[goaltype][bgmlv])) bgmlv++;
-	}
-
-	/**
-	 * Calculates average section time
-	 */
-	private void setAverageSectionTime() {
-		if(sectionscomp > 0) {
-			int temp = 0;
-			for(int i = startlevel; i < sectionscomp; i++) temp += sectiontime[i];
-			sectionavgtime = temp / sectionscomp;
-		} else {
-			sectionavgtime = 0;
-		}
-	}
-
-	/**
-	 * Main routine for game setup screen
-	 */
-	@Override
-	public boolean onSetting(GameEngine engine, int playerID) {
-		// NET: Net Ranking
-		if(netIsNetRankingDisplayMode) {
-			netOnUpdateNetPlayRanking(engine, netGetGoalType());
-		}
-		// Menu
-		else if(engine.owner.replayMode == false) {
-			// Configuration changes
-			int change = updateCursor(engine, 3);
-
-			if(change != 0) {
-				receiver.playSE("change");
-
-				switch(engine.statc[2]) {
-				case 0:
-					goaltype += change;
-					if(goaltype < 0) goaltype = GAMETYPE_MAX - 1;
-					if(goaltype > GAMETYPE_MAX - 1) goaltype = 0;
-					if(startlevel > tableGoalLevel[goaltype] - 1) startlevel = tableGoalLevel[goaltype] - 1;
-					engine.owner.backgroundStatus.bg = startlevel;
-					break;
-				case 1:
-					startlevel += change;
-					if(startlevel < 0) startlevel = tableGoalLevel[goaltype] - 1;
-					if(startlevel > tableGoalLevel[goaltype] - 1) startlevel = 0;
-					engine.owner.backgroundStatus.bg = startlevel;
-					break;
-				case 2:
-					showsectiontime = !showsectiontime;
-					break;
-				case 3:
-					big = !big;
-					break;
-				}
-
-				// NET: Signal options change
-				if(netIsNetPlay && (netNumSpectators > 0)) {
-					netSendOptions(engine);
-				}
-			}
-
-			// Check for A button, when pressed this will begin the game
-			if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
-				receiver.playSE("decide");
-				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
-
-				// NET: Signal start of the game
-				if(netIsNetPlay) netLobby.netPlayerClient.send("start1p\n");
-
-				return false;
-			}
-
-			// Check for B button, when pressed this will shutdown the game engine.
-			if(engine.ctrl.isPush(Controller.BUTTON_B) && !netIsNetPlay) {
-				engine.quitflag = true;
-			}
-
-			// NET: Netplay Ranking
-			if(engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && !big && engine.ai == null) {
-				netEnterNetPlayRankingScreen(engine, playerID, goaltype);
-			}
-
-			engine.statc[3]++;
-		} else {
-			engine.statc[3]++;
-			engine.statc[2] = -1;
-
-			if(engine.statc[3] >= 60) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Renders game setup screen
-	 */
-	@Override
-	public void renderSetting(GameEngine engine, int playerID) {
-		if(netIsNetRankingDisplayMode) {
-			// NET: Netplay Ranking
-			netOnRenderNetPlayRanking(engine, playerID, receiver);
-		} else {
-			drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-					"DIFFICULTY", GAMETYPE_NAME[goaltype],
-					"LEVEL", String.valueOf(startlevel + 1),
-					"SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-					"BIG",  GeneralUtil.getONorOFF(big));
-		}
-	}
-
-	/**
-	 * Ready screen
-	 */
-	@Override
-	public boolean onReady(GameEngine engine, int playerID) {
-		if(engine.statc[0] == 0) {
-			engine.statistics.level = startlevel;
-			engine.statistics.levelDispAdd = 1;
-			engine.big = big;
-			norm = startlevel * 10;
-			setSpeed(engine);
-			setStartBgmlv(engine);
-		}
-
-		return false;
-	}
-
-	/**
-	 * This function will be called before the game actually begins (after Ready&Go screen disappears)
-	 */
-	@Override
-	public void startGame(GameEngine engine, int playerID) {
-		if(netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-		} else {
-			owner.bgmStatus.bgm = tableBGMNumber[goaltype][bgmlv];
-		}
-	}
-
-	/**
-	 * Renders HUD (leaderboard or game statistics)
-	 */
-	@Override
-	public void renderLast(GameEngine engine, int playerID) {
-		if(owner.menuOnly) return;
-
-		receiver.drawScoreFont(engine, playerID, 0, 0, "TIME ATTACK", EventReceiver.COLOR_PURPLE);
-		receiver.drawScoreFont(engine, playerID, 0, 1, "("+GAMETYPE_NAME_LONG[goaltype]+")", EventReceiver.COLOR_PURPLE);
-
-		if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
-			if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null) && (!netIsWatch)) {
-				receiver.drawScoreFont(engine, playerID, 3, 3, "LINE TIME", EventReceiver.COLOR_BLUE);
-
-				for(int i = 0; i < RANKING_MAX; i++) {
-					int gcolor = EventReceiver.COLOR_WHITE;
-					if(rankingRollclear[goaltype][i] == 1) gcolor = EventReceiver.COLOR_GREEN;
-					if(rankingRollclear[goaltype][i] == 2) gcolor = EventReceiver.COLOR_ORANGE;
-
-					receiver.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
-							(i == rankingRank) ? EventReceiver.COLOR_RED : EventReceiver.COLOR_YELLOW);
-					receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingLines[goaltype][i]), gcolor);
-					receiver.drawScoreFont(engine, playerID, 8, 4 + i, GeneralUtil.getTime(rankingTime[goaltype][i]), gcolor);
-				}
-			}
-		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "LEVEL", EventReceiver.COLOR_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 4, String.valueOf(engine.statistics.level + 1));
-
-			receiver.drawScoreFont(engine, playerID, 0, 6, "TIME LIMIT", EventReceiver.COLOR_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 7, GeneralUtil.getTime(levelTimer),
-									((levelTimer > 0) && (levelTimer < 600) && (levelTimer % 4 == 0)));
-
-			receiver.drawScoreFont(engine, playerID, 0, 9, "TOTAL TIME", EventReceiver.COLOR_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 10, GeneralUtil.getTime(engine.statistics.time));
-
-			receiver.drawScoreFont(engine, playerID, 0, 12, "NORM", EventReceiver.COLOR_BLUE);
-			String strLevel = String.format("%3d", norm);
-			receiver.drawScoreFont(engine, playerID, 0, 13, strLevel);
-
-			int speed = engine.speed.gravity / (tableDenominator[goaltype]/2);
-			if(engine.speed.gravity < 0) speed = 40;
-			receiver.drawSpeedMeter(engine, playerID, 0, 14, speed);
-
-			receiver.drawScoreFont(engine, playerID, 0, 15, String.format("%3d", (engine.statistics.level + 1)*10));
-
-			// Remaining ending time
-			if((engine.gameActive) && (engine.ending == 2) && (engine.staffrollEnable)) {
-				int time = ROLLTIMELIMIT - rolltime;
-				if(time < 0) time = 0;
-				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", EventReceiver.COLOR_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), ((time > 0) && (time < 10 * 60)));
-			}
-
-			// Section time
-			if((showsectiontime == true) && (sectiontime != null) && (!netIsWatch)) {
-				int y = (receiver.getNextDisplayType() == 2) ? 6 : 3;
-				int x = (receiver.getNextDisplayType() == 2) ? 22 : 12;
-				int x2 = (receiver.getNextDisplayType() == 2) ? 10 : 12;
-				float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
-
-				receiver.drawScoreFont(engine, playerID, x, y, "SECTION TIME", EventReceiver.COLOR_BLUE, scale);
-
-				for(int i = 0; i < sectiontime.length; i++) {
-					if(sectiontime[i] > 0) {
-						String strSeparator = " ";
-						if((i == engine.statistics.level) && (engine.ending == 0)) strSeparator = "b";
-
-						String strSectionTime;
-						strSectionTime = String.format("%2d%s%s", i + 1, strSeparator, GeneralUtil.getTime(sectiontime[i]));
-
-						int pos = i - Math.max(engine.statistics.level-9,0);
-
-						if (pos >= 0) receiver.drawScoreFont(engine, playerID, x+1, y + 1 + pos, strSectionTime, scale);
-					}
-				}
-
-				if((sectionavgtime > 0) && (!netIsWatch)) {
-					receiver.drawScoreFont(engine, playerID, x2, 15, "AVERAGE", EventReceiver.COLOR_BLUE);
-					receiver.drawScoreFont(engine, playerID, x2, 16, GeneralUtil.getTime(sectionavgtime));
-				}
-			}
-		}
-
-		// NET: Number of spectators
-		netDrawSpectatorsCount(engine, 0, 20);
-		// NET: All number of players
-		if(playerID == getPlayers() - 1) {
-			netDrawAllPlayersCount(engine);
-			netDrawGameRate(engine);
-		}
-		// NET: Player name (It may also appear in offline replay)
-		netDrawPlayerName(engine);
-	}
-
-	/**
-	 * This function will be called when the piece is active
-	 */
-	@Override
-	public boolean onMove(GameEngine engine, int playerID) {
-		// Enable timer again after the levelup
-		if((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) && (engine.ending == 0)) {
-			engine.timerActive = true;
-		}
-		// Ending start
-		if((engine.ending == 2) && (engine.staffrollEnable == true) && (rollstarted == false) && (!netIsWatch)) {
-			rollstarted = true;
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
-			owner.bgmStatus.fadesw = false;
-
-			// VOID ending
-			if(goaltype == GAMETYPE_VOID) {
-				engine.blockHidden = engine.ruleopt.lockflash;
-				engine.blockHiddenAnim = false;
-				engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
-			}
-		}
-
-		return super.onMove(engine, playerID);
-	}
-
-	/**
-	 * This function will be called when the game timer updates
-	 */
-	@Override
-	public void onLast(GameEngine engine, int playerID) {
-		// Level timer
-		if((engine.timerActive) && (engine.ending == 0)) {
-			if(levelTimer > 0) {
-				levelTimer--;
-				if((levelTimer <= 600) && (levelTimer % 60 == 0)) {
-					receiver.playSE("countdown");
+    /** Current version of this mode */
+    private static final int CURRENT_VERSION = 1;
+
+    /** Gravity tables */
+    private static final int tableGravity[][] =
+    {
+        { 4, 12, 48, 72, 96, 128, 256, 384, 512, 768, 1024, 1280, -1},    // NORMAL
+        {84,128,256,512,768,1024,1280,  -1},                            // HIGH SPEED 1
+        {-1},                                                            // HIGH SPEED 2
+        {-1},                                                            // ANOTHER
+        {-1},                                                            // ANOTHER 2
+        { 4, 12, 48, 72, 96, 128, 256, 384, 512, 768, 1024, 1280, -1},    // NORMAL 200
+        {-1},                                                            // ANOTHER 200
+        { 1,  3, 15, 30, 60, 120, 180, 240, 300, 300, -1},                // BASIC
+        {-1},                                                            // HELL
+        {-1},                                                            // HELL-X
+        {-1},                                                            // VOID
+    };
+
+    /** Denominator table */
+    private static final int tableDenominator[] =
+    {
+        256,    // NORMAL
+        256,    // HIGH SPEED 1
+        256,    // HIGH SPEED 2
+        256,    // ANOTHER
+        256,    // ANOTHER2
+        256,    // NORMAL 200
+        256,    // ANOTHER 200
+        60,        // BASIC
+        256,    // HELL
+        256,    // HELL-X
+        256,    // VOID
+    };
+
+    /** Max level table */
+    private static final int tableGoalLevel[] =
+    {
+        15,    // NORMAL
+        15,    // HIGH SPEED 1
+        15,    // HIGH SPEED 2
+        15,    // ANOTHER
+        15,    // ANOTHER2
+        20,    // NORMAL 200
+        20,    // ANOTHER 200
+        20,    // BASIC
+        20,    // HELL
+        20,    // HELL-X
+        20,    // VOID
+    };
+
+    /** Level timer tables */
+    private static final int tableLevelTimer[][] =
+    {
+        {7200, 7200, 5400},                                        // NORMAL
+        {7200, 7200, 5400},                                        // HIGH SPEED 1
+        {7200, 7200, 5400},                                        // HIGH SPEED 2
+        {3600},                                                    // ANOTHER
+        {7200, 7200, 5400},                                        // ANOTHER 2
+        {7200, 7200, 5400},                                        // NORMAL 200
+        {3600},                                                    // ANOTHER 200
+        {1800, 1800, 1800, 1800, 1800, 1500, 1500, 1500, 1500, 1500,
+            1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 1200, 900},    // BASIC
+        {1800, 1800, 1800, 1800, 1800, 1500, 1500, 1500, 1500, 1500,
+            1200, 1200, 1200, 1020, 900, 1200, 1020, 900, 840},    // HELL
+        {1800, 1800, 1800, 1800, 1800, 1500, 1500, 1500, 1500, 1500,
+            1200, 1200, 1200, 1020, 900, 1200, 1020, 900, 840},    // HELL-X
+        {1800, 1200, 900, 900, 900, 840, 840, 840, 840, 840, 720,
+            720, 720, 720, 720, 540, 480, 420, 360, 300},        // VOID
+    };
+
+    /** Speed table for ANOTHER */
+    private static final int tableAnother[][] =
+    {
+        {18,14,14,14,12,12,10, 8, 7, 6}, // ARE
+        {14, 8, 8, 5, 5, 5, 5, 5, 5, 5}, // Line delay
+        {28,24,22,20,18,14,14,13,13,13}, // Lock delay
+        {10,10, 9, 9, 9, 8, 8, 7, 7, 7}  // DAS
+    };
+
+    /** Speed table for NORMAL 200 */
+    private static final int tableNormal200[][] =
+    {
+        {25,25,25,25,25,25,25,25,25,25,25,25,25,25,22,16,16,12,12,10},    // ARE
+        {25,25,25,25,25,25,25,25,25,25,25,25,25,25,16,16,16,12,12, 8},    // Line delay
+        {30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,25,24,22,20,17},    // Lock delay
+        {15,15,15,15,15,15,15,15,15,15,15,15,15,15,12,10, 9, 8, 8, 6}    // DAS
+    };
+
+    /** Speed table for VOID */
+    private static final int tableVoid[][] =
+    {
+        { 2, 2,1,1,1,0,0,0,0,0,0,0,0,0,0,0},    // ARE
+        { 3, 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0},    // Line delay
+        {11,10,9,9,9,9,9,9,9,9,9,9,9,9,9,8},    // Lock delay
+        { 7, 5,5,4,4,3,3,3,3,3,3,3,3,3,3,2}        // DAS
+    };
+
+    /** Speed table for BASIC */
+    private static final int tableBasic[][] =
+    {
+        {26,26,26,26,26,26,26,26,26,26,15,11,11,11,11,10, 9, 5, 3, 2}, // ARE
+        {40,40,40,30,30,25,25,25,25,25,20,15,12,10, 6, 5, 4, 3, 3, 3}, // Line delay
+        {28,28,28,26,26,26,26,26,25,25,25,23,23,23,20,20,18,18,14,11}, // Lock delay
+        {15,15,15,15,15,15,15,15,15,15,10, 9, 9, 8, 8, 7, 7, 7, 7, 7}  // DAS
+    };
+
+    /** BGM change lines table */
+    private static final int tableBGMChange[][] =
+    {
+        {50, 100},    // NORMAL
+        {50, 100},    // HI-SPEED 1
+        {50, 100},    // HI-SPEED 2
+        {40, 100},    // ANOTHER
+        {40, 100},    // ANOTHER2
+        {50, 150},    // NORMAL 200
+        {40, 150},    // ANOTHER 200
+        {50, 150},    // BASIC
+        {50, 150},    // HELL
+        {50, 150},    // HELL-X
+        {},            // VOID
+    };
+
+    /** BGM fadeout lines table */
+    private static final int tableBGMFadeout[][] =
+    {
+        {45, 95, 145},    // NORMAL
+        {45, 95, 145},    // HI-SPEED 1
+        {45, 95, 145},    // HI-SPEED 2
+        {35, 95, 145},    // ANOTHER
+        {35, 95, 145},    // ANOTHER2
+        {45, 145, 195},    // NORMAL 200
+        {45, 145, 195},    // ANOTHER 200
+        {45, 145, 195},    // BASIC
+        {45, 145, 195},    // HELL
+        {45, 145, 195},    // HELL-X
+        {195},            // VOID
+    };
+
+    /** BGM kind table */
+    private static final int tableBGMNumber[][] =
+    {
+        {BGMStatus.BGM_SPECIAL1, BGMStatus.BGM_NORMAL2,  BGMStatus.BGM_NORMAL3},    // NORMAL
+        {BGMStatus.BGM_NORMAL1,  BGMStatus.BGM_NORMAL3,  BGMStatus.BGM_NORMAL6},    // HI-SPEED 1
+        {BGMStatus.BGM_NORMAL3,  BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4},    // HI-SPEED 2
+        {BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5},    // ANOTHER
+        {BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5},    // ANOTHER2
+        {BGMStatus.BGM_SPECIAL1, BGMStatus.BGM_NORMAL2,  BGMStatus.BGM_NORMAL3},    // NORMAL 200
+        {BGMStatus.BGM_NORMAL6,  BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5},    // ANOTHER 200
+        {BGMStatus.BGM_NORMAL1,  BGMStatus.BGM_NORMAL2,  BGMStatus.BGM_NORMAL3},    // BASIC
+        {BGMStatus.BGM_PUZZLE4,  BGMStatus.BGM_SPECIAL4, BGMStatus.BGM_SPECIAL2},    // HELL
+        {BGMStatus.BGM_NORMAL4,  BGMStatus.BGM_NORMAL5,  BGMStatus.BGM_SPECIAL3},    // HELL-X
+        {BGMStatus.BGM_NORMAL6},    // VOID
+    };
+
+    /** Game types */
+    private static final int GAMETYPE_NORMAL = 0,
+                             GAMETYPE_HIGHSPEED1 = 1,
+                             GAMETYPE_HIGHSPEED2 = 2,
+                             GAMETYPE_ANOTHER = 3,
+                             GAMETYPE_ANOTHER2 = 4,
+                             GAMETYPE_NORMAL200 = 5,
+                             GAMETYPE_ANOTHER200 = 6,
+                             GAMETYPE_BASIC = 7,
+                             GAMETYPE_HELL = 8,
+                             GAMETYPE_HELLX = 9,
+                             GAMETYPE_VOID = 10;
+
+    /** Number of game types */
+    private static final int GAMETYPE_MAX = 11;
+
+    /** Game type names (short) */
+    private static final String[] GAMETYPE_NAME = {"NORMAL","HISPEED1","HISPEED2","ANOTHER","ANOTHER2",
+        "NORM200","ANOTH200","BASIC","HELL","HELL-X","VOID"};
+
+    /** Game type names (long) */
+    private static final String[] GAMETYPE_NAME_LONG = {"NORMAL","HIGH SPEED 1","HIGH SPEED 2","ANOTHER","ANOTHER 2",
+        "NORMAL 200","ANOTHER 200","BASIC","HELL","HELL-X","VOID"};
+
+    /** HELL-X fade table */
+    private static final int tableHellXFade[] = {-1,-1,-1,-1,-1,150,150,150,150,150,
+        150,150,150,150,150,120,120,120,120,60};
+
+    /** Ending time limit */
+    private static final int ROLLTIMELIMIT = 3238;
+
+    /** Number of ranking records */
+    private static final int RANKING_MAX = 10;
+
+    /** Number of ranking types */
+    private static final int RANKING_TYPE = 11;
+
+    /** EventReceiver object (This receives many game events, can also be used for drawing the fonts.) */
+    private EventReceiver receiver;
+
+    /** Remaining level time */
+    private int levelTimer;
+
+    /** Original level time */
+    private int levelTimerMax;
+
+    /** Current lines (for levelup) */
+    private int norm;
+
+    /** Current BGM number */
+    private int bgmlv;
+
+    /** Elapsed ending time */
+    private int rolltime;
+
+    /** Ending started flag */
+    private boolean rollstarted;
+
+    /** Section time */
+    private int[] sectiontime;
+
+    /** Number of sections completed */
+    private int sectionscomp;
+
+    /** Average section time */
+    private int sectionavgtime;
+
+    /** Game type */
+    private int goaltype;
+
+    /** Selected starting level */
+    private int startlevel;
+
+    /** Big mode on/off */
+    private boolean big;
+
+    /** Show section time */
+    private boolean showsectiontime;
+
+    /** Version of this mode */
+    private int version;
+
+    /** Your place on leaderboard (-1: out of rank) */
+    private int rankingRank;
+
+    /** Line records */
+    private int[][] rankingLines;
+
+    /** Time records */
+    private int[][] rankingTime;
+
+    /** Game completed flag records */
+    private int[][] rankingRollclear;
+
+    /**
+     * Returns the name of this mode
+     */
+    @Override
+    public String getName() {
+        return "TIME ATTACK";
+    }
+
+    /**
+     * This function will be called when the game enters the main game screen.
+     */
+    @Override
+    public void playerInit(GameEngine engine, int playerID) {
+        owner = engine.owner;
+        receiver = engine.owner.receiver;
+
+        norm = 0;
+        goaltype = 0;
+        startlevel = 0;
+        rolltime = 0;
+        rollstarted = false;
+        sectiontime = new int[20];
+        sectionscomp = 0;
+        sectionavgtime = 0;
+        big = false;
+        showsectiontime = true;
+
+        rankingRank = -1;
+        rankingLines = new int[RANKING_TYPE][RANKING_MAX];
+        rankingTime = new int[RANKING_TYPE][RANKING_MAX];
+        rankingRollclear = new int[RANKING_TYPE][RANKING_MAX];
+
+        engine.tspinEnable = false;
+        engine.b2bEnable = false;
+        engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
+        engine.framecolor = GameEngine.FRAME_COLOR_GRAY;
+        engine.bighalf = true;
+        engine.bigmove = true;
+        engine.staffrollEnable = false;
+        engine.staffrollNoDeath = false;
+
+        netPlayerInit(engine, playerID);
+
+        if(owner.replayMode == false) {
+            loadSetting(owner.modeConfig);
+            loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+            version = CURRENT_VERSION;
+        } else {
+            loadSetting(owner.replayProp);
+
+            // NET: Load name
+            netPlayerName = engine.owner.replayProp.getProperty(playerID + ".net.netPlayerName", "");
+        }
+
+        engine.owner.backgroundStatus.bg = startlevel;
+    }
+
+    /**
+     * Set the gravity speed and some other things
+     * @param engine GameEngine object
+     */
+    private void setSpeed(GameEngine engine) {
+        // Gravity speed
+        int gravlv = engine.statistics.level;
+        if(gravlv < 0) gravlv = 0;
+        if(gravlv >= tableGravity[goaltype].length) gravlv = tableGravity[goaltype].length - 1;
+        engine.speed.gravity = tableGravity[goaltype][gravlv];
+        engine.speed.denominator = tableDenominator[goaltype];
+
+        // Other speed values
+        int speedlv = engine.statistics.level;
+        if(speedlv < 0) speedlv = 0;
+
+        switch(goaltype) {
+        case GAMETYPE_NORMAL:
+        case GAMETYPE_HIGHSPEED1:
+        case GAMETYPE_HIGHSPEED2:
+            engine.speed.are = 25;
+            engine.speed.areLine = 25;
+            engine.speed.lineDelay = 41;
+            engine.speed.lockDelay = 30;
+            engine.speed.das = 15;
+            break;
+        case GAMETYPE_ANOTHER:
+        case GAMETYPE_ANOTHER200:
+            if(speedlv >= tableAnother[0].length) speedlv = tableAnother[0].length - 1;
+            engine.speed.are = tableAnother[0][speedlv];
+            engine.speed.areLine = tableAnother[0][speedlv];
+            engine.speed.lineDelay = tableAnother[1][speedlv];
+            engine.speed.lockDelay = tableAnother[2][speedlv];
+            engine.speed.das = tableAnother[3][speedlv];
+            break;
+        case GAMETYPE_ANOTHER2:
+            engine.speed.are = 6;
+            engine.speed.areLine = 6;
+            engine.speed.lineDelay = 4;
+            engine.speed.lockDelay = 13;
+            engine.speed.das = 7;
+            break;
+        case GAMETYPE_NORMAL200:
+            if(speedlv >= tableNormal200[0].length) speedlv = tableNormal200[0].length - 1;
+            engine.speed.are = tableNormal200[0][speedlv];
+            engine.speed.areLine = tableNormal200[0][speedlv];
+            engine.speed.lineDelay = tableNormal200[1][speedlv];
+            engine.speed.lockDelay = tableNormal200[2][speedlv];
+            engine.speed.das = tableNormal200[3][speedlv];
+            break;
+        case GAMETYPE_BASIC:
+            if(speedlv >= tableBasic[0].length) speedlv = tableBasic[0].length - 1;
+            engine.speed.are = tableBasic[0][speedlv];
+            engine.speed.areLine = tableBasic[0][speedlv];
+            engine.speed.lineDelay = tableBasic[1][speedlv];
+            engine.speed.lockDelay = tableBasic[2][speedlv];
+            engine.speed.das = tableBasic[3][speedlv];
+            break;
+        case GAMETYPE_HELL:
+        case GAMETYPE_HELLX:
+            engine.speed.are = 2;
+            engine.speed.areLine = 2;
+            engine.speed.lineDelay = 3;
+            engine.speed.lockDelay = 11;
+            engine.speed.das = 7;
+            break;
+        case GAMETYPE_VOID:
+            if(speedlv >= tableVoid[0].length) speedlv = tableVoid[0].length - 1;
+            engine.speed.are = tableVoid[0][speedlv];
+            engine.speed.areLine = tableVoid[0][speedlv];
+            engine.speed.lineDelay = tableVoid[1][speedlv];
+            engine.speed.lockDelay = tableVoid[2][speedlv];
+            engine.speed.das = tableVoid[3][speedlv];
+            break;
+        }
+
+        // Level timer
+        int timelv = engine.statistics.level;
+        if(timelv < 0) timelv = 0;
+        if(timelv >= tableLevelTimer[goaltype].length) timelv = tableLevelTimer[goaltype].length - 1;
+        levelTimerMax = levelTimer = tableLevelTimer[goaltype][timelv];
+
+        // Show outline only
+        if(goaltype == GAMETYPE_HELL) {
+            engine.blockShowOutlineOnly = true;
+        }
+        // Bone blocks
+        if( (goaltype == GAMETYPE_HELLX) || ((goaltype == GAMETYPE_HELL) && (engine.statistics.level >= 15)) || (goaltype == GAMETYPE_VOID) ) {
+            engine.bone = true;
+        }
+        // Block fade for HELL-X
+        if(goaltype == GAMETYPE_HELLX) {
+            int fadelv = engine.statistics.level;
+            if(fadelv < 0) fadelv = 0;
+            if(fadelv >= tableHellXFade.length) fadelv = tableHellXFade.length - 1;
+            engine.blockHidden = tableHellXFade[fadelv];
+        }
+
+        // for test
+        /*
+        engine.speed.are = 25;
+        engine.speed.areLine = 25;
+        engine.speed.lineDelay = 10;
+        engine.speed.lockDelay = 30;
+        engine.speed.das = 12;
+        levelTimerMax = levelTimer = 3600 * 3;
+        */
+    }
+
+    /**
+     * Set the starting bgmlv
+     * @param engine GameEngine
+     */
+    private void setStartBgmlv(GameEngine engine) {
+        bgmlv = 0;
+        while((bgmlv < tableBGMChange[goaltype].length) && (norm >= tableBGMChange[goaltype][bgmlv])) bgmlv++;
+    }
+
+    /**
+     * Calculates average section time
+     */
+    private void setAverageSectionTime() {
+        if(sectionscomp > 0) {
+            int temp = 0;
+            for(int i = startlevel; i < sectionscomp; i++) temp += sectiontime[i];
+            sectionavgtime = temp / sectionscomp;
+        } else {
+            sectionavgtime = 0;
+        }
+    }
+
+    /**
+     * Main routine for game setup screen
+     */
+    @Override
+    public boolean onSetting(GameEngine engine, int playerID) {
+        // NET: Net Ranking
+        if(netIsNetRankingDisplayMode) {
+            netOnUpdateNetPlayRanking(engine, netGetGoalType());
+        }
+        // Menu
+        else if(engine.owner.replayMode == false) {
+            // Configuration changes
+            int change = updateCursor(engine, 3);
+
+            if(change != 0) {
+                receiver.playSE("change");
+
+                switch(engine.statc[2]) {
+                case 0:
+                    goaltype += change;
+                    if(goaltype < 0) goaltype = GAMETYPE_MAX - 1;
+                    if(goaltype > GAMETYPE_MAX - 1) goaltype = 0;
+                    if(startlevel > tableGoalLevel[goaltype] - 1) startlevel = tableGoalLevel[goaltype] - 1;
+                    engine.owner.backgroundStatus.bg = startlevel;
+                    break;
+                case 1:
+                    startlevel += change;
+                    if(startlevel < 0) startlevel = tableGoalLevel[goaltype] - 1;
+                    if(startlevel > tableGoalLevel[goaltype] - 1) startlevel = 0;
+                    engine.owner.backgroundStatus.bg = startlevel;
+                    break;
+                case 2:
+                    showsectiontime = !showsectiontime;
+                    break;
+                case 3:
+                    big = !big;
+                    break;
+                }
+
+                // NET: Signal options change
+                if(netIsNetPlay && (netNumSpectators > 0)) {
+                    netSendOptions(engine);
+                }
+            }
+
+            // Check for A button, when pressed this will begin the game
+            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+                receiver.playSE("decide");
+                saveSetting(owner.modeConfig);
+                receiver.saveModeConfig(owner.modeConfig);
+
+                // NET: Signal start of the game
+                if(netIsNetPlay) netLobby.netPlayerClient.send("start1p\n");
+
+                return false;
+            }
+
+            // Check for B button, when pressed this will shutdown the game engine.
+            if(engine.ctrl.isPush(Controller.BUTTON_B) && !netIsNetPlay) {
+                engine.quitflag = true;
+            }
+
+            // NET: Netplay Ranking
+            if(engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && !big && engine.ai == null) {
+                netEnterNetPlayRankingScreen(engine, playerID, goaltype);
+            }
+
+            engine.statc[3]++;
+        } else {
+            engine.statc[3]++;
+            engine.statc[2] = -1;
+
+            if(engine.statc[3] >= 60) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Renders game setup screen
+     */
+    @Override
+    public void renderSetting(GameEngine engine, int playerID) {
+        if(netIsNetRankingDisplayMode) {
+            // NET: Netplay Ranking
+            netOnRenderNetPlayRanking(engine, playerID, receiver);
+        } else {
+            drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
+                    "DIFFICULTY", GAMETYPE_NAME[goaltype],
+                    "LEVEL", String.valueOf(startlevel + 1),
+                    "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
+                    "BIG",  GeneralUtil.getONorOFF(big));
+        }
+    }
+
+    /**
+     * Ready screen
+     */
+    @Override
+    public boolean onReady(GameEngine engine, int playerID) {
+        if(engine.statc[0] == 0) {
+            engine.statistics.level = startlevel;
+            engine.statistics.levelDispAdd = 1;
+            engine.big = big;
+            norm = startlevel * 10;
+            setSpeed(engine);
+            setStartBgmlv(engine);
+        }
+
+        return false;
+    }
+
+    /**
+     * This function will be called before the game actually begins (after Ready&Go screen disappears)
+     */
+    @Override
+    public void startGame(GameEngine engine, int playerID) {
+        if(netIsWatch) {
+            owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+        } else {
+            owner.bgmStatus.bgm = tableBGMNumber[goaltype][bgmlv];
+        }
+    }
+
+    /**
+     * Renders HUD (leaderboard or game statistics)
+     */
+    @Override
+    public void renderLast(GameEngine engine, int playerID) {
+        if(owner.menuOnly) return;
+
+        receiver.drawScoreFont(engine, playerID, 0, 0, "TIME ATTACK", EventReceiver.COLOR_PURPLE);
+        receiver.drawScoreFont(engine, playerID, 0, 1, "("+GAMETYPE_NAME_LONG[goaltype]+")", EventReceiver.COLOR_PURPLE);
+
+        if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
+            if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null) && (!netIsWatch)) {
+                receiver.drawScoreFont(engine, playerID, 3, 3, "LINE TIME", EventReceiver.COLOR_BLUE);
+
+                for(int i = 0; i < RANKING_MAX; i++) {
+                    int gcolor = EventReceiver.COLOR_WHITE;
+                    if(rankingRollclear[goaltype][i] == 1) gcolor = EventReceiver.COLOR_GREEN;
+                    if(rankingRollclear[goaltype][i] == 2) gcolor = EventReceiver.COLOR_ORANGE;
+
+                    receiver.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
+                            (i == rankingRank) ? EventReceiver.COLOR_RED : EventReceiver.COLOR_YELLOW);
+                    receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingLines[goaltype][i]), gcolor);
+                    receiver.drawScoreFont(engine, playerID, 8, 4 + i, GeneralUtil.getTime(rankingTime[goaltype][i]), gcolor);
+                }
+            }
+        } else {
+            receiver.drawScoreFont(engine, playerID, 0, 3, "LEVEL", EventReceiver.COLOR_BLUE);
+            receiver.drawScoreFont(engine, playerID, 0, 4, String.valueOf(engine.statistics.level + 1));
+
+            receiver.drawScoreFont(engine, playerID, 0, 6, "TIME LIMIT", EventReceiver.COLOR_BLUE);
+            receiver.drawScoreFont(engine, playerID, 0, 7, GeneralUtil.getTime(levelTimer),
+                                    ((levelTimer > 0) && (levelTimer < 600) && (levelTimer % 4 == 0)));
+
+            receiver.drawScoreFont(engine, playerID, 0, 9, "TOTAL TIME", EventReceiver.COLOR_BLUE);
+            receiver.drawScoreFont(engine, playerID, 0, 10, GeneralUtil.getTime(engine.statistics.time));
+
+            receiver.drawScoreFont(engine, playerID, 0, 12, "NORM", EventReceiver.COLOR_BLUE);
+            String strLevel = String.format("%3d", norm);
+            receiver.drawScoreFont(engine, playerID, 0, 13, strLevel);
+
+            int speed = engine.speed.gravity / (tableDenominator[goaltype]/2);
+            if(engine.speed.gravity < 0) speed = 40;
+            receiver.drawSpeedMeter(engine, playerID, 0, 14, speed);
+
+            receiver.drawScoreFont(engine, playerID, 0, 15, String.format("%3d", (engine.statistics.level + 1)*10));
+
+            // Remaining ending time
+            if((engine.gameActive) && (engine.ending == 2) && (engine.staffrollEnable)) {
+                int time = ROLLTIMELIMIT - rolltime;
+                if(time < 0) time = 0;
+                receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", EventReceiver.COLOR_BLUE);
+                receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), ((time > 0) && (time < 10 * 60)));
+            }
+
+            // Section time
+            if((showsectiontime == true) && (sectiontime != null) && (!netIsWatch)) {
+                int y = (receiver.getNextDisplayType() == 2) ? 6 : 3;
+                int x = (receiver.getNextDisplayType() == 2) ? 22 : 12;
+                int x2 = (receiver.getNextDisplayType() == 2) ? 10 : 12;
+                float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
+
+                receiver.drawScoreFont(engine, playerID, x, y, "SECTION TIME", EventReceiver.COLOR_BLUE, scale);
+
+                for(int i = 0; i < sectiontime.length; i++) {
+                    if(sectiontime[i] > 0) {
+                        String strSeparator = " ";
+                        if((i == engine.statistics.level) && (engine.ending == 0)) strSeparator = "b";
+
+                        String strSectionTime;
+                        strSectionTime = String.format("%2d%s%s", i + 1, strSeparator, GeneralUtil.getTime(sectiontime[i]));
+
+                        int pos = i - Math.max(engine.statistics.level-9,0);
+
+                        if (pos >= 0) receiver.drawScoreFont(engine, playerID, x+1, y + 1 + pos, strSectionTime, scale);
+                    }
+                }
+
+                if((sectionavgtime > 0) && (!netIsWatch)) {
+                    receiver.drawScoreFont(engine, playerID, x2, 15, "AVERAGE", EventReceiver.COLOR_BLUE);
+                    receiver.drawScoreFont(engine, playerID, x2, 16, GeneralUtil.getTime(sectionavgtime));
+                }
+            }
+        }
+
+        // NET: Number of spectators
+        netDrawSpectatorsCount(engine, 0, 20);
+        // NET: All number of players
+        if(playerID == getPlayers() - 1) {
+            netDrawAllPlayersCount(engine);
+            netDrawGameRate(engine);
+        }
+        // NET: Player name (It may also appear in offline replay)
+        netDrawPlayerName(engine);
+    }
+
+    /**
+     * This function will be called when the piece is active
+     */
+    @Override
+    public boolean onMove(GameEngine engine, int playerID) {
+        // Enable timer again after the levelup
+        if((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) && (engine.ending == 0)) {
+            engine.timerActive = true;
+        }
+        // Ending start
+        if((engine.ending == 2) && (engine.staffrollEnable == true) && (rollstarted == false) && (!netIsWatch)) {
+            rollstarted = true;
+            owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+            owner.bgmStatus.fadesw = false;
+
+            // VOID ending
+            if(goaltype == GAMETYPE_VOID) {
+                engine.blockHidden = engine.ruleopt.lockflash;
+                engine.blockHiddenAnim = false;
+                engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
+            }
+        }
+
+        return super.onMove(engine, playerID);
+    }
+
+    /**
+     * This function will be called when the game timer updates
+     */
+    @Override
+    public void onLast(GameEngine engine, int playerID) {
+        // Level timer
+        if((engine.timerActive) && (engine.ending == 0)) {
+            if(levelTimer > 0) {
+                levelTimer--;
+                if((levelTimer <= 600) && (levelTimer % 60 == 0)) {
+                	receiver.playSE("countdown");
 				}
 			} else if(!netIsWatch) {
 				engine.gameEnded();

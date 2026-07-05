@@ -40,621 +40,621 @@ import mu.nu.nullpo.util.GeneralUtil;
  * GRADE MANIA 2 Mode
  */
 public class GradeMania2Mode extends DummyMode {
-	/** Current version */
-	private static final int CURRENT_VERSION = 2;
-
-	/** 落下速度 table */
-	private static final int[] tableGravityValue =
-	{
-		4, 6, 8, 10, 12, 16, 32, 48, 64, 80, 96, 112, 128, 144, 4, 32, 64, 96, 128, 160, 192, 224, 256, 512, 768, 1024, 1280, 1024, 768, -1
-	};
-
-	/** 落下速度が変わる level */
-	private static final int[] tableGravityChangeLevel =
-	{
-		30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 170, 200, 220, 230, 233, 236, 239, 243, 247, 251, 300, 330, 360, 400, 420, 450, 500, 10000
-	};
-
-	/** ARE table */
-	private static final int[] tableARE       = {23, 23, 23, 23, 23, 23, 23, 14, 10, 10};
-
-	/** ARE after line clear table */
-	private static final int[] tableARELine   = {23, 23, 23, 23, 23, 23, 14, 10,  4,  4};
-
-	/** Line clear time table */
-	private static final int[] tableLineDelay = {40, 40, 40, 40, 40, 25, 16, 12,  6,  6};
-
-	/** 固定 time table */
-	private static final int[] tableLockDelay = {31, 31, 31, 31, 31, 31, 31, 31, 31, 18};
-
-	/** DAS table */
-	private static final int[] tableDAS       = {15, 15, 15, 15, 15,  9,  9,  9,  9,  7};
-
-	/** BGM fadeout levels */
-	private static final int[] tableBGMFadeout = {495,695,880,-1};
-
-	/** BGM change levels */
-	private static final int[] tableBGMChange  = {500,700,900,-1};
-
-	/** Line clear時に入る段位 point */
-	private static final int[][] tableGradePoint =
-	{
-		{10,10,10,10,10, 5, 5, 5, 5, 5, 2},
-		{20,20,20,15,15,15,10,10,10,10,12},
-		{40,30,30,30,20,20,20,15,15,15,13},
-		{50,40,40,40,40,30,30,30,30,30,30},
-	};
+    /** Current version */
+    private static final int CURRENT_VERSION = 2;
+
+    /** 落下速度 table */
+    private static final int[] tableGravityValue =
+    {
+        4, 6, 8, 10, 12, 16, 32, 48, 64, 80, 96, 112, 128, 144, 4, 32, 64, 96, 128, 160, 192, 224, 256, 512, 768, 1024, 1280, 1024, 768, -1
+    };
+
+    /** 落下速度が変わる level */
+    private static final int[] tableGravityChangeLevel =
+    {
+        30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 170, 200, 220, 230, 233, 236, 239, 243, 247, 251, 300, 330, 360, 400, 420, 450, 500, 10000
+    };
+
+    /** ARE table */
+    private static final int[] tableARE       = {23, 23, 23, 23, 23, 23, 23, 14, 10, 10};
+
+    /** ARE after line clear table */
+    private static final int[] tableARELine   = {23, 23, 23, 23, 23, 23, 14, 10,  4,  4};
+
+    /** Line clear time table */
+    private static final int[] tableLineDelay = {40, 40, 40, 40, 40, 25, 16, 12,  6,  6};
+
+    /** 固定 time table */
+    private static final int[] tableLockDelay = {31, 31, 31, 31, 31, 31, 31, 31, 31, 18};
+
+    /** DAS table */
+    private static final int[] tableDAS       = {15, 15, 15, 15, 15,  9,  9,  9,  9,  7};
+
+    /** BGM fadeout levels */
+    private static final int[] tableBGMFadeout = {495,695,880,-1};
+
+    /** BGM change levels */
+    private static final int[] tableBGMChange  = {500,700,900,-1};
+
+    /** Line clear時に入る段位 point */
+    private static final int[][] tableGradePoint =
+    {
+        {10,10,10,10,10, 5, 5, 5, 5, 5, 2},
+        {20,20,20,15,15,15,10,10,10,10,12},
+        {40,30,30,30,20,20,20,15,15,15,13},
+        {50,40,40,40,40,30,30,30,30,30,30},
+    };
 
-	/** 段位 pointのCombo bonus */
-	private static final float[][] tableGradeComboBonus =
-	{
-		{1.0f,1.2f,1.2f,1.4f,1.4f,1.4f,1.4f,1.5f,1.5f,2.0f},
-		{1.0f,1.4f,1.5f,1.6f,1.7f,1.8f,1.9f,2.0f,2.1f,2.5f},
-		{1.0f,1.5f,1.8f,2.0f,2.2f,2.3f,2.4f,2.5f,2.6f,3.0f},
-		{1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f},
-	};
+    /** 段位 pointのCombo bonus */
+    private static final float[][] tableGradeComboBonus =
+    {
+        {1.0f,1.2f,1.2f,1.4f,1.4f,1.4f,1.4f,1.5f,1.5f,2.0f},
+        {1.0f,1.4f,1.5f,1.6f,1.7f,1.8f,1.9f,2.0f,2.1f,2.5f},
+        {1.0f,1.5f,1.8f,2.0f,2.2f,2.3f,2.4f,2.5f,2.6f,3.0f},
+        {1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f},
+    };
 
-	/** 実際の段位を上げるのに必要な内部段位 */
-	private static final int[] tableGradeChange =
-	{
-		1, 2, 3, 4, 5, 7, 9, 12, 15, 18, 19, 20, 23, 25, 27, 29, 31, -1
-	};
+    /** 実際の段位を上げるのに必要な内部段位 */
+    private static final int[] tableGradeChange =
+    {
+        1, 2, 3, 4, 5, 7, 9, 12, 15, 18, 19, 20, 23, 25, 27, 29, 31, -1
+    };
 
-	/** 段位 pointが1つ減る time */
-	private static final int[] tableGradeDecayRate =
-	{
-		125, 80, 80, 50, 45, 45, 45, 40, 40, 40, 40, 40, 30, 30, 30, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 10, 10
-	};
+    /** 段位 pointが1つ減る time */
+    private static final int[] tableGradeDecayRate =
+    {
+        125, 80, 80, 50, 45, 45, 45, 40, 40, 40, 40, 40, 30, 30, 30, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 10, 10
+    };
 
-	/** 段位のName */
-	private static final String[] tableGradeName =
-	{
-		 "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",	//  0～ 8
-		"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",	//  9～17
-		 "M", "GM"												// 18～19
-	};
+    /** 段位のName */
+    private static final String[] tableGradeName =
+    {
+         "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",    //  0～ 8
+        "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",    //  9～17
+         "M", "GM"                                                // 18～19
+    };
 
-	/** 裏段位のName */
-	private static final String[] tableSecretGradeName =
-	{
-		 "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",	//  0～ 8
-		"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",	//  9～17
-		"GM"													// 18
-	};
+    /** 裏段位のName */
+    private static final String[] tableSecretGradeName =
+    {
+         "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",    //  0～ 8
+        "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",    //  9～17
+        "GM"                                                    // 18
+    };
 
-	/** LV999 roll time */
-	private static final int ROLLTIMELIMIT = 3694;
+    /** LV999 roll time */
+    private static final int ROLLTIMELIMIT = 3694;
 
-	/** 消えRoll に必要なLV999到達時のTime */
-	private static final int M_ROLL_TIME_REQUIRE = 31500;
+    /** 消えRoll に必要なLV999到達時のTime */
+    private static final int M_ROLL_TIME_REQUIRE = 31500;
 
-	/** Number of entries in rankings */
-	private static final int RANKING_MAX = 10;
+    /** Number of entries in rankings */
+    private static final int RANKING_MAX = 10;
 
-	/** Number of sections */
-	private static final int SECTION_MAX = 10;
+    /** Number of sections */
+    private static final int SECTION_MAX = 10;
 
-	/** Default section time */
-	private static final int DEFAULT_SECTION_TIME = 5400;
+    /** Default section time */
+    private static final int DEFAULT_SECTION_TIME = 5400;
 
-	/** GameManager that owns this mode */
-	private GameManager owner;
+    /** GameManager that owns this mode */
+    private GameManager owner;
 
-	/** Drawing and event handling EventReceiver */
-	private EventReceiver receiver;
+    /** Drawing and event handling EventReceiver */
+    private EventReceiver receiver;
 
-	/** Current 落下速度の number (tableGravityChangeLevelの levelに到達するたびに1つ増える) */
-	private int gravityindex;
+    /** Current 落下速度の number (tableGravityChangeLevelの levelに到達するたびに1つ増える) */
+    private int gravityindex;
 
-	/** Next Section の level (これ-1のときに levelストップする) */
-	private int nextseclv;
+    /** Next Section の level (これ-1のときに levelストップする) */
+    private int nextseclv;
 
-	/** Levelが増えた flag */
-	private boolean lvupflag;
+    /** Levelが増えた flag */
+    private boolean lvupflag;
 
-	/** 画面に表示されている実際の段位 */
-	private int grade;
+    /** 画面に表示されている実際の段位 */
+    private int grade;
 
-	/** 内部段位 */
-	private int gradeInternal;
+    /** 内部段位 */
+    private int gradeInternal;
 
-	/** 段位 point */
-	private int gradePoint;
+    /** 段位 point */
+    private int gradePoint;
 
-	/** 段位 pointが1つ減る time */
-	private int gradeDecay;
+    /** 段位 pointが1つ減る time */
+    private int gradeDecay;
 
-	/** 最後に段位が上がった time */
-	private int lastGradeTime;
+    /** 最後に段位が上がった time */
+    private int lastGradeTime;
 
-	/** Hard dropした段count */
-	private int harddropBonus;
+    /** Hard dropした段count */
+    private int harddropBonus;
 
-	/** Combo bonus */
-	private int comboValue;
+    /** Combo bonus */
+    private int comboValue;
 
-	/** Most recent increase in score */
-	private int lastscore;
+    /** Most recent increase in score */
+    private int lastscore;
 
-	/** 獲得Render scoreがされる残り time */
-	private int scgettime;
+    /** 獲得Render scoreがされる残り time */
+    private int scgettime;
 
-	/** Roll 経過 time */
-	private int rolltime;
+    /** Roll 経過 time */
+    private int rolltime;
 
-	/** Roll completely cleared flag */
-	private int rollclear;
+    /** Roll completely cleared flag */
+    private int rollclear;
 
-	/** Roll started flag */
-	private boolean rollstarted;
+    /** Roll started flag */
+    private boolean rollstarted;
 
-	/** 裏段位 */
-	private int secretGrade;
+    /** 裏段位 */
+    private int secretGrade;
 
-	/** Current BGM */
-	private int bgmlv;
+    /** Current BGM */
+    private int bgmlv;
 
-	/** 段位表示を光らせる残り frame count */
-	private int gradeflash;
+    /** 段位表示を光らせる残り frame count */
+    private int gradeflash;
 
-	/** Section Time */
-	private int[] sectiontime;
+    /** Section Time */
+    private int[] sectiontime;
 
-	/** 新記録が出たSection はtrue */
-	private boolean[] sectionIsNewRecord;
+    /** 新記録が出たSection はtrue */
+    private boolean[] sectionIsNewRecord;
 
-	/** Cleared Section count */
-	private int sectionscomp;
+    /** Cleared Section count */
+    private int sectionscomp;
 
-	/** Average Section Time */
-	private int sectionavgtime;
+    /** Average Section Time */
+    private int sectionavgtime;
 
-	/** 直前のSection Time */
-	private int sectionlasttime;
+    /** 直前のSection Time */
+    private int sectionlasttime;
 
-	/** Section 内で4-line clearた count */
-	private int[] sectionfourline;
+    /** Section 内で4-line clearた count */
+    private int[] sectionfourline;
 
-	/** 消えRoll  flag１ (Section Time) */
-	private boolean mrollSectiontime;
+    /** 消えRoll  flag１ (Section Time) */
+    private boolean mrollSectiontime;
 
-	/** 消えRoll  flag２ (4-line clear) */
-	private boolean mrollFourline;
+    /** 消えRoll  flag２ (4-line clear) */
+    private boolean mrollFourline;
 
-	/** 消えRoll started flag */
-	private boolean mrollFlag;
+    /** 消えRoll started flag */
+    private boolean mrollFlag;
 
-	/** 消えRoll 中に消したline count */
-	private int mrollLines;
+    /** 消えRoll 中に消したline count */
+    private int mrollLines;
 
-	/** AC medal 状態 */
-	private int medalAC;
+    /** AC medal 状態 */
+    private int medalAC;
 
-	/** ST medal 状態 */
-	private int medalST;
+    /** ST medal 状態 */
+    private int medalST;
 
-	/** SK medal 状態 */
-	private int medalSK;
+    /** SK medal 状態 */
+    private int medalSK;
 
-	/** RE medal 状態 */
-	private int medalRE;
+    /** RE medal 状態 */
+    private int medalRE;
 
-	/** RO medal 状態 */
-	private int medalRO;
+    /** RO medal 状態 */
+    private int medalRO;
 
-	/** CO medal 状態 */
-	private int medalCO;
+    /** CO medal 状態 */
+    private int medalCO;
 
-	/** 150個以上Blockがあるとtrue, 70個まで減らすとfalseになる */
-	private boolean recoveryFlag;
+    /** 150個以上Blockがあるとtrue, 70個まで減らすとfalseになる */
+    private boolean recoveryFlag;
 
-	/** rotationした合計 count (Maximum4個ずつ増える) */
-	private int rotateCount;
+    /** rotationした合計 count (Maximum4個ずつ増える) */
+    private int rotateCount;
 
-	/** Section Time記録表示中ならtrue */
-	private boolean isShowBestSectionTime;
+    /** Section Time記録表示中ならtrue */
+    private boolean isShowBestSectionTime;
 
-	/** Level at start */
-	private int startlevel;
+    /** Level at start */
+    private int startlevel;
 
-	/** When true, always ghost ON */
-	private boolean alwaysghost;
+    /** When true, always ghost ON */
+    private boolean alwaysghost;
 
-	/** When true, always 20G */
-	private boolean always20g;
-
-	/** When true, levelstop sound is enabled */
-	private boolean lvstopse;
-
-	/** BigMode */
-	private boolean big;
-
-	/** When true, section time display is enabled */
-	private boolean showsectiontime;
-
-	/** Version */
-	private int version;
-
-	/** Current round's ranking rank */
-	private int rankingRank;
-
-	/** Rankings' 段位 */
-	private int[] rankingGrade;
-
-	/** Rankings'  level */
-	private int[] rankingLevel;
-
-	/** Rankings' times */
-	private int[] rankingTime;
-
-	/** Rankings' Roll completely cleared flag */
-	private int[] rankingRollclear;
-
-	/** Section Time記録 */
-	private int[] bestSectionTime;
-
-	/*
-	 * Mode name
-	 */
-	@Override
-	public String getName() {
-		return "GRADE MANIA 2";
-	}
-
-	/*
-	 * Initialization
-	 */
-	@Override
-	public void playerInit(GameEngine engine, int playerID) {
-		owner = engine.owner;
-		receiver = engine.owner.receiver;
-
-		gravityindex = 0;
-		nextseclv = 0;
-		lvupflag = true;
-		grade = 0;
-		gradeInternal = 0;
-		gradePoint = 0;
-		gradeDecay = 0;
-		lastGradeTime = 0;
-		harddropBonus = 0;
-		comboValue = 0;
-		lastscore = 0;
-		scgettime = 0;
-		rolltime = 0;
-		rollclear = 0;
-		rollstarted = false;
-		secretGrade = 0;
-		bgmlv = 0;
-		gradeflash = 0;
-		sectiontime = new int[SECTION_MAX];
-		sectionIsNewRecord = new boolean[SECTION_MAX];
-		sectionscomp = 0;
-		sectionavgtime = 0;
-		sectionlasttime = 0;
-		sectionfourline = new int[SECTION_MAX];
-		mrollSectiontime = true;
-		mrollFourline = true;
-		mrollFlag = false;
-		mrollLines = 0;
-		medalAC = 0;
-		medalST = 0;
-		medalSK = 0;
-		medalRE = 0;
-		medalRO = 0;
-		medalCO = 0;
-		recoveryFlag = false;
-		rotateCount = 0;
-		isShowBestSectionTime = false;
-		startlevel = 0;
-		alwaysghost = false;
-		always20g = false;
-		lvstopse = false;
-		big = false;
-
-		rankingRank = -1;
-		rankingGrade = new int[RANKING_MAX];
-		rankingLevel = new int[RANKING_MAX];
-		rankingTime = new int[RANKING_MAX];
-		rankingRollclear = new int[RANKING_MAX];
-		bestSectionTime = new int[SECTION_MAX];
-
-		engine.tspinEnable = false;
-		engine.b2bEnable = false;
-		engine.comboType = GameEngine.COMBO_TYPE_DOUBLE;
-		engine.bighalf = true;
-		engine.bigmove = true;
-		engine.staffrollEnable = true;
-		engine.staffrollNoDeath = false;
-
-		if(owner.replayMode == false) {
-			loadSetting(owner.modeConfig);
-			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-			version = CURRENT_VERSION;
-		} else {
-			for(int i = 0; i < SECTION_MAX; i++) {
-				bestSectionTime[i] = DEFAULT_SECTION_TIME;
-			}
-			loadSetting(owner.replayProp);
-			version = owner.replayProp.getProperty("grademania2.version", 0);
-		}
-
-		owner.backgroundStatus.bg = startlevel;
-	}
-
-	/**
-	 * Load settings from property file
-	 * @param prop Property file
-	 */
-	private void loadSetting(CustomProperties prop) {
-		startlevel = prop.getProperty("grademania2.startlevel", 0);
-		alwaysghost = prop.getProperty("grademania2.alwaysghost", false);
-		always20g = prop.getProperty("grademania2.always20g", false);
-		lvstopse = prop.getProperty("grademania2.lvstopse", false);
-		showsectiontime = prop.getProperty("grademania2.showsectiontime", false);
-		big = prop.getProperty("grademania2.big", false);
-	}
-
-	/**
-	 * Save settings to property file
-	 * @param prop Property file
-	 */
-	private void saveSetting(CustomProperties prop) {
-		prop.setProperty("grademania2.startlevel", startlevel);
-		prop.setProperty("grademania2.alwaysghost", alwaysghost);
-		prop.setProperty("grademania2.always20g", always20g);
-		prop.setProperty("grademania2.lvstopse", lvstopse);
-		prop.setProperty("grademania2.showsectiontime", showsectiontime);
-		prop.setProperty("grademania2.big", big);
-	}
-
-	/**
-	 * Set BGM at start of game
-	 * @param engine GameEngine
-	 */
-	private void setStartBgmlv(GameEngine engine) {
-		bgmlv = 0;
-		while((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) bgmlv++;
-	}
-
-	/**
-	 * Update falling speed
-	 * @param engine GameEngine
-	 */
-	private void setSpeed(GameEngine engine) {
-		if((always20g == true) || (engine.statistics.time >= 54000)) {
-			engine.speed.gravity = -1;
-		} else {
-			while(engine.statistics.level >= tableGravityChangeLevel[gravityindex]) gravityindex++;
-			engine.speed.gravity = tableGravityValue[gravityindex];
-		}
-
-		int section = engine.statistics.level / 100;
-		if(section > tableARE.length - 1) section = tableARE.length - 1;
-		engine.speed.das = tableDAS[section];
-
-		if(engine.statistics.time >= 54000) {
-			engine.speed.are = 3;
-			engine.speed.areLine = 6;
-			engine.speed.lineDelay = 6;
-			engine.speed.lockDelay = 19;
-		} else {
-			engine.speed.are = tableARE[section];
-			engine.speed.areLine = tableARELine[section];
-			engine.speed.lineDelay = tableLineDelay[section];
-			engine.speed.lockDelay = tableLockDelay[section];
-		}
-	}
-
-	/**
-	 * Update average section time
-	 */
-	private void setAverageSectionTime() {
-		if(sectionscomp > 0) {
-			int temp = 0;
-			for(int i = startlevel; i < startlevel + sectionscomp; i++) {
-				if((i >= 0) && (i < sectiontime.length)) temp += sectiontime[i];
-			}
-			sectionavgtime = temp / sectionscomp;
-		} else {
-			sectionavgtime = 0;
-		}
-	}
-
-	/**
-	 * 消えRoll 条件を満たしているか check
-	 * @param levelb 上がる前の level
-	 */
-	private void mrollCheck(int levelb) {
-		// Section Time
-		if(levelb < 500) {
-			if(sectionlasttime > 3900) mrollSectiontime = false;
-		} else if(levelb < 600) {
-			int temp = 0;
-			for(int i = 0; i < 5; i++) temp += sectiontime[i];
-			temp = temp / 5;
-			if(sectionlasttime > temp + 120) mrollSectiontime = false;
-		} else {
-			int temp = sectiontime[(levelb / 100) - 1];
-			if(sectionlasttime > temp + 120) mrollSectiontime = false;
-		}
-
-		// 4-line clear
-		int required4line = 2;
-		if((levelb >= 500) && (levelb < 900)) required4line = 1;
-		if(levelb >= 900) required4line = 0;
-
-		if(sectionfourline[levelb / 100] < required4line) {
-			mrollFourline = false;
-		}
-	}
-
-	/**
-	 * ST medal check
-	 * @param engine GameEngine
-	 * @param sectionNumber Section number
-	 */
-	private void stMedalCheck(GameEngine engine, int sectionNumber) {
-		int best = bestSectionTime[sectionNumber];
-
-		if(sectionlasttime < best) {
-			if(medalST < 3) {
-				engine.playSE("medal");
-				medalST = 3;
-			}
-			if(!owner.replayMode) {
-				sectionIsNewRecord[sectionNumber] = true;
-			}
-		} else if((sectionlasttime < best + 300) && (medalST < 2)) {
-			engine.playSE("medal");
-			medalST = 2;
-		} else if((sectionlasttime < best + 600) && (medalST < 1)) {
-			engine.playSE("medal");
-			medalST = 1;
-		}
-	}
-
-	/**
-	 * RO medal check
-	 * @param engine Engine
-	 */
-	private void roMedalCheck(GameEngine engine) {
-		float rotateAverage = (float)rotateCount / (float)engine.statistics.totalPieceLocked;
-
-		if((rotateAverage >= 1.2f) && (medalRO < 3)) {
-			engine.playSE("medal");
-			medalRO++;
-		}
-	}
-
-	/**
-	 *  medal の文字色を取得
-	 * @param medalColor  medal 状態
-	 * @return  medal の文字色
-	 */
-	private int getMedalFontColor(int medalColor) {
-		if(medalColor == 1) return EventReceiver.COLOR_RED;
-		if(medalColor == 2) return EventReceiver.COLOR_WHITE;
-		if(medalColor == 3) return EventReceiver.COLOR_YELLOW;
-		return -1;
-	}
-
-	/*
-	 * Called at settings screen
-	 */
-	@Override
-	public boolean onSetting(GameEngine engine, int playerID) {
-		// Menu
-		if(engine.owner.replayMode == false) {
-			// Configuration changes
-			int change = updateCursor(engine, 5);
-
-			if(change != 0) {
-				engine.playSE("change");
-
-				switch(engine.statc[2]) {
-				case 0:
-					startlevel += change;
-					if(startlevel < 0) startlevel = 9;
-					if(startlevel > 9) startlevel = 0;
-					owner.backgroundStatus.bg = startlevel;
-					break;
-				case 1:
-					alwaysghost = !alwaysghost;
-					break;
-				case 2:
-					always20g = !always20g;
-					break;
-				case 3:
-					lvstopse = !lvstopse;
-					break;
-				case 4:
-					showsectiontime = !showsectiontime;
-					break;
-				case 5:
-					big = !big;
-					break;
-				}
-			}
-
-			//  section time display切替
-			if(engine.ctrl.isPush(Controller.BUTTON_F) && (engine.statc[3] >= 5)) {
-				engine.playSE("change");
-				isShowBestSectionTime = !isShowBestSectionTime;
-			}
-
-			// 決定
-			if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
-				engine.playSE("decide");
-				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
-				isShowBestSectionTime = false;
-				sectionscomp = 0;
-				return false;
-			}
-
-			// Cancel
-			if(engine.ctrl.isPush(Controller.BUTTON_B)) {
-				engine.quitflag = true;
-			}
-
-			engine.statc[3]++;
-		} else {
-			engine.statc[3]++;
-			engine.statc[2] = -1;
-
-			if(engine.statc[3] >= 60) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/*
-	 * Render the settings screen
-	 */
-	@Override
-	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-				"LEVEL", String.valueOf(startlevel * 100),
-				"FULL GHOST", GeneralUtil.getONorOFF(alwaysghost),
-				"20G MODE", GeneralUtil.getONorOFF(always20g),
-				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse),
-				"SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-				"BIG",  GeneralUtil.getONorOFF(big));
-	}
-
-	/*
-	 * Called at game start
-	 */
-	@Override
-	public void startGame(GameEngine engine, int playerID) {
-		engine.statistics.level = startlevel * 100;
-
-		nextseclv = engine.statistics.level + 100;
-		if(engine.statistics.level < 0) nextseclv = 100;
-		if(engine.statistics.level >= 900) nextseclv = 999;
-
-		owner.backgroundStatus.bg = engine.statistics.level / 100;
-
-		engine.big = big;
-
-		setSpeed(engine);
-		setStartBgmlv(engine);
-		owner.bgmStatus.bgm = bgmlv;
-	}
-
-	/*
-	 * Render score
-	 */
-	@Override
-	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA 2", EventReceiver.COLOR_CYAN);
-
-		if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
-			if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (always20g == false) && (engine.ai == null)) {
-				if(!isShowBestSectionTime) {
+    /** When true, always 20G */
+    private boolean always20g;
+
+    /** When true, levelstop sound is enabled */
+    private boolean lvstopse;
+
+    /** BigMode */
+    private boolean big;
+
+    /** When true, section time display is enabled */
+    private boolean showsectiontime;
+
+    /** Version */
+    private int version;
+
+    /** Current round's ranking rank */
+    private int rankingRank;
+
+    /** Rankings' 段位 */
+    private int[] rankingGrade;
+
+    /** Rankings'  level */
+    private int[] rankingLevel;
+
+    /** Rankings' times */
+    private int[] rankingTime;
+
+    /** Rankings' Roll completely cleared flag */
+    private int[] rankingRollclear;
+
+    /** Section Time記録 */
+    private int[] bestSectionTime;
+
+    /*
+     * Mode name
+     */
+    @Override
+    public String getName() {
+        return "GRADE MANIA 2";
+    }
+
+    /*
+     * Initialization
+     */
+    @Override
+    public void playerInit(GameEngine engine, int playerID) {
+        owner = engine.owner;
+        receiver = engine.owner.receiver;
+
+        gravityindex = 0;
+        nextseclv = 0;
+        lvupflag = true;
+        grade = 0;
+        gradeInternal = 0;
+        gradePoint = 0;
+        gradeDecay = 0;
+        lastGradeTime = 0;
+        harddropBonus = 0;
+        comboValue = 0;
+        lastscore = 0;
+        scgettime = 0;
+        rolltime = 0;
+        rollclear = 0;
+        rollstarted = false;
+        secretGrade = 0;
+        bgmlv = 0;
+        gradeflash = 0;
+        sectiontime = new int[SECTION_MAX];
+        sectionIsNewRecord = new boolean[SECTION_MAX];
+        sectionscomp = 0;
+        sectionavgtime = 0;
+        sectionlasttime = 0;
+        sectionfourline = new int[SECTION_MAX];
+        mrollSectiontime = true;
+        mrollFourline = true;
+        mrollFlag = false;
+        mrollLines = 0;
+        medalAC = 0;
+        medalST = 0;
+        medalSK = 0;
+        medalRE = 0;
+        medalRO = 0;
+        medalCO = 0;
+        recoveryFlag = false;
+        rotateCount = 0;
+        isShowBestSectionTime = false;
+        startlevel = 0;
+        alwaysghost = false;
+        always20g = false;
+        lvstopse = false;
+        big = false;
+
+        rankingRank = -1;
+        rankingGrade = new int[RANKING_MAX];
+        rankingLevel = new int[RANKING_MAX];
+        rankingTime = new int[RANKING_MAX];
+        rankingRollclear = new int[RANKING_MAX];
+        bestSectionTime = new int[SECTION_MAX];
+
+        engine.tspinEnable = false;
+        engine.b2bEnable = false;
+        engine.comboType = GameEngine.COMBO_TYPE_DOUBLE;
+        engine.bighalf = true;
+        engine.bigmove = true;
+        engine.staffrollEnable = true;
+        engine.staffrollNoDeath = false;
+
+        if(owner.replayMode == false) {
+            loadSetting(owner.modeConfig);
+            loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+            version = CURRENT_VERSION;
+        } else {
+            for(int i = 0; i < SECTION_MAX; i++) {
+                bestSectionTime[i] = DEFAULT_SECTION_TIME;
+            }
+            loadSetting(owner.replayProp);
+            version = owner.replayProp.getProperty("grademania2.version", 0);
+        }
+
+        owner.backgroundStatus.bg = startlevel;
+    }
+
+    /**
+     * Load settings from property file
+     * @param prop Property file
+     */
+    private void loadSetting(CustomProperties prop) {
+        startlevel = prop.getProperty("grademania2.startlevel", 0);
+        alwaysghost = prop.getProperty("grademania2.alwaysghost", false);
+        always20g = prop.getProperty("grademania2.always20g", false);
+        lvstopse = prop.getProperty("grademania2.lvstopse", false);
+        showsectiontime = prop.getProperty("grademania2.showsectiontime", false);
+        big = prop.getProperty("grademania2.big", false);
+    }
+
+    /**
+     * Save settings to property file
+     * @param prop Property file
+     */
+    private void saveSetting(CustomProperties prop) {
+        prop.setProperty("grademania2.startlevel", startlevel);
+        prop.setProperty("grademania2.alwaysghost", alwaysghost);
+        prop.setProperty("grademania2.always20g", always20g);
+        prop.setProperty("grademania2.lvstopse", lvstopse);
+        prop.setProperty("grademania2.showsectiontime", showsectiontime);
+        prop.setProperty("grademania2.big", big);
+    }
+
+    /**
+     * Set BGM at start of game
+     * @param engine GameEngine
+     */
+    private void setStartBgmlv(GameEngine engine) {
+        bgmlv = 0;
+        while((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) bgmlv++;
+    }
+
+    /**
+     * Update falling speed
+     * @param engine GameEngine
+     */
+    private void setSpeed(GameEngine engine) {
+        if((always20g == true) || (engine.statistics.time >= 54000)) {
+            engine.speed.gravity = -1;
+        } else {
+            while(engine.statistics.level >= tableGravityChangeLevel[gravityindex]) gravityindex++;
+            engine.speed.gravity = tableGravityValue[gravityindex];
+        }
+
+        int section = engine.statistics.level / 100;
+        if(section > tableARE.length - 1) section = tableARE.length - 1;
+        engine.speed.das = tableDAS[section];
+
+        if(engine.statistics.time >= 54000) {
+            engine.speed.are = 3;
+            engine.speed.areLine = 6;
+            engine.speed.lineDelay = 6;
+            engine.speed.lockDelay = 19;
+        } else {
+            engine.speed.are = tableARE[section];
+            engine.speed.areLine = tableARELine[section];
+            engine.speed.lineDelay = tableLineDelay[section];
+            engine.speed.lockDelay = tableLockDelay[section];
+        }
+    }
+
+    /**
+     * Update average section time
+     */
+    private void setAverageSectionTime() {
+        if(sectionscomp > 0) {
+            int temp = 0;
+            for(int i = startlevel; i < startlevel + sectionscomp; i++) {
+                if((i >= 0) && (i < sectiontime.length)) temp += sectiontime[i];
+            }
+            sectionavgtime = temp / sectionscomp;
+        } else {
+            sectionavgtime = 0;
+        }
+    }
+
+    /**
+     * 消えRoll 条件を満たしているか check
+     * @param levelb 上がる前の level
+     */
+    private void mrollCheck(int levelb) {
+        // Section Time
+        if(levelb < 500) {
+            if(sectionlasttime > 3900) mrollSectiontime = false;
+        } else if(levelb < 600) {
+            int temp = 0;
+            for(int i = 0; i < 5; i++) temp += sectiontime[i];
+            temp = temp / 5;
+            if(sectionlasttime > temp + 120) mrollSectiontime = false;
+        } else {
+            int temp = sectiontime[(levelb / 100) - 1];
+            if(sectionlasttime > temp + 120) mrollSectiontime = false;
+        }
+
+        // 4-line clear
+        int required4line = 2;
+        if((levelb >= 500) && (levelb < 900)) required4line = 1;
+        if(levelb >= 900) required4line = 0;
+
+        if(sectionfourline[levelb / 100] < required4line) {
+            mrollFourline = false;
+        }
+    }
+
+    /**
+     * ST medal check
+     * @param engine GameEngine
+     * @param sectionNumber Section number
+     */
+    private void stMedalCheck(GameEngine engine, int sectionNumber) {
+        int best = bestSectionTime[sectionNumber];
+
+        if(sectionlasttime < best) {
+            if(medalST < 3) {
+                engine.playSE("medal");
+                medalST = 3;
+            }
+            if(!owner.replayMode) {
+                sectionIsNewRecord[sectionNumber] = true;
+            }
+        } else if((sectionlasttime < best + 300) && (medalST < 2)) {
+            engine.playSE("medal");
+            medalST = 2;
+        } else if((sectionlasttime < best + 600) && (medalST < 1)) {
+            engine.playSE("medal");
+            medalST = 1;
+        }
+    }
+
+    /**
+     * RO medal check
+     * @param engine Engine
+     */
+    private void roMedalCheck(GameEngine engine) {
+        float rotateAverage = (float)rotateCount / (float)engine.statistics.totalPieceLocked;
+
+        if((rotateAverage >= 1.2f) && (medalRO < 3)) {
+            engine.playSE("medal");
+            medalRO++;
+        }
+    }
+
+    /**
+     *  medal の文字色を取得
+     * @param medalColor  medal 状態
+     * @return  medal の文字色
+     */
+    private int getMedalFontColor(int medalColor) {
+        if(medalColor == 1) return EventReceiver.COLOR_RED;
+        if(medalColor == 2) return EventReceiver.COLOR_WHITE;
+        if(medalColor == 3) return EventReceiver.COLOR_YELLOW;
+        return -1;
+    }
+
+    /*
+     * Called at settings screen
+     */
+    @Override
+    public boolean onSetting(GameEngine engine, int playerID) {
+        // Menu
+        if(engine.owner.replayMode == false) {
+            // Configuration changes
+            int change = updateCursor(engine, 5);
+
+            if(change != 0) {
+                engine.playSE("change");
+
+                switch(engine.statc[2]) {
+                case 0:
+                    startlevel += change;
+                    if(startlevel < 0) startlevel = 9;
+                    if(startlevel > 9) startlevel = 0;
+                    owner.backgroundStatus.bg = startlevel;
+                    break;
+                case 1:
+                    alwaysghost = !alwaysghost;
+                    break;
+                case 2:
+                    always20g = !always20g;
+                    break;
+                case 3:
+                    lvstopse = !lvstopse;
+                    break;
+                case 4:
+                    showsectiontime = !showsectiontime;
+                    break;
+                case 5:
+                    big = !big;
+                    break;
+                }
+            }
+
+            //  section time display切替
+            if(engine.ctrl.isPush(Controller.BUTTON_F) && (engine.statc[3] >= 5)) {
+                engine.playSE("change");
+                isShowBestSectionTime = !isShowBestSectionTime;
+            }
+
+            // 決定
+            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+                engine.playSE("decide");
+                saveSetting(owner.modeConfig);
+                receiver.saveModeConfig(owner.modeConfig);
+                isShowBestSectionTime = false;
+                sectionscomp = 0;
+                return false;
+            }
+
+            // Cancel
+            if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+                engine.quitflag = true;
+            }
+
+            engine.statc[3]++;
+        } else {
+            engine.statc[3]++;
+            engine.statc[2] = -1;
+
+            if(engine.statc[3] >= 60) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /*
+     * Render the settings screen
+     */
+    @Override
+    public void renderSetting(GameEngine engine, int playerID) {
+        drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
+                "LEVEL", String.valueOf(startlevel * 100),
+                "FULL GHOST", GeneralUtil.getONorOFF(alwaysghost),
+                "20G MODE", GeneralUtil.getONorOFF(always20g),
+                "LVSTOPSE", GeneralUtil.getONorOFF(lvstopse),
+                "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
+                "BIG",  GeneralUtil.getONorOFF(big));
+    }
+
+    /*
+     * Called at game start
+     */
+    @Override
+    public void startGame(GameEngine engine, int playerID) {
+        engine.statistics.level = startlevel * 100;
+
+        nextseclv = engine.statistics.level + 100;
+        if(engine.statistics.level < 0) nextseclv = 100;
+        if(engine.statistics.level >= 900) nextseclv = 999;
+
+        owner.backgroundStatus.bg = engine.statistics.level / 100;
+
+        engine.big = big;
+
+        setSpeed(engine);
+        setStartBgmlv(engine);
+        owner.bgmStatus.bgm = bgmlv;
+    }
+
+    /*
+     * Render score
+     */
+    @Override
+    public void renderLast(GameEngine engine, int playerID) {
+        receiver.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA 2", EventReceiver.COLOR_CYAN);
+
+        if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
+            if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (always20g == false) && (engine.ai == null)) {
+            	if(!isShowBestSectionTime) {
 					// Rankings
 					float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
 					int topY = (receiver.getNextDisplayType() == 2) ? 5 : 3;

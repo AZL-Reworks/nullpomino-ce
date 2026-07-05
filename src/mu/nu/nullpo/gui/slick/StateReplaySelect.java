@@ -48,153 +48,153 @@ import org.newdawn.slick.state.StateBasedGame;
  * リプレイ選択画面のステート
  */
 public class StateReplaySelect extends DummyMenuScrollState {
-	/** This state's ID */
-	public static final int ID = 4;
+    /** This state's ID */
+    public static final int ID = 4;
 
-	/** 1画面に表示するMaximumファイルcount */
-	public static final int PAGE_HEIGHT = 20;
+    /** 1画面に表示するMaximumファイルcount */
+    public static final int PAGE_HEIGHT = 20;
 
-	/** Log */
-	static Logger log = Logger.getLogger(StateReplaySelect.class);
+    /** Log */
+    static Logger log = Logger.getLogger(StateReplaySelect.class);
 
-	/** Mode  name */
-	protected String[] modenameList;
+    /** Mode  name */
+    protected String[] modenameList;
 
-	/** Rule name */
-	protected String[] rulenameList;
+    /** Rule name */
+    protected String[] rulenameList;
 
-	/** Scoreなどの情報 */
-	protected Statistics[] statsList;
+    /** Scoreなどの情報 */
+    protected Statistics[] statsList;
 
-	public StateReplaySelect () {
-		pageHeight = PAGE_HEIGHT;
-		nullError = "REPLAY DIRECTORY NOT FOUND";
-		emptyError = "NO REPLAY FILE";
-	}
+    public StateReplaySelect () {
+        pageHeight = PAGE_HEIGHT;
+        nullError = "REPLAY DIRECTORY NOT FOUND";
+        emptyError = "NO REPLAY FILE";
+    }
 
-	/*
-	 * Fetch this state's ID
-	 */
-	@Override
-	public int getID() {
-		return ID;
-	}
+    /*
+     * Fetch this state's ID
+     */
+    @Override
+    public int getID() {
+        return ID;
+    }
 
-	/*
-	 * State initialization
-	 */
-	public void init(GameContainer container, StateBasedGame game) throws SlickException {
-	}
+    /*
+     * State initialization
+     */
+    public void init(GameContainer container, StateBasedGame game) throws SlickException {
+    }
 
-	/*
-	 * Called when entering this state
-	 */
-	@Override
-	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-		list = getReplayFileList();
-		
-		if (list != null)
-			maxCursor = list.length-1;
-		
-		setReplayRuleAndModeList();
-	}
+    /*
+     * Called when entering this state
+     */
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        list = getReplayFileList();
+        
+        if (list != null)
+            maxCursor = list.length-1;
+        
+        setReplayRuleAndModeList();
+    }
 
-	/**
-	 * リプレイファイル一覧を取得
-	 * @return リプレイファイルのFilenameの配列。ディレクトリがないならnull
-	 */
-	protected String[] getReplayFileList() {
-		// Get file list
-		File dir = new File(NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay"));
+    /**
+     * リプレイファイル一覧を取得
+     * @return リプレイファイルのFilenameの配列。ディレクトリがないならnull
+     */
+    protected String[] getReplayFileList() {
+        // Get file list
+        File dir = new File(NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay"));
 
-		FilenameFilter filter = new FilenameFilter() {
-			public boolean accept(File dir1, String name) {
-				return name.endsWith(".rep");
-			}
-		};
+        FilenameFilter filter = new FilenameFilter() {
+            public boolean accept(File dir1, String name) {
+                return name.endsWith(".rep");
+            }
+        };
 
-		String[] list = dir.list(filter);
+        String[] list = dir.list(filter);
 
-		if(!System.getProperty("os.name").startsWith("Windows")) {
-			// Sort if not windows
-			Arrays.sort(list);
-		}
+        if(!System.getProperty("os.name").startsWith("Windows")) {
+            // Sort if not windows
+            Arrays.sort(list);
+        }
 
-		return list;
-	}
+        return list;
+    }
 
-	/**
-	 * リプレイの詳細を設定
-	 */
-	protected void setReplayRuleAndModeList() {
-		if(list == null) return;
+    /**
+     * リプレイの詳細を設定
+     */
+    protected void setReplayRuleAndModeList() {
+        if(list == null) return;
 
-		modenameList = new String[list.length];
-		rulenameList = new String[list.length];
-		statsList = new Statistics[list.length];
+        modenameList = new String[list.length];
+        rulenameList = new String[list.length];
+        statsList = new Statistics[list.length];
 
-		for(int i = 0; i < list.length; i++) {
-			CustomProperties prop = new CustomProperties();
+        for(int i = 0; i < list.length; i++) {
+            CustomProperties prop = new CustomProperties();
 
-			try {
-				FileInputStream in = new FileInputStream(NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay") + "/" + list[i]);
-				prop.load(in);
-				in.close();
-			} catch (IOException e) {
-				log.error("Failed to load replay file (" + list[i] + ")", e);
-			}
+            try {
+                FileInputStream in = new FileInputStream(NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay") + "/" + list[i]);
+                prop.load(in);
+                in.close();
+            } catch (IOException e) {
+                log.error("Failed to load replay file (" + list[i] + ")", e);
+            }
 
-			modenameList[i] = prop.getProperty("name.mode", "");
-			rulenameList[i] = prop.getProperty("name.rule", "");
+            modenameList[i] = prop.getProperty("name.mode", "");
+            rulenameList[i] = prop.getProperty("name.rule", "");
 
-			statsList[i] = new Statistics();
-			statsList[i].readProperty(prop, 0);
-		}
-	}
+            statsList[i] = new Statistics();
+            statsList[i].readProperty(prop, 0);
+        }
+    }
 
-	@Override
-	protected void onRenderSuccess (GameContainer container, StateBasedGame game, Graphics graphics)  {
-		String title = "SELECT REPLAY FILE";
-		title += " (" + (cursor + 1) + "/" + (list.length) + ")";
-		NormalFont.printFontGrid(1, 1, title, NormalFont.COLOR_ORANGE);
+    @Override
+    protected void onRenderSuccess (GameContainer container, StateBasedGame game, Graphics graphics)  {
+        String title = "SELECT REPLAY FILE";
+        title += " (" + (cursor + 1) + "/" + (list.length) + ")";
+        NormalFont.printFontGrid(1, 1, title, NormalFont.COLOR_ORANGE);
 
-		NormalFont.printFontGrid(1, 24, "MODE:" + modenameList[cursor] + " RULE:" + rulenameList[cursor], NormalFont.COLOR_CYAN);
-		NormalFont.printFontGrid(1, 25,
-									"SCORE:" + statsList[cursor].score + " LINE:" + statsList[cursor].lines
-									, NormalFont.COLOR_CYAN);
-		NormalFont.printFontGrid(1, 26,
-									"LEVEL:" + (statsList[cursor].level + statsList[cursor].levelDispAdd) +
-									" TIME:" + GeneralUtil.getTime(statsList[cursor].time)
-									, NormalFont.COLOR_CYAN);
-		NormalFont.printFontGrid(1, 27,
-									"GAME RATE:" + ( (statsList[cursor].gamerate == 0f) ? "UNKNOWN" : ((100*statsList[cursor].gamerate) + "%") )
-									, NormalFont.COLOR_CYAN);
-	}
+        NormalFont.printFontGrid(1, 24, "MODE:" + modenameList[cursor] + " RULE:" + rulenameList[cursor], NormalFont.COLOR_CYAN);
+        NormalFont.printFontGrid(1, 25,
+                                    "SCORE:" + statsList[cursor].score + " LINE:" + statsList[cursor].lines
+                                    , NormalFont.COLOR_CYAN);
+        NormalFont.printFontGrid(1, 26,
+                                    "LEVEL:" + (statsList[cursor].level + statsList[cursor].levelDispAdd) +
+                                    " TIME:" + GeneralUtil.getTime(statsList[cursor].time)
+                                    , NormalFont.COLOR_CYAN);
+        NormalFont.printFontGrid(1, 27,
+                                    "GAME RATE:" + ( (statsList[cursor].gamerate == 0f) ? "UNKNOWN" : ((100*statsList[cursor].gamerate) + "%") )
+                                    , NormalFont.COLOR_CYAN);
+    }
 
-	@Override
-	protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
-		ResourceHolder.soundManager.play("decide");
+    @Override
+    protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
+        ResourceHolder.soundManager.play("decide");
 
-		CustomProperties prop = new CustomProperties();
+        CustomProperties prop = new CustomProperties();
 
-		try {
-			FileInputStream in = new FileInputStream(NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay") + "/" + list[cursor]);
-			prop.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.error("Failed to load replay file from " + list[cursor], e);
-			return true;
-		}
+        try {
+            FileInputStream in = new FileInputStream(NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay") + "/" + list[cursor]);
+            prop.load(in);
+            in.close();
+        } catch (IOException e) {
+            log.error("Failed to load replay file from " + list[cursor], e);
+            return true;
+        }
 
-		NullpoMinoSlick.stateInGame.startReplayGame(prop);
+        NullpoMinoSlick.stateInGame.startReplayGame(prop);
 
-		game.enterState(StateInGame.ID);
-		return false;
-	}
+        game.enterState(StateInGame.ID);
+        return false;
+    }
 
-	@Override
-	protected boolean onCancel(GameContainer container, StateBasedGame game, int delta) {
-		game.enterState(StateTitle.ID);
-		return false;
-	}
+    @Override
+    protected boolean onCancel(GameContainer container, StateBasedGame game, int delta) {
+        game.enterState(StateTitle.ID);
+        return false;
+    }
 }

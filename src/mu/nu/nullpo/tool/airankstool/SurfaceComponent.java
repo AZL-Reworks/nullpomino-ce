@@ -9,29 +9,29 @@ import javax.swing.JComponent;
 
 public class SurfaceComponent extends JComponent {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private int [] surfaceDecoded;
-	private int minHeight;
-	private int maxHeight;
-	private int componentHeight;
-	private int stackWidth;
-	private int maxJump;
-	private int baseSizeX;
-	private int baseSizeY;
+    private int [] surfaceDecoded;
+    private int minHeight;
+    private int maxHeight;
+    private int componentHeight;
+    private int stackWidth;
+    private int maxJump;
+    private int baseSizeX;
+    private int baseSizeY;
     public SurfaceComponent(int maxJump,int stackWidth, int surface){
-    	super();
+        super();
     
-    	this.surfaceDecoded=new int[stackWidth-1];
+        this.surfaceDecoded=new int[stackWidth-1];
     
     
-    	baseSizeX=10;
-    	baseSizeY=10;
-    	this.stackWidth=stackWidth;
-    	this.maxJump=maxJump;
-    	componentHeight=maxJump*(stackWidth-1);
-    	setPreferredSize(getPreferredSize());
-    	setSurface(surface);
+        baseSizeX=10;
+        baseSizeY=10;
+        this.stackWidth=stackWidth;
+        this.maxJump=maxJump;
+        componentHeight=maxJump*(stackWidth-1);
+        setPreferredSize(getPreferredSize());
+        setSurface(surface);
     
     
     }
@@ -41,22 +41,22 @@ public class SurfaceComponent extends JComponent {
     }
 
     public void setSurface(int surface){
-    	int height=0;
-    	minHeight=0;
-    	maxHeight=0;
-    	int workSurface=surface;
-    	for (int i=0;i<stackWidth-1;i++){
-    		surfaceDecoded[i]=(workSurface % (2*maxJump+1))-maxJump;
-    		height+=surfaceDecoded[i];
-    		if (height>maxHeight){
-    			maxHeight=height;
-    		}
-    		if (height<minHeight){
-    			minHeight=height;
-    		}
-    		workSurface/=(2*maxJump+1);
-    	}
-    	repaint();
+        int height=0;
+        minHeight=0;
+        maxHeight=0;
+        int workSurface=surface;
+        for (int i=0;i<stackWidth-1;i++){
+            surfaceDecoded[i]=(workSurface % (2*maxJump+1))-maxJump;
+            height+=surfaceDecoded[i];
+            if (height>maxHeight){
+                maxHeight=height;
+            }
+            if (height<minHeight){
+                minHeight=height;
+            }
+            workSurface/=(2*maxJump+1);
+        }
+        repaint();
     }
 
     protected void paintComponent(Graphics g) {
@@ -70,10 +70,10 @@ public class SurfaceComponent extends JComponent {
         int posX=bounds.x+baseSizeX;
         int posY=bounds.y+baseSizeY+maxHeight*baseSizeY;
         for (int x=0;x<stackWidth-1;x++){
-        	g.drawLine(posX, posY, posX+baseSizeX, posY);
-        	posX+=baseSizeX;
-        	g.drawLine(posX,posY, posX,posY-surfaceDecoded[x]*baseSizeY);
-        	posY-=surfaceDecoded[x]*baseSizeY;
+            g.drawLine(posX, posY, posX+baseSizeX, posY);
+            posX+=baseSizeX;
+            g.drawLine(posX,posY, posX,posY-surfaceDecoded[x]*baseSizeY);
+            posY-=surfaceDecoded[x]*baseSizeY;
         }
         g.drawLine(posX, posY, posX+baseSizeX, posY);
 

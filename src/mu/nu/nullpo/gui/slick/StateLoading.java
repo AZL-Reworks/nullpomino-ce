@@ -43,139 +43,139 @@ import org.newdawn.slick.state.StateBasedGame;
  * ロード画面のステート
  */
 public class StateLoading extends BasicGameState {
-	/** This state's ID */
-	public static final int ID = 0;
+    /** This state's ID */
+    public static final int ID = 0;
 
-	/** Log */
-	static Logger log = Logger.getLogger(StateLoading.class);
+    /** Log */
+    static Logger log = Logger.getLogger(StateLoading.class);
 
-	/** プリロード進行度 */
-	protected int preloadCount, preloadSet;
+    /** プリロード進行度 */
+    protected int preloadCount, preloadSet;
 
-	/*
-	 * Fetch this state's ID
-	 */
-	@Override
-	public int getID() {
-		return ID;
-	}
+    /*
+     * Fetch this state's ID
+     */
+    @Override
+    public int getID() {
+        return ID;
+    }
 
-	/*
-	 * State initialization
-	 */
-	public void init(GameContainer container, StateBasedGame game) throws SlickException {
-	}
+    /*
+     * State initialization
+     */
+    public void init(GameContainer container, StateBasedGame game) throws SlickException {
+    }
 
-	/*
-	 * Called when entering this state
-	 */
-	@Override
-	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-		preloadCount = 0;
-		preloadSet = 0;
+    /*
+     * Called when entering this state
+     */
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        preloadCount = 0;
+        preloadSet = 0;
 
-		//  input 関連をInitialization
-		GameKey.initGlobalGameKey();
-		GameKey.gamekey[0].loadConfig(NullpoMinoSlick.propConfig);
-		GameKey.gamekey[1].loadConfig(NullpoMinoSlick.propConfig);
-		MouseInput.initializeMouseInput();
+        //  input 関連をInitialization
+        GameKey.initGlobalGameKey();
+        GameKey.gamekey[0].loadConfig(NullpoMinoSlick.propConfig);
+        GameKey.gamekey[1].loadConfig(NullpoMinoSlick.propConfig);
+        MouseInput.initializeMouseInput();
 
-		// 設定を反映させる
-		NullpoMinoSlick.setGeneralConfig();
+        // 設定を反映させる
+        NullpoMinoSlick.setGeneralConfig();
 
-		// 画像などを読み込み
-		try {
-			ResourceHolder.load();
-		} catch(Throwable e) {
-			log.error("Resource load failed", e);
-		}
-	}
+        // 画像などを読み込み
+        try {
+            ResourceHolder.load();
+        } catch(Throwable e) {
+            log.error("Resource load failed", e);
+        }
+    }
 
-	/*
-	 * Draw the screen
-	 */
-	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-		// 巨大な画像をあらかじめ画面に描画することでメモリにキャッシュさせる
-		if(preloadSet == 0) {
-			if(preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
-				try {
-					ResourceHolder.imgBreak[preloadCount][0].draw(0, 0);
-				} catch (Exception e) {}
-				preloadCount++;
-			} else {
-				preloadCount = 0;
-				preloadSet++;
-			}
-		}
-		if(preloadSet == 1) {
-			if(preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
-				try {
-					ResourceHolder.imgBreak[preloadCount][1].draw(0, 0);
-				} catch (Exception e) {}
-				preloadCount++;
-			} else {
-				preloadCount = 0;
-				preloadSet++;
-			}
-		}
-		if(preloadSet == 2) {
-			if(preloadCount < ResourceHolder.PERASE_MAX) {
-				try {
-					ResourceHolder.imgPErase[preloadCount].draw(0, 0);
-				} catch (Exception e) {}
-				preloadCount++;
-			} else {
-				preloadCount = 0;
-				preloadSet++;
-			}
-		}
-		if(preloadSet == 3) {
-			ResourceHolder.imgFont.draw(0, 0);
-			preloadSet++;
-		}
+    /*
+     * Draw the screen
+     */
+    public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+        // 巨大な画像をあらかじめ画面に描画することでメモリにキャッシュさせる
+        if(preloadSet == 0) {
+            if(preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
+                try {
+                    ResourceHolder.imgBreak[preloadCount][0].draw(0, 0);
+                } catch (Exception e) {}
+                preloadCount++;
+            } else {
+                preloadCount = 0;
+                preloadSet++;
+            }
+        }
+        if(preloadSet == 1) {
+            if(preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
+                try {
+                    ResourceHolder.imgBreak[preloadCount][1].draw(0, 0);
+                } catch (Exception e) {}
+                preloadCount++;
+            } else {
+                preloadCount = 0;
+                preloadSet++;
+            }
+        }
+        if(preloadSet == 2) {
+            if(preloadCount < ResourceHolder.PERASE_MAX) {
+                try {
+                    ResourceHolder.imgPErase[preloadCount].draw(0, 0);
+                } catch (Exception e) {}
+                preloadCount++;
+            } else {
+                preloadCount = 0;
+                preloadSet++;
+            }
+        }
+        if(preloadSet == 3) {
+            ResourceHolder.imgFont.draw(0, 0);
+            preloadSet++;
+        }
 
-		g.setColor(Color.black);
-		g.fillRect(0, 0, 640, 480);
-	}
+        g.setColor(Color.black);
+        g.fillRect(0, 0, 640, 480);
+    }
 
-	/*
-	 * Update game
-	 */
-	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-		if(preloadSet > 2) {
-			// Change title bar caption
-			if(container instanceof AppGameContainer) {
-				((AppGameContainer) container).setTitle("NullpoMino version" + GameManager.getVersionString());
-				((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
-			}
+    /*
+     * Update game
+     */
+    public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+        if(preloadSet > 2) {
+            // Change title bar caption
+            if(container instanceof AppGameContainer) {
+                ((AppGameContainer) container).setTitle("NullpoMino version" + GameManager.getVersionString());
+                ((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
+            }
 
-			// First run
-			if(NullpoMinoSlick.propConfig.getProperty("option.firstSetupMode", true) == true) {
-				// Set various default settings here
-				GameKey.gamekey[0].loadDefaultKeymap();
-				GameKey.gamekey[0].saveConfig(NullpoMinoSlick.propConfig);
-				NullpoMinoSlick.propConfig.setProperty("option.firstSetupMode", false);
+            // First run
+            if(NullpoMinoSlick.propConfig.getProperty("option.firstSetupMode", true) == true) {
+                // Set various default settings here
+                GameKey.gamekey[0].loadDefaultKeymap();
+                GameKey.gamekey[0].saveConfig(NullpoMinoSlick.propConfig);
+                NullpoMinoSlick.propConfig.setProperty("option.firstSetupMode", false);
 
-				// Set default rotation button setting (only for first run)
-				if(NullpoMinoSlick.propGlobal.getProperty("global.firstSetupMode", true) == true) {
-					for(int pl = 0; pl < 2; pl++) {
-						if(NullpoMinoSlick.propGlobal.getProperty(pl + ".tuning.owRotateButtonDefaultRight") == null) {
-							NullpoMinoSlick.propGlobal.setProperty(pl + ".tuning.owRotateButtonDefaultRight", 0);
-						}
-					}
-					NullpoMinoSlick.propGlobal.setProperty("global.firstSetupMode", false);
-				}
+                // Set default rotation button setting (only for first run)
+                if(NullpoMinoSlick.propGlobal.getProperty("global.firstSetupMode", true) == true) {
+                    for(int pl = 0; pl < 2; pl++) {
+                        if(NullpoMinoSlick.propGlobal.getProperty(pl + ".tuning.owRotateButtonDefaultRight") == null) {
+                            NullpoMinoSlick.propGlobal.setProperty(pl + ".tuning.owRotateButtonDefaultRight", 0);
+                        }
+                    }
+                    NullpoMinoSlick.propGlobal.setProperty("global.firstSetupMode", false);
+                }
 
-				// Save settings
-				NullpoMinoSlick.saveConfig();
+                // Save settings
+                NullpoMinoSlick.saveConfig();
 
-				// Go to title screen
-				game.enterState(StateTitle.ID);
-			}
-			// Second+ run
-			else {
-				game.enterState(StateTitle.ID);
-			}
-		}
-	}
+                // Go to title screen
+                game.enterState(StateTitle.ID);
+            }
+            // Second+ run
+            else {
+                game.enterState(StateTitle.ID);
+            }
+        }
+    }
 }

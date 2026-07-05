@@ -34,69 +34,69 @@ import java.io.Serializable;
  * Wallkick結果のクラス
  */
 public class WallkickResult implements Serializable {
-	/** Serial version ID */
-	private static final long serialVersionUID = -7985029240622355609L;
+    /** Serial version ID */
+    private static final long serialVersionUID = -7985029240622355609L;
 
-	/** X-coordinate補正量 */
-	public int offsetX;
+    /** X-coordinate補正量 */
+    public int offsetX;
 
-	/** Y-coordinate補正量 */
-	public int offsetY;
+    /** Y-coordinate補正量 */
+    public int offsetY;
 
-	/** rotation後のピースのDirection */
-	public int direction;
+    /** rotation後のピースのDirection */
+    public int direction;
 
-	/**
-	 * Constructor
-	 */
-	public WallkickResult() {
-		reset();
-	}
+    /**
+     * Constructor
+     */
+    public WallkickResult() {
+        reset();
+    }
 
-	/**
-	 * パラメータ付きConstructor
-	 * @param offsetX X-coordinate補正量
-	 * @param offsetY Y-coordinate補正量
-	 * @param direction rotation後のテトラミノのDirection
-	 */
-	public WallkickResult(int offsetX, int offsetY, int direction) {
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
-		this.direction = direction;
-	}
+    /**
+     * パラメータ付きConstructor
+     * @param offsetX X-coordinate補正量
+     * @param offsetY Y-coordinate補正量
+     * @param direction rotation後のテトラミノのDirection
+     */
+    public WallkickResult(int offsetX, int offsetY, int direction) {
+        this.offsetX = offsetX;
+        this.offsetY = offsetY;
+        this.direction = direction;
+    }
 
-	/**
-	 * Copy constructor
-	 * @param w Copy source
-	 */
-	public WallkickResult(WallkickResult w) {
-		copy(w);
-	}
+    /**
+     * Copy constructor
+     * @param w Copy source
+     */
+    public WallkickResult(WallkickResult w) {
+        copy(w);
+    }
 
-	/**
-	 * Reset to defaults
-	 */
-	public void reset() {
-		offsetX = 0;
-		offsetY = 0;
-		direction = 0;
-	}
+    /**
+     * Reset to defaults
+     */
+    public void reset() {
+        offsetX = 0;
+        offsetY = 0;
+        direction = 0;
+    }
 
-	/**
-	 * 別のWallkickResultからコピー
-	 * @param w Copy source
-	 */
-	public void copy(WallkickResult w) {
-		this.offsetX = w.offsetX;
-		this.offsetY = w.offsetY;
-		this.direction = w.direction;
-	}
+    /**
+     * 別のWallkickResultからコピー
+     * @param w Copy source
+     */
+    public void copy(WallkickResult w) {
+        this.offsetX = w.offsetX;
+        this.offsetY = w.offsetY;
+        this.direction = w.direction;
+    }
 
-	/**
-	 * 上DirectionへのWallkickかどうか判定
-	 * @return 上DirectionへのWallkickのとき (offsetY < 0のとき）にtrue
-	 */
-	public boolean isUpward() {
-		return (offsetY < 0);
-	}
+    /**
+     * 上DirectionへのWallkickかどうか判定
+     * @return 上DirectionへのWallkickのとき (offsetY < 0のとき）にtrue
+     */
+    public boolean isUpward() {
+        return (offsetY < 0);
+    }
 }

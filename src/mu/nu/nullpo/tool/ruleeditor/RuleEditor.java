@@ -87,998 +87,998 @@ import org.apache.log4j.PropertyConfigurator;
  * ルールエディター
  */
 public class RuleEditor extends JFrame implements ActionListener {
-	/** Serial version */
-	private static final long serialVersionUID = 1L;
+    /** Serial version */
+    private static final long serialVersionUID = 1L;
 
-	/** Log */
-	static Logger log = Logger.getLogger(RuleEditor.class);
+    /** Log */
+    static Logger log = Logger.getLogger(RuleEditor.class);
 
-	/** Swing版のSave settings用Property file */
-	public CustomProperties propConfig;
+    /** Swing版のSave settings用Property file */
+    public CustomProperties propConfig;
 
-	/** Default language file */
-	public CustomProperties propLangDefault;
+    /** Default language file */
+    public CustomProperties propLangDefault;
 
-	/** UI翻訳用Property file */
-	public CustomProperties propLang;
+    /** UI翻訳用Property file */
+    public CustomProperties propLang;
 
-	//----------------------------------------------------------------------
-	/** 今開いているFilename (null:なし) */
-	private String strNowFile;
+    //----------------------------------------------------------------------
+    /** 今開いているFilename (null:なし) */
+    private String strNowFile;
 
-	/** タブ */
-	private JTabbedPane tabPane;
+    /** タブ */
+    private JTabbedPane tabPane;
 
-	//----------------------------------------------------------------------
-	/* 基本設定パネル */
+    //----------------------------------------------------------------------
+    /* 基本設定パネル */
 
-	/** Rule name */
-	private JTextField txtfldRuleName;
+    /** Rule name */
+    private JTextField txtfldRuleName;
 
-	/** NEXT表示countのテキストfield */
-	private JTextField txtfldNextDisplay;
+    /** NEXT表示countのテキストfield */
+    private JTextField txtfldNextDisplay;
 
-	/** Game style combobox */
-	private JComboBox comboboxStyle;
+    /** Game style combobox */
+    private JComboBox comboboxStyle;
 
-	/** 絵柄のComboボックス */
-	private JComboBox comboboxSkin;
+    /** 絵柄のComboボックス */
+    private JComboBox comboboxSkin;
 
-	/** ghost  is enabled */
-	private JCheckBox chkboxGhost;
+    /** ghost  is enabled */
+    private JCheckBox chkboxGhost;
 
-	/** Blockピースがfield枠外から出現 */
-	private JCheckBox chkboxEnterAboveField;
+    /** Blockピースがfield枠外から出現 */
+    private JCheckBox chkboxEnterAboveField;
 
-	/** 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count */
-	private JTextField txtfldEnterMaxDistanceY;
+    /** 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count */
+    private JTextField txtfldEnterMaxDistanceY;
 
-	/** NEXT順生成アルゴリズム */
-	private JComboBox comboboxRandomizer;
+    /** NEXT順生成アルゴリズム */
+    private JComboBox comboboxRandomizer;
 
-	/** NEXT順生成アルゴリズムのリスト */
-	private Vector<String> vectorRandomizer;
+    /** NEXT順生成アルゴリズムのリスト */
+    private Vector<String> vectorRandomizer;
 
-	/** NEXT順生成アルゴリズムのリセット button */
-	private JButton btnResetRandomizer;
+    /** NEXT順生成アルゴリズムのリセット button */
+    private JButton btnResetRandomizer;
 
-	//----------------------------------------------------------------------
-	/* field設定パネル */
+    //----------------------------------------------------------------------
+    /* field設定パネル */
 
-	/** fieldの幅 */
-	private JTextField txtfldFieldWidth;
+    /** fieldの幅 */
+    private JTextField txtfldFieldWidth;
 
-	/** Field height */
-	private JTextField txtfldFieldHeight;
+    /** Field height */
+    private JTextField txtfldFieldHeight;
 
-	/** fieldの見えない部分の高さ */
-	private JTextField txtfldFieldHiddenHeight;
+    /** fieldの見えない部分の高さ */
+    private JTextField txtfldFieldHiddenHeight;
 
-	/** fieldの天井 */
-	private JCheckBox chkboxFieldCeiling;
+    /** fieldの天井 */
+    private JCheckBox chkboxFieldCeiling;
 
-	/** field枠内に置けないと死亡 */
-	private JCheckBox chkboxFieldLockoutDeath;
+    /** field枠内に置けないと死亡 */
+    private JCheckBox chkboxFieldLockoutDeath;
 
-	/** field枠外にはみ出しただけで死亡 */
-	private JCheckBox chkboxFieldPartialLockoutDeath;
+    /** field枠外にはみ出しただけで死亡 */
+    private JCheckBox chkboxFieldPartialLockoutDeath;
 
-	//----------------------------------------------------------------------
-	/* ホールド設定パネル */
+    //----------------------------------------------------------------------
+    /* ホールド設定パネル */
 
-	/** ホールド is enabled */
-	private JCheckBox chkboxHoldEnable;
+    /** ホールド is enabled */
+    private JCheckBox chkboxHoldEnable;
 
-	/** 先行ホールド */
-	private JCheckBox chkboxHoldInitial;
+    /** 先行ホールド */
+    private JCheckBox chkboxHoldInitial;
 
-	/** 先行ホールド連続使用不可 */
-	private JCheckBox chkboxHoldInitialLimit;
+    /** 先行ホールド連続使用不可 */
+    private JCheckBox chkboxHoldInitialLimit;
 
-	/** ホールドを使ったときにBlockピースの向きを初期状態に戻す */
-	private JCheckBox chkboxHoldResetDirection;
+    /** ホールドを使ったときにBlockピースの向きを初期状態に戻す */
+    private JCheckBox chkboxHoldResetDirection;
 
-	/** ホールドできる count (-1:無制限) */
-	private JTextField txtfldHoldLimit;
+    /** ホールドできる count (-1:無制限) */
+    private JTextField txtfldHoldLimit;
 
-	//----------------------------------------------------------------------
-	/* ドロップ設定パネル */
+    //----------------------------------------------------------------------
+    /* ドロップ設定パネル */
 
-	/** Hard drop使用可否 */
-	private JCheckBox chkboxDropHardDropEnable;
+    /** Hard drop使用可否 */
+    private JCheckBox chkboxDropHardDropEnable;
 
-	/** Hard dropで即固定 */
-	private JCheckBox chkboxDropHardDropLock;
+    /** Hard dropで即固定 */
+    private JCheckBox chkboxDropHardDropLock;
 
-	/** Hard drop連続使用不可 */
-	private JCheckBox chkboxDropHardDropLimit;
+    /** Hard drop連続使用不可 */
+    private JCheckBox chkboxDropHardDropLimit;
 
-	/** Soft drop使用可否 */
-	private JCheckBox chkboxDropSoftDropEnable;
+    /** Soft drop使用可否 */
+    private JCheckBox chkboxDropSoftDropEnable;
 
-	/** Soft dropで即固定 */
-	private JCheckBox chkboxDropSoftDropLock;
+    /** Soft dropで即固定 */
+    private JCheckBox chkboxDropSoftDropLock;
 
-	/** Soft drop連続使用不可 */
-	private JCheckBox chkboxDropSoftDropLimit;
+    /** Soft drop連続使用不可 */
+    private JCheckBox chkboxDropSoftDropLimit;
 
-	/** 接地状態でSoft dropすると即固定 */
-	private JCheckBox chkboxDropSoftDropSurfaceLock;
+    /** 接地状態でSoft dropすると即固定 */
+    private JCheckBox chkboxDropSoftDropSurfaceLock;
 
-	/** Soft drop速度 */
-	private JTextField txtfldDropSoftDropSpeed;
+    /** Soft drop速度 */
+    private JTextField txtfldDropSoftDropSpeed;
 
-	/** Soft drop速度をCurrent 通常速度×n倍にする */
-	private JCheckBox chkboxDropSoftDropMultiplyNativeSpeed;
+    /** Soft drop速度をCurrent 通常速度×n倍にする */
+    private JCheckBox chkboxDropSoftDropMultiplyNativeSpeed;
 
-	/** Use new soft drop codes */
-	private JCheckBox chkboxDropSoftDropGravitySpeedLimit;
+    /** Use new soft drop codes */
+    private JCheckBox chkboxDropSoftDropGravitySpeedLimit;
 
-	//----------------------------------------------------------------------
-	/* rotation設定パネル */
+    //----------------------------------------------------------------------
+    /* rotation設定パネル */
 
-	/** 先行rotation */
-	private JCheckBox chkboxRotateInitial;
+    /** 先行rotation */
+    private JCheckBox chkboxRotateInitial;
 
-	/** 先行rotation連続使用不可 */
-	private JCheckBox chkboxRotateInitialLimit;
+    /** 先行rotation連続使用不可 */
+    private JCheckBox chkboxRotateInitialLimit;
 
-	/** Wallkick */
-	private JCheckBox chkboxRotateWallkick;
+    /** Wallkick */
+    private JCheckBox chkboxRotateWallkick;
 
-	/** 先行rotationでもWallkickする */
-	private JCheckBox chkboxRotateInitialWallkick;
+    /** 先行rotationでもWallkickする */
+    private JCheckBox chkboxRotateInitialWallkick;
 
-	/** 上DirectionへのWallkickができる count (-1:無限) */
-	private JTextField txtfldRotateMaxUpwardWallkick;
+    /** 上DirectionへのWallkickができる count (-1:無限) */
+    private JTextField txtfldRotateMaxUpwardWallkick;
 
-	/** falseなら左が正rotation, When true,右が正rotation */
-	private JCheckBox chkboxRotateButtonDefaultRight;
+    /** falseなら左が正rotation, When true,右が正rotation */
+    private JCheckBox chkboxRotateButtonDefaultRight;
 
-	/** 逆rotationを許可 (falseなら正rotationと同じ) */
-	private JCheckBox chkboxRotateButtonAllowReverse;
+    /** 逆rotationを許可 (falseなら正rotationと同じ) */
+    private JCheckBox chkboxRotateButtonAllowReverse;
 
-	/** 2rotationを許可 (falseなら正rotationと同じ) */
-	private JCheckBox chkboxRotateButtonAllowDouble;
+    /** 2rotationを許可 (falseなら正rotationと同じ) */
+    private JCheckBox chkboxRotateButtonAllowDouble;
 
-	/** Wallkickアルゴリズム */
-	private JComboBox comboboxWallkickSystem;
+    /** Wallkickアルゴリズム */
+    private JComboBox comboboxWallkickSystem;
 
-	/** Wallkickアルゴリズムのリスト */
-	private Vector<String> vectorWallkickSystem;
+    /** Wallkickアルゴリズムのリスト */
+    private Vector<String> vectorWallkickSystem;
 
-	/** Wallkickアルゴリズムのリセット button */
-	private JButton btnResetWallkickSystem;
+    /** Wallkickアルゴリズムのリセット button */
+    private JButton btnResetWallkickSystem;
 
-	//----------------------------------------------------------------------
-	/* 固定 time設定パネル */
+    //----------------------------------------------------------------------
+    /* 固定 time設定パネル */
 
-	/** 最低固定 time */
-	private JTextField txtfldLockDelayMin;
+    /** 最低固定 time */
+    private JTextField txtfldLockDelayMin;
 
-	/** 最高固定 time */
-	private JTextField txtfldLockDelayMax;
+    /** 最高固定 time */
+    private JTextField txtfldLockDelayMax;
 
-	/** 落下で固定 timeリセット */
-	private JCheckBox chkboxLockDelayLockResetFall;
+    /** 落下で固定 timeリセット */
+    private JCheckBox chkboxLockDelayLockResetFall;
 
-	/** 移動で固定 timeリセット */
-	private JCheckBox chkboxLockDelayLockResetMove;
+    /** 移動で固定 timeリセット */
+    private JCheckBox chkboxLockDelayLockResetMove;
 
-	/** rotationで固定 timeリセット */
-	private JCheckBox chkboxLockDelayLockResetRotate;
+    /** rotationで固定 timeリセット */
+    private JCheckBox chkboxLockDelayLockResetRotate;
 
-	/** Lock delay reset by wallkick */
-	private JCheckBox chkboxLockDelayLockResetWallkick;
+    /** Lock delay reset by wallkick */
+    private JCheckBox chkboxLockDelayLockResetWallkick;
 
-	/** 横移動 counterとrotation counterを共有 (横移動 counterだけ使う) */
-	private JCheckBox chkboxLockDelayLockResetLimitShareCount;
+    /** 横移動 counterとrotation counterを共有 (横移動 counterだけ使う) */
+    private JCheckBox chkboxLockDelayLockResetLimitShareCount;
 
-	/** 横移動 count制限 */
-	private JTextField txtfldLockDelayLockResetLimitMove;
+    /** 横移動 count制限 */
+    private JTextField txtfldLockDelayLockResetLimitMove;
 
-	/** rotation count制限 */
-	private JTextField txtfldLockDelayLockResetLimitRotate;
+    /** rotation count制限 */
+    private JTextField txtfldLockDelayLockResetLimitRotate;
 
-	/** 横移動 counterかrotation counterが超過したら固定 timeリセットを無効にする */
-	private JRadioButton radioLockDelayLockResetLimitOverNoReset;
+    /** 横移動 counterかrotation counterが超過したら固定 timeリセットを無効にする */
+    private JRadioButton radioLockDelayLockResetLimitOverNoReset;
 
-	/** 横移動 counterかrotation counterが超過したら即座に固定する */
-	private JRadioButton radioLockDelayLockResetLimitOverInstant;
+    /** 横移動 counterかrotation counterが超過したら即座に固定する */
+    private JRadioButton radioLockDelayLockResetLimitOverInstant;
 
-	/** 横移動 counterかrotation counterが超過したらWallkick無効にする */
-	private JRadioButton radioLockDelayLockResetLimitOverNoWallkick;
+    /** 横移動 counterかrotation counterが超過したらWallkick無効にする */
+    private JRadioButton radioLockDelayLockResetLimitOverNoWallkick;
 
-	//----------------------------------------------------------------------
-	/* ARE設定パネル */
+    //----------------------------------------------------------------------
+    /* ARE設定パネル */
 
-	/** 最低ARE */
-	private JTextField txtfldAREMin;
+    /** 最低ARE */
+    private JTextField txtfldAREMin;
 
-	/** 最高ARE */
-	private JTextField txtfldAREMax;
+    /** 最高ARE */
+    private JTextField txtfldAREMax;
 
-	/** 最低ARE after line clear */
-	private JTextField txtfldARELineMin;
+    /** 最低ARE after line clear */
+    private JTextField txtfldARELineMin;
 
-	/** 最高ARE after line clear */
-	private JTextField txtfldARELineMax;
+    /** 最高ARE after line clear */
+    private JTextField txtfldARELineMax;
 
-	/** 固定した瞬間に光る frame count */
-	private JTextField txtfldARELockFlash;
+    /** 固定した瞬間に光る frame count */
+    private JTextField txtfldARELockFlash;
 
-	/** Blockが光る専用 frame を入れる */
-	private JCheckBox chkboxARELockFlashOnlyFrame;
+    /** Blockが光る専用 frame を入れる */
+    private JCheckBox chkboxARELockFlashOnlyFrame;
 
-	/** Line clear前にBlockが光る frame を入れる */
-	private JCheckBox chkboxARELockFlashBeforeLineClear;
+    /** Line clear前にBlockが光る frame を入れる */
+    private JCheckBox chkboxARELockFlashBeforeLineClear;
 
-	/** ARE cancel on move checkbox */
-	private JCheckBox chkboxARECancelMove;
+    /** ARE cancel on move checkbox */
+    private JCheckBox chkboxARECancelMove;
 
-	/** ARE cancel on rotate checkbox */
-	private JCheckBox chkboxARECancelRotate;
+    /** ARE cancel on rotate checkbox */
+    private JCheckBox chkboxARECancelRotate;
 
-	/** ARE cancel on hold checkbox */
-	private JCheckBox chkboxARECancelHold;
+    /** ARE cancel on hold checkbox */
+    private JCheckBox chkboxARECancelHold;
 
-	//----------------------------------------------------------------------
-	/* Line clear設定パネル */
+    //----------------------------------------------------------------------
+    /* Line clear設定パネル */
 
-	/** 最低Line clear time */
-	private JTextField txtfldLineDelayMin;
+    /** 最低Line clear time */
+    private JTextField txtfldLineDelayMin;
 
-	/** 最高Line clear time */
-	private JTextField txtfldLineDelayMax;
+    /** 最高Line clear time */
+    private JTextField txtfldLineDelayMax;
 
-	/** 落下アニメ */
-	private JCheckBox chkboxLineFallAnim;
+    /** 落下アニメ */
+    private JCheckBox chkboxLineFallAnim;
 
-	/** Line delay cancel on move checkbox */
-	private JCheckBox chkboxLineCancelMove;
+    /** Line delay cancel on move checkbox */
+    private JCheckBox chkboxLineCancelMove;
 
-	/** Line delay cancel on rotate checkbox */
-	private JCheckBox chkboxLineCancelRotate;
+    /** Line delay cancel on rotate checkbox */
+    private JCheckBox chkboxLineCancelRotate;
 
-	/** Line delay cancel on hold checkbox */
-	private JCheckBox chkboxLineCancelHold;
+    /** Line delay cancel on hold checkbox */
+    private JCheckBox chkboxLineCancelHold;
 
-	//----------------------------------------------------------------------
-	/* 移動設定パネル */
+    //----------------------------------------------------------------------
+    /* 移動設定パネル */
 
-	/** 最低横溜め time */
-	private JTextField txtfldMoveDASMin;
+    /** 最低横溜め time */
+    private JTextField txtfldMoveDASMin;
 
-	/** 最高横溜め time */
-	private JTextField txtfldMoveDASMax;
+    /** 最高横溜め time */
+    private JTextField txtfldMoveDASMax;
 
-	/** 横移動間隔 */
-	private JTextField txtfldMoveDASDelay;
+    /** 横移動間隔 */
+    private JTextField txtfldMoveDASDelay;
 
-	/** Ready画面で横溜め可能 */
-	private JCheckBox chkboxMoveDASInReady;
+    /** Ready画面で横溜め可能 */
+    private JCheckBox chkboxMoveDASInReady;
 
-	/** 最初の frame で横溜め可能 */
-	private JCheckBox chkboxMoveDASInMoveFirstFrame;
+    /** 最初の frame で横溜め可能 */
+    private JCheckBox chkboxMoveDASInMoveFirstFrame;
 
-	/** Blockが光った瞬間に横溜め可能 */
-	private JCheckBox chkboxMoveDASInLockFlash;
+    /** Blockが光った瞬間に横溜め可能 */
+    private JCheckBox chkboxMoveDASInLockFlash;
 
-	/** Line clear中に横溜め可能 */
-	private JCheckBox chkboxMoveDASInLineClear;
+    /** Line clear中に横溜め可能 */
+    private JCheckBox chkboxMoveDASInLineClear;
 
-	/** ARE中に横溜め可能 */
-	private JCheckBox chkboxMoveDASInARE;
+    /** ARE中に横溜め可能 */
+    private JCheckBox chkboxMoveDASInARE;
 
-	/** AREの最後の frame で横溜め可能 */
-	private JCheckBox chkboxMoveDASInARELastFrame;
+    /** AREの最後の frame で横溜め可能 */
+    private JCheckBox chkboxMoveDASInARELastFrame;
 
-	/** Ending突入画面で横溜め可能 */
-	private JCheckBox chkboxMoveDASInEndingStart;
+    /** Ending突入画面で横溜め可能 */
+    private JCheckBox chkboxMoveDASInEndingStart;
 
-	/** DAS charge on blocked move checkbox*/
-	private JCheckBox chkboxMoveDASChargeOnBlockedMove;
+    /** DAS charge on blocked move checkbox*/
+    private JCheckBox chkboxMoveDASChargeOnBlockedMove;
 
-	/** Store DAS Charge on neutral checkbox **/
-	private JCheckBox chkboxMoveDASStoreChargeOnNeutral;
+    /** Store DAS Charge on neutral checkbox **/
+    private JCheckBox chkboxMoveDASStoreChargeOnNeutral;
 
-	/** Redirect in delay checkbox **/
-	private JCheckBox chkboxMoveDASRedirectInDelay;
+    /** Redirect in delay checkbox **/
+    private JCheckBox chkboxMoveDASRedirectInDelay;
 
-	/** 最初の frame に移動可能 */
-	private JCheckBox chkboxMoveFirstFrame;
+    /** 最初の frame に移動可能 */
+    private JCheckBox chkboxMoveFirstFrame;
 
-	/** 斜め移動 */
-	private JCheckBox chkboxMoveDiagonal;
+    /** 斜め移動 */
+    private JCheckBox chkboxMoveDiagonal;
 
-	/** 上下同時押し可能 */
-	private JCheckBox chkboxMoveUpAndDown;
+    /** 上下同時押し可能 */
+    private JCheckBox chkboxMoveUpAndDown;
 
-	/** 左右同時押し可能 */
-	private JCheckBox chkboxMoveLeftAndRightAllow;
+    /** 左右同時押し可能 */
+    private JCheckBox chkboxMoveLeftAndRightAllow;
 
-	/** 左右同時押ししたときに前の frame の input Directionを優先する */
-	private JCheckBox chkboxMoveLeftAndRightUsePreviousInput;
+    /** 左右同時押ししたときに前の frame の input Directionを優先する */
+    private JCheckBox chkboxMoveLeftAndRightUsePreviousInput;
 
-	/** Shift lock checkbox */
-	private JCheckBox chkboxMoveShiftLockEnable;
+    /** Shift lock checkbox */
+    private JCheckBox chkboxMoveShiftLockEnable;
 
-	//----------------------------------------------------------------------
-	/* rotationパターン補正パネル */
+    //----------------------------------------------------------------------
+    /* rotationパターン補正パネル */
 
-	/** rotationパターン補正タブ */
-	private JTabbedPane tabPieceOffset;
+    /** rotationパターン補正タブ */
+    private JTabbedPane tabPieceOffset;
 
-	/** rotationパターン補正(X) input 欄 */
-	private JTextField[][] txtfldPieceOffsetX;
+    /** rotationパターン補正(X) input 欄 */
+    private JTextField[][] txtfldPieceOffsetX;
 
-	/** rotationパターン補正(Y) input 欄 */
-	private JTextField[][] txtfldPieceOffsetY;
+    /** rotationパターン補正(Y) input 欄 */
+    private JTextField[][] txtfldPieceOffsetY;
 
-	//----------------------------------------------------------------------
-	/* rotationパターン補正パネル */
+    //----------------------------------------------------------------------
+    /* rotationパターン補正パネル */
 
-	/** rotationパターン補正タブ */
-	private JTabbedPane tabPieceSpawn;
+    /** rotationパターン補正タブ */
+    private JTabbedPane tabPieceSpawn;
 
-	/** 出現位置補正(X) input 欄 */
-	private JTextField[][] txtfldPieceSpawnX;
+    /** 出現位置補正(X) input 欄 */
+    private JTextField[][] txtfldPieceSpawnX;
 
-	/** 出現位置補正(Y) input 欄 */
-	private JTextField[][] txtfldPieceSpawnY;
+    /** 出現位置補正(Y) input 欄 */
+    private JTextField[][] txtfldPieceSpawnY;
 
-	/** Big時出現位置補正(X) input 欄 */
-	private JTextField[][] txtfldPieceSpawnBigX;
+    /** Big時出現位置補正(X) input 欄 */
+    private JTextField[][] txtfldPieceSpawnBigX;
 
-	/** Big時出現位置補正(Y) input 欄 */
-	private JTextField[][] txtfldPieceSpawnBigY;
+    /** Big時出現位置補正(Y) input 欄 */
+    private JTextField[][] txtfldPieceSpawnBigY;
 
-	//----------------------------------------------------------------------
-	/* 色設定パネル */
+    //----------------------------------------------------------------------
+    /* 色設定パネル */
 
-	/** 色選択Comboボックス */
-	private JComboBox[] comboboxPieceColor;
+    /** 色選択Comboボックス */
+    private JComboBox[] comboboxPieceColor;
 
-	//----------------------------------------------------------------------
-	/* 初期Direction設定パネル */
+    //----------------------------------------------------------------------
+    /* 初期Direction設定パネル */
 
-	/** 初期Direction選択Comboボックス */
-	private JComboBox[] comboboxPieceDirection;
+    /** 初期Direction選択Comboボックス */
+    private JComboBox[] comboboxPieceDirection;
 
-	//----------------------------------------------------------------------
-	/** Block画像 */
-	private BufferedImage[] imgBlockSkins;
+    //----------------------------------------------------------------------
+    /** Block画像 */
+    private BufferedImage[] imgBlockSkins;
 
-	/**
-	 * Constructor
-	 */
-	public RuleEditor() {
-		super();
+    /**
+     * Constructor
+     */
+    public RuleEditor() {
+        super();
 
-		init();
-		readRuleToUI(new RuleOptions());
+        init();
+        readRuleToUI(new RuleOptions());
 
-		setVisible(true);
-	}
+        setVisible(true);
+    }
 
-	/**
-	 * 特定のファイルを読み込むConstructor
-	 * @param filename Filename (空文字列かnullにするとパラメータなしConstructorと同じ動作）
-	 */
-	public RuleEditor(String filename) {
-		super();
+    /**
+     * 特定のファイルを読み込むConstructor
+     * @param filename Filename (空文字列かnullにするとパラメータなしConstructorと同じ動作）
+     */
+    public RuleEditor(String filename) {
+        super();
 
-		init();
+        init();
 
-		RuleOptions ruleopt = new RuleOptions();
+        RuleOptions ruleopt = new RuleOptions();
 
-		if((filename != null) && (filename.length() > 0)) {
-			try {
-				ruleopt = load(filename);
-				strNowFile = filename;
-				setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
-			} catch (IOException e) {
-				log.error("Failed to load rule data from " + filename, e);
-				JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e, getUIText("Title_FileLoadFailed"),
-											  JOptionPane.ERROR_MESSAGE);
-			}
-		}
+        if((filename != null) && (filename.length() > 0)) {
+            try {
+                ruleopt = load(filename);
+                strNowFile = filename;
+                setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
+            } catch (IOException e) {
+                log.error("Failed to load rule data from " + filename, e);
+                JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e, getUIText("Title_FileLoadFailed"),
+                                              JOptionPane.ERROR_MESSAGE);
+            }
+        }
 
-		readRuleToUI(ruleopt);
+        readRuleToUI(ruleopt);
 
-		setVisible(true);
-	}
+        setVisible(true);
+    }
 
-	/**
-	 * Initialization
-	 */
-	private void init() {
-		// 設定ファイル読み込み
-		propConfig = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/swing.cfg");
-			propConfig.load(in);
-			in.close();
-		} catch(IOException e) {}
+    /**
+     * Initialization
+     */
+    private void init() {
+        // 設定ファイル読み込み
+        propConfig = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/setting/swing.cfg");
+            propConfig.load(in);
+            in.close();
+        } catch(IOException e) {}
 
-		// 言語ファイル読み込み
-		propLangDefault = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/ruleeditor_default.properties");
-			propLangDefault.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.error("Couldn't load default UI language file", e);
-		}
+        // 言語ファイル読み込み
+        propLangDefault = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/lang/ruleeditor_default.properties");
+            propLangDefault.load(in);
+            in.close();
+        } catch (IOException e) {
+            log.error("Couldn't load default UI language file", e);
+        }
 
-		propLang = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/ruleeditor_" + Locale.getDefault().getCountry() + ".properties");
-			propLang.load(in);
-			in.close();
-		} catch(IOException e) {}
+        propLang = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/lang/ruleeditor_" + Locale.getDefault().getCountry() + ".properties");
+            propLang.load(in);
+            in.close();
+        } catch(IOException e) {}
 
-		// Look&Feel設定
-		if(propConfig.getProperty("option.usenativelookandfeel", true) == true) {
-			try {
-				UIManager.getInstalledLookAndFeels();
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch(Exception e) {
-				log.warn("Failed to set native look&feel", e);
-			}
-		}
+        // Look&Feel設定
+        if(propConfig.getProperty("option.usenativelookandfeel", true) == true) {
+            try {
+                UIManager.getInstalledLookAndFeels();
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch(Exception e) {
+                log.warn("Failed to set native look&feel", e);
+            }
+        }
 
-		strNowFile = null;
+        strNowFile = null;
 
-		setTitle(getUIText("Title_RuleEditor"));
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setTitle(getUIText("Title_RuleEditor"));
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		loadBlockSkins();
+        loadBlockSkins();
 
-		initUI();
-		pack();
-	}
+        initUI();
+        pack();
+    }
 
-	/**
-	 * 画面のInitialization
-	 */
-	private void initUI() {
-		getContentPane().setLayout(new BorderLayout());
+    /**
+     * 画面のInitialization
+     */
+    private void initUI() {
+        getContentPane().setLayout(new BorderLayout());
 
-		// Menuバー --------------------------------------------------
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+        // Menuバー --------------------------------------------------
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
 
-		// ファイルMenu
-		JMenu mFile = new JMenu(getUIText("JMenu_File"));
-		mFile.setMnemonic('F');
-		menuBar.add(mFile);
+        // ファイルMenu
+        JMenu mFile = new JMenu(getUIText("JMenu_File"));
+        mFile.setMnemonic('F');
+        menuBar.add(mFile);
 
-		// 新規作成
-		JMenuItem miNew = new JMenuItem(getUIText("JMenuItem_New"));
-		miNew.setMnemonic('N');
-		miNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-		miNew.setActionCommand("New");
-		miNew.addActionListener(this);
-		mFile.add(miNew);
+        // 新規作成
+        JMenuItem miNew = new JMenuItem(getUIText("JMenuItem_New"));
+        miNew.setMnemonic('N');
+        miNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+        miNew.setActionCommand("New");
+        miNew.addActionListener(this);
+        mFile.add(miNew);
 
-		// 開く
-		JMenuItem miOpen = new JMenuItem(getUIText("JMenuItem_Open"));
-		miOpen.setMnemonic('O');
-		miOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-		miOpen.setActionCommand("Open");
-		miOpen.addActionListener(this);
-		mFile.add(miOpen);
+        // 開く
+        JMenuItem miOpen = new JMenuItem(getUIText("JMenuItem_Open"));
+        miOpen.setMnemonic('O');
+        miOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+        miOpen.setActionCommand("Open");
+        miOpen.addActionListener(this);
+        mFile.add(miOpen);
 
-		// Up書き保存
-		JMenuItem miSave = new JMenuItem(getUIText("JMenuItem_Save"));
-		miSave.setMnemonic('S');
-		miSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-		miSave.setActionCommand("Save");
-		miSave.addActionListener(this);
-		mFile.add(miSave);
+        // Up書き保存
+        JMenuItem miSave = new JMenuItem(getUIText("JMenuItem_Save"));
+        miSave.setMnemonic('S');
+        miSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+        miSave.setActionCommand("Save");
+        miSave.addActionListener(this);
+        mFile.add(miSave);
 
-		// Nameを付けて保存
-		JMenuItem miSaveAs = new JMenuItem(getUIText("JMenuItem_SaveAs"));
-		miSaveAs.setMnemonic('A');
-		miSaveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
-		miSaveAs.setActionCommand("SaveAs");
-		miSaveAs.addActionListener(this);
-		mFile.add(miSaveAs);
+        // Nameを付けて保存
+        JMenuItem miSaveAs = new JMenuItem(getUIText("JMenuItem_SaveAs"));
+        miSaveAs.setMnemonic('A');
+        miSaveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+        miSaveAs.setActionCommand("SaveAs");
+        miSaveAs.addActionListener(this);
+        mFile.add(miSaveAs);
 
-		// 終了
-		JMenuItem miExit = new JMenuItem(getUIText("JMenuItem_Exit"));
-		miExit.setMnemonic('X');
-		miExit.setActionCommand("Exit");
-		miExit.addActionListener(this);
-		mFile.add(miExit);
+        // 終了
+        JMenuItem miExit = new JMenuItem(getUIText("JMenuItem_Exit"));
+        miExit.setMnemonic('X');
+        miExit.setActionCommand("Exit");
+        miExit.addActionListener(this);
+        mFile.add(miExit);
 
-		// タブ全体 --------------------------------------------------
-		tabPane = new JTabbedPane();
-		getContentPane().add(tabPane, BorderLayout.NORTH);
+        // タブ全体 --------------------------------------------------
+        tabPane = new JTabbedPane();
+        getContentPane().add(tabPane, BorderLayout.NORTH);
 
-		// 基本設定タブ --------------------------------------------------
-		JPanel panelBasic = new JPanel();
-		panelBasic.setLayout(new BoxLayout(panelBasic, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_Basic"), panelBasic);
+        // 基本設定タブ --------------------------------------------------
+        JPanel panelBasic = new JPanel();
+        panelBasic.setLayout(new BoxLayout(panelBasic, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_Basic"), panelBasic);
 
-		// Rule name
-		JPanel pRuleName = new JPanel();
-		panelBasic.add(pRuleName);
+        // Rule name
+        JPanel pRuleName = new JPanel();
+        panelBasic.add(pRuleName);
 
-		JLabel lRuleName = new JLabel(getUIText("Basic_RuleName"));
-		pRuleName.add(lRuleName);
+        JLabel lRuleName = new JLabel(getUIText("Basic_RuleName"));
+        pRuleName.add(lRuleName);
 
-		txtfldRuleName = new JTextField("", 15);
-		pRuleName.add(txtfldRuleName);
+        txtfldRuleName = new JTextField("", 15);
+        pRuleName.add(txtfldRuleName);
 
-		// NEXT表示count
-		JPanel pNextDisplay = new JPanel();
-		panelBasic.add(pNextDisplay);
+        // NEXT表示count
+        JPanel pNextDisplay = new JPanel();
+        panelBasic.add(pNextDisplay);
 
-		JLabel lNextDisplay = new JLabel(getUIText("Basic_NextDisplay"));
-		pNextDisplay.add(lNextDisplay);
+        JLabel lNextDisplay = new JLabel(getUIText("Basic_NextDisplay"));
+        pNextDisplay.add(lNextDisplay);
 
-		txtfldNextDisplay = new JTextField("", 5);
-		pNextDisplay.add(txtfldNextDisplay);
+        txtfldNextDisplay = new JTextField("", 5);
+        pNextDisplay.add(txtfldNextDisplay);
 
-		// Game style
-		JPanel pStyle = new JPanel();
-		panelBasic.add(pStyle);
+        // Game style
+        JPanel pStyle = new JPanel();
+        panelBasic.add(pStyle);
 
-		JLabel lStyle = new JLabel(getUIText("Basic_Style"));
-		pStyle.add(lStyle);
+        JLabel lStyle = new JLabel(getUIText("Basic_Style"));
+        pStyle.add(lStyle);
 
-		comboboxStyle = new JComboBox(GameEngine.GAMESTYLE_NAMES);
-		comboboxStyle.setPreferredSize(new Dimension(100, 30));
-		pStyle.add(comboboxStyle);
+        comboboxStyle = new JComboBox(GameEngine.GAMESTYLE_NAMES);
+        comboboxStyle.setPreferredSize(new Dimension(100, 30));
+        pStyle.add(comboboxStyle);
 
-		// 絵柄
-		JPanel pSkin = new JPanel();
-		panelBasic.add(pSkin);
+        // 絵柄
+        JPanel pSkin = new JPanel();
+        panelBasic.add(pSkin);
 
-		JLabel lSkin = new JLabel(getUIText("Basic_Skin"));
-		pSkin.add(lSkin);
+        JLabel lSkin = new JLabel(getUIText("Basic_Skin"));
+        pSkin.add(lSkin);
 
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		for(int i = 0; i < imgBlockSkins.length; i++) {
-			model.addElement(new ComboLabel("" + i, new ImageIcon(imgBlockSkins[i])));
-		}
-		comboboxSkin = new JComboBox(model);
-		comboboxSkin.setRenderer(new ComboLabelCellRenderer());
-		comboboxSkin.setPreferredSize(new Dimension(190, 30));
-		pSkin.add(comboboxSkin);
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+        for(int i = 0; i < imgBlockSkins.length; i++) {
+            model.addElement(new ComboLabel("" + i, new ImageIcon(imgBlockSkins[i])));
+        }
+        comboboxSkin = new JComboBox(model);
+        comboboxSkin.setRenderer(new ComboLabelCellRenderer());
+        comboboxSkin.setPreferredSize(new Dimension(190, 30));
+        pSkin.add(comboboxSkin);
 
-		// ghost
-		chkboxGhost = new JCheckBox(getUIText("Basic_Ghost"));
-		panelBasic.add(chkboxGhost);
+        // ghost
+        chkboxGhost = new JCheckBox(getUIText("Basic_Ghost"));
+        panelBasic.add(chkboxGhost);
 
-		// field枠外から出現
-		chkboxEnterAboveField = new JCheckBox(getUIText("Basic_EnterAboveField"));
-		panelBasic.add(chkboxEnterAboveField);
+        // field枠外から出現
+        chkboxEnterAboveField = new JCheckBox(getUIText("Basic_EnterAboveField"));
+        panelBasic.add(chkboxEnterAboveField);
 
-		// 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count
-		JPanel pEnterMaxDistanceY = new JPanel();
-		panelBasic.add(pEnterMaxDistanceY);
+        // 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count
+        JPanel pEnterMaxDistanceY = new JPanel();
+        panelBasic.add(pEnterMaxDistanceY);
 
-		JLabel lEnterMaxDistanceY = new JLabel(getUIText("Basic_EnterMaxDistanceY"));
-		pEnterMaxDistanceY.add(lEnterMaxDistanceY);
+        JLabel lEnterMaxDistanceY = new JLabel(getUIText("Basic_EnterMaxDistanceY"));
+        pEnterMaxDistanceY.add(lEnterMaxDistanceY);
 
-		txtfldEnterMaxDistanceY = new JTextField("", 5);
-		pEnterMaxDistanceY.add(txtfldEnterMaxDistanceY);
+        txtfldEnterMaxDistanceY = new JTextField("", 5);
+        pEnterMaxDistanceY.add(txtfldEnterMaxDistanceY);
 
-		// NEXT順生成アルゴリズム
-		JPanel pRandomizer = new JPanel();
-		panelBasic.add(pRandomizer);
+        // NEXT順生成アルゴリズム
+        JPanel pRandomizer = new JPanel();
+        panelBasic.add(pRandomizer);
 
-		JLabel lRandomizer = new JLabel(getUIText("Basic_Randomizer"));
-		pRandomizer.add(lRandomizer);
+        JLabel lRandomizer = new JLabel(getUIText("Basic_Randomizer"));
+        pRandomizer.add(lRandomizer);
 
-		vectorRandomizer = getTextFileVector("config/list/randomizer.lst");
-		comboboxRandomizer = new JComboBox(createShortStringVector(vectorRandomizer));
-		comboboxRandomizer.setPreferredSize(new Dimension(200, 30));
-		pRandomizer.add(comboboxRandomizer);
+        vectorRandomizer = getTextFileVector("config/list/randomizer.lst");
+        comboboxRandomizer = new JComboBox(createShortStringVector(vectorRandomizer));
+        comboboxRandomizer.setPreferredSize(new Dimension(200, 30));
+        pRandomizer.add(comboboxRandomizer);
 
-		btnResetRandomizer = new JButton(getUIText("Basic_ResetRandomizer"));
-		btnResetRandomizer.setMnemonic('R');
-		btnResetRandomizer.setActionCommand("ResetRandomizer");
-		btnResetRandomizer.addActionListener(this);
-		pRandomizer.add(btnResetRandomizer);
+        btnResetRandomizer = new JButton(getUIText("Basic_ResetRandomizer"));
+        btnResetRandomizer.setMnemonic('R');
+        btnResetRandomizer.setActionCommand("ResetRandomizer");
+        btnResetRandomizer.addActionListener(this);
+        pRandomizer.add(btnResetRandomizer);
 
-		// fieldタブ --------------------------------------------------
-		JPanel panelField = new JPanel();
-		panelField.setLayout(new BoxLayout(panelField, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_Field"), panelField);
+        // fieldタブ --------------------------------------------------
+        JPanel panelField = new JPanel();
+        panelField.setLayout(new BoxLayout(panelField, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_Field"), panelField);
 
-		// fieldの幅
-		JPanel pFieldWidth = new JPanel();
-		panelField.add(pFieldWidth);
+        // fieldの幅
+        JPanel pFieldWidth = new JPanel();
+        panelField.add(pFieldWidth);
 
-		JLabel lFieldWidth = new JLabel(getUIText("Field_FieldWidth"));
-		pFieldWidth.add(lFieldWidth);
+        JLabel lFieldWidth = new JLabel(getUIText("Field_FieldWidth"));
+        pFieldWidth.add(lFieldWidth);
 
-		txtfldFieldWidth = new JTextField("", 5);
-		pFieldWidth.add(txtfldFieldWidth);
+        txtfldFieldWidth = new JTextField("", 5);
+        pFieldWidth.add(txtfldFieldWidth);
 
-		// Field height
-		JPanel pFieldHeight = new JPanel();
-		panelField.add(pFieldHeight);
+        // Field height
+        JPanel pFieldHeight = new JPanel();
+        panelField.add(pFieldHeight);
 
-		JLabel lFieldHeight = new JLabel(getUIText("Field_FieldHeight"));
-		pFieldHeight.add(lFieldHeight);
+        JLabel lFieldHeight = new JLabel(getUIText("Field_FieldHeight"));
+        pFieldHeight.add(lFieldHeight);
 
-		txtfldFieldHeight = new JTextField("", 5);
-		pFieldHeight.add(txtfldFieldHeight);
+        txtfldFieldHeight = new JTextField("", 5);
+        pFieldHeight.add(txtfldFieldHeight);
 
-		// fieldの見えない部分の高さ
-		JPanel pFieldHiddenHeight = new JPanel();
-		panelField.add(pFieldHiddenHeight);
+        // fieldの見えない部分の高さ
+        JPanel pFieldHiddenHeight = new JPanel();
+        panelField.add(pFieldHiddenHeight);
 
-		JLabel lFieldHiddenHeight = new JLabel(getUIText("Field_FieldHiddenHeight"));
-		pFieldHiddenHeight.add(lFieldHiddenHeight);
+        JLabel lFieldHiddenHeight = new JLabel(getUIText("Field_FieldHiddenHeight"));
+        pFieldHiddenHeight.add(lFieldHiddenHeight);
 
-		txtfldFieldHiddenHeight = new JTextField("", 5);
-		pFieldHiddenHeight.add(txtfldFieldHiddenHeight);
+        txtfldFieldHiddenHeight = new JTextField("", 5);
+        pFieldHiddenHeight.add(txtfldFieldHiddenHeight);
 
-		// fieldの天井
-		chkboxFieldCeiling = new JCheckBox(getUIText("Field_FieldCeiling"));
-		panelField.add(chkboxFieldCeiling);
+        // fieldの天井
+        chkboxFieldCeiling = new JCheckBox(getUIText("Field_FieldCeiling"));
+        panelField.add(chkboxFieldCeiling);
 
-		// field枠内に置けないと死亡
-		chkboxFieldLockoutDeath = new JCheckBox(getUIText("Field_FieldLockoutDeath"));
-		panelField.add(chkboxFieldLockoutDeath);
+        // field枠内に置けないと死亡
+        chkboxFieldLockoutDeath = new JCheckBox(getUIText("Field_FieldLockoutDeath"));
+        panelField.add(chkboxFieldLockoutDeath);
 
-		// field枠外にはみ出しただけで死亡
-		chkboxFieldPartialLockoutDeath = new JCheckBox(getUIText("Field_FieldPartialLockoutDeath"));
-		panelField.add(chkboxFieldPartialLockoutDeath);
+        // field枠外にはみ出しただけで死亡
+        chkboxFieldPartialLockoutDeath = new JCheckBox(getUIText("Field_FieldPartialLockoutDeath"));
+        panelField.add(chkboxFieldPartialLockoutDeath);
 
-		// ホールドタブ --------------------------------------------------
-		JPanel panelHold = new JPanel();
-		panelHold.setLayout(new BoxLayout(panelHold, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_Hold"), panelHold);
+        // ホールドタブ --------------------------------------------------
+        JPanel panelHold = new JPanel();
+        panelHold.setLayout(new BoxLayout(panelHold, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_Hold"), panelHold);
 
-		// ホールド is enabled
-		chkboxHoldEnable = new JCheckBox(getUIText("Hold_HoldEnable"));
-		panelHold.add(chkboxHoldEnable);
+        // ホールド is enabled
+        chkboxHoldEnable = new JCheckBox(getUIText("Hold_HoldEnable"));
+        panelHold.add(chkboxHoldEnable);
 
-		// 先行ホールド
-		chkboxHoldInitial = new JCheckBox(getUIText("Hold_HoldInitial"));
-		panelHold.add(chkboxHoldInitial);
+        // 先行ホールド
+        chkboxHoldInitial = new JCheckBox(getUIText("Hold_HoldInitial"));
+        panelHold.add(chkboxHoldInitial);
 
-		// 先行ホールド連続使用不可
-		chkboxHoldInitialLimit = new JCheckBox(getUIText("Hold_HoldInitialLimit"));
-		panelHold.add(chkboxHoldInitialLimit);
+        // 先行ホールド連続使用不可
+        chkboxHoldInitialLimit = new JCheckBox(getUIText("Hold_HoldInitialLimit"));
+        panelHold.add(chkboxHoldInitialLimit);
 
-		// ホールドを使ったときにBlockピースの向きを初期状態に戻す
-		chkboxHoldResetDirection = new JCheckBox(getUIText("Hold_HoldResetDirection"));
-		panelHold.add(chkboxHoldResetDirection);
+        // ホールドを使ったときにBlockピースの向きを初期状態に戻す
+        chkboxHoldResetDirection = new JCheckBox(getUIText("Hold_HoldResetDirection"));
+        panelHold.add(chkboxHoldResetDirection);
 
-		// ホールドできる count
-		JPanel pHoldLimit = new JPanel();
-		panelHold.add(pHoldLimit);
+        // ホールドできる count
+        JPanel pHoldLimit = new JPanel();
+        panelHold.add(pHoldLimit);
 
-		JLabel lHoldLimit = new JLabel(getUIText("Hold_HoldLimit"));
-		pHoldLimit.add(lHoldLimit);
+        JLabel lHoldLimit = new JLabel(getUIText("Hold_HoldLimit"));
+        pHoldLimit.add(lHoldLimit);
 
-		txtfldHoldLimit = new JTextField("", 5);
-		pHoldLimit.add(txtfldHoldLimit);
+        txtfldHoldLimit = new JTextField("", 5);
+        pHoldLimit.add(txtfldHoldLimit);
 
-		// ドロップタブ --------------------------------------------------
-		JPanel panelDrop = new JPanel();
-		panelDrop.setLayout(new BoxLayout(panelDrop, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_Drop"), panelDrop);
+        // ドロップタブ --------------------------------------------------
+        JPanel panelDrop = new JPanel();
+        panelDrop.setLayout(new BoxLayout(panelDrop, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_Drop"), panelDrop);
 
-		// Hard drop使用可否
-		chkboxDropHardDropEnable = new JCheckBox(getUIText("Drop_HardDropEnable"));
-		panelDrop.add(chkboxDropHardDropEnable);
+        // Hard drop使用可否
+        chkboxDropHardDropEnable = new JCheckBox(getUIText("Drop_HardDropEnable"));
+        panelDrop.add(chkboxDropHardDropEnable);
 
-		// Hard dropで即固定
-		chkboxDropHardDropLock = new JCheckBox(getUIText("Drop_HardDropLock"));
-		panelDrop.add(chkboxDropHardDropLock);
+        // Hard dropで即固定
+        chkboxDropHardDropLock = new JCheckBox(getUIText("Drop_HardDropLock"));
+        panelDrop.add(chkboxDropHardDropLock);
 
-		// Hard drop連続使用不可
-		chkboxDropHardDropLimit = new JCheckBox(getUIText("Drop_HardDropLimit"));
-		panelDrop.add(chkboxDropHardDropLimit);
+        // Hard drop連続使用不可
+        chkboxDropHardDropLimit = new JCheckBox(getUIText("Drop_HardDropLimit"));
+        panelDrop.add(chkboxDropHardDropLimit);
 
-		// Soft drop使用可否
-		chkboxDropSoftDropEnable = new JCheckBox(getUIText("Drop_SoftDropEnable"));
-		panelDrop.add(chkboxDropSoftDropEnable);
+        // Soft drop使用可否
+        chkboxDropSoftDropEnable = new JCheckBox(getUIText("Drop_SoftDropEnable"));
+        panelDrop.add(chkboxDropSoftDropEnable);
 
-		// Soft dropで即固定
-		chkboxDropSoftDropLock = new JCheckBox(getUIText("Drop_SoftDropLock"));
-		panelDrop.add(chkboxDropSoftDropLock);
+        // Soft dropで即固定
+        chkboxDropSoftDropLock = new JCheckBox(getUIText("Drop_SoftDropLock"));
+        panelDrop.add(chkboxDropSoftDropLock);
 
-		// Soft drop連続使用不可
-		chkboxDropSoftDropLimit = new JCheckBox(getUIText("Drop_SoftDropLimit"));
-		panelDrop.add(chkboxDropSoftDropLimit);
+        // Soft drop連続使用不可
+        chkboxDropSoftDropLimit = new JCheckBox(getUIText("Drop_SoftDropLimit"));
+        panelDrop.add(chkboxDropSoftDropLimit);
 
-		// 接地状態でSoft dropすると即固定
-		chkboxDropSoftDropSurfaceLock = new JCheckBox(getUIText("Drop_SoftDropSurfaceLock"));
-		panelDrop.add(chkboxDropSoftDropSurfaceLock);
+        // 接地状態でSoft dropすると即固定
+        chkboxDropSoftDropSurfaceLock = new JCheckBox(getUIText("Drop_SoftDropSurfaceLock"));
+        panelDrop.add(chkboxDropSoftDropSurfaceLock);
 
-		// Soft drop速度をCurrent 通常速度×n倍にする
-		chkboxDropSoftDropMultiplyNativeSpeed = new JCheckBox(getUIText("Drop_SoftDropMultiplyNativeSpeed"));
-		panelDrop.add(chkboxDropSoftDropMultiplyNativeSpeed);
+        // Soft drop速度をCurrent 通常速度×n倍にする
+        chkboxDropSoftDropMultiplyNativeSpeed = new JCheckBox(getUIText("Drop_SoftDropMultiplyNativeSpeed"));
+        panelDrop.add(chkboxDropSoftDropMultiplyNativeSpeed);
 
-		// Use new soft drop codes
-		chkboxDropSoftDropGravitySpeedLimit = new JCheckBox(getUIText("Drop_SoftDropGravitySpeedLimit"));
-		panelDrop.add(chkboxDropSoftDropGravitySpeedLimit);
+        // Use new soft drop codes
+        chkboxDropSoftDropGravitySpeedLimit = new JCheckBox(getUIText("Drop_SoftDropGravitySpeedLimit"));
+        panelDrop.add(chkboxDropSoftDropGravitySpeedLimit);
 
-		// Soft drop速度
-		JPanel pDropSoftDropSpeed = new JPanel();
-		panelDrop.add(pDropSoftDropSpeed);
-		JLabel lDropSoftDropSpeed = new JLabel(getUIText("Drop_SoftDropSpeed"));
-		pDropSoftDropSpeed.add(lDropSoftDropSpeed);
+        // Soft drop速度
+        JPanel pDropSoftDropSpeed = new JPanel();
+        panelDrop.add(pDropSoftDropSpeed);
+        JLabel lDropSoftDropSpeed = new JLabel(getUIText("Drop_SoftDropSpeed"));
+        pDropSoftDropSpeed.add(lDropSoftDropSpeed);
 
-		txtfldDropSoftDropSpeed = new JTextField("", 5);
-		pDropSoftDropSpeed.add(txtfldDropSoftDropSpeed);
+        txtfldDropSoftDropSpeed = new JTextField("", 5);
+        pDropSoftDropSpeed.add(txtfldDropSoftDropSpeed);
 
-		// rotationタブ --------------------------------------------------
-		JPanel panelRotate = new JPanel();
-		panelRotate.setLayout(new BoxLayout(panelRotate, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_Rotate"), panelRotate);
+        // rotationタブ --------------------------------------------------
+        JPanel panelRotate = new JPanel();
+        panelRotate.setLayout(new BoxLayout(panelRotate, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_Rotate"), panelRotate);
 
-		// 先行rotation
-		chkboxRotateInitial = new JCheckBox(getUIText("Rotate_RotateInitial"));
-		panelRotate.add(chkboxRotateInitial);
+        // 先行rotation
+        chkboxRotateInitial = new JCheckBox(getUIText("Rotate_RotateInitial"));
+        panelRotate.add(chkboxRotateInitial);
 
-		// 先行rotation連続使用不可
-		chkboxRotateInitialLimit = new JCheckBox(getUIText("Rotate_RotateInitialLimit"));
-		panelRotate.add(chkboxRotateInitialLimit);
+        // 先行rotation連続使用不可
+        chkboxRotateInitialLimit = new JCheckBox(getUIText("Rotate_RotateInitialLimit"));
+        panelRotate.add(chkboxRotateInitialLimit);
 
-		// Wallkick
-		chkboxRotateWallkick = new JCheckBox(getUIText("Rotate_RotateWallkick"));
-		panelRotate.add(chkboxRotateWallkick);
+        // Wallkick
+        chkboxRotateWallkick = new JCheckBox(getUIText("Rotate_RotateWallkick"));
+        panelRotate.add(chkboxRotateWallkick);
 
-		// 先行rotationでもWallkickする
-		chkboxRotateInitialWallkick = new JCheckBox(getUIText("Rotate_RotateInitialWallkick"));
-		panelRotate.add(chkboxRotateInitialWallkick);
+        // 先行rotationでもWallkickする
+        chkboxRotateInitialWallkick = new JCheckBox(getUIText("Rotate_RotateInitialWallkick"));
+        panelRotate.add(chkboxRotateInitialWallkick);
 
-		// Aで右rotation
-		chkboxRotateButtonDefaultRight = new JCheckBox(getUIText("Rotate_RotateButtonDefaultRight"));
-		panelRotate.add(chkboxRotateButtonDefaultRight);
+        // Aで右rotation
+        chkboxRotateButtonDefaultRight = new JCheckBox(getUIText("Rotate_RotateButtonDefaultRight"));
+        panelRotate.add(chkboxRotateButtonDefaultRight);
 
-		// 逆rotation許可
-		chkboxRotateButtonAllowReverse = new JCheckBox(getUIText("Rotate_RotateButtonAllowReverse"));
-		panelRotate.add(chkboxRotateButtonAllowReverse);
+        // 逆rotation許可
+        chkboxRotateButtonAllowReverse = new JCheckBox(getUIText("Rotate_RotateButtonAllowReverse"));
+        panelRotate.add(chkboxRotateButtonAllowReverse);
 
-		// 2rotation許可
-		chkboxRotateButtonAllowDouble = new JCheckBox(getUIText("Rotate_RotateButtonAllowDouble"));
-		panelRotate.add(chkboxRotateButtonAllowDouble);
+        // 2rotation許可
+        chkboxRotateButtonAllowDouble = new JCheckBox(getUIText("Rotate_RotateButtonAllowDouble"));
+        panelRotate.add(chkboxRotateButtonAllowDouble);
 
-		// UpDirectionへWallkickできる count
-		JPanel pRotateMaxUpwardWallkick = new JPanel();
-		panelRotate.add(pRotateMaxUpwardWallkick);
-		JLabel lRotateMaxUpwardWallkick = new JLabel(getUIText("Rotate_RotateMaxUpwardWallkick"));
-		pRotateMaxUpwardWallkick.add(lRotateMaxUpwardWallkick);
+        // UpDirectionへWallkickできる count
+        JPanel pRotateMaxUpwardWallkick = new JPanel();
+        panelRotate.add(pRotateMaxUpwardWallkick);
+        JLabel lRotateMaxUpwardWallkick = new JLabel(getUIText("Rotate_RotateMaxUpwardWallkick"));
+        pRotateMaxUpwardWallkick.add(lRotateMaxUpwardWallkick);
 
-		txtfldRotateMaxUpwardWallkick = new JTextField("", 5);
-		pRotateMaxUpwardWallkick.add(txtfldRotateMaxUpwardWallkick);
+        txtfldRotateMaxUpwardWallkick = new JTextField("", 5);
+        pRotateMaxUpwardWallkick.add(txtfldRotateMaxUpwardWallkick);
 
-		// Wallkickアルゴリズム
-		JPanel pWallkickSystem = new JPanel();
-		panelRotate.add(pWallkickSystem);
+        // Wallkickアルゴリズム
+        JPanel pWallkickSystem = new JPanel();
+        panelRotate.add(pWallkickSystem);
 
-		JLabel lWallkickSystem = new JLabel(getUIText("Rotate_WallkickSystem"));
-		pWallkickSystem.add(lWallkickSystem);
+        JLabel lWallkickSystem = new JLabel(getUIText("Rotate_WallkickSystem"));
+        pWallkickSystem.add(lWallkickSystem);
 
-		vectorWallkickSystem = getTextFileVector("config/list/wallkick.lst");
-		comboboxWallkickSystem = new JComboBox(createShortStringVector(vectorWallkickSystem));
-		comboboxWallkickSystem.setPreferredSize(new Dimension(200, 30));
-		pWallkickSystem.add(comboboxWallkickSystem);
+        vectorWallkickSystem = getTextFileVector("config/list/wallkick.lst");
+        comboboxWallkickSystem = new JComboBox(createShortStringVector(vectorWallkickSystem));
+        comboboxWallkickSystem.setPreferredSize(new Dimension(200, 30));
+        pWallkickSystem.add(comboboxWallkickSystem);
 
-		btnResetWallkickSystem = new JButton(getUIText("Rotate_ResetWallkickSystem"));
-		btnResetWallkickSystem.setMnemonic('R');
-		btnResetWallkickSystem.setActionCommand("ResetWallkickSystem");
-		btnResetWallkickSystem.addActionListener(this);
-		pWallkickSystem.add(btnResetWallkickSystem);
+        btnResetWallkickSystem = new JButton(getUIText("Rotate_ResetWallkickSystem"));
+        btnResetWallkickSystem.setMnemonic('R');
+        btnResetWallkickSystem.setActionCommand("ResetWallkickSystem");
+        btnResetWallkickSystem.addActionListener(this);
+        pWallkickSystem.add(btnResetWallkickSystem);
 
-		// 固定 timeタブ --------------------------------------------------
-		JPanel panelLockDelay = new JPanel();
-		panelLockDelay.setLayout(new BoxLayout(panelLockDelay, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_LockDelay"), panelLockDelay);
+        // 固定 timeタブ --------------------------------------------------
+        JPanel panelLockDelay = new JPanel();
+        panelLockDelay.setLayout(new BoxLayout(panelLockDelay, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_LockDelay"), panelLockDelay);
 
-		// 最低固定 timeと最高固定 time
-		JLabel lLockDelayMin = new JLabel(getUIText("LockDelay_LockDelayMinMax"));
-		panelLockDelay.add(lLockDelayMin);
+        // 最低固定 timeと最高固定 time
+        JLabel lLockDelayMin = new JLabel(getUIText("LockDelay_LockDelayMinMax"));
+        panelLockDelay.add(lLockDelayMin);
 
-		JPanel pLockDelayMinMax = new JPanel();
-		panelLockDelay.add(pLockDelayMinMax);
+        JPanel pLockDelayMinMax = new JPanel();
+        panelLockDelay.add(pLockDelayMinMax);
 
-		txtfldLockDelayMin = new JTextField("", 5);
-		pLockDelayMinMax.add(txtfldLockDelayMin);
-		txtfldLockDelayMax = new JTextField("", 5);
-		pLockDelayMinMax.add(txtfldLockDelayMax);
+        txtfldLockDelayMin = new JTextField("", 5);
+        pLockDelayMinMax.add(txtfldLockDelayMin);
+        txtfldLockDelayMax = new JTextField("", 5);
+        pLockDelayMinMax.add(txtfldLockDelayMax);
 
-		// 落下で固定 timeリセット
-		chkboxLockDelayLockResetFall = new JCheckBox(getUIText("LockDelay_LockResetFall"));
-		panelLockDelay.add(chkboxLockDelayLockResetFall);
+        // 落下で固定 timeリセット
+        chkboxLockDelayLockResetFall = new JCheckBox(getUIText("LockDelay_LockResetFall"));
+        panelLockDelay.add(chkboxLockDelayLockResetFall);
 
-		// 移動で固定 timeリセット
-		chkboxLockDelayLockResetMove = new JCheckBox(getUIText("LockDelay_LockResetMove"));
-		panelLockDelay.add(chkboxLockDelayLockResetMove);
+        // 移動で固定 timeリセット
+        chkboxLockDelayLockResetMove = new JCheckBox(getUIText("LockDelay_LockResetMove"));
+        panelLockDelay.add(chkboxLockDelayLockResetMove);
 
-		// rotationで固定 timeリセット
-		chkboxLockDelayLockResetRotate = new JCheckBox(getUIText("LockDelay_LockResetRotate"));
-		panelLockDelay.add(chkboxLockDelayLockResetRotate);
+        // rotationで固定 timeリセット
+        chkboxLockDelayLockResetRotate = new JCheckBox(getUIText("LockDelay_LockResetRotate"));
+        panelLockDelay.add(chkboxLockDelayLockResetRotate);
 
-		// Lock delay reset by wallkick
-		chkboxLockDelayLockResetWallkick = new JCheckBox(getUIText("LockDelay_LockResetWallkick"));
-		panelLockDelay.add(chkboxLockDelayLockResetWallkick);
+        // Lock delay reset by wallkick
+        chkboxLockDelayLockResetWallkick = new JCheckBox(getUIText("LockDelay_LockResetWallkick"));
+        panelLockDelay.add(chkboxLockDelayLockResetWallkick);
 
-		// 横移動 counterとrotation counterを共有 (横移動 counterだけ使う）
-		chkboxLockDelayLockResetLimitShareCount = new JCheckBox(getUIText("LockDelay_LockDelayLockResetLimitShareCount"));
-		panelLockDelay.add(chkboxLockDelayLockResetLimitShareCount);
+        // 横移動 counterとrotation counterを共有 (横移動 counterだけ使う）
+        chkboxLockDelayLockResetLimitShareCount = new JCheckBox(getUIText("LockDelay_LockDelayLockResetLimitShareCount"));
+        panelLockDelay.add(chkboxLockDelayLockResetLimitShareCount);
 
-		// 横移動 count制限
-		JPanel pLockDelayLockResetLimitMove = new JPanel();
-		panelLockDelay.add(pLockDelayLockResetLimitMove);
-		JLabel lLockDelayLockResetLimitMove = new JLabel(getUIText("LockDelay_LockDelayLockResetLimitMove"));
-		pLockDelayLockResetLimitMove.add(lLockDelayLockResetLimitMove);
+        // 横移動 count制限
+        JPanel pLockDelayLockResetLimitMove = new JPanel();
+        panelLockDelay.add(pLockDelayLockResetLimitMove);
+        JLabel lLockDelayLockResetLimitMove = new JLabel(getUIText("LockDelay_LockDelayLockResetLimitMove"));
+        pLockDelayLockResetLimitMove.add(lLockDelayLockResetLimitMove);
 
-		txtfldLockDelayLockResetLimitMove = new JTextField("", 5);
-		pLockDelayLockResetLimitMove.add(txtfldLockDelayLockResetLimitMove);
+        txtfldLockDelayLockResetLimitMove = new JTextField("", 5);
+        pLockDelayLockResetLimitMove.add(txtfldLockDelayLockResetLimitMove);
 
-		// rotation count制限
-		JPanel pLockDelayLockResetLimitRotate = new JPanel();
-		panelLockDelay.add(pLockDelayLockResetLimitRotate);
-		JLabel lLockDelayLockResetLimitRotate = new JLabel(getUIText("LockDelay_LockDelayLockResetLimitRotate"));
-		pLockDelayLockResetLimitRotate.add(lLockDelayLockResetLimitRotate);
+        // rotation count制限
+        JPanel pLockDelayLockResetLimitRotate = new JPanel();
+        panelLockDelay.add(pLockDelayLockResetLimitRotate);
+        JLabel lLockDelayLockResetLimitRotate = new JLabel(getUIText("LockDelay_LockDelayLockResetLimitRotate"));
+        pLockDelayLockResetLimitRotate.add(lLockDelayLockResetLimitRotate);
 
-		txtfldLockDelayLockResetLimitRotate = new JTextField("", 5);
-		pLockDelayLockResetLimitRotate.add(txtfldLockDelayLockResetLimitRotate);
+        txtfldLockDelayLockResetLimitRotate = new JTextField("", 5);
+        pLockDelayLockResetLimitRotate.add(txtfldLockDelayLockResetLimitRotate);
 
-		// 移動またはrotation count制限が超過した時の設定
-		JPanel pLockDelayLockResetLimitOver = new JPanel();
-		pLockDelayLockResetLimitOver.setLayout(new BoxLayout(pLockDelayLockResetLimitOver, BoxLayout.Y_AXIS));
-		panelLockDelay.add(pLockDelayLockResetLimitOver);
+        // 移動またはrotation count制限が超過した時の設定
+        JPanel pLockDelayLockResetLimitOver = new JPanel();
+        pLockDelayLockResetLimitOver.setLayout(new BoxLayout(pLockDelayLockResetLimitOver, BoxLayout.Y_AXIS));
+        panelLockDelay.add(pLockDelayLockResetLimitOver);
 
-		JLabel lLockDelayLockResetLimitOver = new JLabel(getUIText("LockDelay_LockDelayLockResetLimitOver"));
-		pLockDelayLockResetLimitOver.add(lLockDelayLockResetLimitOver);
+        JLabel lLockDelayLockResetLimitOver = new JLabel(getUIText("LockDelay_LockDelayLockResetLimitOver"));
+        pLockDelayLockResetLimitOver.add(lLockDelayLockResetLimitOver);
 
-		ButtonGroup gLockDelayLockResetLimitOver = new ButtonGroup();
+        ButtonGroup gLockDelayLockResetLimitOver = new ButtonGroup();
 
-		radioLockDelayLockResetLimitOverNoReset = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverNoReset"));
-		pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoReset);
-		gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoReset);
+        radioLockDelayLockResetLimitOverNoReset = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverNoReset"));
+        pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoReset);
+        gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoReset);
 
-		radioLockDelayLockResetLimitOverInstant = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverInstant"));
-		pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverInstant);
-		gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverInstant);
+        radioLockDelayLockResetLimitOverInstant = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverInstant"));
+        pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverInstant);
+        gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverInstant);
 
-		radioLockDelayLockResetLimitOverNoWallkick = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverNoWallkick"));
-		pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoWallkick);
-		gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoWallkick);
+        radioLockDelayLockResetLimitOverNoWallkick = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverNoWallkick"));
+        pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoWallkick);
+        gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoWallkick);
 
-		// AREタブ --------------------------------------------------
-		JPanel panelARE = new JPanel();
-		panelARE.setLayout(new BoxLayout(panelARE, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_ARE"), panelARE);
+        // AREタブ --------------------------------------------------
+        JPanel panelARE = new JPanel();
+        panelARE.setLayout(new BoxLayout(panelARE, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_ARE"), panelARE);
 
-		// 最低AREと最高ARE
-		JLabel lAREMin = new JLabel(getUIText("ARE_MinMax"));
-		panelARE.add(lAREMin);
+        // 最低AREと最高ARE
+        JLabel lAREMin = new JLabel(getUIText("ARE_MinMax"));
+        panelARE.add(lAREMin);
 
-		JPanel pAREMinMax = new JPanel();
-		panelARE.add(pAREMinMax);
+        JPanel pAREMinMax = new JPanel();
+        panelARE.add(pAREMinMax);
 
-		txtfldAREMin = new JTextField("", 5);
-		pAREMinMax.add(txtfldAREMin);
-		txtfldAREMax = new JTextField("", 5);
-		pAREMinMax.add(txtfldAREMax);
+        txtfldAREMin = new JTextField("", 5);
+        pAREMinMax.add(txtfldAREMin);
+        txtfldAREMax = new JTextField("", 5);
+        pAREMinMax.add(txtfldAREMax);
 
-		// 最低ARE after line clearと最高ARE after line clear
-		JLabel lARELineMin = new JLabel(getUIText("ARE_LineMinMax"));
-		panelARE.add(lARELineMin);
+        // 最低ARE after line clearと最高ARE after line clear
+        JLabel lARELineMin = new JLabel(getUIText("ARE_LineMinMax"));
+        panelARE.add(lARELineMin);
 
-		JPanel pARELineMinMax = new JPanel();
-		panelARE.add(pARELineMinMax);
+        JPanel pARELineMinMax = new JPanel();
+        panelARE.add(pARELineMinMax);
 
-		txtfldARELineMin = new JTextField("", 5);
-		pARELineMinMax.add(txtfldARELineMin);
-		txtfldARELineMax = new JTextField("", 5);
-		pARELineMinMax.add(txtfldARELineMax);
+        txtfldARELineMin = new JTextField("", 5);
+        pARELineMinMax.add(txtfldARELineMin);
+        txtfldARELineMax = new JTextField("", 5);
+        pARELineMinMax.add(txtfldARELineMax);
 
-		// 固定した瞬間に光る frame count
-		JLabel lARELockFlash = new JLabel(getUIText("ARE_LockFlash"));
-		panelARE.add(lARELockFlash);
+        // 固定した瞬間に光る frame count
+        JLabel lARELockFlash = new JLabel(getUIText("ARE_LockFlash"));
+        panelARE.add(lARELockFlash);
 
-		JPanel pARELockFlash = new JPanel();
-		panelARE.add(pARELockFlash);
+        JPanel pARELockFlash = new JPanel();
+        panelARE.add(pARELockFlash);
 
-		txtfldARELockFlash = new JTextField("", 5);
-		pARELockFlash.add(txtfldARELockFlash);
+        txtfldARELockFlash = new JTextField("", 5);
+        pARELockFlash.add(txtfldARELockFlash);
 
-		// Blockが光る専用 frame を入れる
-		chkboxARELockFlashOnlyFrame = new JCheckBox(getUIText("ARE_LockFlashOnlyFrame"));
-		panelARE.add(chkboxARELockFlashOnlyFrame);
+        // Blockが光る専用 frame を入れる
+        chkboxARELockFlashOnlyFrame = new JCheckBox(getUIText("ARE_LockFlashOnlyFrame"));
+        panelARE.add(chkboxARELockFlashOnlyFrame);
 
-		// Line clear前にBlockが光る frame を入れる
-		chkboxARELockFlashBeforeLineClear = new JCheckBox(getUIText("ARE_LockFlashBeforeLineClear"));
-		panelARE.add(chkboxARELockFlashBeforeLineClear);
+        // Line clear前にBlockが光る frame を入れる
+        chkboxARELockFlashBeforeLineClear = new JCheckBox(getUIText("ARE_LockFlashBeforeLineClear"));
+        panelARE.add(chkboxARELockFlashBeforeLineClear);
 
-		// ARE cancel on move
-		chkboxARECancelMove = new JCheckBox(getUIText("ARE_CancelMove"));
-		panelARE.add(chkboxARECancelMove);
+        // ARE cancel on move
+        chkboxARECancelMove = new JCheckBox(getUIText("ARE_CancelMove"));
+        panelARE.add(chkboxARECancelMove);
 
-		// ARE cancel on move
-		chkboxARECancelRotate = new JCheckBox(getUIText("ARE_CancelRotate"));
-		panelARE.add(chkboxARECancelRotate);
+        // ARE cancel on move
+        chkboxARECancelRotate = new JCheckBox(getUIText("ARE_CancelRotate"));
+        panelARE.add(chkboxARECancelRotate);
 
-		// ARE cancel on move
-		chkboxARECancelHold = new JCheckBox(getUIText("ARE_CancelHold"));
-		panelARE.add(chkboxARECancelHold);
+        // ARE cancel on move
+        chkboxARECancelHold = new JCheckBox(getUIText("ARE_CancelHold"));
+        panelARE.add(chkboxARECancelHold);
 
-		// Line clearタブ --------------------------------------------------
-		JPanel panelLine = new JPanel();
-		panelLine.setLayout(new BoxLayout(panelLine, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_Line"), panelLine);
+        // Line clearタブ --------------------------------------------------
+        JPanel panelLine = new JPanel();
+        panelLine.setLayout(new BoxLayout(panelLine, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_Line"), panelLine);
 
-		// 最低Line clear timeと最高Line clear time
-		JLabel lLineMin = new JLabel(getUIText("Line_MinMax"));
-		panelLine.add(lLineMin);
+        // 最低Line clear timeと最高Line clear time
+        JLabel lLineMin = new JLabel(getUIText("Line_MinMax"));
+        panelLine.add(lLineMin);
 
-		JPanel pLineMinMax = new JPanel();
-		panelLine.add(pLineMinMax);
+        JPanel pLineMinMax = new JPanel();
+        panelLine.add(pLineMinMax);
 
-		txtfldLineDelayMin = new JTextField("", 5);
-		pLineMinMax.add(txtfldLineDelayMin);
-		txtfldLineDelayMax = new JTextField("", 5);
-		pLineMinMax.add(txtfldLineDelayMax);
+        txtfldLineDelayMin = new JTextField("", 5);
+        pLineMinMax.add(txtfldLineDelayMin);
+        txtfldLineDelayMax = new JTextField("", 5);
+        pLineMinMax.add(txtfldLineDelayMax);
 
-		// 落下アニメ
-		chkboxLineFallAnim = new JCheckBox(getUIText("Line_FallAnim"));
-		panelLine.add(chkboxLineFallAnim);
+        // 落下アニメ
+        chkboxLineFallAnim = new JCheckBox(getUIText("Line_FallAnim"));
+        panelLine.add(chkboxLineFallAnim);
 
-		// Line delay cancel on move
-		chkboxLineCancelMove = new JCheckBox(getUIText("Line_CancelMove"));
-		panelLine.add(chkboxLineCancelMove);
+        // Line delay cancel on move
+        chkboxLineCancelMove = new JCheckBox(getUIText("Line_CancelMove"));
+        panelLine.add(chkboxLineCancelMove);
 
-		// Line delay cancel on rotate
-		chkboxLineCancelRotate = new JCheckBox(getUIText("Line_CancelRotate"));
-		panelLine.add(chkboxLineCancelRotate);
+        // Line delay cancel on rotate
+        chkboxLineCancelRotate = new JCheckBox(getUIText("Line_CancelRotate"));
+        panelLine.add(chkboxLineCancelRotate);
 
-		// Line delay cancel on hold
-		chkboxLineCancelHold = new JCheckBox(getUIText("Line_CancelHold"));
-		panelLine.add(chkboxLineCancelHold);
+        // Line delay cancel on hold
+        chkboxLineCancelHold = new JCheckBox(getUIText("Line_CancelHold"));
+        panelLine.add(chkboxLineCancelHold);
 
-		// 移動タブ --------------------------------------------------
-		JPanel panelMove = new JPanel();
-		panelMove.setLayout(new BoxLayout(panelMove, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_Move"), panelMove);
+        // 移動タブ --------------------------------------------------
+        JPanel panelMove = new JPanel();
+        panelMove.setLayout(new BoxLayout(panelMove, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_Move"), panelMove);
 
-		// 最低横溜め timeと最高横溜め time
-		JLabel lMoveDASMin = new JLabel(getUIText("Move_DASMinMax"));
-		panelMove.add(lMoveDASMin);
+        // 最低横溜め timeと最高横溜め time
+        JLabel lMoveDASMin = new JLabel(getUIText("Move_DASMinMax"));
+        panelMove.add(lMoveDASMin);
 
-		JPanel pMoveDASMinMax = new JPanel();
-		panelMove.add(pMoveDASMinMax);
+        JPanel pMoveDASMinMax = new JPanel();
+        panelMove.add(pMoveDASMinMax);
 
-		txtfldMoveDASMin = new JTextField("", 5);
-		pMoveDASMinMax.add(txtfldMoveDASMin);
-		txtfldMoveDASMax = new JTextField("", 5);
-		pMoveDASMinMax.add(txtfldMoveDASMax);
+        txtfldMoveDASMin = new JTextField("", 5);
+        pMoveDASMinMax.add(txtfldMoveDASMin);
+        txtfldMoveDASMax = new JTextField("", 5);
+        pMoveDASMinMax.add(txtfldMoveDASMax);
 
-		// 横移動間隔
-		JPanel pMoveDASDelay = new JPanel();
-		panelMove.add(pMoveDASDelay);
+        // 横移動間隔
+        JPanel pMoveDASDelay = new JPanel();
+        panelMove.add(pMoveDASDelay);
 
-		JLabel lMoveDASDelay1 = new JLabel(getUIText("Move_DASDelay1"));
-		pMoveDASDelay.add(lMoveDASDelay1);
+        JLabel lMoveDASDelay1 = new JLabel(getUIText("Move_DASDelay1"));
+        pMoveDASDelay.add(lMoveDASDelay1);
 
-		txtfldMoveDASDelay = new JTextField("", 5);
-		pMoveDASDelay.add(txtfldMoveDASDelay);
+        txtfldMoveDASDelay = new JTextField("", 5);
+        pMoveDASDelay.add(txtfldMoveDASDelay);
 
-		JLabel lMoveDASDelay2 = new JLabel(getUIText("Move_DASDelay2"));
-		pMoveDASDelay.add(lMoveDASDelay2);
+        JLabel lMoveDASDelay2 = new JLabel(getUIText("Move_DASDelay2"));
+        pMoveDASDelay.add(lMoveDASDelay2);
 
-		// ○○のとき横溜め可能
-		chkboxMoveDASInReady = new JCheckBox(getUIText("Move_DASInReady"));
-		panelMove.add(chkboxMoveDASInReady);
-		chkboxMoveDASInMoveFirstFrame = new JCheckBox(getUIText("Move_DASInMoveFirstFrame"));
-		panelMove.add(chkboxMoveDASInMoveFirstFrame);
-		chkboxMoveDASInLockFlash = new JCheckBox(getUIText("Move_DASInLockFlash"));
-		panelMove.add(chkboxMoveDASInLockFlash);
+        // ○○のとき横溜め可能
+        chkboxMoveDASInReady = new JCheckBox(getUIText("Move_DASInReady"));
+        panelMove.add(chkboxMoveDASInReady);
+        chkboxMoveDASInMoveFirstFrame = new JCheckBox(getUIText("Move_DASInMoveFirstFrame"));
+        panelMove.add(chkboxMoveDASInMoveFirstFrame);
+        chkboxMoveDASInLockFlash = new JCheckBox(getUIText("Move_DASInLockFlash"));
+    	panelMove.add(chkboxMoveDASInLockFlash);
 		chkboxMoveDASInLineClear = new JCheckBox(getUIText("Move_DASInLineClear"));
 		panelMove.add(chkboxMoveDASInLineClear);
 		chkboxMoveDASInARE = new JCheckBox(getUIText("Move_DASInARE"));

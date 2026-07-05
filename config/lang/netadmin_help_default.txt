@@ -1,63 +1,63 @@
 ***** List of system commands *****
 help
-	Display this help message
+    Display this help message
 h
-	Same as 'help'
+    Same as 'help'
 ?
-	Same as 'help'
+    Same as 'help'
 echo <String>
-	Display any message
+    Display any message
 cls
-	Clear console log
+    Clear console log
 logout
-	Logout from the server
+    Logout from the server
 logoff
-	Same as 'logout'
+    Same as 'logout'
 disconnect
-	Same as 'logout'
+    Same as 'logout'
 quit
-	Quit this application
+    Quit this application
 exit
-	Same as 'quit'
+    Same as 'quit'
 
 ***** List of network commands *****
 shutdown
-	Shutdown the server
+    Shutdown the server
 announce
-	Send an announcement message to all players
+    Send an announcement message to all players
 myip
-	Display your IP
+    Display your IP
 myhost
-	Display your hostname
+    Display your hostname
 serverip
-	Display this server's IP
+    Display this server's IP
 serverhost
-	Display this server's hostname
+    Display this server's hostname
 serverport
-	Display this server's port number
+    Display this server's port number
 version
-	Display version info
+    Display version info
 
 ***** List of ban-related commands *****
 bangui (IP)
-	Open the Ban GUI dialog
+    Open the Ban GUI dialog
 ban <IP> (Length;-1 to 6)
-	Sets a ban
+    Sets a ban
 banlist
-	Display the list of ban
+    Display the list of ban
 unban <IP>
-	Remove a ban
+    Remove a ban
 unban ALL
-	Remove all bans
+    Remove all bans
 
 ***** List of player data related commands *****
 playerdelete <PlayerName>
-	Delete the player's data (Rating, # of games, # of wins, and 1P mode records)
+    Delete the player's data (Rating, # of games, # of wins, and 1P mode records)
 pdel <PlayerName>
-	Same as 'playerdelete'
+    Same as 'playerdelete'
 
 ***** List of room related commands *****
 roomdelete <RoomID>
-	Delete a room. All players inside the room will be kicked to the lobby.
+    Delete a room. All players inside the room will be kicked to the lobby.
 rdel <RoomID>
-	Same as 'roomdelete'
+    Same as 'roomdelete'

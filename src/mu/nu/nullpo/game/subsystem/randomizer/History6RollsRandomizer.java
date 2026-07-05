@@ -38,68 +38,68 @@ import mu.nu.nullpo.util.GeneralUtil;
  * @deprecated No longer used. The current one is net.omegaboshi.nullpomino.game.subsystem.randomizer.History6RollsRandomizer.
  */
 public class History6RollsRandomizer implements Randomizer {
-	/*
-	 * Create NEXT sequence
-	 */
-	public int[] createPieceSequence(boolean[] pieceEnable, Random random, int arrayMax) {
-		int[] pieceArray = new int[arrayMax];
-		int history[] = new int[4];
-		int id = 0;
-		boolean szoOnly = GeneralUtil.isPieceSZOOnly(pieceEnable);
+    /*
+     * Create NEXT sequence
+     */
+    public int[] createPieceSequence(boolean[] pieceEnable, Random random, int arrayMax) {
+        int[] pieceArray = new int[arrayMax];
+        int history[] = new int[4];
+        int id = 0;
+        boolean szoOnly = GeneralUtil.isPieceSZOOnly(pieceEnable);
 
-		// 履歴をZ S Z Sで埋める
-		history[0] = Piece.PIECE_Z;
-		history[1] = Piece.PIECE_S;
-		history[2] = Piece.PIECE_Z;
-		history[3] = Piece.PIECE_S;
+        // 履歴をZ S Z Sで埋める
+        history[0] = Piece.PIECE_Z;
+        history[1] = Piece.PIECE_S;
+        history[2] = Piece.PIECE_Z;
+        history[3] = Piece.PIECE_S;
 
-		// 初手生成
-		do {
-			id = random.nextInt(Piece.PIECE_COUNT);
-		} while( (!pieceEnable[id]) || ((!szoOnly) && ((id == Piece.PIECE_Z) || (id == Piece.PIECE_O) || (id == Piece.PIECE_S))) );
+        // 初手生成
+        do {
+            id = random.nextInt(Piece.PIECE_COUNT);
+        } while( (!pieceEnable[id]) || ((!szoOnly) && ((id == Piece.PIECE_Z) || (id == Piece.PIECE_O) || (id == Piece.PIECE_S))) );
 
-		// Add to NEXT list
-		pieceArray[0] = id;
+        // Add to NEXT list
+        pieceArray[0] = id;
 
-		// 履歴をずらす
-		for(int j = 0; j < 3; j++) {
-			history[3 - j] = history[3 - (j + 1)];
-		}
+        // 履歴をずらす
+        for(int j = 0; j < 3; j++) {
+            history[3 - j] = history[3 - (j + 1)];
+        }
 
-		// 履歴に新しいBlockを入れる
-		history[0] = id;
+        // 履歴に新しいBlockを入れる
+        history[0] = id;
 
-		// Create draws
-		for(int i = 1; i < arrayMax; i++) {
-			// Draw
-			do {
-				id = random.nextInt(Piece.PIECE_COUNT);
-			} while(!pieceEnable[id]);
+        // Create draws
+        for(int i = 1; i < arrayMax; i++) {
+            // Draw
+            do {
+                id = random.nextInt(Piece.PIECE_COUNT);
+            } while(!pieceEnable[id]);
 
-			// 引いたツモが履歴にあったらMaximum6回引き直し
-			if((id == history[0]) || (id == history[1]) || (id == history[2]) || (id == history[3])) {
-				for(int j = 0; j < 6; j++) {
-					do {
-						id = random.nextInt(Piece.PIECE_COUNT);
-					} while(!pieceEnable[id]);
+            // 引いたツモが履歴にあったらMaximum6回引き直し
+            if((id == history[0]) || (id == history[1]) || (id == history[2]) || (id == history[3])) {
+                for(int j = 0; j < 6; j++) {
+                    do {
+                        id = random.nextInt(Piece.PIECE_COUNT);
+                    } while(!pieceEnable[id]);
 
-					// 4つの履歴に無かったらその場で抜ける
-					if((id != history[0]) && (id != history[1]) && (id != history[2]) && (id != history[3])) break;
-				}
-			}
+                    // 4つの履歴に無かったらその場で抜ける
+                    if((id != history[0]) && (id != history[1]) && (id != history[2]) && (id != history[3])) break;
+                }
+            }
 
-			// 履歴をずらす
-			for(int j = 0; j < 3; j++) {
-				history[3 - j] = history[3 - (j + 1)];
-			}
+            // 履歴をずらす
+            for(int j = 0; j < 3; j++) {
+                history[3 - j] = history[3 - (j + 1)];
+            }
 
-			// 履歴に新しいBlockを入れる
-			history[0] = id;
+            // 履歴に新しいBlockを入れる
+            history[0] = id;
 
-			// Add to NEXT list
-			pieceArray[i] = id;
-		}
+            // Add to NEXT list
+            pieceArray[i] = id;
+        }
 
-		return pieceArray;
-	}
+        return pieceArray;
+    }
 }

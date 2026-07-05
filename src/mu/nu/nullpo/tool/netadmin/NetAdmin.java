@@ -72,742 +72,742 @@ import biz.source_code.base64Coder.Base64Coder;
  * NetAdmin - NetServer admin tool
  */
 public class NetAdmin extends JFrame implements ActionListener, NetMessageListener {
-	//***** Constants *****
-	/** Serial Version ID */
-	private static final long serialVersionUID = 1L;
+    //***** Constants *****
+    /** Serial Version ID */
+    private static final long serialVersionUID = 1L;
 
-	/** Constants for each screen-card */
-	private static final int SCREENCARD_LOGIN = 0, SCREENCARD_LOBBY = 1;
+    /** Constants for each screen-card */
+    private static final int SCREENCARD_LOGIN = 0, SCREENCARD_LOBBY = 1;
 
-	/** Names for each screen-card */
-	private static final String[] SCREENCARD_NAMES = {"Login", "Lobby"};
+    /** Names for each screen-card */
+    private static final String[] SCREENCARD_NAMES = {"Login", "Lobby"};
 
-	/** User type names */
-	private static final String[] USERTABLE_USERTYPES = {
-		"UserTable_Type_Guest", "UserTable_Type_Player", "UserTable_Type_Observer", "UserTable_Type_Admin"
-	};
+    /** User type names */
+    private static final String[] USERTABLE_USERTYPES = {
+        "UserTable_Type_Guest", "UserTable_Type_Player", "UserTable_Type_Observer", "UserTable_Type_Admin"
+    };
 
-	/** User table column names. These strings will be passed to getUIText(String) subroutine. */
-	private static final String[] USERTABLE_COLUMNNAMES = {
-		"UserTable_IP", "UserTable_Hostname", "UserTable_Type", "UserTable_Name"
-	};
+    /** User table column names. These strings will be passed to getUIText(String) subroutine. */
+    private static final String[] USERTABLE_COLUMNNAMES = {
+        "UserTable_IP", "UserTable_Hostname", "UserTable_Type", "UserTable_Name"
+    };
 
-	/** Multiplayer leaderboard column names. These strings will be passed to getUIText(String) subroutine. */
-	private static final String[] MPRANKING_COLUMNNAMES  = {
-		"MPRanking_Rank", "MPRanking_Name", "MPRanking_Rating", "MPRanking_PlayCount", "MPRanking_WinCount"
-	};
+    /** Multiplayer leaderboard column names. These strings will be passed to getUIText(String) subroutine. */
+    private static final String[] MPRANKING_COLUMNNAMES  = {
+        "MPRanking_Rank", "MPRanking_Name", "MPRanking_Rating", "MPRanking_PlayCount", "MPRanking_WinCount"
+    };
 
-	/** Room-table column names. These strings will be passed to getUIText(String) subroutine. */
-	private static final String[] ROOMTABLE_COLUMNNAMES = {
-		"RoomTable_ID","RoomTable_Name","RoomTable_Rated","RoomTable_RuleName","RoomTable_Status","RoomTable_Players","RoomTable_Spectators"
-	};
+    /** Room-table column names. These strings will be passed to getUIText(String) subroutine. */
+    private static final String[] ROOMTABLE_COLUMNNAMES = {
+        "RoomTable_ID","RoomTable_Name","RoomTable_Rated","RoomTable_RuleName","RoomTable_Status","RoomTable_Players","RoomTable_Spectators"
+    };
 
-	//***** Variables *****
-	/** Log */
-	static Logger log = Logger.getLogger(NetAdmin.class);
+    //***** Variables *****
+    /** Log */
+    static Logger log = Logger.getLogger(NetAdmin.class);
 
-	/** ServerAdmin properties */
-	private static CustomProperties propConfig;
+    /** ServerAdmin properties */
+    private static CustomProperties propConfig;
 
-	/** Default language file */
-	private static CustomProperties propLangDefault;
+    /** Default language file */
+    private static CustomProperties propLangDefault;
 
-	/** Property file for GUI translations */
-	private static CustomProperties propLang;
+    /** Property file for GUI translations */
+    private static CustomProperties propLang;
 
-	/** NetBaseClient */
-	private static NetBaseClient client;
+    /** NetBaseClient */
+    private static NetBaseClient client;
 
-	/** true if disconnection is intended (If false, it will display error message) */
-	private static boolean isWantedDisconnect;
+    /** true if disconnection is intended (If false, it will display error message) */
+    private static boolean isWantedDisconnect;
 
-	/** true if server shutdown is requested */
-	private static boolean isShutdownRequested;
+    /** true if server shutdown is requested */
+    private static boolean isShutdownRequested;
 
-	/** Hostname of the server */
-	private static String strServerHost;
+    /** Hostname of the server */
+    private static String strServerHost;
 
-	/** Port-number of the server */
-	private static int serverPort;
+    /** Port-number of the server */
+    private static int serverPort;
 
-	/** Your IP */
-	private static String strMyIP;
+    /** Your IP */
+    private static String strMyIP;
 
-	/** Your Hostname */
-	private static String strMyHostname;
-
-	/** Server's version */
-	private static String serverFullVer;
-
-	//***** Main GUI elements *****
-	/** Layout manager for main screen */
-	private CardLayout contentPaneCardLayout;
-
-	/** Current screen-card number */
-	@SuppressWarnings("unused")
-	private int currentScreenCardNumber;
-
-	//***** Login screen elements *****
-	/** Login Message label */
-	private JLabel labelLoginMessage;
-
-	/** Server textbox */
-	private JTextField txtfldServer;
-
-	/** Username textbox */
-	private JTextField txtfldUsername;
-
-	/** Password textbox */
-	private JPasswordField passfldPassword;
-
-	/** Remember Username checkbox */
-	private JCheckBox chkboxRememberUsername;
-
-	/** Remember Password checkbox */
-	private JCheckBox chkboxRememberPassword;
-
-	/** Login button */
-	private JButton btnLogin;
-
-	//***** Room list screen elements *****
-	/** Room list data */
-	private DefaultTableModel tablemodelRoomList;
-
-	/** Room list table */
-	private JTable tableRoomList;
-
-	//***** Lobby screen elements *****
-	/** Console Log textpane */
-	private JTextPane txtpaneConsoleLog;
-
-	/** Console Command textbox */
-	private JTextField txtfldConsoleCommand;
-
-	/** Console Command Execute button */
-	private JButton btnConsoleCommandExecute;
-
-	/** Users table data */
-	private DefaultTableModel tablemodelUsers;
-
-	/** Users table component */
-	private JTable tableUsers;
-
-	/** MPRanking table data */
-	private DefaultTableModel[] tablemodelMPRanking;
-
-	/** MPRanking table component */
-	private JTable[] tableMPRanking;
-
-	/** Load/Refresh Ranking button */
-	private JButton btnRankingLoad;
-
-	/**
-	 * Constructor
-	 */
-	public NetAdmin() {
-		super();
-		init();
-	}
-
-	/**
-	 * Init
-	 */
-	private void init() {
-		// Load config file
-		propConfig = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netadmin.cfg");
-			propConfig.load(in);
-			in.close();
-		} catch (IOException e) {}
-
-		// Load language files
-		propLangDefault = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/netadmin_default.properties");
-			propLangDefault.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.error("Failed to load default UI language file", e);
-		}
-		propLang = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/netadmin_" + Locale.getDefault().getCountry() + ".properties");
-			propLang.load(in);
-			in.close();
-		} catch (IOException e) {}
-
-		// Set look&feel
-		try {
-			CustomProperties propSwingConfig = new CustomProperties();
-			FileInputStream in = new FileInputStream("config/setting/swing.cfg");
-			propSwingConfig.load(in);
-			in.close();
-
-			if(propSwingConfig.getProperty("option.usenativelookandfeel", true) == true) {
-				try {
-					UIManager.getInstalledLookAndFeels();
-					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				} catch(Exception e) {
-					log.warn("Failed to set native look&feel", e);
-				}
-			}
-		} catch (Exception e) {}
-
-		// Set close action
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				shutdown();
-			}
-		});
-
-		setTitle(getUIText("Title_ServerAdmin"));
-		initUI();
-
-		this.setSize(propConfig.getProperty("mainwindow.width", 500), propConfig.getProperty("mainwindow.height", 450));
-		this.setLocation(propConfig.getProperty("mainwindow.x", 0), propConfig.getProperty("mainwindow.y", 0));
-		this.setVisible(true);
-	}
-
-	/**
-	 * Init GUI
-	 */
-	private void initUI() {
-		contentPaneCardLayout = new CardLayout();
-		this.getContentPane().setLayout(contentPaneCardLayout);
-
-		initLoginUI();
-		initLobbyUI();
-
-		changeCurrentScreenCard(SCREENCARD_LOGIN);
-	}
-
-	/**
-	 * Init login screen
-	 */
-	private void initLoginUI() {
-		// Main panel
-		JPanel mpLoginOwner = new JPanel(new BorderLayout());
-		this.getContentPane().add(mpLoginOwner, SCREENCARD_NAMES[SCREENCARD_LOGIN]);
-		JPanel mpLogin = new JPanel();
-		mpLogin.setLayout(new BoxLayout(mpLogin, BoxLayout.Y_AXIS));
-		mpLoginOwner.add(mpLogin, BorderLayout.NORTH);
-
-		// * Login Message label
-		labelLoginMessage = new JLabel(getUIText("Login_Message_Default"));
-		labelLoginMessage.setAlignmentX(0f);
-		mpLogin.add(labelLoginMessage);
-
-		// * Server panel
-		JPanel spServer = new JPanel(new BorderLayout());
-		spServer.setAlignmentX(0f);
-		mpLogin.add(spServer);
-
-		// ** Server label
-		JLabel lServer = new JLabel(getUIText("Login_Server"));
-		spServer.add(lServer, BorderLayout.WEST);
-
-		// ** Server textbox
-		txtfldServer = new JTextField(30);
-		txtfldServer.setText(propConfig.getProperty("login.server", ""));
-		txtfldServer.setComponentPopupMenu(new TextComponentPopupMenu(txtfldServer));
-		spServer.add(txtfldServer, BorderLayout.EAST);
-
-		// * Username panel
-		JPanel spUsername = new JPanel(new BorderLayout());
-		spUsername.setAlignmentX(0f);
-		mpLogin.add(spUsername);
-
-		// ** Username label
-		JLabel lUsername = new JLabel(getUIText("Login_Username"));
-		spUsername.add(lUsername, BorderLayout.WEST);
-
-		// ** Username textbox
-		txtfldUsername = new JTextField(30);
-		txtfldUsername.setText(propConfig.getProperty("login.username", ""));
-		txtfldUsername.setComponentPopupMenu(new TextComponentPopupMenu(txtfldUsername));
-		spUsername.add(txtfldUsername, BorderLayout.EAST);
-
-		// * Password panel
-		JPanel spPassword = new JPanel(new BorderLayout());
-		spPassword.setAlignmentX(0f);
-		mpLogin.add(spPassword);
-
-		// ** Password label
-		JLabel lPassword = new JLabel(getUIText("Login_Password"));
-		spPassword.add(lPassword, BorderLayout.WEST);
-
-		// ** Password textbox
-		passfldPassword = new JPasswordField(30);
-		String strPassword = propConfig.getProperty("login.password", "");
-		if(strPassword.length() > 0) {
-			passfldPassword.setText(NetUtil.decompressString(strPassword));
-		}
-		passfldPassword.setComponentPopupMenu(new TextComponentPopupMenu(passfldPassword));
-		spPassword.add(passfldPassword, BorderLayout.EAST);
-
-		// * Remember Username checkbox
-		chkboxRememberUsername = new JCheckBox(getUIText("Login_RememberUsername"));
-		chkboxRememberUsername.setSelected(propConfig.getProperty("login.rememberUsername", false));
-		chkboxRememberUsername.setAlignmentX(0f);
-		mpLogin.add(chkboxRememberUsername);
-
-		// * Remember Password checkbox
-		chkboxRememberPassword = new JCheckBox(getUIText("Login_RememberPassword"));
-		chkboxRememberPassword.setSelected(propConfig.getProperty("login.rememberPassword", false));
-		chkboxRememberPassword.setAlignmentX(0f);
-		mpLogin.add(chkboxRememberPassword);
-
-		// * Buttons panel
-		JPanel spButtons = new JPanel();
-		spButtons.setLayout(new BoxLayout(spButtons, BoxLayout.X_AXIS));
-		spButtons.setAlignmentX(0f);
-		mpLogin.add(spButtons);
-
-		// ** Login button
-		btnLogin = new JButton(getUIText("Login_Login"));
-		btnLogin.setMnemonic('L');
-		btnLogin.setMaximumSize(new Dimension(Short.MAX_VALUE, btnLogin.getMaximumSize().height));
-		btnLogin.setActionCommand("Login_Login");
-		btnLogin.addActionListener(this);
-		spButtons.add(btnLogin);
-
-		// ** Quit button
-		JButton btnQuit = new JButton(getUIText("Login_Quit"));
-		btnQuit.setMnemonic('Q');
-		btnQuit.setMaximumSize(new Dimension(Short.MAX_VALUE, btnQuit.getMaximumSize().height));
-		btnQuit.setActionCommand("Login_Quit");
-		btnQuit.addActionListener(this);
-		spButtons.add(btnQuit);
-	}
-
-	/**
-	 * Init lobby screen
-	 */
-	private void initLobbyUI() {
-		// Main panel
-		JPanel mpLobby = new JPanel(new BorderLayout());
-		this.getContentPane().add(mpLobby, SCREENCARD_NAMES[SCREENCARD_LOBBY]);
-
-		// * Tab
-		JTabbedPane tabLobby = new JTabbedPane();
-		mpLobby.add(tabLobby, BorderLayout.CENTER);
-
-		// ** Console tab
-		JPanel spConsole = new JPanel(new BorderLayout());
-		tabLobby.addTab(getUIText("Lobby_Tab_Console"), spConsole);
-
-		// *** Console log textpane
-		txtpaneConsoleLog = new JTextPane();
-		txtpaneConsoleLog.setComponentPopupMenu(new LogPopupMenu(txtpaneConsoleLog));
-		txtpaneConsoleLog.addKeyListener(new LogKeyAdapter());
-		JScrollPane sConsoleLog = new JScrollPane(txtpaneConsoleLog);
-		spConsole.add(sConsoleLog, BorderLayout.CENTER);
-
-		// *** Command panel
-		JPanel spConsoleCommand = new JPanel(new BorderLayout());
-		spConsole.add(spConsoleCommand, BorderLayout.SOUTH);
-
-		// *** Command textbox
-		txtfldConsoleCommand = new JTextField();
-		txtfldConsoleCommand.setComponentPopupMenu(new TextComponentPopupMenu(txtfldConsoleCommand));
-		spConsoleCommand.add(txtfldConsoleCommand, BorderLayout.CENTER);
-
-		// *** Command Execute button
-		btnConsoleCommandExecute = new JButton(getUIText("Lobby_Console_Execute"));
-		btnConsoleCommandExecute.setMnemonic('E');
-		btnConsoleCommandExecute.setActionCommand("Lobby_Console_Execute");
-		btnConsoleCommandExecute.addActionListener(this);
-		spConsoleCommand.add(btnConsoleCommandExecute, BorderLayout.EAST);
-
-		// ** Users tab
-		JPanel spUsers = new JPanel(new BorderLayout());
-		tabLobby.addTab(getUIText("Lobby_Tab_Users"), spUsers);
-
-		// *** Users table
-		String[] strUsersColumnNames = new String[USERTABLE_COLUMNNAMES.length];
-		for(int i = 0; i < strUsersColumnNames.length; i++) {
-			strUsersColumnNames[i] = getUIText(USERTABLE_COLUMNNAMES[i]);
-		}
-
-		tablemodelUsers = new DefaultTableModel(strUsersColumnNames, 0);
-		tableUsers = new JTable(tablemodelUsers);
-		tableUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tableUsers.setDefaultEditor(Object.class, null);
-		tableUsers.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		tableUsers.getTableHeader().setReorderingAllowed(false);
-		tableUsers.setComponentPopupMenu(new UserPopupMenu(tableUsers));
-		tableUsers.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if(e.getClickCount() >= 2) {
-					int rowNumber = tableUsers.getSelectedRow();
-					if(rowNumber != -1) {
-						String strIP = (String)tableUsers.getValueAt(rowNumber, 0);
-						openBanDialog(strIP);
-					}
-				}
-			}
-		});
-
-		TableColumnModel tmUsers = tableUsers.getColumnModel();
-		tmUsers.getColumn(0).setPreferredWidth(propConfig.getProperty("tableUsers.width.ip", 90));	// IP
-		tmUsers.getColumn(1).setPreferredWidth(propConfig.getProperty("tableUsers.width.host", 140));	// Hostname
-		tmUsers.getColumn(2).setPreferredWidth(propConfig.getProperty("tableUsers.width.type", 60));	// Type
-		tmUsers.getColumn(3).setPreferredWidth(propConfig.getProperty("tableUsers.width.name", 150));	// Name
-
-		JScrollPane sUsers = new JScrollPane(tableUsers);
-		spUsers.add(sUsers, BorderLayout.CENTER);
-
-		// ** Multiplayer Leaderboard tab
-		JPanel spMPRanking = new JPanel(new BorderLayout());
-		tabLobby.addTab(getUIText("Lobby_Tab_MPRanking"), spMPRanking);
-
-		// *** Game Style tab
-		JTabbedPane tabMPRanking = new JTabbedPane();
-		spMPRanking.add(tabMPRanking, BorderLayout.CENTER);
-
-		// ** Room List tab
-		JPanel spRoomList = new JPanel(new BorderLayout());
-		tabLobby.addTab(getUIText("Lobby_Tab_RoomList"), spRoomList);
-
-		// *** Room list table
-		String[] strTableColumnNames = new String[ROOMTABLE_COLUMNNAMES.length];
-		for(int i = 0; i < strTableColumnNames.length; i++) {
-			strTableColumnNames[i] = getUIText(ROOMTABLE_COLUMNNAMES[i]);
-		}
-		tablemodelRoomList = new DefaultTableModel(strTableColumnNames, 0);
-		tableRoomList = new JTable(tablemodelRoomList);
-		tableRoomList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tableRoomList.setDefaultEditor(Object.class, null);
-		tableRoomList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		tableRoomList.getTableHeader().setReorderingAllowed(false);
-		tableRoomList.setComponentPopupMenu(new RoomTablePopupMenu(tableRoomList));
-
-		TableColumnModel tmRooms = tableRoomList.getColumnModel();
-		tmRooms.getColumn(0).setPreferredWidth(propConfig.getProperty("tableRoomList.width.id", 35));			// ID
-		tmRooms.getColumn(1).setPreferredWidth(propConfig.getProperty("tableRoomList.width.name", 155));		// Name
-		tmRooms.getColumn(2).setPreferredWidth(propConfig.getProperty("tableRoomList.width.rated", 50));		// Rated
-		tmRooms.getColumn(3).setPreferredWidth(propConfig.getProperty("tableRoomList.width.rulename", 105));	// Rule name
-		tmRooms.getColumn(4).setPreferredWidth(propConfig.getProperty("tableRoomList.width.status", 55));		// Status
-		tmRooms.getColumn(5).setPreferredWidth(propConfig.getProperty("tableRoomList.width.players", 65));		// Players
-		tmRooms.getColumn(6).setPreferredWidth(propConfig.getProperty("tableRoomList.width.spectators", 65));	// Spectators
-
-		JScrollPane spTableRoomList = new JScrollPane(tableRoomList);
-		spRoomList.add(spTableRoomList, BorderLayout.CENTER);
-
-		// *** Leaderboard table
-		String[] strMPRankingColumnNames = new String[MPRANKING_COLUMNNAMES.length];
-		for(int i = 0; i < strMPRankingColumnNames.length; i++) {
-			strMPRankingColumnNames[i] = getUIText(MPRANKING_COLUMNNAMES[i]);
-		}
-
-		tableMPRanking = new JTable[GameEngine.MAX_GAMESTYLE];
-		tablemodelMPRanking = new DefaultTableModel[GameEngine.MAX_GAMESTYLE];
-
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			tablemodelMPRanking[i] = new DefaultTableModel(strMPRankingColumnNames, 0);
-
-			tableMPRanking[i] = new JTable(tablemodelMPRanking[i]);
-			tableMPRanking[i].setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			tableMPRanking[i].setDefaultEditor(Object.class, null);
-			tableMPRanking[i].setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			tableMPRanking[i].getTableHeader().setReorderingAllowed(false);
-			tableMPRanking[i].setComponentPopupMenu(new MPRankingPopupMenu(tableMPRanking[i]));
-
-			TableColumnModel tm = tableMPRanking[i].getColumnModel();
-			tm.getColumn(0).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.rank", 30));	// Rank
-			tm.getColumn(1).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.name", 200));	// Name
-			tm.getColumn(2).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.rating", 60));	// Rating
-			tm.getColumn(3).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.play", 60));	// Play
-			tm.getColumn(4).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.win", 60));	// Win
-
-			JScrollPane sMPRanking = new JScrollPane(tableMPRanking[i]);
-			tabMPRanking.addTab(GameEngine.GAMESTYLE_NAMES[i], sMPRanking);
-		}
-
-		// *** Load/Refresh Ranking button
-		btnRankingLoad = new JButton(getUIText("MPRanking_Button_LoadRanking"));
-		btnRankingLoad.setMnemonic('L');
-		btnRankingLoad.setActionCommand("MPRanking_Button_LoadRanking");
-		btnRankingLoad.addActionListener(this);
-		spMPRanking.add(btnRankingLoad, BorderLayout.SOUTH);
-	}
-
-	/**
-	 * Save settings
-	 */
-	private void saveConfig() {
-		propConfig.setProperty("mainwindow.width", this.getSize().width);
-		propConfig.setProperty("mainwindow.height", this.getSize().height);
-		propConfig.setProperty("mainwindow.x", this.getLocation().x);
-		propConfig.setProperty("mainwindow.y", this.getLocation().y);
-
-		TableColumnModel tmUsers = tableUsers.getColumnModel();
-		propConfig.setProperty("tableUsers.width.ip", tmUsers.getColumn(0).getWidth());
-		propConfig.setProperty("tableUsers.width.host", tmUsers.getColumn(1).getWidth());
-		propConfig.setProperty("tableUsers.width.type", tmUsers.getColumn(2).getWidth());
-		propConfig.setProperty("tableUsers.width.name", tmUsers.getColumn(3).getWidth());
-
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			TableColumnModel tm = tableMPRanking[i].getColumnModel();
-			propConfig.setProperty("tableMPRanking.width.rank", tm.getColumn(0).getWidth());
-			propConfig.setProperty("tableMPRanking.width.name", tm.getColumn(1).getWidth());
-			propConfig.setProperty("tableMPRanking.width.rating", tm.getColumn(2).getWidth());
-			propConfig.setProperty("tableMPRanking.width.play", tm.getColumn(3).getWidth());
-			propConfig.setProperty("tableMPRanking.width.win", tm.getColumn(4).getWidth());
-		}
-
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/netadmin.cfg");
-			propConfig.store(out, "NullpoMino NetAdmin Config");
-			out.close();
-		} catch (IOException e) {
-			log.warn("Failed to save netlobby config file", e);
-		}
-	}
-
-	/**
-	 * Change current screen card
-	 * @param cardNumber Screen card ID
-	 */
-	private void changeCurrentScreenCard(int cardNumber) {
-		contentPaneCardLayout.show(getContentPane(), SCREENCARD_NAMES[cardNumber]);
-		currentScreenCardNumber = cardNumber;
-
-		// Set default button
-		JButton defaultButton = null;
-		switch(cardNumber) {
-		case SCREENCARD_LOGIN:
-			defaultButton = btnLogin;
-			break;
-		case SCREENCARD_LOBBY:
-			defaultButton = btnConsoleCommandExecute;
-			break;
-		}
-
-		if(defaultButton != null) {
-			this.getRootPane().setDefaultButton(defaultButton);
-		}
-	}
-
-	/**
-	 * Enable/Disable Login screen UI elements
-	 * @param b true to enable, false to disable
-	 */
-	private void setLoginUIEnabled(boolean b) {
-		txtfldServer.setEnabled(b);
-		txtfldUsername.setEnabled(b);
-		passfldPassword.setEnabled(b);
-		chkboxRememberUsername.setEnabled(b);
-		chkboxRememberPassword.setEnabled(b);
-		btnLogin.setEnabled(b);
-	}
-
-	/**
-	 * Disconnect from the server
-	 */
-	private void logout() {
-		if(client != null) {
-			if(client.isConnected()) {
-				client.send("disconnect\n");
-			}
-			client.removeListener(this);
-			client.threadRunning = false;
-			client.interrupt();
-			client = null;
-		}
-
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				setLoginUIEnabled(true);
-				changeCurrentScreenCard(SCREENCARD_LOGIN);
-			}
-		});
-	}
-
-	/**
-	 * Shutdown this program
-	 */
-	public void shutdown() {
-		logout();
-		saveConfig();
-		System.exit(0);
-	}
-
-	/**
-	 * Send admin command
-	 * @param msg Command to send
-	 * @return true if successful
-	 */
-	private boolean sendCommand(String msg) {
-		if((client == null) || !client.isConnected()) return false;
-		String strCommand = NetUtil.compressString(msg);
-		return client.send("admin\t" + strCommand + "\n");
-	}
-
-	/**
-	 * Add message to console
-	 * @param str Message
-	 */
-	private void addConsoleLog(String str) {
-		addConsoleLog(str, null);
-	}
-
-	/**
-	 * Add message to console
-	 * @param str Message
-	 * @param fgcolor Text color (can be null)
-	 */
-	private void addConsoleLog(String str, Color fgcolor) {
-		SimpleAttributeSet sas = null;
-		if(fgcolor != null) {
-			sas = new SimpleAttributeSet();
-			StyleConstants.setForeground(sas, fgcolor);
-		}
-		try {
-			Document doc = txtpaneConsoleLog.getDocument();
-			doc.insertString(doc.getLength(), str + "\n", sas);
-			txtpaneConsoleLog.setCaretPosition(doc.getLength());
-		} catch (Exception e) {}
-	}
-
-	/**
-	 * Execute a console command
-	 * @param commands Command line (split by every single space)
-	 * @param fullCommandLine Command line (raw String)
-	 */
-	private void executeConsoleCommand(String[] commands, String fullCommandLine) {
-		if(commands.length == 0 || fullCommandLine.length() == 0) return;
-
-		addConsoleLog(">" + fullCommandLine, Color.blue);
-
-		// help/h/?
-		if(commands[0].equalsIgnoreCase("help")||commands[0].equalsIgnoreCase("h")||commands[0].equalsIgnoreCase("?")) {
-			try {
-				InputStreamReader reader = null;
-				try {
-					reader = new InputStreamReader(
-						new FileInputStream("config/lang/netadmin_help_" + Locale.getDefault().getCountry() + ".txt"), "UTF-8"
-					);
-				} catch (IOException e2) {
-					reader = new InputStreamReader(new FileInputStream("config/lang/netadmin_help_default.txt"), "UTF-8");
-				}
-
-				BufferedReader txtHelp = new BufferedReader(reader);
-
-				String str;
-				while((str = txtHelp.readLine()) != null) {
-					addConsoleLog(str);
-				}
-
-				reader.close();
-			} catch (IOException e) {
-				log.error("Failed to load help file", e);
-				addConsoleLog(String.format(getUIText("Console_Help_Error"), e.toString()), Color.red);
-			}
-		}
-		// echo
-		else if(commands[0].equalsIgnoreCase("echo")) {
-			String strTemp = GeneralUtil.StringCombine(commands, " ", 1);
-			addConsoleLog(strTemp);
-		}
-		// cls
-		else if(commands[0].equalsIgnoreCase("cls")) {
-			txtpaneConsoleLog.setText(null);
-		}
-		// logout/logoff/disconnect
-		else if(commands[0].equalsIgnoreCase("logout")||commands[0].equalsIgnoreCase("logoff")||commands[0].equalsIgnoreCase("disconnect")) {
-			addConsoleLog(getUIText("Console_Logout"));
-			labelLoginMessage.setForeground(Color.black);
-			labelLoginMessage.setText(getUIText("Login_Message_LoggingOut"));
-			logout();
-		}
-		// quit/exit/shutdown
-		else if(commands[0].equalsIgnoreCase("quit")||commands[0].equalsIgnoreCase("exit")) {
-			shutdown();
-		}
-		// shutdown
-		else if(commands[0].equalsIgnoreCase("shutdown")) {
-			addConsoleLog(getUIText("Console_Shutdown"));
-			isWantedDisconnect = true;
-			isShutdownRequested = true;
-			sendCommand("shutdown");
-		}
-		// announce
-		else if(commands[0].equalsIgnoreCase("announce")) {
-			String strTemp = GeneralUtil.StringCombine(commands, " ", 1);
-			if(strTemp.length() > 0) {
-				sendCommand("announce\t" + NetUtil.urlEncode(strTemp));
-				addConsoleLog(getUIText("Console_Announce") + strTemp);
-			}
-		}
-		// myip
-		else if(commands[0].equalsIgnoreCase("myip")) {
-			addConsoleLog(strMyIP);
-		}
-		// myhost
-		else if(commands[0].equalsIgnoreCase("myhost")) {
-			addConsoleLog(strMyHostname);
-		}
-		// serverip
-		else if(commands[0].equalsIgnoreCase("serverip")) {
-			addConsoleLog(client.getIP());
-		}
-		// serverhost
-		else if(commands[0].equalsIgnoreCase("serverhost")) {
-			addConsoleLog(strServerHost);
-		}
-		// serverport
-		else if(commands[0].equalsIgnoreCase("serverport")) {
-			addConsoleLog(Integer.toString(serverPort));
-		}
-		// version
-		else if(commands[0].equalsIgnoreCase("version")) {
-			addConsoleLog("Client:" + GameManager.getVersionString());
-			addConsoleLog("Server:" + serverFullVer);
-		}
-		// bangui
-		else if(commands[0].equalsIgnoreCase("bangui")) {
-			if(commands.length > 1) {
-				openBanDialog(commands[1]);
-			} else {
-				openBanDialog("");
-			}
-		}
-		// ban
-		else if(commands[0].equalsIgnoreCase("ban")) {
-			if(commands.length > 2) {
-				int banLength = -1;
-				try {
-					banLength = Integer.parseInt(commands[2]);
-				} catch (NumberFormatException e) {
-					addConsoleLog(String.format(getUIText("Console_Ban_InvalidLength"), commands[2]));
-					return;
-				}
-				if((banLength < -1) || (banLength > 6)) {
-					addConsoleLog(String.format(getUIText("Console_Ban_InvalidLength"), commands[2]));
-					return;
-				}
-				requestBanFromGUI(commands[1], banLength, false);
-			}
-			else if(commands.length > 1) {
-				requestBanFromGUI(commands[1], -1, false);
-			}
-			else {
-				addConsoleLog(getUIText("Console_Ban_NoParams"));
-			}
-		}
-		// banlist
-		else if(commands[0].equalsIgnoreCase("banlist")) {
-			sendCommand("banlist");
-		}
-		// unban
-		else if(commands[0].equalsIgnoreCase("unban")) {
-			if(commands.length > 1) {
-				sendCommand("unban\t" + commands[1]);
+    /** Your Hostname */
+    private static String strMyHostname;
+
+    /** Server's version */
+    private static String serverFullVer;
+
+    //***** Main GUI elements *****
+    /** Layout manager for main screen */
+    private CardLayout contentPaneCardLayout;
+
+    /** Current screen-card number */
+    @SuppressWarnings("unused")
+    private int currentScreenCardNumber;
+
+    //***** Login screen elements *****
+    /** Login Message label */
+    private JLabel labelLoginMessage;
+
+    /** Server textbox */
+    private JTextField txtfldServer;
+
+    /** Username textbox */
+    private JTextField txtfldUsername;
+
+    /** Password textbox */
+    private JPasswordField passfldPassword;
+
+    /** Remember Username checkbox */
+    private JCheckBox chkboxRememberUsername;
+
+    /** Remember Password checkbox */
+    private JCheckBox chkboxRememberPassword;
+
+    /** Login button */
+    private JButton btnLogin;
+
+    //***** Room list screen elements *****
+    /** Room list data */
+    private DefaultTableModel tablemodelRoomList;
+
+    /** Room list table */
+    private JTable tableRoomList;
+
+    //***** Lobby screen elements *****
+    /** Console Log textpane */
+    private JTextPane txtpaneConsoleLog;
+
+    /** Console Command textbox */
+    private JTextField txtfldConsoleCommand;
+
+    /** Console Command Execute button */
+    private JButton btnConsoleCommandExecute;
+
+    /** Users table data */
+    private DefaultTableModel tablemodelUsers;
+
+    /** Users table component */
+    private JTable tableUsers;
+
+    /** MPRanking table data */
+    private DefaultTableModel[] tablemodelMPRanking;
+
+    /** MPRanking table component */
+    private JTable[] tableMPRanking;
+
+    /** Load/Refresh Ranking button */
+    private JButton btnRankingLoad;
+
+    /**
+     * Constructor
+     */
+    public NetAdmin() {
+        super();
+        init();
+    }
+
+    /**
+     * Init
+     */
+    private void init() {
+        // Load config file
+        propConfig = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/setting/netadmin.cfg");
+            propConfig.load(in);
+            in.close();
+        } catch (IOException e) {}
+
+        // Load language files
+        propLangDefault = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/lang/netadmin_default.properties");
+            propLangDefault.load(in);
+            in.close();
+        } catch (IOException e) {
+            log.error("Failed to load default UI language file", e);
+        }
+        propLang = new CustomProperties();
+        try {
+            FileInputStream in = new FileInputStream("config/lang/netadmin_" + Locale.getDefault().getCountry() + ".properties");
+            propLang.load(in);
+            in.close();
+        } catch (IOException e) {}
+
+        // Set look&feel
+        try {
+            CustomProperties propSwingConfig = new CustomProperties();
+            FileInputStream in = new FileInputStream("config/setting/swing.cfg");
+            propSwingConfig.load(in);
+            in.close();
+
+            if(propSwingConfig.getProperty("option.usenativelookandfeel", true) == true) {
+                try {
+                    UIManager.getInstalledLookAndFeels();
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } catch(Exception e) {
+                    log.warn("Failed to set native look&feel", e);
+                }
+            }
+        } catch (Exception e) {}
+
+        // Set close action
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                shutdown();
+            }
+        });
+
+        setTitle(getUIText("Title_ServerAdmin"));
+        initUI();
+
+        this.setSize(propConfig.getProperty("mainwindow.width", 500), propConfig.getProperty("mainwindow.height", 450));
+        this.setLocation(propConfig.getProperty("mainwindow.x", 0), propConfig.getProperty("mainwindow.y", 0));
+        this.setVisible(true);
+    }
+
+    /**
+     * Init GUI
+     */
+    private void initUI() {
+        contentPaneCardLayout = new CardLayout();
+        this.getContentPane().setLayout(contentPaneCardLayout);
+
+        initLoginUI();
+        initLobbyUI();
+
+        changeCurrentScreenCard(SCREENCARD_LOGIN);
+    }
+
+    /**
+     * Init login screen
+     */
+    private void initLoginUI() {
+        // Main panel
+        JPanel mpLoginOwner = new JPanel(new BorderLayout());
+        this.getContentPane().add(mpLoginOwner, SCREENCARD_NAMES[SCREENCARD_LOGIN]);
+        JPanel mpLogin = new JPanel();
+        mpLogin.setLayout(new BoxLayout(mpLogin, BoxLayout.Y_AXIS));
+        mpLoginOwner.add(mpLogin, BorderLayout.NORTH);
+
+        // * Login Message label
+        labelLoginMessage = new JLabel(getUIText("Login_Message_Default"));
+        labelLoginMessage.setAlignmentX(0f);
+        mpLogin.add(labelLoginMessage);
+
+        // * Server panel
+        JPanel spServer = new JPanel(new BorderLayout());
+        spServer.setAlignmentX(0f);
+        mpLogin.add(spServer);
+
+        // ** Server label
+        JLabel lServer = new JLabel(getUIText("Login_Server"));
+        spServer.add(lServer, BorderLayout.WEST);
+
+        // ** Server textbox
+        txtfldServer = new JTextField(30);
+        txtfldServer.setText(propConfig.getProperty("login.server", ""));
+        txtfldServer.setComponentPopupMenu(new TextComponentPopupMenu(txtfldServer));
+        spServer.add(txtfldServer, BorderLayout.EAST);
+
+        // * Username panel
+        JPanel spUsername = new JPanel(new BorderLayout());
+        spUsername.setAlignmentX(0f);
+        mpLogin.add(spUsername);
+
+        // ** Username label
+        JLabel lUsername = new JLabel(getUIText("Login_Username"));
+        spUsername.add(lUsername, BorderLayout.WEST);
+
+        // ** Username textbox
+        txtfldUsername = new JTextField(30);
+        txtfldUsername.setText(propConfig.getProperty("login.username", ""));
+        txtfldUsername.setComponentPopupMenu(new TextComponentPopupMenu(txtfldUsername));
+        spUsername.add(txtfldUsername, BorderLayout.EAST);
+
+        // * Password panel
+        JPanel spPassword = new JPanel(new BorderLayout());
+        spPassword.setAlignmentX(0f);
+        mpLogin.add(spPassword);
+
+        // ** Password label
+        JLabel lPassword = new JLabel(getUIText("Login_Password"));
+        spPassword.add(lPassword, BorderLayout.WEST);
+
+        // ** Password textbox
+        passfldPassword = new JPasswordField(30);
+        String strPassword = propConfig.getProperty("login.password", "");
+        if(strPassword.length() > 0) {
+            passfldPassword.setText(NetUtil.decompressString(strPassword));
+        }
+        passfldPassword.setComponentPopupMenu(new TextComponentPopupMenu(passfldPassword));
+        spPassword.add(passfldPassword, BorderLayout.EAST);
+
+        // * Remember Username checkbox
+        chkboxRememberUsername = new JCheckBox(getUIText("Login_RememberUsername"));
+        chkboxRememberUsername.setSelected(propConfig.getProperty("login.rememberUsername", false));
+        chkboxRememberUsername.setAlignmentX(0f);
+        mpLogin.add(chkboxRememberUsername);
+
+        // * Remember Password checkbox
+        chkboxRememberPassword = new JCheckBox(getUIText("Login_RememberPassword"));
+        chkboxRememberPassword.setSelected(propConfig.getProperty("login.rememberPassword", false));
+        chkboxRememberPassword.setAlignmentX(0f);
+        mpLogin.add(chkboxRememberPassword);
+
+        // * Buttons panel
+        JPanel spButtons = new JPanel();
+        spButtons.setLayout(new BoxLayout(spButtons, BoxLayout.X_AXIS));
+        spButtons.setAlignmentX(0f);
+        mpLogin.add(spButtons);
+
+        // ** Login button
+        btnLogin = new JButton(getUIText("Login_Login"));
+        btnLogin.setMnemonic('L');
+        btnLogin.setMaximumSize(new Dimension(Short.MAX_VALUE, btnLogin.getMaximumSize().height));
+        btnLogin.setActionCommand("Login_Login");
+        btnLogin.addActionListener(this);
+        spButtons.add(btnLogin);
+
+        // ** Quit button
+        JButton btnQuit = new JButton(getUIText("Login_Quit"));
+        btnQuit.setMnemonic('Q');
+        btnQuit.setMaximumSize(new Dimension(Short.MAX_VALUE, btnQuit.getMaximumSize().height));
+        btnQuit.setActionCommand("Login_Quit");
+        btnQuit.addActionListener(this);
+        spButtons.add(btnQuit);
+    }
+
+    /**
+     * Init lobby screen
+     */
+    private void initLobbyUI() {
+        // Main panel
+        JPanel mpLobby = new JPanel(new BorderLayout());
+        this.getContentPane().add(mpLobby, SCREENCARD_NAMES[SCREENCARD_LOBBY]);
+
+        // * Tab
+        JTabbedPane tabLobby = new JTabbedPane();
+        mpLobby.add(tabLobby, BorderLayout.CENTER);
+
+        // ** Console tab
+        JPanel spConsole = new JPanel(new BorderLayout());
+        tabLobby.addTab(getUIText("Lobby_Tab_Console"), spConsole);
+
+        // *** Console log textpane
+        txtpaneConsoleLog = new JTextPane();
+        txtpaneConsoleLog.setComponentPopupMenu(new LogPopupMenu(txtpaneConsoleLog));
+        txtpaneConsoleLog.addKeyListener(new LogKeyAdapter());
+        JScrollPane sConsoleLog = new JScrollPane(txtpaneConsoleLog);
+        spConsole.add(sConsoleLog, BorderLayout.CENTER);
+
+        // *** Command panel
+        JPanel spConsoleCommand = new JPanel(new BorderLayout());
+        spConsole.add(spConsoleCommand, BorderLayout.SOUTH);
+
+        // *** Command textbox
+        txtfldConsoleCommand = new JTextField();
+        txtfldConsoleCommand.setComponentPopupMenu(new TextComponentPopupMenu(txtfldConsoleCommand));
+        spConsoleCommand.add(txtfldConsoleCommand, BorderLayout.CENTER);
+
+        // *** Command Execute button
+        btnConsoleCommandExecute = new JButton(getUIText("Lobby_Console_Execute"));
+        btnConsoleCommandExecute.setMnemonic('E');
+        btnConsoleCommandExecute.setActionCommand("Lobby_Console_Execute");
+        btnConsoleCommandExecute.addActionListener(this);
+        spConsoleCommand.add(btnConsoleCommandExecute, BorderLayout.EAST);
+
+        // ** Users tab
+        JPanel spUsers = new JPanel(new BorderLayout());
+        tabLobby.addTab(getUIText("Lobby_Tab_Users"), spUsers);
+
+        // *** Users table
+        String[] strUsersColumnNames = new String[USERTABLE_COLUMNNAMES.length];
+        for(int i = 0; i < strUsersColumnNames.length; i++) {
+            strUsersColumnNames[i] = getUIText(USERTABLE_COLUMNNAMES[i]);
+        }
+
+        tablemodelUsers = new DefaultTableModel(strUsersColumnNames, 0);
+        tableUsers = new JTable(tablemodelUsers);
+        tableUsers.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableUsers.setDefaultEditor(Object.class, null);
+        tableUsers.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tableUsers.getTableHeader().setReorderingAllowed(false);
+        tableUsers.setComponentPopupMenu(new UserPopupMenu(tableUsers));
+        tableUsers.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() >= 2) {
+                    int rowNumber = tableUsers.getSelectedRow();
+                    if(rowNumber != -1) {
+                        String strIP = (String)tableUsers.getValueAt(rowNumber, 0);
+                        openBanDialog(strIP);
+                    }
+                }
+            }
+        });
+
+        TableColumnModel tmUsers = tableUsers.getColumnModel();
+        tmUsers.getColumn(0).setPreferredWidth(propConfig.getProperty("tableUsers.width.ip", 90));    // IP
+        tmUsers.getColumn(1).setPreferredWidth(propConfig.getProperty("tableUsers.width.host", 140));    // Hostname
+        tmUsers.getColumn(2).setPreferredWidth(propConfig.getProperty("tableUsers.width.type", 60));    // Type
+        tmUsers.getColumn(3).setPreferredWidth(propConfig.getProperty("tableUsers.width.name", 150));    // Name
+
+        JScrollPane sUsers = new JScrollPane(tableUsers);
+        spUsers.add(sUsers, BorderLayout.CENTER);
+
+        // ** Multiplayer Leaderboard tab
+        JPanel spMPRanking = new JPanel(new BorderLayout());
+        tabLobby.addTab(getUIText("Lobby_Tab_MPRanking"), spMPRanking);
+
+        // *** Game Style tab
+        JTabbedPane tabMPRanking = new JTabbedPane();
+        spMPRanking.add(tabMPRanking, BorderLayout.CENTER);
+
+        // ** Room List tab
+        JPanel spRoomList = new JPanel(new BorderLayout());
+        tabLobby.addTab(getUIText("Lobby_Tab_RoomList"), spRoomList);
+
+        // *** Room list table
+        String[] strTableColumnNames = new String[ROOMTABLE_COLUMNNAMES.length];
+        for(int i = 0; i < strTableColumnNames.length; i++) {
+            strTableColumnNames[i] = getUIText(ROOMTABLE_COLUMNNAMES[i]);
+        }
+        tablemodelRoomList = new DefaultTableModel(strTableColumnNames, 0);
+        tableRoomList = new JTable(tablemodelRoomList);
+        tableRoomList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tableRoomList.setDefaultEditor(Object.class, null);
+        tableRoomList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        tableRoomList.getTableHeader().setReorderingAllowed(false);
+        tableRoomList.setComponentPopupMenu(new RoomTablePopupMenu(tableRoomList));
+
+        TableColumnModel tmRooms = tableRoomList.getColumnModel();
+        tmRooms.getColumn(0).setPreferredWidth(propConfig.getProperty("tableRoomList.width.id", 35));            // ID
+        tmRooms.getColumn(1).setPreferredWidth(propConfig.getProperty("tableRoomList.width.name", 155));        // Name
+        tmRooms.getColumn(2).setPreferredWidth(propConfig.getProperty("tableRoomList.width.rated", 50));        // Rated
+        tmRooms.getColumn(3).setPreferredWidth(propConfig.getProperty("tableRoomList.width.rulename", 105));    // Rule name
+        tmRooms.getColumn(4).setPreferredWidth(propConfig.getProperty("tableRoomList.width.status", 55));        // Status
+        tmRooms.getColumn(5).setPreferredWidth(propConfig.getProperty("tableRoomList.width.players", 65));        // Players
+        tmRooms.getColumn(6).setPreferredWidth(propConfig.getProperty("tableRoomList.width.spectators", 65));    // Spectators
+
+        JScrollPane spTableRoomList = new JScrollPane(tableRoomList);
+        spRoomList.add(spTableRoomList, BorderLayout.CENTER);
+
+        // *** Leaderboard table
+        String[] strMPRankingColumnNames = new String[MPRANKING_COLUMNNAMES.length];
+        for(int i = 0; i < strMPRankingColumnNames.length; i++) {
+            strMPRankingColumnNames[i] = getUIText(MPRANKING_COLUMNNAMES[i]);
+        }
+
+        tableMPRanking = new JTable[GameEngine.MAX_GAMESTYLE];
+        tablemodelMPRanking = new DefaultTableModel[GameEngine.MAX_GAMESTYLE];
+
+        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+            tablemodelMPRanking[i] = new DefaultTableModel(strMPRankingColumnNames, 0);
+
+            tableMPRanking[i] = new JTable(tablemodelMPRanking[i]);
+            tableMPRanking[i].setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            tableMPRanking[i].setDefaultEditor(Object.class, null);
+            tableMPRanking[i].setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            tableMPRanking[i].getTableHeader().setReorderingAllowed(false);
+            tableMPRanking[i].setComponentPopupMenu(new MPRankingPopupMenu(tableMPRanking[i]));
+
+            TableColumnModel tm = tableMPRanking[i].getColumnModel();
+            tm.getColumn(0).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.rank", 30));    // Rank
+            tm.getColumn(1).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.name", 200));    // Name
+            tm.getColumn(2).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.rating", 60));    // Rating
+            tm.getColumn(3).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.play", 60));    // Play
+            tm.getColumn(4).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.win", 60));    // Win
+
+            JScrollPane sMPRanking = new JScrollPane(tableMPRanking[i]);
+            tabMPRanking.addTab(GameEngine.GAMESTYLE_NAMES[i], sMPRanking);
+        }
+
+        // *** Load/Refresh Ranking button
+        btnRankingLoad = new JButton(getUIText("MPRanking_Button_LoadRanking"));
+        btnRankingLoad.setMnemonic('L');
+        btnRankingLoad.setActionCommand("MPRanking_Button_LoadRanking");
+        btnRankingLoad.addActionListener(this);
+        spMPRanking.add(btnRankingLoad, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Save settings
+     */
+    private void saveConfig() {
+        propConfig.setProperty("mainwindow.width", this.getSize().width);
+        propConfig.setProperty("mainwindow.height", this.getSize().height);
+        propConfig.setProperty("mainwindow.x", this.getLocation().x);
+        propConfig.setProperty("mainwindow.y", this.getLocation().y);
+
+        TableColumnModel tmUsers = tableUsers.getColumnModel();
+        propConfig.setProperty("tableUsers.width.ip", tmUsers.getColumn(0).getWidth());
+        propConfig.setProperty("tableUsers.width.host", tmUsers.getColumn(1).getWidth());
+        propConfig.setProperty("tableUsers.width.type", tmUsers.getColumn(2).getWidth());
+        propConfig.setProperty("tableUsers.width.name", tmUsers.getColumn(3).getWidth());
+
+        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+            TableColumnModel tm = tableMPRanking[i].getColumnModel();
+            propConfig.setProperty("tableMPRanking.width.rank", tm.getColumn(0).getWidth());
+            propConfig.setProperty("tableMPRanking.width.name", tm.getColumn(1).getWidth());
+            propConfig.setProperty("tableMPRanking.width.rating", tm.getColumn(2).getWidth());
+            propConfig.setProperty("tableMPRanking.width.play", tm.getColumn(3).getWidth());
+            propConfig.setProperty("tableMPRanking.width.win", tm.getColumn(4).getWidth());
+        }
+
+        try {
+            FileOutputStream out = new FileOutputStream("config/setting/netadmin.cfg");
+            propConfig.store(out, "NullpoMino NetAdmin Config");
+            out.close();
+        } catch (IOException e) {
+            log.warn("Failed to save netlobby config file", e);
+        }
+    }
+
+    /**
+     * Change current screen card
+     * @param cardNumber Screen card ID
+     */
+    private void changeCurrentScreenCard(int cardNumber) {
+        contentPaneCardLayout.show(getContentPane(), SCREENCARD_NAMES[cardNumber]);
+        currentScreenCardNumber = cardNumber;
+
+        // Set default button
+        JButton defaultButton = null;
+        switch(cardNumber) {
+        case SCREENCARD_LOGIN:
+            defaultButton = btnLogin;
+            break;
+        case SCREENCARD_LOBBY:
+            defaultButton = btnConsoleCommandExecute;
+            break;
+        }
+
+        if(defaultButton != null) {
+            this.getRootPane().setDefaultButton(defaultButton);
+        }
+    }
+
+    /**
+     * Enable/Disable Login screen UI elements
+     * @param b true to enable, false to disable
+     */
+    private void setLoginUIEnabled(boolean b) {
+        txtfldServer.setEnabled(b);
+        txtfldUsername.setEnabled(b);
+        passfldPassword.setEnabled(b);
+        chkboxRememberUsername.setEnabled(b);
+        chkboxRememberPassword.setEnabled(b);
+        btnLogin.setEnabled(b);
+    }
+
+    /**
+     * Disconnect from the server
+     */
+    private void logout() {
+        if(client != null) {
+            if(client.isConnected()) {
+                client.send("disconnect\n");
+            }
+            client.removeListener(this);
+            client.threadRunning = false;
+            client.interrupt();
+            client = null;
+        }
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                setLoginUIEnabled(true);
+                changeCurrentScreenCard(SCREENCARD_LOGIN);
+            }
+        });
+    }
+
+    /**
+     * Shutdown this program
+     */
+    public void shutdown() {
+        logout();
+        saveConfig();
+        System.exit(0);
+    }
+
+    /**
+     * Send admin command
+     * @param msg Command to send
+     * @return true if successful
+     */
+    private boolean sendCommand(String msg) {
+        if((client == null) || !client.isConnected()) return false;
+        String strCommand = NetUtil.compressString(msg);
+        return client.send("admin\t" + strCommand + "\n");
+    }
+
+    /**
+     * Add message to console
+     * @param str Message
+     */
+    private void addConsoleLog(String str) {
+        addConsoleLog(str, null);
+    }
+
+    /**
+     * Add message to console
+     * @param str Message
+     * @param fgcolor Text color (can be null)
+     */
+    private void addConsoleLog(String str, Color fgcolor) {
+        SimpleAttributeSet sas = null;
+        if(fgcolor != null) {
+            sas = new SimpleAttributeSet();
+            StyleConstants.setForeground(sas, fgcolor);
+        }
+        try {
+            Document doc = txtpaneConsoleLog.getDocument();
+            doc.insertString(doc.getLength(), str + "\n", sas);
+            txtpaneConsoleLog.setCaretPosition(doc.getLength());
+        } catch (Exception e) {}
+    }
+
+    /**
+     * Execute a console command
+     * @param commands Command line (split by every single space)
+     * @param fullCommandLine Command line (raw String)
+     */
+    private void executeConsoleCommand(String[] commands, String fullCommandLine) {
+        if(commands.length == 0 || fullCommandLine.length() == 0) return;
+
+        addConsoleLog(">" + fullCommandLine, Color.blue);
+
+        // help/h/?
+        if(commands[0].equalsIgnoreCase("help")||commands[0].equalsIgnoreCase("h")||commands[0].equalsIgnoreCase("?")) {
+            try {
+                InputStreamReader reader = null;
+                try {
+                    reader = new InputStreamReader(
+                        new FileInputStream("config/lang/netadmin_help_" + Locale.getDefault().getCountry() + ".txt"), "UTF-8"
+                    );
+                } catch (IOException e2) {
+                    reader = new InputStreamReader(new FileInputStream("config/lang/netadmin_help_default.txt"), "UTF-8");
+                }
+
+                BufferedReader txtHelp = new BufferedReader(reader);
+
+                String str;
+                while((str = txtHelp.readLine()) != null) {
+                    addConsoleLog(str);
+                }
+
+                reader.close();
+            } catch (IOException e) {
+                log.error("Failed to load help file", e);
+                addConsoleLog(String.format(getUIText("Console_Help_Error"), e.toString()), Color.red);
+            }
+        }
+        // echo
+        else if(commands[0].equalsIgnoreCase("echo")) {
+            String strTemp = GeneralUtil.StringCombine(commands, " ", 1);
+            addConsoleLog(strTemp);
+        }
+        // cls
+        else if(commands[0].equalsIgnoreCase("cls")) {
+            txtpaneConsoleLog.setText(null);
+        }
+        // logout/logoff/disconnect
+        else if(commands[0].equalsIgnoreCase("logout")||commands[0].equalsIgnoreCase("logoff")||commands[0].equalsIgnoreCase("disconnect")) {
+            addConsoleLog(getUIText("Console_Logout"));
+            labelLoginMessage.setForeground(Color.black);
+            labelLoginMessage.setText(getUIText("Login_Message_LoggingOut"));
+            logout();
+        }
+        // quit/exit/shutdown
+        else if(commands[0].equalsIgnoreCase("quit")||commands[0].equalsIgnoreCase("exit")) {
+            shutdown();
+        }
+        // shutdown
+        else if(commands[0].equalsIgnoreCase("shutdown")) {
+            addConsoleLog(getUIText("Console_Shutdown"));
+            isWantedDisconnect = true;
+            isShutdownRequested = true;
+            sendCommand("shutdown");
+        }
+        // announce
+        else if(commands[0].equalsIgnoreCase("announce")) {
+            String strTemp = GeneralUtil.StringCombine(commands, " ", 1);
+            if(strTemp.length() > 0) {
+                sendCommand("announce\t" + NetUtil.urlEncode(strTemp));
+                addConsoleLog(getUIText("Console_Announce") + strTemp);
+            }
+        }
+        // myip
+        else if(commands[0].equalsIgnoreCase("myip")) {
+            addConsoleLog(strMyIP);
+        }
+        // myhost
+        else if(commands[0].equalsIgnoreCase("myhost")) {
+            addConsoleLog(strMyHostname);
+        }
+        // serverip
+        else if(commands[0].equalsIgnoreCase("serverip")) {
+            addConsoleLog(client.getIP());
+        }
+        // serverhost
+        else if(commands[0].equalsIgnoreCase("serverhost")) {
+            addConsoleLog(strServerHost);
+        }
+        // serverport
+        else if(commands[0].equalsIgnoreCase("serverport")) {
+            addConsoleLog(Integer.toString(serverPort));
+        }
+        // version
+        else if(commands[0].equalsIgnoreCase("version")) {
+            addConsoleLog("Client:" + GameManager.getVersionString());
+            addConsoleLog("Server:" + serverFullVer);
+        }
+        // bangui
+        else if(commands[0].equalsIgnoreCase("bangui")) {
+            if(commands.length > 1) {
+                openBanDialog(commands[1]);
+            } else {
+                openBanDialog("");
+            }
+        }
+        // ban
+        else if(commands[0].equalsIgnoreCase("ban")) {
+            if(commands.length > 2) {
+                int banLength = -1;
+                try {
+                    banLength = Integer.parseInt(commands[2]);
+                } catch (NumberFormatException e) {
+                    addConsoleLog(String.format(getUIText("Console_Ban_InvalidLength"), commands[2]));
+                    return;
+                }
+                if((banLength < -1) || (banLength > 6)) {
+                    addConsoleLog(String.format(getUIText("Console_Ban_InvalidLength"), commands[2]));
+                    return;
+                }
+                requestBanFromGUI(commands[1], banLength, false);
+            }
+            else if(commands.length > 1) {
+                requestBanFromGUI(commands[1], -1, false);
+            }
+            else {
+                addConsoleLog(getUIText("Console_Ban_NoParams"));
+            }
+        }
+        // banlist
+        else if(commands[0].equalsIgnoreCase("banlist")) {
+            sendCommand("banlist");
+        }
+        // unban
+        else if(commands[0].equalsIgnoreCase("unban")) {
+            if(commands.length > 1) {
+            	sendCommand("unban\t" + commands[1]);
 			} else {
 				addConsoleLog(getUIText("Console_UnBan_NoParams"));
 			}
