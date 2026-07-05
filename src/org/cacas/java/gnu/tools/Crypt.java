@@ -317,307 +317,307 @@ public class Crypt {
             0x00000081, 0x00001000, 0x00401081, 0x00400000,
             0x00401080, 0x00000001, 0x00001001, 0x00401081,
             0x00400001, 0x00401080, 0x00401000, 0x00001001,
-    	},
-		{
-			/* nibble 7 */
-			0x08200020, 0x08208000, 0x00008020, 0x00000000,
-			0x08008000, 0x00200020, 0x08200000, 0x08208020,
-			0x00000020, 0x08000000, 0x00208000, 0x00008020,
-			0x00208020, 0x08008020, 0x08000020, 0x08200000,
-			0x00008000, 0x00208020, 0x00200020, 0x08008000,
-			0x08208020, 0x08000020, 0x00000000, 0x00208000,
-			0x08000000, 0x00200000, 0x08008020, 0x08200020,
-			0x00200000, 0x00008000, 0x08208000, 0x00000020,
-			0x00200000, 0x00008000, 0x08000020, 0x08208020,
-			0x00008020, 0x08000000, 0x00000000, 0x00208000,
-			0x08200020, 0x08008020, 0x08008000, 0x00200020,
-			0x08208000, 0x00000020, 0x00200020, 0x08008000,
-			0x08208020, 0x00200000, 0x08200000, 0x08000020,
-			0x00208000, 0x00008020, 0x08008020, 0x08200000,
-			0x00000020, 0x08208000, 0x00208020, 0x00000000,
-			0x08000000, 0x08200020, 0x00008000, 0x00208020
-		}
-	};
-
-	private static final int byteToUnsigned(byte b) {
-		int value = b;
-		return (value >= 0) ? value : value + 256;
-	}
-
-	private static int fourBytesToInt(byte b[], int offset) {
-		return byteToUnsigned(b[offset++])
-		| (byteToUnsigned(b[offset++]) <<  8)
-		| (byteToUnsigned(b[offset++]) << 16)
-		| (byteToUnsigned(b[offset]) << 24);
-	}
-
-	private static final void intToFourBytes(int iValue, byte b[], int offset) {
-		b[offset++] = (byte)((iValue)        & 0xff);
-		b[offset++] = (byte)((iValue >>> 8 ) & 0xff);
-		b[offset++] = (byte)((iValue >>> 16) & 0xff);
-		b[offset] = (byte)((iValue >>> 24) & 0xff);
-	}
-
-	private static final void PERM_OP(int a, int b, int n, int m, int results[]) {
-		int t;
-
-		t = ((a >>> n) ^ b) & m;
-		a ^= t << n;
-		b ^= t;
-
-		results[0] = a;
-		results[1] = b;
-	}
-
-	private static final int HPERM_OP(int a, int n, int m) {
-		int t;
-
-		t = ((a << (16 - n)) ^ a) & m;
-		a = a ^ t ^ (t >>> (16 - n));
-
-		return a;
-	}
-
-	private static int [] des_set_key(byte key[]) {
-		int schedule[] = new int [ITERATIONS * 2];
-
-		int c = fourBytesToInt(key, 0);
-		int d = fourBytesToInt(key, 4);
-
-		int results[] = new int[2];
-
-		PERM_OP(d, c, 4, 0x0f0f0f0f, results);
-		d = results[0]; c = results[1];
-
-		c = HPERM_OP(c, -2, 0xcccc0000);
-		d = HPERM_OP(d, -2, 0xcccc0000);
-
-		PERM_OP(d, c, 1, 0x55555555, results);
-		d = results[0]; c = results[1];
-
-		PERM_OP(c, d, 8, 0x00ff00ff, results);
-		c = results[0]; d = results[1];
-
-		PERM_OP(d, c, 1, 0x55555555, results);
-		d = results[0]; c = results[1];
-
-		d = (((d & 0x000000ff) <<  16) |  (d & 0x0000ff00)     |
-				((d & 0x00ff0000) >>> 16) | ((c & 0xf0000000) >>> 4));
-		c &= 0x0fffffff;
-
-		int s, t;
-		int j = 0;
-
-		for(int i = 0; i < ITERATIONS; i ++) {
-			if(shifts2[i]) {
-				c = (c >>> 2) | (c << 26);
-				d = (d >>> 2) | (d << 26);
-			} else {
-				c = (c >>> 1) | (c << 27);
-				d = (d >>> 1) | (d << 27);
-			}
-
-			c &= 0x0fffffff;
-			d &= 0x0fffffff;
+        },
+        {
+            /* nibble 7 */
+            0x08200020, 0x08208000, 0x00008020, 0x00000000,
+            0x08008000, 0x00200020, 0x08200000, 0x08208020,
+            0x00000020, 0x08000000, 0x00208000, 0x00008020,
+            0x00208020, 0x08008020, 0x08000020, 0x08200000,
+            0x00008000, 0x00208020, 0x00200020, 0x08008000,
+            0x08208020, 0x08000020, 0x00000000, 0x00208000,
+            0x08000000, 0x00200000, 0x08008020, 0x08200020,
+            0x00200000, 0x00008000, 0x08208000, 0x00000020,
+            0x00200000, 0x00008000, 0x08000020, 0x08208020,
+            0x00008020, 0x08000000, 0x00000000, 0x00208000,
+            0x08200020, 0x08008020, 0x08008000, 0x00200020,
+            0x08208000, 0x00000020, 0x00200020, 0x08008000,
+            0x08208020, 0x00200000, 0x08200000, 0x08000020,
+            0x00208000, 0x00008020, 0x08008020, 0x08200000,
+            0x00000020, 0x08208000, 0x00208020, 0x00000000,
+            0x08000000, 0x08200020, 0x00008000, 0x00208020
+        }
+    };
+
+    private static final int byteToUnsigned(byte b) {
+        int value = b;
+        return (value >= 0) ? value : value + 256;
+    }
+
+    private static int fourBytesToInt(byte b[], int offset) {
+        return byteToUnsigned(b[offset++])
+        | (byteToUnsigned(b[offset++]) <<  8)
+        | (byteToUnsigned(b[offset++]) << 16)
+        | (byteToUnsigned(b[offset]) << 24);
+    }
+
+    private static final void intToFourBytes(int iValue, byte b[], int offset) {
+        b[offset++] = (byte)((iValue)        & 0xff);
+        b[offset++] = (byte)((iValue >>> 8 ) & 0xff);
+        b[offset++] = (byte)((iValue >>> 16) & 0xff);
+        b[offset] = (byte)((iValue >>> 24) & 0xff);
+    }
+
+    private static final void PERM_OP(int a, int b, int n, int m, int results[]) {
+        int t;
+
+        t = ((a >>> n) ^ b) & m;
+        a ^= t << n;
+        b ^= t;
+
+        results[0] = a;
+        results[1] = b;
+    }
+
+    private static final int HPERM_OP(int a, int n, int m) {
+        int t;
+
+        t = ((a << (16 - n)) ^ a) & m;
+        a = a ^ t ^ (t >>> (16 - n));
+
+        return a;
+    }
+
+    private static int [] des_set_key(byte key[]) {
+        int schedule[] = new int [ITERATIONS * 2];
+
+        int c = fourBytesToInt(key, 0);
+        int d = fourBytesToInt(key, 4);
+
+        int results[] = new int[2];
+
+        PERM_OP(d, c, 4, 0x0f0f0f0f, results);
+        d = results[0]; c = results[1];
+
+        c = HPERM_OP(c, -2, 0xcccc0000);
+        d = HPERM_OP(d, -2, 0xcccc0000);
+
+        PERM_OP(d, c, 1, 0x55555555, results);
+        d = results[0]; c = results[1];
+
+        PERM_OP(c, d, 8, 0x00ff00ff, results);
+        c = results[0]; d = results[1];
+
+        PERM_OP(d, c, 1, 0x55555555, results);
+        d = results[0]; c = results[1];
+
+        d = (((d & 0x000000ff) <<  16) |  (d & 0x0000ff00)     |
+                ((d & 0x00ff0000) >>> 16) | ((c & 0xf0000000) >>> 4));
+        c &= 0x0fffffff;
+
+        int s, t;
+        int j = 0;
+
+        for(int i = 0; i < ITERATIONS; i ++) {
+            if(shifts2[i]) {
+                c = (c >>> 2) | (c << 26);
+                d = (d >>> 2) | (d << 26);
+            } else {
+                c = (c >>> 1) | (c << 27);
+                d = (d >>> 1) | (d << 27);
+            }
+
+            c &= 0x0fffffff;
+            d &= 0x0fffffff;
 
-			s = skb[0][ (c       ) & 0x3f                       ]|
-			skb[1][((c >>>  6) & 0x03) | ((c >>>  7) & 0x3c)]|
-			skb[2][((c >>> 13) & 0x0f) | ((c >>> 14) & 0x30)]|
-			skb[3][((c >>> 20) & 0x01) | ((c >>> 21) & 0x06) |
-			       ((c >>> 22) & 0x38)];
+            s = skb[0][ (c       ) & 0x3f                       ]|
+            skb[1][((c >>>  6) & 0x03) | ((c >>>  7) & 0x3c)]|
+            skb[2][((c >>> 13) & 0x0f) | ((c >>> 14) & 0x30)]|
+            skb[3][((c >>> 20) & 0x01) | ((c >>> 21) & 0x06) |
+                   ((c >>> 22) & 0x38)];
 
-			t = skb[4][ (d     )  & 0x3f                       ]|
-			skb[5][((d >>> 7) & 0x03) | ((d >>>  8) & 0x3c)]|
-			skb[6][ (d >>>15) & 0x3f                       ]|
-			skb[7][((d >>>21) & 0x0f) | ((d >>> 22) & 0x30)];
+            t = skb[4][ (d     )  & 0x3f                       ]|
+            skb[5][((d >>> 7) & 0x03) | ((d >>>  8) & 0x3c)]|
+            skb[6][ (d >>>15) & 0x3f                       ]|
+            skb[7][((d >>>21) & 0x0f) | ((d >>> 22) & 0x30)];
 
-			schedule[j++] = ((t <<  16) | (s & 0x0000ffff)) & 0xffffffff;
-			s             = ((s >>> 16) | (t & 0xffff0000));
+            schedule[j++] = ((t <<  16) | (s & 0x0000ffff)) & 0xffffffff;
+            s             = ((s >>> 16) | (t & 0xffff0000));
 
-			s             = (s << 4) | (s >>> 28);
-			schedule[j++] = s & 0xffffffff;
-		}
-		return schedule;
-	}
+            s             = (s << 4) | (s >>> 28);
+            schedule[j++] = s & 0xffffffff;
+        }
+        return schedule;
+    }
 
-	private static final int D_ENCRYPT(int L, int R, int S, int E0, int E1, int s[]) {
-		int t, u, v;
+    private static final int D_ENCRYPT(int L, int R, int S, int E0, int E1, int s[]) {
+        int t, u, v;
 
-		v = R ^ (R >>> 16);
-		u = v & E0;
-		v = v & E1;
-		u = (u ^ (u << 16)) ^ R ^ s[S];
-		t = (v ^ (v << 16)) ^ R ^ s[S + 1];
-		t = (t >>> 4) | (t << 28);
+        v = R ^ (R >>> 16);
+        u = v & E0;
+        v = v & E1;
+        u = (u ^ (u << 16)) ^ R ^ s[S];
+        t = (v ^ (v << 16)) ^ R ^ s[S + 1];
+        t = (t >>> 4) | (t << 28);
 
-		L ^= SPtrans[1][(t       ) & 0x3f] |
-		SPtrans[3][(t >>>  8) & 0x3f] |
-		SPtrans[5][(t >>> 16) & 0x3f] |
-		SPtrans[7][(t >>> 24) & 0x3f] |
-		SPtrans[0][(u       ) & 0x3f] |
-		SPtrans[2][(u >>>  8) & 0x3f] |
-		SPtrans[4][(u >>> 16) & 0x3f] |
-		SPtrans[6][(u >>> 24) & 0x3f];
+        L ^= SPtrans[1][(t       ) & 0x3f] |
+        SPtrans[3][(t >>>  8) & 0x3f] |
+        SPtrans[5][(t >>> 16) & 0x3f] |
+        SPtrans[7][(t >>> 24) & 0x3f] |
+        SPtrans[0][(u       ) & 0x3f] |
+        SPtrans[2][(u >>>  8) & 0x3f] |
+        SPtrans[4][(u >>> 16) & 0x3f] |
+        SPtrans[6][(u >>> 24) & 0x3f];
 
-		return L;
-	}
+        return L;
+    }
 
-	private static final int [] body(int schedule[], int Eswap0, int Eswap1) {
-		int left = 0;
-		int right = 0;
-		int t     = 0;
+    private static final int [] body(int schedule[], int Eswap0, int Eswap1) {
+        int left = 0;
+        int right = 0;
+        int t     = 0;
 
-		for (int j = 0; j < 25; j ++) {
-			for (int i = 0; i < ITERATIONS * 2; i += 4) {
-				left  = D_ENCRYPT(left,  right, i,     Eswap0, Eswap1, schedule);
-				right = D_ENCRYPT(right, left,  i + 2, Eswap0, Eswap1, schedule);
-			}
-			t     = left;
-			left  = right;
-			right = t;
-		}
+        for (int j = 0; j < 25; j ++) {
+            for (int i = 0; i < ITERATIONS * 2; i += 4) {
+                left  = D_ENCRYPT(left,  right, i,     Eswap0, Eswap1, schedule);
+                right = D_ENCRYPT(right, left,  i + 2, Eswap0, Eswap1, schedule);
+            }
+            t     = left;
+            left  = right;
+            right = t;
+        }
 
-		t = right;
+        t = right;
 
-		right = (left >>> 1) | (left << 31);
-		left  = (t    >>> 1) | (t    << 31);
+        right = (left >>> 1) | (left << 31);
+        left  = (t    >>> 1) | (t    << 31);
 
-		left  &= 0xffffffff;
-		right &= 0xffffffff;
+        left  &= 0xffffffff;
+        right &= 0xffffffff;
 
-		int results[] = new int[2];
+        int results[] = new int[2];
 
-		PERM_OP(right, left, 1, 0x55555555, results);
-		right = results[0]; left = results[1];
+        PERM_OP(right, left, 1, 0x55555555, results);
+        right = results[0]; left = results[1];
 
-		PERM_OP(left, right, 8, 0x00ff00ff, results);
-		left = results[0]; right = results[1];
+        PERM_OP(left, right, 8, 0x00ff00ff, results);
+        left = results[0]; right = results[1];
 
-		PERM_OP(right, left, 2, 0x33333333, results);
-		right = results[0]; left = results[1];
+        PERM_OP(right, left, 2, 0x33333333, results);
+        right = results[0]; left = results[1];
 
-		PERM_OP(left, right, 16, 0x0000ffff, results);
-		left = results[0]; right = results[1];
+        PERM_OP(left, right, 16, 0x0000ffff, results);
+        left = results[0]; right = results[1];
 
-		PERM_OP(right, left, 4, 0x0f0f0f0f, results);
-		right = results[0]; left = results[1];
+        PERM_OP(right, left, 4, 0x0f0f0f0f, results);
+        right = results[0]; left = results[1];
 
-		int out[] = new int[2];
+        int out[] = new int[2];
 
-		out[0] = left;
-		out[1] = right;
+        out[0] = left;
+        out[1] = right;
 
-		return out;
-	}
+        return out;
+    }
 
-	public static final String alphabet = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    public static final String alphabet = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-	public static final String crypt(String salt, String original) {
-		// wwb -- Should do some sanity checks: salt needs to be 2 chars, in alpha.
-		while(salt.length() < 2)
-			salt += "A";
+    public static final String crypt(String salt, String original) {
+        // wwb -- Should do some sanity checks: salt needs to be 2 chars, in alpha.
+        while(salt.length() < 2)
+            salt += "A";
 
-		char[] buffer = new char [13];
+        char[] buffer = new char [13];
 
-		char charZero = salt.charAt(0);
-		char charOne  = salt.charAt(1);
+        char charZero = salt.charAt(0);
+        char charOne  = salt.charAt(1);
 
-		buffer[0] = charZero;
-		buffer[1] = charOne;
+        buffer[0] = charZero;
+        buffer[1] = charOne;
 
-		int Eswap0 = alphabet.indexOf(charZero);
-		int Eswap1 = alphabet.indexOf(charOne) << 4;
-		byte key[] = new byte[8];
+        int Eswap0 = alphabet.indexOf(charZero);
+        int Eswap1 = alphabet.indexOf(charOne) << 4;
+        byte key[] = new byte[8];
 
-		for(int i = 0; i < key.length; i ++)
-			key[i] = (byte)0;
+        for(int i = 0; i < key.length; i ++)
+            key[i] = (byte)0;
 
-		for(int i = 0; i < key.length && i < original.length(); i ++)
-			key[i] = (byte) ((original.charAt(i)) << 1);
+        for(int i = 0; i < key.length && i < original.length(); i ++)
+            key[i] = (byte) ((original.charAt(i)) << 1);
 
-		int schedule[] = des_set_key(key);
-		int out[]      = body(schedule, Eswap0, Eswap1);
+        int schedule[] = des_set_key(key);
+        int out[]      = body(schedule, Eswap0, Eswap1);
 
-		byte b[] = new byte[9];
+        byte b[] = new byte[9];
 
-		intToFourBytes(out[0], b, 0);
-		intToFourBytes(out[1], b, 4);
-		b[8] = 0;
+        intToFourBytes(out[0], b, 0);
+        intToFourBytes(out[1], b, 4);
+        b[8] = 0;
 
-		for(int i = 2, y = 0, u = 0x80; i < 13; i ++) {
-			for(int j = 0, c = 0; j < 6; j ++) {
-				c <<= 1;
+        for(int i = 2, y = 0, u = 0x80; i < 13; i ++) {
+            for(int j = 0, c = 0; j < 6; j ++) {
+                c <<= 1;
 
-				if((b[y] & u) != 0)
-					c |= 1;
+                if((b[y] & u) != 0)
+                    c |= 1;
 
-				u >>>= 1;
+                u >>>= 1;
 
-				if (u == 0) {
-					y++;
-					u = 0x80;
-				}
-				buffer[i] = alphabet.charAt(c);
-			}
-		}
-		return new String(buffer);
-	}
+                if (u == 0) {
+                    y++;
+                    u = 0x80;
+                }
+                buffer[i] = alphabet.charAt(c);
+            }
+        }
+        return new String(buffer);
+    }
 
-	// ----- END OF ORIGINAL CODES / START OF NEW CODES -----
-	public static final String crypt(byte[] bsalt, byte[] boriginal) {
-		if (bsalt.length < 2) {
-			bsalt = new byte[2];
-			bsalt[0] = bsalt[1] = 'A';
-			//throw new IllegalArgumentException("salt requires at least 2 characters");
-		}
+    // ----- END OF ORIGINAL CODES / START OF NEW CODES -----
+    public static final String crypt(byte[] bsalt, byte[] boriginal) {
+        if (bsalt.length < 2) {
+            bsalt = new byte[2];
+            bsalt[0] = bsalt[1] = 'A';
+            //throw new IllegalArgumentException("salt requires at least 2 characters");
+        }
 
-		char[] buffer = new char[13];
+        char[] buffer = new char[13];
 
-		char charZero = (char) bsalt[0];
-		char charOne = (char) bsalt[1];
+        char charZero = (char) bsalt[0];
+        char charOne = (char) bsalt[1];
 
-		buffer[0] = charZero;
-		buffer[1] = charOne;
+        buffer[0] = charZero;
+        buffer[1] = charOne;
 
-		int Eswap0 = alphabet.indexOf(charZero);
-		int Eswap1 = alphabet.indexOf(charOne) << 4;
-		byte key[] = new byte[8];
+        int Eswap0 = alphabet.indexOf(charZero);
+        int Eswap1 = alphabet.indexOf(charOne) << 4;
+        byte key[] = new byte[8];
 
-		for (int i = 0; i < key.length; i++)
-			key[i] = (byte) 0;
+        for (int i = 0; i < key.length; i++)
+            key[i] = (byte) 0;
 
-		for (int i = 0; i < key.length && i < boriginal.length; i++)
-			key[i] = (byte) ((boriginal[i]) << 1);
+        for (int i = 0; i < key.length && i < boriginal.length; i++)
+            key[i] = (byte) ((boriginal[i]) << 1);
 
-		int schedule[] = des_set_key(key);
-		int out[] = body(schedule, Eswap0, Eswap1);
+        int schedule[] = des_set_key(key);
+        int out[] = body(schedule, Eswap0, Eswap1);
 
-		byte b[] = new byte[9];
+        byte b[] = new byte[9];
 
-		intToFourBytes(out[0], b, 0);
-		intToFourBytes(out[1], b, 4);
-		b[8] = 0;
+        intToFourBytes(out[0], b, 0);
+        intToFourBytes(out[1], b, 4);
+        b[8] = 0;
 
-		for (int i = 2, y = 0, u = 0x80; i < 13; i++) {
-			for (int j = 0, c = 0; j < 6; j++) {
-				c <<= 1;
+        for (int i = 2, y = 0, u = 0x80; i < 13; i++) {
+            for (int j = 0, c = 0; j < 6; j++) {
+                c <<= 1;
 
-				if ((b[y] & u) != 0)
-					c |= 1;
+                if ((b[y] & u) != 0)
+                    c |= 1;
 
-				u >>>= 1;
+                u >>>= 1;
 
-				if (u == 0) {
-					y++;
-					u = 0x80;
-				}
-				buffer[i] = alphabet.charAt(c);
-			}
-		}
-		return new String(buffer);
-	}
+                if (u == 0) {
+                    y++;
+                    u = 0x80;
+                }
+                buffer[i] = alphabet.charAt(c);
+            }
+        }
+        return new String(buffer);
+    }
 
-	public static final String crypt(ByteBuffer bsalt, ByteBuffer boriginal) {
-		return crypt(bsalt.array(), boriginal.array());
-	}
+    public static final String crypt(ByteBuffer bsalt, ByteBuffer boriginal) {
+        return crypt(bsalt.array(), boriginal.array());
+    }
 }

@@ -2227,1143 +2227,1120 @@ public class GameEngine {
                         nowPieceY--;
                     } else if(onGroundBeforeRotate) {
                         nowPieceY++;
-        			}
-				}
-
-				if(rotated == true) {
-					// rotation成功
-					nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
-
-					if((ruleopt.lockresetRotate == true) && (isRotateCountExceed() == false)) {
-						lockDelayNow = 0;
-						nowPieceObject.setDarkness(0f);
-					}
-
-					if(onGroundBeforeRotate) {
-						extendedRotateCount++;
-						lastmove = LASTMOVE_ROTATE_GROUND;
-					} else {
-						lastmove = LASTMOVE_ROTATE_AIR;
-					}
-
-					if(initialRotateDirection == 0) {
-						playSE("rotate");
-					}
-
-					nowPieceRotateCount++;
-					if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceRotate++;
-				} else {
-					// rotation失敗
-					playSE("rotfail");
-					nowPieceRotateFailCount++;
-				}
-			}
-			initialRotateDirection = 0;
-
-			// game over check
-			if((statc[0] == 0) && (nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == true)) {
-				// Blockの出現位置を上にずらすことができる場合はそうする
-				for(int i = 0; i < ruleopt.pieceEnterMaxDistanceY; i++) {
-					if(nowPieceObject.big) nowPieceY -= 2;
-					else nowPieceY--;
-
-					if(nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == false) {
-						nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
-						break;
-					}
-				}
-
-				// 死亡
-				if(nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == true) {
-					nowPieceObject.placeToField(nowPieceX, nowPieceY, field);
-					nowPieceObject = null;
-					stat = STAT_GAMEOVER;
-					if((ending == 2) && (staffrollNoDeath)) stat = STAT_NOTHING;
-					resetStatc();
-					return;
-				}
-			}
-
-		}
-
-		int move = 0;
-		boolean sidemoveflag = false;	// この frame に横移動したらtrue
-
-		if((statc[0] > 0) || (ruleopt.moveFirstFrame == true)) {
-			// 横移動
-			boolean onGroundBeforeMove = nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field);
-
-			move = moveDirection;
-
-			if (statc[0] == 0 && delayCancel) {
-				if (delayCancelMoveLeft) move = -1;
-				if (delayCancelMoveRight) move = 1;
-				dasCount = 0;
-				// delayCancel = false;
-				delayCancelMoveLeft = false;
-				delayCancelMoveRight = false;
-			} else if (statc[0] == 1 && delayCancel && (dasCount < getDAS())) {
-				move = 0;
-				delayCancel = false;
-			}
-
-			if(move != 0) sidemoveflag = true;
-
-			if(big && bigmove) move *= 2;
-
-			if((move != 0) && (dasCount == 0)) shiftLock = 0;
-
-			if( (move != 0) && ((dasCount == 0) || (dasCount >= getDAS())) ) {
-				shiftLock &= ctrl.getButtonBit();
-
-				if(shiftLock == 0) {
-					if( (dasSpeedCount >= getDASDelay()) || (dasCount == 0) ) {
-						if(dasCount > 0) dasSpeedCount = 1;
-
-						if(nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field) == false) {
-							nowPieceX += move;
-
-							if((getDASDelay() == 0) && (dasCount > 0) && (nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field) == false)) {
-								if(!dasInstant) playSE("move");
-								dasRepeat = true;
-								dasInstant = true;
-							}
-
-							//log.debug("Successful movement: move="+move);
-
-							if((ruleopt.lockresetMove == true) && (isMoveCountExceed() == false)) {
-								lockDelayNow = 0;
-								nowPieceObject.setDarkness(0f);
-							}
-
-							nowPieceMoveCount++;
-							if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceMove++;
-							nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
-
-							if(onGroundBeforeMove) {
-								extendedMoveCount++;
-								lastmove = LASTMOVE_SLIDE_GROUND;
-							} else {
-								lastmove = LASTMOVE_SLIDE_AIR;
-							}
-
-							if(!dasInstant) playSE("move");
-
-						} else if (ruleopt.dasChargeOnBlockedMove) {
-							dasCount = getDAS();
-							dasSpeedCount = getDASDelay();
-						}
-					} else {
-						dasSpeedCount++;
-					}
-				}
-			}
-
-			// Hard drop
-			if( (ctrl.isPress(getUp()) == true) &&
-				(harddropContinuousUse == false) &&
-				(ruleopt.harddropEnable == true) &&
-				((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
-				((ruleopt.moveUpAndDown == true) || (updown == false)) &&
-				(nowPieceY < nowPieceBottomY) )
-			{
-				harddropFall += nowPieceBottomY - nowPieceY;
-
-				if(nowPieceY != nowPieceBottomY) {
-					nowPieceY = nowPieceBottomY;
-					playSE("harddrop");
-				}
-
-				if(owner.mode != null) owner.mode.afterHardDropFall(this, playerID, harddropFall);
-				owner.receiver.afterHardDropFall(this, playerID, harddropFall);
-
-				lastmove = LASTMOVE_FALL_SELF;
-				if(ruleopt.lockresetFall == true) {
-					lockDelayNow = 0;
-					nowPieceObject.setDarkness(0f);
-					extendedMoveCount = 0;
-					extendedRotateCount = 0;
-				}
-			}
-
-			if(!ruleopt.softdropGravitySpeedLimit || (ruleopt.softdropSpeed < 1.0f)) {
-				// Old Soft Drop codes
-				if( (ctrl.isPress(getDown()) == true) &&
-					(softdropContinuousUse == false) &&
-					(ruleopt.softdropEnable == true) &&
-					((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
-					((ruleopt.moveUpAndDown == true) || (updown == false)) )
-				{
-					if((ruleopt.softdropMultiplyNativeSpeed == true) || (speed.denominator <= 0))
-						gcount += (int)(speed.gravity * ruleopt.softdropSpeed);
-					else
-						gcount += (int)(speed.denominator * ruleopt.softdropSpeed);
-
-					softdropUsed = true;
-				}
-			} else {
-				// New Soft Drop codes
-				if( ctrl.isPress(getDown()) && !softdropContinuousUse &&
-					ruleopt.softdropEnable && (isDiagonalMoveEnabled() || !sidemoveflag) &&
-					(ruleopt.moveUpAndDown || !updown) &&
-					(ruleopt.softdropMultiplyNativeSpeed || (speed.gravity < (int)(speed.denominator * ruleopt.softdropSpeed))) )
-				{
-					if((ruleopt.softdropMultiplyNativeSpeed == true) || (speed.denominator <= 0)) {
-						// gcount += (int)(speed.gravity * ruleopt.softdropSpeed);
-						gcount = (int)(speed.gravity * ruleopt.softdropSpeed);
-					} else {
-						// gcount += (int)(speed.denominator * ruleopt.softdropSpeed);
-						gcount = (int)(speed.denominator * ruleopt.softdropSpeed);
-					}
-
-					softdropUsed = true;
-				} else {
-					// 落下
-					// This prevents soft drop from adding to the gravity speed.
-					gcount += speed.gravity;
-				}
-			}
-
-			if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceActiveTime++;
-		}
-
-		if(!ruleopt.softdropGravitySpeedLimit || (ruleopt.softdropSpeed < 1.0f))
-			gcount += speed.gravity;	// Part of Old Soft Drop
-
-		while((gcount >= speed.denominator) || (speed.gravity < 0)) {
-			if(nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) == false) {
-				if(speed.gravity >= 0) gcount -= speed.denominator;
-				nowPieceY++;
-
-				if(ruleopt.lockresetFall == true) {
-					lockDelayNow = 0;
-					nowPieceObject.setDarkness(0f);
-				}
-
-				if((lastmove != LASTMOVE_ROTATE_GROUND) && (lastmove != LASTMOVE_SLIDE_GROUND) && (lastmove != LASTMOVE_FALL_SELF)) {
-					extendedMoveCount = 0;
-					extendedRotateCount = 0;
-				}
-
-				if(softdropUsed == true) {
-					lastmove = LASTMOVE_FALL_SELF;
-					softdropFall++;
-					softdropFallNow++;
-					playSE("softdrop");
-				} else {
-					lastmove = LASTMOVE_FALL_AUTO;
-				}
-			} else {
-				break;
-			}
-		}
-
-		if(softdropFallNow > 0) {
-			if(owner.mode != null) owner.mode.afterSoftDropFall(this, playerID, softdropFallNow);
-			owner.receiver.afterSoftDropFall(this, playerID, softdropFallNow);
-		}
-
-		// 接地と固定
-		if( (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) == true) &&
-			((statc[0] > 0) || (ruleopt.moveFirstFrame == true)) )
-		{
-			if((lockDelayNow == 0) && (getLockDelay() > 0))
-				playSE("step");
-
-			if(lockDelayNow < getLockDelay())
-				lockDelayNow++;
-
-			if((getLockDelay() >= 99) && (lockDelayNow > 98))
-				lockDelayNow = 98;
-
-			if(lockDelayNow < getLockDelay()) {
-				if(lockDelayNow >= getLockDelay() - 1)
-					nowPieceObject.setDarkness(0.5f);
-				else
-					nowPieceObject.setDarkness((lockDelayNow * 7 / getLockDelay()) * 0.05f);
-			}
-
-			if(getLockDelay() != 0)
-				gcount = speed.gravity;
-
-			// trueになると即固定
-			boolean instantlock = false;
-
-			// Hard drop固定
-			if( (ctrl.isPress(getUp()) == true) &&
-				(harddropContinuousUse == false) &&
-				(ruleopt.harddropEnable == true) &&
-				((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
-				((ruleopt.moveUpAndDown == true) || (updown == false)) &&
-				(ruleopt.harddropLock == true) )
-			{
-				harddropContinuousUse = true;
-				manualLock = true;
-				instantlock = true;
-			}
-
-			// Soft drop固定
-			if( (ctrl.isPress(getDown()) == true) &&
-				(softdropContinuousUse == false) &&
-				(ruleopt.softdropEnable == true) &&
-				((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
-				((ruleopt.moveUpAndDown == true) || (updown == false)) &&
-				(ruleopt.softdropLock == true) )
-			{
-				softdropContinuousUse = true;
-				manualLock = true;
-				instantlock = true;
-			}
-
-			// 接地状態でソフドドロップ固定
-			if( (ctrl.isPush(getDown()) == true) &&
-				(ruleopt.softdropEnable == true) &&
-				((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
-				((ruleopt.moveUpAndDown == true) || (updown == false)) &&
-				(ruleopt.softdropSurfaceLock == true) )
-			{
-				softdropContinuousUse = true;
-				manualLock = true;
-				instantlock = true;
-			}
-
-			if((manualLock == true) && (ruleopt.shiftLockEnable)) {
-				// bit 1 and 2 are button_up and button_down currently
-				shiftLock = ctrl.getButtonBit() & 3;
-			}
-
-			// 移動＆rotationcount制限超過
-			if( (ruleopt.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT) && (isMoveCountExceed() || isRotateCountExceed()) ) {
-				instantlock = true;
-			}
-
-			// 接地即固定
-			if( (getLockDelay() == 0) && ((gcount >= speed.denominator) || (speed.gravity < 0)) ) {
-				instantlock = true;
-			}
-
-			// 固定
-			if( ((lockDelayNow >= getLockDelay()) && (getLockDelay() > 0)) || (instantlock == true) ) {
-				if(ruleopt.lockflash > 0) nowPieceObject.setDarkness(-0.8f);
-
-				/*if((lastmove == LASTMOVE_ROTATE_GROUND) && (tspinEnable == true)) {
-
-					tspinmini = false;
-
-					// T-Spin Mini判定
-
-					if(!useAllSpinBonus) {
-						if(spinCheckType == SPINTYPE_4POINT) {
-							if(tspinminiType == TSPINMINI_TYPE_ROTATECHECK) {
-								if(nowPieceObject.checkCollision(nowPieceX, nowPieceY, getRotateDirection(-1), field) &&
-								   nowPieceObject.checkCollision(nowPieceX, nowPieceY, getRotateDirection( 1), field))
-									tspinmini = true;
-							} else if(tspinminiType == TSPINMINI_TYPE_WALLKICKFLAG) {
-								tspinmini = kickused;
-							}
-						} else if(spinCheckType == SPINTYPE_IMMOBILE) {
-							Field copyField = new Field(field);
-							nowPieceObject.placeToField(nowPieceX, nowPieceY, copyField);
-							if((copyField.checkLineNoFlag() == 1) && (kickused == true)) tspinmini = true;
-						}
-					}
-				}*/
-
-				// T-Spin判定
-				if((lastmove == LASTMOVE_ROTATE_GROUND) && (tspinEnable == true)) {
-					if(useAllSpinBonus)
-						setAllSpin(nowPieceX, nowPieceY, nowPieceObject, field);
-					else
-						setTSpin(nowPieceX, nowPieceY, nowPieceObject, field);
-				}
-
-				nowPieceObject.setAttribute(Block.BLOCK_ATTRIBUTE_SELFPLACED, true);
-
-				boolean partialLockOut = nowPieceObject.isPartialLockOut(nowPieceX, nowPieceY, field);
-				boolean put = nowPieceObject.placeToField(nowPieceX, nowPieceY, field);
-
-				playSE("lock");
-
-				holdDisable = false;
-
-				if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceLocked++;
-
-				if (clearMode == CLEAR_LINE)
-					lineClearing = field.checkLineNoFlag();
-				else if (clearMode == CLEAR_COLOR)
-					lineClearing = field.checkColor(colorClearSize, false, garbageColorClear, gemSameColor, ignoreHidden);
-				else if (clearMode == CLEAR_LINE_COLOR)
-					lineClearing = field.checkLineColor(colorClearSize, false, lineColorDiagonals, gemSameColor);
-				else if (clearMode == CLEAR_GEM_COLOR)
-					lineClearing = field.gemColorCheck(colorClearSize, false, garbageColorClear, ignoreHidden);
-				chain = 0;
-				lineGravityTotalLines = 0;
-
-				if(lineClearing == 0) {
-					combo = 0;
-
-					if(tspin) {
-						playSE("tspin0");
-
-						if((ending == 0) || (staffrollEnableStatistics)) {
-							if(tspinmini) statistics.totalTSpinZeroMini++;
-							else statistics.totalTSpinZero++;
-						}
-					}
-
-					if(owner.mode != null) owner.mode.calcScore(this, playerID, lineClearing);
-					owner.receiver.calcScore(this, playerID, lineClearing);
-				}
-
-				if(owner.mode != null) owner.mode.pieceLocked(this, playerID, lineClearing);
-				owner.receiver.pieceLocked(this, playerID, lineClearing);
-
-				dasRepeat = false;
-				dasInstant = false;
-
-				// Next 処理を決める(Mode 側でステータスを弄っている場合は何もしない)
-				if((stat == STAT_MOVE) || (versionMajor <= 6.3f)) {
-					resetStatc();
-
-					if((ending == 1) && (versionMajor >= 6.6f) && (versionMinorOld >= 0.1f)) {
-						// Ending
-						stat = STAT_ENDINGSTART;
-					} else if( (!put && ruleopt.fieldLockoutDeath) || (partialLockOut && ruleopt.fieldPartialLockoutDeath) ) {
-						// 画面外に置いて死亡
-						stat = STAT_GAMEOVER;
-						if((ending == 2) && (staffrollNoDeath)) stat = STAT_NOTHING;
-					} else if ((lineGravityType == LINE_GRAVITY_CASCADE || lineGravityType == LINE_GRAVITY_CASCADE_SLOW)
-							&& !connectBlocks) {
-						stat = STAT_LINECLEAR;
-						statc[0] = getLineDelay();
-						statLineClear();
-					} else if( (lineClearing > 0) && ((ruleopt.lockflash <= 0) || (!ruleopt.lockflashBeforeLineClear)) ) {
-						// Line clear
-						stat = STAT_LINECLEAR;
-						statLineClear();
-					} else if( ((getARE() > 0) || (lagARE) || (ruleopt.lockflashBeforeLineClear)) &&
-							    (ruleopt.lockflash > 0) && (ruleopt.lockflashOnlyFrame) )
-					{
-						// AREあり (光あり）
-						stat = STAT_LOCKFLASH;
-					} else if((getARE() > 0) || (lagARE)) {
-						// AREあり (光なし）
-						statc[1] = getARE();
-						stat = STAT_ARE;
-					} else if(interruptItemNumber != INTERRUPTITEM_NONE) {
-						// 中断効果のあるアイテム処理
-						nowPieceObject = null;
-						interruptItemPreviousStat = STAT_MOVE;
-						stat = STAT_INTERRUPTITEM;
-					} else {
-						// AREなし
-						stat = STAT_MOVE;
-						if(ruleopt.moveFirstFrame == false) statMove();
-					}
-				}
-				return;
-			}
-		}
-
-		// 横溜め
-		if((statc[0] > 0) || (ruleopt.dasInMoveFirstFrame)) {
-			if( (moveDirection != 0) && (moveDirection == dasDirection) && ((dasCount < getDAS()) || (getDAS() <= 0)) ) {
-				dasCount++;
-			}
-		}
-
-		statc[0]++;
-	}
-
-	/**
-	 * Block固定直後の光っているときの処理
-	 */
-	public void statLockFlash() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onLockFlash(this, playerID) == true) return;
-		}
-		owner.receiver.onLockFlash(this, playerID);
-
-		statc[0]++;
-
-		checkDropContinuousUse();
-
-		// 横溜め
-		if(ruleopt.dasInLockFlash) padRepeat();
-		else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
-
-		// Next ステータス
-		if(statc[0] >= ruleopt.lockflash) {
-			resetStatc();
-
-			if(lineClearing > 0) {
-				// Line clear
-				stat = STAT_LINECLEAR;
-				statLineClear();
-			} else {
-				// ARE
-				statc[1] = getARE();
-				stat = STAT_ARE;
-			}
-			return;
-		}
-	}
-
-	/**
-	 * Line clear処理
-	 */
-	public void statLineClear() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onLineClear(this, playerID) == true) return;
-		}
-		owner.receiver.onLineClear(this, playerID);
-
-		checkDropContinuousUse();
-
-		// 横溜め
-		if(ruleopt.dasInLineClear) padRepeat();
-		else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
-
-		// 最初の frame
-		if(statc[0] == 0) {
-			// Line clear flagを設定
-			if (clearMode == CLEAR_LINE)
-				lineClearing = field.checkLine();
-			// Set color clear flags
-			else if (clearMode == CLEAR_COLOR)
-				lineClearing = field.checkColor(colorClearSize, true, garbageColorClear, gemSameColor, ignoreHidden);
-			// Set line color clear flags
-			else if (clearMode == CLEAR_LINE_COLOR)
-				lineClearing = field.checkLineColor(colorClearSize, true, lineColorDiagonals, gemSameColor);
-			else if (clearMode == CLEAR_GEM_COLOR)
-				lineClearing = field.gemColorCheck(colorClearSize, true, garbageColorClear, ignoreHidden);
-
-			// Linescountを決める
-			int li = lineClearing;
-			if(big && bighalf)
-				li >>= 1;
-			//if(li > 4) li = 4;
-
-			if(tspin) {
-				playSE("tspin" + li);
-
-				if((ending == 0) || (staffrollEnableStatistics)) {
-					if((li == 1) && (tspinmini))  statistics.totalTSpinSingleMini++;
-					if((li == 1) && (!tspinmini)) statistics.totalTSpinSingle++;
-					if((li == 2) && (tspinmini))  statistics.totalTSpinDoubleMini++;
-					if((li == 2) && (!tspinmini)) statistics.totalTSpinDouble++;
-					if(li == 3) statistics.totalTSpinTriple++;
-				}
-			} else {
-				if (clearMode == CLEAR_LINE)
-					playSE("erase" + li);
-
-				if((ending == 0) || (staffrollEnableStatistics)) {
-					if(li == 1) statistics.totalSingle++;
-					if(li == 2) statistics.totalDouble++;
-					if(li == 3) statistics.totalTriple++;
-					if(li == 4) statistics.totalFour++;
-				}
-			}
-
-			// B2B bonus
-			if(b2bEnable) {
-				if((tspin) || (li >= 4)) {
-					b2bcount++;
-
-					if(b2bcount == 1) {
-						playSE("b2b_start");
-					} else {
-						b2b = true;
-						playSE("b2b_continue");
-
-						if((ending == 0) || (staffrollEnableStatistics)) {
-							if(li == 4) statistics.totalB2BFour++;
-							else statistics.totalB2BTSpin++;
-						}
-					}
-				} else if(b2bcount != 0) {
-					b2b = false;
-					b2bcount = 0;
-					playSE("b2b_end");
-				}
-			}
-
-			// Combo
-			if((comboType != COMBO_TYPE_DISABLE) && (chain == 0)) {
-				if( (comboType == COMBO_TYPE_NORMAL) || ((comboType == COMBO_TYPE_DOUBLE) && (li >= 2)) )
-					combo++;
-
-				if(combo >= 2) {
-					int cmbse = combo - 1;
-					if(cmbse > 20) cmbse = 20;
-					playSE("combo" + cmbse);
-				}
-
-				if((ending == 0) || (staffrollEnableStatistics)) {
-					if(combo > statistics.maxCombo) statistics.maxCombo = combo;
-				}
-			}
-
-			lineGravityTotalLines += lineClearing;
-
-			if((ending == 0) || (staffrollEnableStatistics)) statistics.lines += li;
-
-			if(field.getHowManyGemClears() > 0) playSE("gem");
-
-			// Calculate score
-			if(owner.mode != null) owner.mode.calcScore(this, playerID, li);
-			owner.receiver.calcScore(this, playerID, li);
-
-			// Blockを消す演出を出す (まだ実際には消えていない）
-			if (clearMode == CLEAR_LINE) {
-				for(int i = 0; i < field.getHeight(); i++) {
-					if(field.getLineFlag(i)) {
-						for(int j = 0; j < field.getWidth(); j++) {
-							Block blk = field.getBlock(j, i);
-
-							if(blk != null) {
-								if(owner.mode != null) owner.mode.blockBreak(this, playerID, j, i, blk);
-								owner.receiver.blockBreak(this, playerID, j, i, blk);
-							}
-						}
-					}
-				}
-			} else if (clearMode == CLEAR_LINE_COLOR || clearMode == CLEAR_COLOR || clearMode == CLEAR_GEM_COLOR)
-				for(int i = 0; i < field.getHeight(); i++) {
-					for(int j = 0; j < field.getWidth(); j++) {
-						Block blk = field.getBlock(j, i);
-						if (blk == null)
-							continue;
-						if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
-							if(owner.mode != null) owner.mode.blockBreak(this, playerID, j, i, blk);
-							if (displaysize == 1)
-							{
-								owner.receiver.blockBreak(this, playerID, 2*j, 2*i, blk);
-								owner.receiver.blockBreak(this, playerID, 2*j+1, 2*i, blk);
-								owner.receiver.blockBreak(this, playerID, 2*j, 2*i+1, blk);
-								owner.receiver.blockBreak(this, playerID, 2*j+1, 2*i+1, blk);
-							}
-							else
-								owner.receiver.blockBreak(this, playerID, j, i, blk);
-						}
-					}
-				}
-
-			// Blockを消す
-			if (clearMode == CLEAR_LINE)
-				field.clearLine();
-			else if (clearMode == CLEAR_COLOR)
-				field.clearColor(colorClearSize, garbageColorClear, gemSameColor, ignoreHidden);
-			else if (clearMode == CLEAR_LINE_COLOR)
-				field.clearLineColor(colorClearSize, lineColorDiagonals, gemSameColor);
-			else if (clearMode == CLEAR_GEM_COLOR)
-				lineClearing = field.gemClearColor(colorClearSize, garbageColorClear, ignoreHidden);
-		}
-
-		// Linesを1段落とす
-		if((lineGravityType == LINE_GRAVITY_NATIVE) &&
-		   (getLineDelay() >= (lineClearing - 1)) && (statc[0] >= getLineDelay() - (lineClearing - 1)) && (ruleopt.lineFallAnim))
-		{
-			field.downFloatingBlocksSingleLine();
-		}
-
-		// Line delay cancel check
-		delayCancelMoveLeft = ctrl.isPush(Controller.BUTTON_LEFT);
-		delayCancelMoveRight = ctrl.isPush(Controller.BUTTON_RIGHT);
-
-		boolean moveCancel = ruleopt.lineCancelMove && (ctrl.isPush(getUp()) ||
-			ctrl.isPush(getDown()) || delayCancelMoveLeft || delayCancelMoveRight);
-		boolean rotateCancel = ruleopt.lineCancelRotate && (ctrl.isPush(Controller.BUTTON_A) ||
-			ctrl.isPush(Controller.BUTTON_B) || ctrl.isPush(Controller.BUTTON_C) ||
-			ctrl.isPush(Controller.BUTTON_E));
-		boolean holdCancel = ruleopt.lineCancelHold && ctrl.isPush(Controller.BUTTON_D);
-
-		delayCancel = moveCancel || rotateCancel || holdCancel;
-
-		if( (statc[0] < getLineDelay()) && delayCancel ) {
-			statc[0] = getLineDelay();
-		}
-
-		// Next ステータス
-		if(statc[0] >= getLineDelay()) {
-			// Cascade
-			if((lineGravityType == LINE_GRAVITY_CASCADE || lineGravityType == LINE_GRAVITY_CASCADE_SLOW)) {
-				if (statc[6] < getCascadeDelay()) {
-					statc[6]++;
-					return;
-				} else if(field.doCascadeGravity(lineGravityType)) {
-					statc[6] = 0;
-					return;
-				} else if (statc[6] < getCascadeClearDelay()) {
-					statc[6]++;
-					return;
-				} else if(((clearMode == CLEAR_LINE) && field.checkLineNoFlag() > 0) ||
-						((clearMode == CLEAR_COLOR) && field.checkColor(colorClearSize, false, garbageColorClear, gemSameColor, ignoreHidden) > 0) ||
-						((clearMode == CLEAR_LINE_COLOR) && field.checkLineColor(colorClearSize, false, lineColorDiagonals, gemSameColor) > 0) ||
-						((clearMode == CLEAR_GEM_COLOR) && field.gemColorCheck(colorClearSize, false, garbageColorClear, ignoreHidden) > 0)) {
-					tspin = false;
-					tspinmini = false;
-					chain++;
-					if(chain > statistics.maxChain) statistics.maxChain = chain;
-					statc[0] = 0;
-					statc[6] = 0;
-					return;
-				}
-			}
-
-			boolean skip = false;
-			if(owner.mode != null) skip = owner.mode.lineClearEnd(this, playerID);
-			owner.receiver.lineClearEnd(this, playerID);
-
-			if(!skip) {
-				if(lineGravityType == LINE_GRAVITY_NATIVE) field.downFloatingBlocks();
-				playSE("linefall");
-
-				field.lineColorsCleared = null;
-
-				if((stat == STAT_LINECLEAR) || (versionMajor <= 6.3f)) {
-					resetStatc();
-					if(ending == 1) {
-						// Ending
-						stat = STAT_ENDINGSTART;
-					} else if((getARELine() > 0) || (lagARE)) {
-						// AREあり
-						statc[0] = 0;
-						statc[1] = getARELine();
-						statc[2] = 1;
-						stat = STAT_ARE;
-					} else if(interruptItemNumber != INTERRUPTITEM_NONE) {
-						// 中断効果のあるアイテム処理
-						nowPieceObject = null;
-						interruptItemPreviousStat = STAT_MOVE;
-						stat = STAT_INTERRUPTITEM;
-					} else {
-						// AREなし
-						nowPieceObject = null;
-						if(versionMajor < 7.5f) initialRotate(); //XXX: Weird IRS thing on lines cleared but no ARE
-						stat = STAT_MOVE;
-					}
-				}
-			}
-
-			return;
-		}
-
-		statc[0]++;
-	}
-
-	public int getCascadeDelay() {
-		return cascadeDelay;
-	}
-
-	public int getCascadeClearDelay() {
-		return cascadeClearDelay;
-	}
-
-	/**
-	 * ARE中の処理
-	 */
-	public void statARE() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onARE(this, playerID) == true) return;
-		}
-		owner.receiver.onARE(this, playerID);
-
-		statc[0]++;
-
-		checkDropContinuousUse();
-
-		// ARE cancel check
-		delayCancelMoveLeft = ctrl.isPush(Controller.BUTTON_LEFT);
-		delayCancelMoveRight = ctrl.isPush(Controller.BUTTON_RIGHT);
-
-		boolean moveCancel = ruleopt.areCancelMove && (ctrl.isPush(getUp()) ||
-			ctrl.isPush(getDown()) || delayCancelMoveLeft || delayCancelMoveRight);
-		boolean rotateCancel = ruleopt.areCancelRotate && (ctrl.isPush(Controller.BUTTON_A) ||
-			ctrl.isPush(Controller.BUTTON_B) || ctrl.isPush(Controller.BUTTON_C) ||
-			ctrl.isPush(Controller.BUTTON_E));
-		boolean holdCancel = ruleopt.areCancelHold && ctrl.isPush(Controller.BUTTON_D);
-
-		delayCancel = moveCancel || rotateCancel || holdCancel;
-
-		if( (statc[0] < statc[1]) && delayCancel ) {
-			statc[0] = statc[1];
-		}
-
-		// 横溜め
-		if( (ruleopt.dasInARE) && ((statc[0] < statc[1] - 1) || (ruleopt.dasInARELastFrame)) )
-			padRepeat();
-		else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
-
-		// Next ステータス
-		if((statc[0] >= statc[1]) && (!lagARE)) {
-			nowPieceObject = null;
-			resetStatc();
-
-			if(interruptItemNumber != INTERRUPTITEM_NONE) {
-				// 中断効果のあるアイテム処理
-				interruptItemPreviousStat = STAT_MOVE;
-				stat = STAT_INTERRUPTITEM;
-			} else {
-				// Blockピース移動処理
-				initialRotate();
-				stat = STAT_MOVE;
-			}
-		}
-	}
-
-	/**
-	 * Ending突入処理
-	 */
-	public void statEndingStart() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onEndingStart(this, playerID) == true) return;
-		}
-		owner.receiver.onEndingStart(this, playerID);
-
-		checkDropContinuousUse();
-
-		// 横溜め
-		if(ruleopt.dasInEndingStart) padRepeat();
-		else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
-
-		if(statc[2] == 0) {
-			timerActive = false;
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-			playSE("endingstart");
-			statc[2] = 1;
-		}
-
-		if(statc[0] < getLineDelay()) {
-			statc[0]++;
-		} else if(statc[1] < field.getHeight() * 6) {
-			if(statc[1] % 6 == 0) {
-				int y = field.getHeight() - (statc[1] / 6);
-				field.setLineFlag(y, true);
-
-				for(int i = 0; i < field.getWidth(); i++) {
-					Block blk = field.getBlock(i, y);
-
-					if((blk != null) && (blk.color != Block.BLOCK_COLOR_NONE)) {
-						if(owner.mode != null) owner.mode.blockBreak(this, playerID, i, y, blk);
-						owner.receiver.blockBreak(this, playerID, i, y, blk);
-						field.setBlockColor(i, y, Block.BLOCK_COLOR_NONE);
-					}
-				}
-			}
-
-			statc[1]++;
-		} else if(statc[0] < getLineDelay() + 2) {
-			statc[0]++;
-		} else {
-			ending = 2;
-			field.reset();
-			resetStatc();
-
-			if(staffrollEnable) {
-				nowPieceObject = null;
-				stat = STAT_MOVE;
-			} else {
-				stat = STAT_EXCELLENT;
-			}
-		}
-	}
-
-	/**
-	 * 各ゲームMode が自由に使えるステータスの処理
-	 */
-	public void statCustom() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onCustom(this, playerID) == true) return;
-		}
-		owner.receiver.onCustom(this, playerID);
-	}
-
-	/**
-	 * Ending画面
-	 */
-	public void statExcellent() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onExcellent(this, playerID) == true) return;
-		}
-		owner.receiver.onExcellent(this, playerID);
-
-		if(statc[0] == 0) {
-			gameEnded();
-			owner.bgmStatus.fadesw = true;
-
-			resetFieldVisible();
-
-			playSE("excellent");
-		}
-
-		if((statc[0] >= 120) && (ctrl.isPush(Controller.BUTTON_A))) {
-			statc[0] = 600;
-		}
-
-		if((statc[0] >= 600) && (statc[1] == 0)) {
-			resetStatc();
-			stat = STAT_GAMEOVER;
-		} else {
-			statc[0]++;
-		}
-	}
-
-	/**
-	 * game overの処理
-	 */
-	public void statGameOver() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onGameOver(this, playerID) == true) return;
-		}
-		owner.receiver.onGameOver(this, playerID);
-
-		if(lives <= 0) {
-			// もう復活できないとき
-			if(statc[0] == 0) {
-				gameEnded();
-				blockShowOutlineOnly = false;
-				if(owner.getPlayers() < 2) owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-
-				if(field.isEmpty()) {
-					statc[0] = field.getHeight() + 1;
-				} else {
-					resetFieldVisible();
-				}
-			}
-
-			if(statc[0] < field.getHeight() + 1) {
-				for(int i = 0; i < field.getWidth(); i++) {
-					if(field.getBlockColor(i, field.getHeight() - statc[0]) != Block.BLOCK_COLOR_NONE) {
-						Block blk = field.getBlock(i, field.getHeight() - statc[0]);
-
-						if(blk != null) {
-							if(!blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
-								blk.color = Block.BLOCK_COLOR_GRAY;
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
-							}
-							blk.darkness = 0.3f;
-							blk.elapsedFrames = -1;
-						}
-					}
-				}
-				statc[0]++;
-			} else if(statc[0] == field.getHeight() + 1) {
-				playSE("gameover");
-				statc[0]++;
-			} else if(statc[0] < field.getHeight() + 1 + 180) {
-				if((statc[0] >= field.getHeight() + 1 + 60) && (ctrl.isPush(Controller.BUTTON_A))) {
-					statc[0] = field.getHeight() + 1 + 180;
-				}
-
-				statc[0]++;
-			} else {
-				if(!owner.replayMode || owner.replayRerecord) owner.saveReplay();
-
-				for(int i = 0; i < owner.getPlayers(); i++) {
-					if((i == playerID) || (gameoverAll)) {
-						if(owner.engine[i].field != null) {
-							owner.engine[i].field.reset();
-						}
-						owner.engine[i].resetStatc();
-						owner.engine[i].stat = STAT_RESULT;
-					}
-				}
-			}
-		} else {
-			// 復活できるとき
-			if(statc[0] == 0) {
-				blockShowOutlineOnly = false;
-				playSE("died");
-
-				resetFieldVisible();
-
-				for(int i = (field.getHiddenHeight() * -1); i < field.getHeight(); i++) {
-					for(int j = 0; j < field.getWidth(); j++) {
-						if(field.getBlockColor(j, i) != Block.BLOCK_COLOR_NONE) {
-							field.setBlockColor(j, i, Block.BLOCK_COLOR_GRAY);
-						}
-					}
-				}
-
-				statc[0] = 1;
-			}
-
-			if(!field.isEmpty()) {
-				field.pushDown();
-			} else if(statc[1] < getARE()) {
-				statc[1]++;
-			} else {
-				lives--;
-				resetStatc();
-				stat = STAT_MOVE;
-			}
-		}
-	}
-
-	/**
-	 * Results screen
-	 */
-	public void statResult() {
-		// Event
-		if(owner.mode != null) {
-			if(owner.mode.onResult(this, playerID) == true) return;
-		}
-		owner.receiver.onResult(this, playerID);
-
-		// Turn-off in-game flags
-		gameActive = false;
-		timerActive = false;
-		isInGame = false;
-
-		// Cursor movement
-		if(ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT) || ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) {
-			if(statc[0] == 0) statc[0] = 1;
-			else statc[0] = 0;
-			playSE("cursor");
-		}
-
-		// Confirm
-		if(ctrl.isPush(Controller.BUTTON_A)) {
-			playSE("decide");
-
-			if(statc[0] == 0) {
-				owner.reset();
-			} else {
-				quitflag = true;
-			}
-		}
-	}
-
-	/**
-	 * fieldエディット画面
-	 */
-	public void statFieldEdit() {
-		//  event 発生
-		if(owner.mode != null) {
-			if(owner.mode.onFieldEdit(this, playerID) == true) return;
-		}
-		owner.receiver.onFieldEdit(this, playerID);
-
-		fldeditFrames++;
-
-		// Cursor movement
-		if(ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT, false) && !ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("move");
-			fldeditX--;
-			if(fldeditX < 0) fldeditX = fieldWidth - 1;
-		}
-		if(ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT, false) && !ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("move");
-			fldeditX++;
-			if(fldeditX > fieldWidth - 1) fldeditX = 0;
-		}
-		if(ctrl.isMenuRepeatKey(getUp(), false)) {
-			playSE("move");
-			fldeditY--;
-			if(fldeditY < 0) fldeditY = fieldHeight - 1;
-		}
-		if(ctrl.isMenuRepeatKey(getDown(), false)) {
-			playSE("move");
-			fldeditY++;
-			if(fldeditY > fieldHeight - 1) fldeditY = 0;
-		}
-
-		// 色選択
-		if(ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT, false) && ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("cursor");
-			fldeditColor--;
-			if(fldeditColor < Block.BLOCK_COLOR_GRAY) fldeditColor = Block.BLOCK_COLOR_GEM_PURPLE;
-		}
-		if(ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT, false) && ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("cursor");
-			fldeditColor++;
-			if(fldeditColor > Block.BLOCK_COLOR_GEM_PURPLE) fldeditColor = Block.BLOCK_COLOR_GRAY;
-		}
-
-		// 配置
-		if(ctrl.isPress(Controller.BUTTON_A) && (fldeditFrames > 10)) {
-			try {
-				if(field.getBlockColorE(fldeditX, fldeditY) != fldeditColor) {
-					Block blk = new Block(fldeditColor, getSkin(), Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE);
-					field.setBlockE(fldeditX, fldeditY, blk);
-					playSE("change");
-				}
-			} catch (Exception e) {}
-		}
-
-		// 消去
-		if(ctrl.isPress(Controller.BUTTON_D) && (fldeditFrames > 10)) {
-			try {
-				if(!field.getBlockEmptyE(fldeditX, fldeditY)) {
-					field.setBlockColorE(fldeditX, fldeditY, Block.BLOCK_COLOR_NONE);
-					playSE("change");
-				}
-			} catch (Exception e) {}
-		}
-
-		// 終了
-		if(ctrl.isPush(Controller.BUTTON_B) && (fldeditFrames > 10)) {
-			stat = fldeditPreviousStat;
-			if(owner.mode != null) owner.mode.fieldEditExit(this, playerID);
-			owner.receiver.fieldEditExit(this, playerID);
-		}
-	}
-
-	/**
-	 * プレイ中断効果のあるアイテム処理
-	 */
-	public void statInterruptItem() {
-		boolean contFlag = false;	// 続行 flag
-
-		switch(interruptItemNumber) {
-		case INTERRUPTITEM_MIRROR:	// ミラー
-			contFlag = interruptItemMirrorProc();
-			break;
-		}
-
-		if(!contFlag) {
-			interruptItemNumber = INTERRUPTITEM_NONE;
-			resetStatc();
-			stat = interruptItemPreviousStat;
-		}
-	}
-
-	/**
-	 * ミラー処理
-	 * @return When true,ミラー処理続行
-	 */
-	public boolean interruptItemMirrorProc() {
-		if(statc[0] == 0) {
-			// fieldをバックアップにコピー
-			interruptItemMirrorField = new Field(field);
-			// fieldのBlockを全部消す
-			field.reset();
-		} else if((statc[0] >= 21) && (statc[0] < 21 + (field.getWidth() * 2)) && (statc[0] % 2 == 0)) {
-			// 反転
-			int x = ((statc[0] - 20) / 2) - 1;
-
-			for(int y = (field.getHiddenHeight() * -1); y < field.getHeight(); y++) {
-				field.setBlock(field.getWidth() - x - 1, y, interruptItemMirrorField.getBlock(x, y));
-			}
-		} else if(statc[0] < 21 + (field.getWidth() * 2) + 5) {
-			// 待ち time
-		} else {
-			// 終了
-			statc[0] = 0;
-			interruptItemMirrorField = null;
-			return false;
-		}
-
-		statc[0]++;
-		return true;
-	}
+                    }
+                }
+
+                if(rotated == true) {
+                    // rotation成功
+                    nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
+
+                    if((ruleopt.lockresetRotate == true) && (isRotateCountExceed() == false)) {
+                        lockDelayNow = 0;
+                        nowPieceObject.setDarkness(0f);
+                    }
+
+                    if(onGroundBeforeRotate) {
+                        extendedRotateCount++;
+                        lastmove = LASTMOVE_ROTATE_GROUND;
+                    } else {
+                        lastmove = LASTMOVE_ROTATE_AIR;
+                    }
+
+                    if(initialRotateDirection == 0) {
+                        playSE("rotate");
+                    }
+
+                    nowPieceRotateCount++;
+                    if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceRotate++;
+                } else {
+                    // rotation失敗
+                    playSE("rotfail");
+                    nowPieceRotateFailCount++;
+                }
+            }
+            initialRotateDirection = 0;
+
+            // game over check
+            if((statc[0] == 0) && (nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == true)) {
+                // Blockの出現位置を上にずらすことができる場合はそうする
+                for(int i = 0; i < ruleopt.pieceEnterMaxDistanceY; i++) {
+                    if(nowPieceObject.big) nowPieceY -= 2;
+                    else nowPieceY--;
+
+                    if(nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == false) {
+                        nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
+                        break;
+                    }
+                }
+
+                // 死亡
+                if(nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == true) {
+                    nowPieceObject.placeToField(nowPieceX, nowPieceY, field);
+                    nowPieceObject = null;
+                    stat = STAT_GAMEOVER;
+                    if((ending == 2) && (staffrollNoDeath)) stat = STAT_NOTHING;
+                    resetStatc();
+                    return;
+                }
+            }
+
+        }
+
+        int move = 0;
+        boolean sidemoveflag = false;    // この frame に横移動したらtrue
+
+        if((statc[0] > 0) || (ruleopt.moveFirstFrame == true)) {
+            // 横移動
+            boolean onGroundBeforeMove = nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field);
+
+            move = moveDirection;
+
+            if (statc[0] == 0 && delayCancel) {
+                if (delayCancelMoveLeft) move = -1;
+                if (delayCancelMoveRight) move = 1;
+                dasCount = 0;
+                // delayCancel = false;
+                delayCancelMoveLeft = false;
+                delayCancelMoveRight = false;
+            } else if (statc[0] == 1 && delayCancel && (dasCount < getDAS())) {
+                move = 0;
+                delayCancel = false;
+            }
+
+            if(move != 0) sidemoveflag = true;
+
+            if(big && bigmove) move *= 2;
+
+            if((move != 0) && (dasCount == 0)) shiftLock = 0;
+
+            if( (move != 0) && ((dasCount == 0) || (dasCount >= getDAS())) ) {
+                shiftLock &= ctrl.getButtonBit();
+
+                if(shiftLock == 0) {
+                    if( (dasSpeedCount >= getDASDelay()) || (dasCount == 0) ) {
+                        if(dasCount > 0) dasSpeedCount = 1;
+
+                        if(nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field) == false) {
+                            nowPieceX += move;
+
+                            if((getDASDelay() == 0) && (dasCount > 0) && (nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field) == false)) {
+                                if(!dasInstant) playSE("move");
+                                dasRepeat = true;
+                                dasInstant = true;
+                            }
+
+                            //log.debug("Successful movement: move="+move);
+
+                            if((ruleopt.lockresetMove == true) && (isMoveCountExceed() == false)) {
+                                lockDelayNow = 0;
+                                nowPieceObject.setDarkness(0f);
+                            }
+
+                            nowPieceMoveCount++;
+                            if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceMove++;
+                            nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
+
+                            if(onGroundBeforeMove) {
+                                extendedMoveCount++;
+                                lastmove = LASTMOVE_SLIDE_GROUND;
+                            } else {
+                                lastmove = LASTMOVE_SLIDE_AIR;
+                            }
+
+                            if(!dasInstant) playSE("move");
+
+                        } else if (ruleopt.dasChargeOnBlockedMove) {
+                            dasCount = getDAS();
+                            dasSpeedCount = getDASDelay();
+                        }
+                    } else {
+                        dasSpeedCount++;
+                    }
+                }
+            }
+
+            // Hard drop
+            if( (ctrl.isPress(getUp()) == true) &&
+                (harddropContinuousUse == false) &&
+                (ruleopt.harddropEnable == true) &&
+                ((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
+                ((ruleopt.moveUpAndDown == true) || (updown == false)) &&
+                (nowPieceY < nowPieceBottomY) )
+            {
+                harddropFall += nowPieceBottomY - nowPieceY;
+
+                if(nowPieceY != nowPieceBottomY) {
+                    nowPieceY = nowPieceBottomY;
+                    playSE("harddrop");
+                }
+
+                if(owner.mode != null) owner.mode.afterHardDropFall(this, playerID, harddropFall);
+                owner.receiver.afterHardDropFall(this, playerID, harddropFall);
+
+                lastmove = LASTMOVE_FALL_SELF;
+                if(ruleopt.lockresetFall == true) {
+                    lockDelayNow = 0;
+                    nowPieceObject.setDarkness(0f);
+                    extendedMoveCount = 0;
+                    extendedRotateCount = 0;
+                }
+            }
+
+            if(!ruleopt.softdropGravitySpeedLimit || (ruleopt.softdropSpeed < 1.0f)) {
+                // Old Soft Drop codes
+                if( (ctrl.isPress(getDown()) == true) &&
+                    (softdropContinuousUse == false) &&
+                    (ruleopt.softdropEnable == true) &&
+                    ((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
+                    ((ruleopt.moveUpAndDown == true) || (updown == false)) )
+                {
+                    if((ruleopt.softdropMultiplyNativeSpeed == true) || (speed.denominator <= 0))
+                        gcount += (int)(speed.gravity * ruleopt.softdropSpeed);
+                    else
+                        gcount += (int)(speed.denominator * ruleopt.softdropSpeed);
+
+                    softdropUsed = true;
+                }
+            } else {
+                // New Soft Drop codes
+                if( ctrl.isPress(getDown()) && !softdropContinuousUse &&
+                    ruleopt.softdropEnable && (isDiagonalMoveEnabled() || !sidemoveflag) &&
+                    (ruleopt.moveUpAndDown || !updown) &&
+                    (ruleopt.softdropMultiplyNativeSpeed || (speed.gravity < (int)(speed.denominator * ruleopt.softdropSpeed))) )
+                {
+                    if((ruleopt.softdropMultiplyNativeSpeed == true) || (speed.denominator <= 0)) {
+                        // gcount += (int)(speed.gravity * ruleopt.softdropSpeed);
+                        gcount = (int)(speed.gravity * ruleopt.softdropSpeed);
+                    } else {
+                        // gcount += (int)(speed.denominator * ruleopt.softdropSpeed);
+                        gcount = (int)(speed.denominator * ruleopt.softdropSpeed);
+                    }
+
+                    softdropUsed = true;
+                } else {
+                    // 落下
+                    // This prevents soft drop from adding to the gravity speed.
+                    gcount += speed.gravity;
+                }
+            }
+
+            if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceActiveTime++;
+        }
+
+        if(!ruleopt.softdropGravitySpeedLimit || (ruleopt.softdropSpeed < 1.0f))
+            gcount += speed.gravity;    // Part of Old Soft Drop
+
+        while((gcount >= speed.denominator) || (speed.gravity < 0)) {
+            if(nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) == false) {
+                if(speed.gravity >= 0) gcount -= speed.denominator;
+                nowPieceY++;
+
+                if(ruleopt.lockresetFall == true) {
+                    lockDelayNow = 0;
+                    nowPieceObject.setDarkness(0f);
+                }
+
+                if((lastmove != LASTMOVE_ROTATE_GROUND) && (lastmove != LASTMOVE_SLIDE_GROUND) && (lastmove != LASTMOVE_FALL_SELF)) {
+                    extendedMoveCount = 0;
+                    extendedRotateCount = 0;
+                }
+
+                if(softdropUsed == true) {
+                    lastmove = LASTMOVE_FALL_SELF;
+                    softdropFall++;
+                    softdropFallNow++;
+                    playSE("softdrop");
+                } else {
+                    lastmove = LASTMOVE_FALL_AUTO;
+                }
+            } else {
+                break;
+            }
+        }
+
+        if(softdropFallNow > 0) {
+            if(owner.mode != null) owner.mode.afterSoftDropFall(this, playerID, softdropFallNow);
+            owner.receiver.afterSoftDropFall(this, playerID, softdropFallNow);
+        }
+
+        // 接地と固定
+        if( (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) == true) &&
+            ((statc[0] > 0) || (ruleopt.moveFirstFrame == true)) )
+        {
+            if((lockDelayNow == 0) && (getLockDelay() > 0))
+                playSE("step");
+
+            if(lockDelayNow < getLockDelay())
+                lockDelayNow++;
+
+            if((getLockDelay() >= 99) && (lockDelayNow > 98))
+                lockDelayNow = 98;
+
+            if(lockDelayNow < getLockDelay()) {
+                if(lockDelayNow >= getLockDelay() - 1)
+                    nowPieceObject.setDarkness(0.5f);
+                else
+                    nowPieceObject.setDarkness((lockDelayNow * 7 / getLockDelay()) * 0.05f);
+            }
+
+            if(getLockDelay() != 0)
+                gcount = speed.gravity;
+
+            // trueになると即固定
+            boolean instantlock = false;
+
+            // Hard drop固定
+            if( (ctrl.isPress(getUp()) == true) &&
+                (harddropContinuousUse == false) &&
+                (ruleopt.harddropEnable == true) &&
+                ((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
+                ((ruleopt.moveUpAndDown == true) || (updown == false)) &&
+                (ruleopt.harddropLock == true) )
+            {
+                harddropContinuousUse = true;
+                manualLock = true;
+                instantlock = true;
+            }
+
+            // Soft drop固定
+            if( (ctrl.isPress(getDown()) == true) &&
+                (softdropContinuousUse == false) &&
+                (ruleopt.softdropEnable == true) &&
+                ((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
+                ((ruleopt.moveUpAndDown == true) || (updown == false)) &&
+                (ruleopt.softdropLock == true) )
+            {
+                softdropContinuousUse = true;
+                manualLock = true;
+                instantlock = true;
+            }
+
+            // 接地状態でソフドドロップ固定
+            if( (ctrl.isPush(getDown()) == true) &&
+                (ruleopt.softdropEnable == true) &&
+                ((isDiagonalMoveEnabled() == true) || (sidemoveflag == false)) &&
+                ((ruleopt.moveUpAndDown == true) || (updown == false)) &&
+                (ruleopt.softdropSurfaceLock == true) )
+            {
+                softdropContinuousUse = true;
+                manualLock = true;
+                instantlock = true;
+            }
+
+            if((manualLock == true) && (ruleopt.shiftLockEnable)) {
+                // bit 1 and 2 are button_up and button_down currently
+                shiftLock = ctrl.getButtonBit() & 3;
+            }
+
+            // 移動＆rotationcount制限超過
+            if( (ruleopt.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT) && (isMoveCountExceed() || isRotateCountExceed()) ) {
+                instantlock = true;
+            }
+
+            // 接地即固定
+            if( (getLockDelay() == 0) && ((gcount >= speed.denominator) || (speed.gravity < 0)) ) {
+                instantlock = true;
+            }
+
+            // 固定
+            if( ((lockDelayNow >= getLockDelay()) && (getLockDelay() > 0)) || (instantlock == true) ) {
+                if(ruleopt.lockflash > 0) nowPieceObject.setDarkness(-0.8f);
+
+                // T-Spin判定
+                if((lastmove == LASTMOVE_ROTATE_GROUND || lastmove == LASTMOVE_ROTATE_AIR) && (tspinEnable == true)) {
+                    if(useAllSpinBonus)
+                        setAllSpin(nowPieceX, nowPieceY, nowPieceObject, field);
+                    else
+                        setTSpin(nowPieceX, nowPieceY, nowPieceObject, field);
+                }
+
+                nowPieceObject.setAttribute(Block.BLOCK_ATTRIBUTE_SELFPLACED, true);
+
+                boolean partialLockOut = nowPieceObject.isPartialLockOut(nowPieceX, nowPieceY, field);
+                boolean put = nowPieceObject.placeToField(nowPieceX, nowPieceY, field);
+
+                playSE("lock");
+
+                holdDisable = false;
+
+                if((ending == 0) || (staffrollEnableStatistics)) statistics.totalPieceLocked++;
+
+                if (clearMode == CLEAR_LINE)
+                    lineClearing = field.checkLineNoFlag();
+                else if (clearMode == CLEAR_COLOR)
+                    lineClearing = field.checkColor(colorClearSize, false, garbageColorClear, gemSameColor, ignoreHidden);
+                else if (clearMode == CLEAR_LINE_COLOR)
+                    lineClearing = field.checkLineColor(colorClearSize, false, lineColorDiagonals, gemSameColor);
+                else if (clearMode == CLEAR_GEM_COLOR)
+                    lineClearing = field.gemColorCheck(colorClearSize, false, garbageColorClear, ignoreHidden);
+                chain = 0;
+                lineGravityTotalLines = 0;
+
+                if(lineClearing == 0) {
+                    combo = 0;
+
+                    if(tspin) {
+                        playSE("tspin0");
+
+                        if((ending == 0) || (staffrollEnableStatistics)) {
+                            if(tspinmini) statistics.totalTSpinZeroMini++;
+                            else statistics.totalTSpinZero++;
+                        }
+                    }
+
+                    if(owner.mode != null) owner.mode.calcScore(this, playerID, lineClearing);
+                    owner.receiver.calcScore(this, playerID, lineClearing);
+                }
+
+                if(owner.mode != null) owner.mode.pieceLocked(this, playerID, lineClearing);
+                owner.receiver.pieceLocked(this, playerID, lineClearing);
+
+                dasRepeat = false;
+                dasInstant = false;
+
+                // Next 処理を決める(Mode 側でステータスを弄っている場合は何もしない)
+                if((stat == STAT_MOVE) || (versionMajor <= 6.3f)) {
+                    resetStatc();
+
+                    if((ending == 1) && (versionMajor >= 6.6f) && (versionMinorOld >= 0.1f)) {
+                        // Ending
+                        stat = STAT_ENDINGSTART;
+                    } else if( (!put && ruleopt.fieldLockoutDeath) || (partialLockOut && ruleopt.fieldPartialLockoutDeath) ) {
+                        // 画面外に置いて死亡
+                        stat = STAT_GAMEOVER;
+                        if((ending == 2) && (staffrollNoDeath)) stat = STAT_NOTHING;
+                    } else if ((lineGravityType == LINE_GRAVITY_CASCADE || lineGravityType == LINE_GRAVITY_CASCADE_SLOW)
+                            && !connectBlocks) {
+                        stat = STAT_LINECLEAR;
+                        statc[0] = getLineDelay();
+                        statLineClear();
+                    } else if( (lineClearing > 0) && ((ruleopt.lockflash <= 0) || (!ruleopt.lockflashBeforeLineClear)) ) {
+                        // Line clear
+                        stat = STAT_LINECLEAR;
+                        statLineClear();
+                    } else if( ((getARE() > 0) || (lagARE) || (ruleopt.lockflashBeforeLineClear)) &&
+                                (ruleopt.lockflash > 0) && (ruleopt.lockflashOnlyFrame) )
+                    {
+                        // AREあり (光あり）
+                        stat = STAT_LOCKFLASH;
+                    } else if((getARE() > 0) || (lagARE)) {
+                        // AREあり (光なし）
+                        statc[1] = getARE();
+                        stat = STAT_ARE;
+                    } else if(interruptItemNumber != INTERRUPTITEM_NONE) {
+                        // 中断効果のあるアイテム処理
+                        nowPieceObject = null;
+                        interruptItemPreviousStat = STAT_MOVE;
+                        stat = STAT_INTERRUPTITEM;
+                    } else {
+                        // AREなし
+                        stat = STAT_MOVE;
+                        if(ruleopt.moveFirstFrame == false) statMove();
+                    }
+                }
+                return;
+            }
+        }
+
+        // 横溜め
+        if((statc[0] > 0) || (ruleopt.dasInMoveFirstFrame)) {
+            if( (moveDirection != 0) && (moveDirection == dasDirection) && ((dasCount < getDAS()) || (getDAS() <= 0)) ) {
+                dasCount++;
+            }
+        }
+
+        statc[0]++;
+    }
+
+    /**
+     * Block固定直後の光っているときの処理
+     */
+    public void statLockFlash() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onLockFlash(this, playerID) == true) return;
+        }
+        owner.receiver.onLockFlash(this, playerID);
+
+        statc[0]++;
+
+        checkDropContinuousUse();
+
+        // 横溜め
+        if(ruleopt.dasInLockFlash) padRepeat();
+        else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
+
+        // Next ステータス
+        if(statc[0] >= ruleopt.lockflash) {
+            resetStatc();
+
+            if(lineClearing > 0) {
+                // Line clear
+                stat = STAT_LINECLEAR;
+                statLineClear();
+            } else {
+                // ARE
+                statc[1] = getARE();
+                stat = STAT_ARE;
+            }
+            return;
+        }
+    }
+
+    /**
+     * Line clear処理
+     */
+    public void statLineClear() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onLineClear(this, playerID) == true) return;
+        }
+        owner.receiver.onLineClear(this, playerID);
+
+        checkDropContinuousUse();
+
+        // 横溜め
+        if(ruleopt.dasInLineClear) padRepeat();
+        else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
+
+        // 最初の frame
+        if(statc[0] == 0) {
+            // Line clear flagを設定
+            if (clearMode == CLEAR_LINE)
+                lineClearing = field.checkLine();
+            // Set color clear flags
+            else if (clearMode == CLEAR_COLOR)
+                lineClearing = field.checkColor(colorClearSize, true, garbageColorClear, gemSameColor, ignoreHidden);
+            // Set line color clear flags
+            else if (clearMode == CLEAR_LINE_COLOR)
+                lineClearing = field.checkLineColor(colorClearSize, true, lineColorDiagonals, gemSameColor);
+            else if (clearMode == CLEAR_GEM_COLOR)
+                lineClearing = field.gemColorCheck(colorClearSize, true, garbageColorClear, ignoreHidden);
+
+            // Linescountを決める
+            int li = lineClearing;
+            if(big && bighalf)
+                li >>= 1;
+            //if(li > 4) li = 4;
+
+            if(tspin) {
+                playSE("tspin" + li);
+
+                if((ending == 0) || (staffrollEnableStatistics)) {
+                    if((li == 1) && (tspinmini))  statistics.totalTSpinSingleMini++;
+                    if((li == 1) && (!tspinmini)) statistics.totalTSpinSingle++;
+                    if((li == 2) && (tspinmini))  statistics.totalTSpinDoubleMini++;
+                    if((li == 2) && (!tspinmini)) statistics.totalTSpinDouble++;
+                    if(li == 3) statistics.totalTSpinTriple++;
+                }
+            } else {
+                if (clearMode == CLEAR_LINE)
+                    playSE("erase" + li);
+
+                if((ending == 0) || (staffrollEnableStatistics)) {
+                    if(li == 1) statistics.totalSingle++;
+                    if(li == 2) statistics.totalDouble++;
+                    if(li == 3) statistics.totalTriple++;
+                    if(li == 4) statistics.totalFour++;
+                }
+            }
+
+            // B2B bonus
+            if(b2bEnable) {
+                if((tspin) || (li >= 4)) {
+                    b2bcount++;
+
+                    if(b2bcount == 1) {
+                        playSE("b2b_start");
+                    } else {
+                        b2b = true;
+                        playSE("b2b_continue");
+
+                        if((ending == 0) || (staffrollEnableStatistics)) {
+                            if(li == 4) statistics.totalB2BFour++;
+                            else statistics.totalB2BTSpin++;
+                        }
+                    }
+                } else if(b2bcount != 0) {
+                    b2b = false;
+                    b2bcount = 0;
+                    playSE("b2b_end");
+                }
+            }
+
+            // Combo
+            if((comboType != COMBO_TYPE_DISABLE) && (chain == 0)) {
+                if( (comboType == COMBO_TYPE_NORMAL) || ((comboType == COMBO_TYPE_DOUBLE) && (li >= 2)) )
+                    combo++;
+
+                if(combo >= 2) {
+                    int cmbse = combo - 1;
+                    if(cmbse > 20) cmbse = 20;
+                    playSE("combo" + cmbse);
+                }
+
+                if((ending == 0) || (staffrollEnableStatistics)) {
+                    if(combo > statistics.maxCombo) statistics.maxCombo = combo;
+                }
+            }
+
+            lineGravityTotalLines += lineClearing;
+
+            if((ending == 0) || (staffrollEnableStatistics)) statistics.lines += li;
+
+            if(field.getHowManyGemClears() > 0) playSE("gem");
+
+            // Calculate score
+            if(owner.mode != null) owner.mode.calcScore(this, playerID, li);
+            owner.receiver.calcScore(this, playerID, li);
+
+            // Blockを消す演出を出す (まだ実際には消えていない）
+            if (clearMode == CLEAR_LINE) {
+                for(int i = 0; i < field.getHeight(); i++) {
+                    if(field.getLineFlag(i)) {
+                        for(int j = 0; j < field.getWidth(); j++) {
+                            Block blk = field.getBlock(j, i);
+
+                            if(blk != null) {
+                                if(owner.mode != null) owner.mode.blockBreak(this, playerID, j, i, blk);
+                                owner.receiver.blockBreak(this, playerID, j, i, blk);
+                            }
+                        }
+                    }
+                }
+            } else if (clearMode == CLEAR_LINE_COLOR || clearMode == CLEAR_COLOR || clearMode == CLEAR_GEM_COLOR)
+                for(int i = 0; i < field.getHeight(); i++) {
+                    for(int j = 0; j < field.getWidth(); j++) {
+                        Block blk = field.getBlock(j, i);
+                        if (blk == null)
+                            continue;
+                        if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
+                            if(owner.mode != null) owner.mode.blockBreak(this, playerID, j, i, blk);
+                            if (displaysize == 1)
+                            {
+                                owner.receiver.blockBreak(this, playerID, 2*j, 2*i, blk);
+                                owner.receiver.blockBreak(this, playerID, 2*j+1, 2*i, blk);
+                                owner.receiver.blockBreak(this, playerID, 2*j, 2*i+1, blk);
+                                owner.receiver.blockBreak(this, playerID, 2*j+1, 2*i+1, blk);
+                            }
+                            else
+                                owner.receiver.blockBreak(this, playerID, j, i, blk);
+                        }
+                    }
+                }
+
+            // Blockを消す
+            if (clearMode == CLEAR_LINE)
+                field.clearLine();
+            else if (clearMode == CLEAR_COLOR)
+                field.clearColor(colorClearSize, garbageColorClear, gemSameColor, ignoreHidden);
+            else if (clearMode == CLEAR_LINE_COLOR)
+                field.clearLineColor(colorClearSize, lineColorDiagonals, gemSameColor);
+            else if (clearMode == CLEAR_GEM_COLOR)
+                lineClearing = field.gemClearColor(colorClearSize, garbageColorClear, ignoreHidden);
+        }
+
+        // Linesを1段落とす
+        if((lineGravityType == LINE_GRAVITY_NATIVE) &&
+           (getLineDelay() >= (lineClearing - 1)) && (statc[0] >= getLineDelay() - (lineClearing - 1)) && (ruleopt.lineFallAnim))
+        {
+            field.downFloatingBlocksSingleLine();
+        }
+
+        // Line delay cancel check
+        delayCancelMoveLeft = ctrl.isPush(Controller.BUTTON_LEFT);
+        delayCancelMoveRight = ctrl.isPush(Controller.BUTTON_RIGHT);
+
+        boolean moveCancel = ruleopt.lineCancelMove && (ctrl.isPush(getUp()) ||
+            ctrl.isPush(getDown()) || delayCancelMoveLeft || delayCancelMoveRight);
+        boolean rotateCancel = ruleopt.lineCancelRotate && (ctrl.isPush(Controller.BUTTON_A) ||
+            ctrl.isPush(Controller.BUTTON_B) || ctrl.isPush(Controller.BUTTON_C) ||
+            ctrl.isPush(Controller.BUTTON_E));
+        boolean holdCancel = ruleopt.lineCancelHold && ctrl.isPush(Controller.BUTTON_D);
+
+        delayCancel = moveCancel || rotateCancel || holdCancel;
+
+        if( (statc[0] < getLineDelay()) && delayCancel ) {
+            statc[0] = getLineDelay();
+        }
+
+        // Next ステータス
+        if(statc[0] >= getLineDelay()) {
+            // Cascade
+            if((lineGravityType == LINE_GRAVITY_CASCADE || lineGravityType == LINE_GRAVITY_CASCADE_SLOW)) {
+                if (statc[6] < getCascadeDelay()) {
+                    statc[6]++;
+                    return;
+                } else if(field.doCascadeGravity(lineGravityType)) {
+                    statc[6] = 0;
+                    return;
+                } else if (statc[6] < getCascadeClearDelay()) {
+                    statc[6]++;
+                    return;
+                } else if(((clearMode == CLEAR_LINE) && field.checkLineNoFlag() > 0) ||
+                        ((clearMode == CLEAR_COLOR) && field.checkColor(colorClearSize, false, garbageColorClear, gemSameColor, ignoreHidden) > 0) ||
+                        ((clearMode == CLEAR_LINE_COLOR) && field.checkLineColor(colorClearSize, false, lineColorDiagonals, gemSameColor) > 0) ||
+                        ((clearMode == CLEAR_GEM_COLOR) && field.gemColorCheck(colorClearSize, false, garbageColorClear, ignoreHidden) > 0)) {
+                    tspin = false;
+                    tspinmini = false;
+                    chain++;
+                    if(chain > statistics.maxChain) statistics.maxChain = chain;
+                    statc[0] = 0;
+                    statc[6] = 0;
+                    return;
+                }
+            }
+
+            boolean skip = false;
+            if(owner.mode != null) skip = owner.mode.lineClearEnd(this, playerID);
+            owner.receiver.lineClearEnd(this, playerID);
+
+            if(!skip) {
+                if(lineGravityType == LINE_GRAVITY_NATIVE) field.downFloatingBlocks();
+                playSE("linefall");
+
+                field.lineColorsCleared = null;
+
+                if((stat == STAT_LINECLEAR) || (versionMajor <= 6.3f)) {
+                    resetStatc();
+                    if(ending == 1) {
+                        // Ending
+                        stat = STAT_ENDINGSTART;
+                    } else if((getARELine() > 0) || (lagARE)) {
+                        // AREあり
+                        statc[0] = 0;
+                        statc[1] = getARELine();
+                        statc[2] = 1;
+                        stat = STAT_ARE;
+                    } else if(interruptItemNumber != INTERRUPTITEM_NONE) {
+                        // 中断効果のあるアイテム処理
+                        nowPieceObject = null;
+                        interruptItemPreviousStat = STAT_MOVE;
+                        stat = STAT_INTERRUPTITEM;
+                    } else {
+                        // AREなし
+                        nowPieceObject = null;
+                        if(versionMajor < 7.5f) initialRotate(); //XXX: Weird IRS thing on lines cleared but no ARE
+                        stat = STAT_MOVE;
+                    }
+                }
+            }
+
+            return;
+        }
+
+        statc[0]++;
+    }
+
+    public int getCascadeDelay() {
+        return cascadeDelay;
+    }
+
+    public int getCascadeClearDelay() {
+        return cascadeClearDelay;
+    }
+
+    /**
+     * ARE中の処理
+     */
+    public void statARE() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onARE(this, playerID) == true) return;
+        }
+        owner.receiver.onARE(this, playerID);
+
+        statc[0]++;
+
+        checkDropContinuousUse();
+
+        // ARE cancel check
+        delayCancelMoveLeft = ctrl.isPush(Controller.BUTTON_LEFT);
+        delayCancelMoveRight = ctrl.isPush(Controller.BUTTON_RIGHT);
+
+        boolean moveCancel = ruleopt.areCancelMove && (ctrl.isPush(getUp()) ||
+            ctrl.isPush(getDown()) || delayCancelMoveLeft || delayCancelMoveRight);
+        boolean rotateCancel = ruleopt.areCancelRotate && (ctrl.isPush(Controller.BUTTON_A) ||
+            ctrl.isPush(Controller.BUTTON_B) || ctrl.isPush(Controller.BUTTON_C) ||
+            ctrl.isPush(Controller.BUTTON_E));
+        boolean holdCancel = ruleopt.areCancelHold && ctrl.isPush(Controller.BUTTON_D);
+
+        delayCancel = moveCancel || rotateCancel || holdCancel;
+
+        if( (statc[0] < statc[1]) && delayCancel ) {
+            statc[0] = statc[1];
+        }
+
+        // 横溜め
+        if( (ruleopt.dasInARE) && ((statc[0] < statc[1] - 1) || (ruleopt.dasInARELastFrame)) )
+            padRepeat();
+        else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
+
+        // Next ステータス
+        if((statc[0] >= statc[1]) && (!lagARE)) {
+            nowPieceObject = null;
+            resetStatc();
+
+            if(interruptItemNumber != INTERRUPTITEM_NONE) {
+                // 中断効果のあるアイテム処理
+                interruptItemPreviousStat = STAT_MOVE;
+                stat = STAT_INTERRUPTITEM;
+            } else {
+                // Blockピース移動処理
+                initialRotate();
+                stat = STAT_MOVE;
+            }
+        }
+    }
+
+    /**
+     * Ending突入処理
+     */
+    public void statEndingStart() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onEndingStart(this, playerID) == true) return;
+        }
+        owner.receiver.onEndingStart(this, playerID);
+
+        checkDropContinuousUse();
+
+        // 横溜め
+        if(ruleopt.dasInEndingStart) padRepeat();
+        else if(ruleopt.dasRedirectInDelay) { dasRedirect(); }
+
+        if(statc[2] == 0) {
+            timerActive = false;
+            owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+            playSE("endingstart");
+            statc[2] = 1;
+        }
+
+        if(statc[0] < getLineDelay()) {
+            statc[0]++;
+        } else if(statc[1] < field.getHeight() * 6) {
+            if(statc[1] % 6 == 0) {
+                int y = field.getHeight() - (statc[1] / 6);
+                field.setLineFlag(y, true);
+
+                for(int i = 0; i < field.getWidth(); i++) {
+                    Block blk = field.getBlock(i, y);
+
+                    if((blk != null) && (blk.color != Block.BLOCK_COLOR_NONE)) {
+                        if(owner.mode != null) owner.mode.blockBreak(this, playerID, i, y, blk);
+                        owner.receiver.blockBreak(this, playerID, i, y, blk);
+                        field.setBlockColor(i, y, Block.BLOCK_COLOR_NONE);
+                    }
+                }
+            }
+
+            statc[1]++;
+        } else if(statc[0] < getLineDelay() + 2) {
+            statc[0]++;
+        } else {
+            ending = 2;
+            field.reset();
+            resetStatc();
+
+            if(staffrollEnable) {
+                nowPieceObject = null;
+                stat = STAT_MOVE;
+            } else {
+                stat = STAT_EXCELLENT;
+            }
+        }
+    }
+
+    /**
+     * 各ゲームMode が自由に使えるステータスの処理
+     */
+    public void statCustom() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onCustom(this, playerID) == true) return;
+        }
+        owner.receiver.onCustom(this, playerID);
+    }
+
+    /**
+     * Ending画面
+     */
+    public void statExcellent() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onExcellent(this, playerID) == true) return;
+        }
+        owner.receiver.onExcellent(this, playerID);
+
+        if(statc[0] == 0) {
+            gameEnded();
+            owner.bgmStatus.fadesw = true;
+
+            resetFieldVisible();
+
+            playSE("excellent");
+        }
+
+        if((statc[0] >= 120) && (ctrl.isPush(Controller.BUTTON_A))) {
+            statc[0] = 600;
+        }
+
+        if((statc[0] >= 600) && (statc[1] == 0)) {
+            resetStatc();
+            stat = STAT_GAMEOVER;
+        } else {
+            statc[0]++;
+        }
+    }
+
+    /**
+     * game overの処理
+     */
+    public void statGameOver() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onGameOver(this, playerID) == true) return;
+        }
+        owner.receiver.onGameOver(this, playerID);
+
+        if(lives <= 0) {
+            // もう復活できないとき
+            if(statc[0] == 0) {
+                gameEnded();
+                blockShowOutlineOnly = false;
+                if(owner.getPlayers() < 2) owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+
+                if(field.isEmpty()) {
+                    statc[0] = field.getHeight() + 1;
+                } else {
+                    resetFieldVisible();
+                }
+            }
+
+            if(statc[0] < field.getHeight() + 1) {
+                for(int i = 0; i < field.getWidth(); i++) {
+                    if(field.getBlockColor(i, field.getHeight() - statc[0]) != Block.BLOCK_COLOR_NONE) {
+                        Block blk = field.getBlock(i, field.getHeight() - statc[0]);
+
+                        if(blk != null) {
+                            if(!blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
+                                blk.color = Block.BLOCK_COLOR_GRAY;
+                                blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
+                            }
+                            blk.darkness = 0.3f;
+                            blk.elapsedFrames = -1;
+                        }
+                    }
+                }
+                statc[0]++;
+            } else if(statc[0] == field.getHeight() + 1) {
+                playSE("gameover");
+                statc[0]++;
+            } else if(statc[0] < field.getHeight() + 1 + 180) {
+                if((statc[0] >= field.getHeight() + 1 + 60) && (ctrl.isPush(Controller.BUTTON_A))) {
+                    statc[0] = field.getHeight() + 1 + 180;
+                }
+
+                statc[0]++;
+            } else {
+                if(!owner.replayMode || owner.replayRerecord) owner.saveReplay();
+
+                for(int i = 0; i < owner.getPlayers(); i++) {
+                    if((i == playerID) || (gameoverAll)) {
+                        if(owner.engine[i].field != null) {
+                            owner.engine[i].field.reset();
+                        }
+                        owner.engine[i].resetStatc();
+                        owner.engine[i].stat = STAT_RESULT;
+                    }
+                }
+            }
+        } else {
+            // 復活できるとき
+            if(statc[0] == 0) {
+                blockShowOutlineOnly = false;
+                playSE("died");
+
+                resetFieldVisible();
+
+                for(int i = (field.getHiddenHeight() * -1); i < field.getHeight(); i++) {
+                    for(int j = 0; j < field.getWidth(); j++) {
+                        if(field.getBlockColor(j, i) != Block.BLOCK_COLOR_NONE) {
+                            field.setBlockColor(j, i, Block.BLOCK_COLOR_GRAY);
+                        }
+                    }
+                }
+
+                statc[0] = 1;
+            }
+
+            if(!field.isEmpty()) {
+                field.pushDown();
+            } else if(statc[1] < getARE()) {
+                statc[1]++;
+            } else {
+                lives--;
+                resetStatc();
+                stat = STAT_MOVE;
+            }
+        }
+    }
+
+    /**
+     * Results screen
+     */
+    public void statResult() {
+        // Event
+        if(owner.mode != null) {
+            if(owner.mode.onResult(this, playerID) == true) return;
+        }
+        owner.receiver.onResult(this, playerID);
+
+        // Turn-off in-game flags
+        gameActive = false;
+        timerActive = false;
+        isInGame = false;
+
+        // Cursor movement
+        if(ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT) || ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) {
+            if(statc[0] == 0) statc[0] = 1;
+            else statc[0] = 0;
+            playSE("cursor");
+        }
+
+        // Confirm
+        if(ctrl.isPush(Controller.BUTTON_A)) {
+            playSE("decide");
+
+            if(statc[0] == 0) {
+                owner.reset();
+            } else {
+                quitflag = true;
+            }
+        }
+    }
+
+    /**
+     * fieldエディット画面
+     */
+    public void statFieldEdit() {
+        //  event 発生
+        if(owner.mode != null) {
+            if(owner.mode.onFieldEdit(this, playerID) == true) return;
+        }
+        owner.receiver.onFieldEdit(this, playerID);
+
+        fldeditFrames++;
+
+        // Cursor movement
+        if(ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT, false) && !ctrl.isPress(Controller.BUTTON_C)) {
+            playSE("move");
+            fldeditX--;
+            if(fldeditX < 0) fldeditX = fieldWidth - 1;
+        }
+        if(ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT, false) && !ctrl.isPress(Controller.BUTTON_C)) {
+            playSE("move");
+            fldeditX++;
+            if(fldeditX > fieldWidth - 1) fldeditX = 0;
+        }
+        if(ctrl.isMenuRepeatKey(getUp(), false)) {
+            playSE("move");
+            fldeditY--;
+            if(fldeditY < 0) fldeditY = fieldHeight - 1;
+        }
+        if(ctrl.isMenuRepeatKey(getDown(), false)) {
+            playSE("move");
+            fldeditY++;
+            if(fldeditY > fieldHeight - 1) fldeditY = 0;
+        }
+
+        // 色選択
+        if(ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT, false) && ctrl.isPress(Controller.BUTTON_C)) {
+            playSE("cursor");
+            fldeditColor--;
+            if(fldeditColor < Block.BLOCK_COLOR_GRAY) fldeditColor = Block.BLOCK_COLOR_GEM_PURPLE;
+        }
+        if(ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT, false) && ctrl.isPress(Controller.BUTTON_C)) {
+            playSE("cursor");
+            fldeditColor++;
+            if(fldeditColor > Block.BLOCK_COLOR_GEM_PURPLE) fldeditColor = Block.BLOCK_COLOR_GRAY;
+        }
+
+        // 配置
+        if(ctrl.isPress(Controller.BUTTON_A) && (fldeditFrames > 10)) {
+            try {
+                if(field.getBlockColorE(fldeditX, fldeditY) != fldeditColor) {
+                    Block blk = new Block(fldeditColor, getSkin(), Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE);
+                    field.setBlockE(fldeditX, fldeditY, blk);
+                    playSE("change");
+                }
+            } catch (Exception e) {}
+        }
+
+        // 消去
+        if(ctrl.isPress(Controller.BUTTON_D) && (fldeditFrames > 10)) {
+            try {
+                if(!field.getBlockEmptyE(fldeditX, fldeditY)) {
+                    field.setBlockColorE(fldeditX, fldeditY, Block.BLOCK_COLOR_NONE);
+                    playSE("change");
+                }
+            } catch (Exception e) {}
+        }
+
+        // 終了
+        if(ctrl.isPush(Controller.BUTTON_B) && (fldeditFrames > 10)) {
+            stat = fldeditPreviousStat;
+            if(owner.mode != null) owner.mode.fieldEditExit(this, playerID);
+            owner.receiver.fieldEditExit(this, playerID);
+        }
+    }
+
+    /**
+     * プレイ中断効果のあるアイテム処理
+     */
+    public void statInterruptItem() {
+        boolean contFlag = false;    // 続行 flag
+
+        switch(interruptItemNumber) {
+        case INTERRUPTITEM_MIRROR:    // ミラー
+            contFlag = interruptItemMirrorProc();
+            break;
+        }
+
+        if(!contFlag) {
+            interruptItemNumber = INTERRUPTITEM_NONE;
+            resetStatc();
+            stat = interruptItemPreviousStat;
+        }
+    }
+
+    /**
+     * ミラー処理
+     * @return When true,ミラー処理続行
+     */
+    public boolean interruptItemMirrorProc() {
+        if(statc[0] == 0) {
+            // fieldをバックアップにコピー
+            interruptItemMirrorField = new Field(field);
+            // fieldのBlockを全部消す
+            field.reset();
+        } else if((statc[0] >= 21) && (statc[0] < 21 + (field.getWidth() * 2)) && (statc[0] % 2 == 0)) {
+            // 反転
+            int x = ((statc[0] - 20) / 2) - 1;
+
+            for(int y = (field.getHiddenHeight() * -1); y < field.getHeight(); y++) {
+                field.setBlock(field.getWidth() - x - 1, y, interruptItemMirrorField.getBlock(x, y));
+            }
+        } else if(statc[0] < 21 + (field.getWidth() * 2) + 5) {
+            // 待ち time
+        } else {
+            // 終了
+            statc[0] = 0;
+            interruptItemMirrorField = null;
+            return false;
+        }
+
+        statc[0]++;
+        return true;
+    }
 }

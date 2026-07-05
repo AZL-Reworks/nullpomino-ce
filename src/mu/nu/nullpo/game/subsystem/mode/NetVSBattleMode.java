@@ -1251,1312 +1251,1312 @@ public class NetVSBattleMode extends NetDummyMode {
                 if((pts[i] > 0) && (garbage[playerID] > 0) && (currentRoomInfo.counter)) {
                     while(!useFractionalGarbage && !garbageEntries.isEmpty() && (pts[i] > 0)
                             || useFractionalGarbage && !garbageEntries.isEmpty() && (pts[i] >= GARBAGE_DENOMINATOR)) {
-						GarbageEntry garbageEntry = garbageEntries.getFirst();
-						garbageEntry.lines -= pts[i];
-
-						if(garbageEntry.lines <= 0) {
-							pts[i] = Math.abs(garbageEntry.lines);
-							garbageEntries.removeFirst();
-						} else {
-							pts[i] = 0;
-						}
-					}
-				}
-			}
-
-			//  Attack
-			if(!isPractice && (numPlayers + numSpectators >= 2)) {
-				garbage[playerID] = getTotalGarbageLines();
-
-				String stringPts = "";
-				for(int i : pts){
-					stringPts += i + "\t";
-				}
-				netLobby.netPlayerClient.send("game\tattack\t" + stringPts + "\t" + lastevent[playerID] + "\t" + lastb2b[playerID] + "\t" +
-						lastcombo[playerID] + "\t" + garbage[playerID] + "\t" + lastpiece[playerID] + "\n");
-			}
-		}
-
-		// せり上がり
-		if(((lines == 0) || (!currentRoomInfo.rensaBlock)) && (getTotalGarbageLines() >= GARBAGE_DENOMINATOR) && (!isPractice)) {
-			engine.playSE("garbage");
-
-			int smallGarbageCount = 0;	// 10pts未満のgarbage blockcountの合計count(後でまとめてせり上げる)
-			int hole = lastHole;
-			int newHole;
-			if(hole == -1) {
-				hole = engine.random.nextInt(engine.field.getWidth());
-			}
-
-			int finalGarbagePercent = garbagePercent;
-			if(divideChangeRateByPlayers){
-				finalGarbagePercent /= (getNumberOfTeamsAlive() - 1);
-			}
-
-			while(!garbageEntries.isEmpty()) {
-				GarbageEntry garbageEntry = garbageEntries.poll();
-				smallGarbageCount += garbageEntry.lines % GARBAGE_DENOMINATOR;
-
-				if(garbageEntry.lines / GARBAGE_DENOMINATOR > 0) {
-					int seatFrom = allPlayerSeatNumbers[garbageEntry.playerID];
-					int garbageColor = (seatFrom < 0) ? Block.BLOCK_COLOR_GRAY : PLAYER_COLOR_BLOCK[seatFrom];
-					lastAttackerUID = garbageEntry.uid;
-					if(garbageChangePerAttack == true){
-						if(engine.random.nextInt(100) < finalGarbagePercent) {
-							newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-							if(newHole >= hole) {
-								newHole++;
-							}
-							hole = newHole;
-						}
-						engine.field.addSingleHoleGarbage(hole, garbageColor, engine.getSkin(),
-								  garbageEntry.lines / GARBAGE_DENOMINATOR);
-					} else {
-						for(int i = garbageEntry.lines / GARBAGE_DENOMINATOR; i > 0; i--) {
-							if(engine.random.nextInt(100) < finalGarbagePercent) {
-								newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-								if(newHole >= hole) {
-									newHole++;
-								}
-								hole = newHole;
-							}
-
-							engine.field.addSingleHoleGarbage(hole, garbageColor, engine.getSkin(), 1);
-						}
-					}
-				}
-			}
-
-			if(smallGarbageCount > 0) {
-				// 10pts以上の部分をすべてせり上げる
-
-				//int hole = engine.random.nextInt(engine.field.getWidth());
-				//engine.field.addSingleHoleGarbage(hole, Block.BLOCK_COLOR_GRAY, engine.getSkin(),
-				//		  Block.BLOCK_ATTRIBUTE_GARBAGE | Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE,
-				//		  smallGarbageCount / GARBAGE_DENOMINATOR);
-
-				if(smallGarbageCount / GARBAGE_DENOMINATOR > 0) {
-					lastAttackerUID = -1;
-
-					if(garbageChangePerAttack == true){
-						if(engine.random.nextInt(100) < finalGarbagePercent) {
-							newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-							if(newHole >= hole) {
-								newHole++;
-							}
-							hole = newHole;
-						}
-						engine.field.addSingleHoleGarbage(hole, Block.BLOCK_COLOR_GRAY, engine.getSkin(),
-								  smallGarbageCount / GARBAGE_DENOMINATOR);
-					} else {
-						for(int i = smallGarbageCount / GARBAGE_DENOMINATOR; i > 0; i--) {
-							if(engine.random.nextInt(100) < finalGarbagePercent) {
-								newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-								if(newHole >= hole) {
-									newHole++;
-								}
-								hole = newHole;
-							}
-
-							engine.field.addSingleHoleGarbage(hole, Block.BLOCK_COLOR_GRAY, engine.getSkin(), 1);
-						}
-					}
-
-				}
-				// 10pts未満は次回繰越
-				if(smallGarbageCount % GARBAGE_DENOMINATOR > 0) {
-					GarbageEntry smallGarbageEntry = new GarbageEntry(smallGarbageCount % GARBAGE_DENOMINATOR, -1);
-					garbageEntries.add(smallGarbageEntry);
-				}
-			}
-
-			lastHole = hole;
-		}
-
-		// HURRY UP!
-		if((hurryupSeconds >= 0) && (engine.timerActive) && (!isPractice)) {
-			if(hurryupStarted) {
-				hurryupCount++;
-
-				if(hurryupCount % hurryupInterval == 0) {
-					engine.field.addHurryupFloor(1, engine.getSkin());
-				}
-			} else {
-				hurryupCount = hurryupInterval - 1;
-			}
-		}
-	}
-
-	/*
-	 * ARE
-	 */
-	@Override
-	public boolean onARE(GameEngine engine, int playerID) {
-		if((engine.statc[0] == 0) && (engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
-			sendField(engine);
-			if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
-		}
-		return false;
-	}
-
-	/*
-	 * Called after every frame
-	 */
-	@Override
-	public void onLast(GameEngine engine, int playerID) {
-		scgettime[playerID]++;
-		if((playerID == 0) && (hurryupShowFrames > 0)) hurryupShowFrames--;
-
-		// HURRY UP!
-		if((playerID == 0) && (engine.timerActive) && (hurryupSeconds >= 0) && (engine.statistics.time == hurryupSeconds * 60) &&
-		   (!isPractice) && (!hurryupStarted))
-		{
-			netLobby.netPlayerClient.send("game\thurryup\n");
-			owner.receiver.playSE("hurryup");
-			hurryupStarted = true;
-			hurryupShowFrames = 60 * 5;
-		}
-
-		// せり上がりMeter
-		int tempGarbage = garbage[playerID] / GARBAGE_DENOMINATOR;
-		float tempGarbageF = (float) garbage[playerID] / GARBAGE_DENOMINATOR;
-		int newMeterValue = (int)(tempGarbageF * receiver.getBlockGraphicsHeight(engine, playerID));
-		if((playerID == 0) && (playerSeatNumber != -1)) {
-			if(newMeterValue > engine.meterValue) {
-				engine.meterValue += receiver.getBlockGraphicsHeight(engine, playerID) / 2;
-				if(engine.meterValue > newMeterValue) {
-					engine.meterValue = newMeterValue;
-				}
-			} else if(newMeterValue < engine.meterValue) {
-				engine.meterValue--;
-			}
-		} else {
-			engine.meterValue = newMeterValue;
-		}
-		if(tempGarbage >= 4) engine.meterColor = GameEngine.METER_COLOR_RED;
-		else if(tempGarbage >= 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-		else if(tempGarbage >= 1) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-		else engine.meterColor = GameEngine.METER_COLOR_GREEN;
-
-		// APL & APM
-		if((playerID == 0) && (engine.gameActive) && (engine.timerActive)) {
-			float tempGarbageSent = (float)garbageSent[playerID] / GARBAGE_DENOMINATOR;
-			playerAPM = (tempGarbageSent * 3600) / (engine.statistics.time);
-
-			if(engine.statistics.lines > 0) {
-				playerAPL = (float)(tempGarbageSent / engine.statistics.lines);
-			} else {
-				playerAPL = 0f;
-			}
-		}
-
-		// Timer
-		if((playerID == 0) && (netPlayTimerActive)) netPlayTimer++;
-
-		// Automatically start timer
-		if((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
-			if(numPlayers <= 1) {
-				autoStartActive = false;
-			} else if(autoStartTimer > 0) {
-				autoStartTimer--;
-			} else {
-				if(playerSeatNumber != -1) {
-					netLobby.netPlayerClient.send("autostart\n");
-				}
-				autoStartTimer = 0;
-				autoStartActive = false;
-			}
-		}
-
-		// End practice mode
-		if((playerID == 0) && ((isPractice) && (isPracticeExitAllowed)) && (engine.ctrl.isPush(Controller.BUTTON_F))) {
-			engine.timerActive = false;
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-			isPracticeExitAllowed = false;
-
-			if(isPractice) {
-				isPractice = false;
-				engine.field.reset();
-				engine.gameEnded();
-				engine.stat = GameEngine.STAT_SETTING;
-				engine.resetStatc();
-			} else {
-				engine.stat = GameEngine.STAT_GAMEOVER;
-				engine.resetStatc();
-			}
-		}
-
-		/*
-		if(currentRoomID == -1) {
-			engine.isVisible = false;
-		} else if((netLobby.netClient != null) && (currentRoomID != -1)) {
-			NetRoomInfo roomInfo = netLobby.netClient.getRoomInfo(currentRoomID);
-			if((roomInfo == null) || (playerID >= roomInfo.maxPlayers)) {
-				engine.isVisible = false;
-			}
-		}
-		*/
-	}
-
-	/*
-	 * Drawing processing at the end of every frame
-	 */
-	@Override
-	public void renderLast(GameEngine engine, int playerID) {
-		// Number of players
-		if((playerID == getPlayers() - 1) && (netLobby != null) && (netLobby.netPlayerClient != null) && (netLobby.netPlayerClient.isConnected()) &&
-		   (!owner.engine[1].isVisible || owner.engine[1].displaysize == -1 || !isNetGameActive))
-		{
-			int x = (owner.receiver.getNextDisplayType() == 2) ? 544 : 503;
-			if(currentRoomID != -1) {
-				receiver.drawDirectFont(engine, 0, x, 286, "PLAYERS", EventReceiver.COLOR_CYAN, 0.5f);
-				receiver.drawDirectFont(engine, 0, x, 294, "" + numPlayers, EventReceiver.COLOR_WHITE, 0.5f);
-				receiver.drawDirectFont(engine, 0, x, 302, "SPECTATORS", EventReceiver.COLOR_CYAN, 0.5f);
-				receiver.drawDirectFont(engine, 0, x, 310, "" + numSpectators, EventReceiver.COLOR_WHITE, 0.5f);
-				receiver.drawDirectFont(engine, 0, x, 318, "MATCHES", EventReceiver.COLOR_CYAN, 0.5f);
-				receiver.drawDirectFont(engine, 0, x, 326, "" + numGames, EventReceiver.COLOR_WHITE, 0.5f);
-				receiver.drawDirectFont(engine, 0, x, 334, "WINS", EventReceiver.COLOR_CYAN, 0.5f);
-				receiver.drawDirectFont(engine, 0, x, 342, "" + numWins, EventReceiver.COLOR_WHITE, 0.5f);
-			}
-			receiver.drawDirectFont(engine, 0, x, 358, "ALL ROOMS", EventReceiver.COLOR_GREEN, 0.5f);
-			receiver.drawDirectFont(engine, 0, x, 366, "" + netLobby.netPlayerClient.getRoomInfoList().size(), EventReceiver.COLOR_WHITE, 0.5f);
-		}
-
-		// All number of players
-		if(playerID == getPlayers() - 1) netDrawAllPlayersCount(engine);
-
-		// 経過 time
-		if((playerID == 0) && (currentRoomID != -1)) {
-			receiver.drawDirectFont(engine, 0, 256, 16, GeneralUtil.getTime(netPlayTimer));
-
-			if((hurryupSeconds >= 0) && (hurryupShowFrames > 0) && (!isPractice) && (hurryupStarted)) {
-				receiver.drawDirectFont(engine, 0, 256 - 8, 32, "HURRY UP!", (hurryupShowFrames % 2 == 0));
-			}
-		}
-
-		if((isPlayerExist[playerID]) && (engine.isVisible)) {
-			int x = receiver.getFieldDisplayPositionX(engine, playerID);
-			int y = receiver.getFieldDisplayPositionY(engine, playerID);
-
-			// Name
-			if((playerNames != null) && (playerNames[playerID] != null) && (playerNames[playerID].length() > 0)) {
-				String name = playerNames[playerID];
-				int fontcolorNum = playerTeamColors[playerID];
-				if(fontcolorNum < 0) fontcolorNum = 0;
-				if(fontcolorNum > TEAM_FONT_COLORS.length - 1) fontcolorNum = TEAM_FONT_COLORS.length - 1;
-				int fontcolor = TEAM_FONT_COLORS[fontcolorNum];
-
-				if(engine.displaysize == -1) {
-					if(name.length() > 7) name = name.substring(0, 7) + "..";
-					receiver.drawTTFDirectFont(engine, playerID, x, y - 16, name, fontcolor);
-				} else if(playerID == 0) {
-					if(name.length() > 14) name = name.substring(0, 14) + "..";
-					receiver.drawTTFDirectFont(engine, playerID, x, y - 20, name, fontcolor);
-				} else {
-					receiver.drawTTFDirectFont(engine, playerID, x, y - 20, name, fontcolor);
-				}
-			}
-
-			// garbage blockcount
-			if((garbage[playerID] > 0) && (useFractionalGarbage)) {
-				String strTempGarbage;
-
-				int fontColor = EventReceiver.COLOR_WHITE;
-				if(garbage[playerID] >= GARBAGE_DENOMINATOR) fontColor = EventReceiver.COLOR_YELLOW;
-				if(garbage[playerID] >= GARBAGE_DENOMINATOR*3) fontColor = EventReceiver.COLOR_ORANGE;
-				if(garbage[playerID] >= GARBAGE_DENOMINATOR*4) fontColor = EventReceiver.COLOR_RED;
-
-				if(engine.displaysize != -1) {
-					//strTempGarbage = String.format(Locale.ROOT, "%5.2f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
-					strTempGarbage = String.format(Locale.US, "%5.2f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
-					receiver.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor, 1.0f);
-				} else {
-					//strTempGarbage = String.format(Locale.ROOT, "%4.1f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
-					strTempGarbage = String.format(Locale.US, "%4.1f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
-					receiver.drawDirectFont(engine, playerID, x + 64, y + 168, strTempGarbage, fontColor, 0.5f);
-				}
-			}
-		}
-
-		// Practice mode
-		if((playerID == 0) && ((isPractice) || (numNowPlayers == 1)) && (isPracticeExitAllowed)) {
-			if((lastevent[playerID] == EVENT_NONE) || (scgettime[playerID] >= 120)) {
-				receiver.drawMenuFont(engine, 0, 0, 21,
-						"F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):\n END GAME",
-						EventReceiver.COLOR_PURPLE);
-			}
-
-			if(isPractice && engine.timerActive) {
-				receiver.drawDirectFont(engine, 0, 256, 32, GeneralUtil.getTime(engine.statistics.time), EventReceiver.COLOR_PURPLE);
-			}
-		}
-
-		// Automatically start timer
-		if((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
-			receiver.drawDirectFont(engine, 0, 496, 16, GeneralUtil.getTime(autoStartTimer),
-									currentRoomInfo.autoStartTNET2, EventReceiver.COLOR_RED, EventReceiver.COLOR_YELLOW);
-		}
-
-		// Line clear event
-		if((lastevent[playerID] != EVENT_NONE) && (scgettime[playerID] < 120)) {
-			String strPieceName = Piece.getPieceName(lastpiece[playerID]);
-
-			if(engine.displaysize != -1) {
-				switch(lastevent[playerID]) {
-				case EVENT_SINGLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", EventReceiver.COLOR_DARKBLUE);
-					break;
-				case EVENT_DOUBLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", EventReceiver.COLOR_BLUE);
-					break;
-				case EVENT_TRIPLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", EventReceiver.COLOR_GREEN);
-					break;
-				case EVENT_FOUR:
-					if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_ORANGE);
-					break;
-				case EVENT_TSPIN_SINGLE_MINI:
-					if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE);
-					break;
-				case EVENT_TSPIN_SINGLE:
-					if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE);
-					break;
-				case EVENT_TSPIN_DOUBLE_MINI:
-					if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE);
-					break;
-				case EVENT_TSPIN_DOUBLE:
-					if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE);
-					break;
-				case EVENT_TSPIN_TRIPLE:
-					if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE);
-					break;
-				case EVENT_TSPIN_EZ:
-					if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE);
-					break;
-				}
-
-				if(lastcombo[playerID] >= 2)
-					receiver.drawMenuFont(engine, playerID, 2, 22, (lastcombo[playerID] - 1) + "COMBO", EventReceiver.COLOR_CYAN);
-			} else {
-				int x = receiver.getFieldDisplayPositionX(engine, playerID);
-				int y = receiver.getFieldDisplayPositionY(engine, playerID);
-				int x2 = 8;
-				if(useFractionalGarbage && (garbage[playerID] > 0)) x2 = 0;
-
-				switch(lastevent[playerID]) {
-				case EVENT_SINGLE:
-					receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "SINGLE", EventReceiver.COLOR_DARKBLUE, 0.5f);
-					break;
-				case EVENT_DOUBLE:
-					receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "DOUBLE", EventReceiver.COLOR_BLUE, 0.5f);
-					break;
-				case EVENT_TRIPLE:
-					receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "TRIPLE", EventReceiver.COLOR_GREEN, 0.5f);
-					break;
-				case EVENT_FOUR:
-					if(lastb2b[playerID]) receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_RED, 0.5f);
-					else receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_ORANGE, 0.5f);
-					break;
-				case EVENT_TSPIN_SINGLE_MINI:
-					if(lastb2b[playerID])
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_RED, 0.5f);
-					else
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE, 0.5f);
-					break;
-				case EVENT_TSPIN_SINGLE:
-					if(lastb2b[playerID])
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_RED, 0.5f);
-					else
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE, 0.5f);
-					break;
-				case EVENT_TSPIN_DOUBLE_MINI:
-					if(lastb2b[playerID])
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_RED, 0.5f);
-					else
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE, 0.5f);
-					break;
-				case EVENT_TSPIN_DOUBLE:
-					if(lastb2b[playerID])
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED, 0.5f);
-					else
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE, 0.5f);
-					break;
-				case EVENT_TSPIN_TRIPLE:
-					if(lastb2b[playerID])
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED, 0.5f);
-					else
-						receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE, 0.5f);
-					break;
-				case EVENT_TSPIN_EZ:
-					if(lastb2b[playerID])
-						receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_RED, 0.5f);
-					else
-						receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE, 0.5f);
-					break;
-				}
-
-				if(lastcombo[playerID] >= 2)
-					receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 176, (lastcombo[playerID] - 1) + "COMBO", EventReceiver.COLOR_CYAN, 0.5f);
-			}
-		}
-		// Games count
-		else if(isPlayerExist[playerID] && engine.isVisible && !isPractice) {
-			String strTemp = playerWinCount[playerID] + "/" + playerGamesCount[playerID];
-
-			if(engine.displaysize != -1) {
-				int y = 21;
-				if(engine.stat == GameEngine.STAT_RESULT) y = 22;
-				receiver.drawMenuFont(engine, playerID, 0, y, strTemp, EventReceiver.COLOR_WHITE);
-			} else {
-				int x = receiver.getFieldDisplayPositionX(engine, playerID);
-				int y = receiver.getFieldDisplayPositionY(engine, playerID);
-				receiver.drawDirectFont(engine, playerID, x + 4, y + 168, strTemp, EventReceiver.COLOR_WHITE, 0.5f);
-			}
-		}
-	}
-
-	/*
-	 * game over
-	 */
-	@Override
-	public boolean onGameOver(GameEngine engine, int playerID) {
-		engine.gameEnded();
-		engine.allowTextRenderByReceiver = false;
-		isPracticeExitAllowed = false;
-
-		if((playerID == 0) && (isPractice)) {
-			if(engine.statc[0] < engine.field.getHeight() + 1) {
-				return false;
-			} else {
-				engine.field.reset();
-				engine.stat = GameEngine.STAT_RESULT;
-				engine.resetStatc();
-				return true;
-			}
-		}
-
-		if((playerID == 0) && (!isDead[playerID])) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-			engine.resetFieldVisible();
-
-			sendField(engine);
-			if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
-			netLobby.netPlayerClient.send("dead\t" + lastAttackerUID + "\n");
-
-			engine.stat = GameEngine.STAT_CUSTOM;
-			engine.resetStatc();
-			return true;
-		}
-
-		if(isDead[playerID]) {
-			if(playerPlace[playerID] <= 2) {
-				engine.statistics.time = netPlayTimer;
-			}
-			if(engine.field == null) {
-				engine.stat = GameEngine.STAT_SETTING;
-				engine.resetStatc();
-				return true;
-			}
-			if( (engine.statc[0] < engine.field.getHeight() + 1) || ((playerID == 0) && (playerSeatNumber >= 0)) ) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	/*
-	 * game overDraw the screen
-	 */
-	@Override
-	public void renderGameOver(GameEngine engine, int playerID) {
-		if((playerID == 0) && (isPractice)) return;
-		if(engine.isVisible == false) return;
-
-		int x = receiver.getFieldDisplayPositionX(engine, playerID);
-		int y = receiver.getFieldDisplayPositionY(engine, playerID);
-		int place = playerPlace[playerID];
-
-		if(engine.displaysize != -1) {
-			if(isReady[playerID] && !isNetGameActive) {
-				receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", EventReceiver.COLOR_YELLOW);
-			} else if((numNowPlayers == 2) && (isDead[playerID])) {
-				receiver.drawDirectFont(engine, playerID, x + 52, y + 204, "LOSE", EventReceiver.COLOR_WHITE);
-			} else if(place == 1) {
-				//receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "GAME OVER", EventReceiver.COLOR_WHITE);
-			} else if(place == 2) {
-				receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "2ND PLACE", EventReceiver.COLOR_WHITE);
-			} else if(place == 3) {
-				receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "3RD PLACE", EventReceiver.COLOR_RED);
-			} else if(place == 4) {
-				receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "4TH PLACE", EventReceiver.COLOR_GREEN);
-			} else if(place == 5) {
-				receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "5TH PLACE", EventReceiver.COLOR_BLUE);
-			} else if(place == 6) {
-				receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "6TH PLACE", EventReceiver.COLOR_PURPLE);
-			}
-
-			if(playerKObyYou[playerID]) {
-				receiver.drawDirectFont(engine, playerID, x + 52, y + 236, "K.O.", EventReceiver.COLOR_PINK);
-			}
-		} else {
-			if(isReady[playerID] && !isNetGameActive) {
-				receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", EventReceiver.COLOR_YELLOW, 0.5f);
-			} else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
-				receiver.drawDirectFont(engine, playerID, x + 28, y + 80, "LOSE", EventReceiver.COLOR_WHITE, 0.5f);
-			} else if(place == 1) {
-				//receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "GAME OVER", EventReceiver.COLOR_WHITE, 0.5f);
-			} else if(place == 2) {
-				receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "2ND PLACE", EventReceiver.COLOR_WHITE, 0.5f);
-			} else if(place == 3) {
-				receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "3RD PLACE", EventReceiver.COLOR_RED, 0.5f);
-			} else if(place == 4) {
-				receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "4TH PLACE", EventReceiver.COLOR_GREEN, 0.5f);
-			} else if(place == 5) {
-				receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "5TH PLACE", EventReceiver.COLOR_BLUE, 0.5f);
-			} else if(place == 6) {
-				receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "6TH PLACE", EventReceiver.COLOR_PURPLE, 0.5f);
-			}
-
-			if(playerKObyYou[playerID]) {
-				receiver.drawDirectFont(engine, playerID, x + 28, y + 96, "K.O.", EventReceiver.COLOR_PINK, 0.5f);
-			}
-		}
-	}
-
-	/*
-	 * After being defeated
-	 */
-	@Override
-	public boolean onCustom(GameEngine engine, int playerID) {
-		if(!isNetGameActive) {
-			isDead[playerID] = true;
-			engine.stat = GameEngine.STAT_GAMEOVER;
-			engine.resetStatc();
-		}
-		return false;
-	}
-
-	/*
-	 * EXCELLENT画面の処理
-	 */
-	@Override
-	public boolean onExcellent(GameEngine engine, int playerID) {
-		engine.gameEnded();
-		engine.allowTextRenderByReceiver = false;
-
-		if(engine.statc[0] == 0) {
-			//if((playerID == 0) && (playerSeatNumber != -1)) numWins++;
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-			if(engine.ai != null) engine.ai.shutdown(engine, playerID);
-			engine.resetFieldVisible();
-			engine.playSE("excellent");
-		}
-
-		if((engine.statc[0] >= 120) && (engine.ctrl.isPush(Controller.BUTTON_A))) {
-			engine.statc[0] = engine.field.getHeight() + 1 + 180;
-		}
-
-		if((engine.statc[0] >= engine.field.getHeight() + 1 + 180) && (!isNetGameActive) && (playerID == 0) && (playerSeatNumber != -1)) {
-			if(engine.field != null) engine.field.reset();
-			engine.resetStatc();
-			engine.stat = GameEngine.STAT_RESULT;
-		} else {
-			engine.statc[0]++;
-		}
-
-		return true;
-	}
-
-	/*
-	 * EXCELLENT画面の描画処理
-	 */
-	@Override
-	public void renderExcellent(GameEngine engine, int playerID) {
-		if(engine.isVisible == false) return;
-
-		int x = receiver.getFieldDisplayPositionX(engine, playerID);
-		int y = receiver.getFieldDisplayPositionY(engine, playerID);
-
-		if(engine.displaysize != -1) {
-			if(isReady[playerID] && !isNetGameActive) {
-				receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", EventReceiver.COLOR_YELLOW);
-			} else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
-				receiver.drawDirectFont(engine, playerID, x + 52, y + 204, "WIN!", EventReceiver.COLOR_YELLOW);
-			} else {
-				receiver.drawDirectFont(engine, playerID, x + 4, y + 204, "1ST PLACE!", EventReceiver.COLOR_YELLOW);
-			}
-		} else {
-			if(isReady[playerID] && !isNetGameActive) {
-				receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", EventReceiver.COLOR_YELLOW, 0.5f);
-			} else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
-				receiver.drawDirectFont(engine, playerID, x + 28, y + 80, "WIN!", EventReceiver.COLOR_YELLOW, 0.5f);
-			} else {
-				receiver.drawDirectFont(engine, playerID, x + 4, y + 80, "1ST PLACE!", EventReceiver.COLOR_YELLOW, 0.5f);
-			}
-		}
-	}
-
-	/*
-	 * 結果画面の処理
-	 */
-	@Override
-	public boolean onResult(GameEngine engine, int playerID) {
-		engine.allowTextRenderByReceiver = false;
-
-		// 設定画面へ
-		if(engine.ctrl.isPush(Controller.BUTTON_A) && !isNetGameActive && (playerID == 0)) {
-			engine.playSE("decide");
-			resetFlags();
-			owner.reset();
-		}
-		// Practice mode
-		if(engine.ctrl.isPush(Controller.BUTTON_F) && (playerID == 0)) {
-			engine.playSE("decide");
-			startPractice(engine);
-		}
-
-		return true;
-	}
-
-	/*
-	 * Render results screen処理
-	 */
-	@Override
-	public void renderResult(GameEngine engine, int playerID) {
-		if(!isPractice) {
-			receiver.drawMenuFont(engine, playerID, 0, 0, "RESULT", EventReceiver.COLOR_ORANGE);
-
-			if(playerPlace[playerID] == 1) {
-				if(numNowPlayers == 2) {
-					receiver.drawMenuFont(engine, playerID, 6, 1, "WIN!", EventReceiver.COLOR_YELLOW);
-				} else if(numNowPlayers > 2) {
-					receiver.drawMenuFont(engine, playerID, 6, 1, "1ST!", EventReceiver.COLOR_YELLOW);
-				}
-			} else if(playerPlace[playerID] == 2) {
-				if(numNowPlayers == 2) {
-					receiver.drawMenuFont(engine, playerID, 6, 1, "LOSE", EventReceiver.COLOR_WHITE);
-				} else {
-					receiver.drawMenuFont(engine, playerID, 7, 1, "2ND", EventReceiver.COLOR_WHITE);
-				}
-			} else if(playerPlace[playerID] == 3) {
-				receiver.drawMenuFont(engine, playerID, 7, 1, "3RD", EventReceiver.COLOR_RED);
-			} else if(playerPlace[playerID] == 4) {
-				receiver.drawMenuFont(engine, playerID, 7, 1, "4TH", EventReceiver.COLOR_GREEN);
-			} else if(playerPlace[playerID] == 5) {
-				receiver.drawMenuFont(engine, playerID, 7, 1, "5TH", EventReceiver.COLOR_BLUE);
-			} else if(playerPlace[playerID] == 6) {
-				receiver.drawMenuFont(engine, playerID, 7, 1, "6TH", EventReceiver.COLOR_DARKBLUE);
-			}
-		} else {
-			receiver.drawMenuFont(engine, playerID, 0, 0, "PRACTICE", EventReceiver.COLOR_PINK);
-		}
-
-		drawResult(engine, playerID, receiver, 2, EventReceiver.COLOR_ORANGE,
-				"ATTACK", String.format("%10g", (float)garbageSent[playerID] / GARBAGE_DENOMINATOR),
-				"LINE", String.format("%10d", engine.statistics.lines),
-				"PIECE", String.format("%10d", engine.statistics.totalPieceLocked),
-				"ATK/LINE", String.format("%10g", playerAPL),
-				"ATTACK/MIN", String.format("%10g", playerAPM),
-				"LINE/MIN", String.format("%10g", engine.statistics.lpm),
-				"PIECE/SEC", String.format("%10g", engine.statistics.pps),
-				"TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
-
-		if(!isNetGameActive && (playerSeatNumber >= 0) && (playerID == 0)) {
-			String strTemp = "A(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_A) + " KEY):";
-			if(strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
-			receiver.drawMenuFont(engine, playerID, 0, 18, strTemp, EventReceiver.COLOR_RED);
-			receiver.drawMenuFont(engine, playerID, 1, 19, "RESTART", EventReceiver.COLOR_RED);
-		}
-
-		String strTempF = "F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):";
-		if(strTempF.length() > 10) strTempF = strTempF.substring(0, 10);
-		receiver.drawMenuFont(engine, playerID, 0, 20, strTempF, EventReceiver.COLOR_PURPLE);
-		if(!isPractice) {
-			receiver.drawMenuFont(engine, playerID, 1, 21, "PRACTICE", EventReceiver.COLOR_PURPLE);
-		} else {
-			receiver.drawMenuFont(engine, playerID, 1, 21, "RETRY", EventReceiver.COLOR_PURPLE);
-		}
-	}
-
-	/**
-	 * No retry key.
-	 */
-	@Override
-	public void netplayOnRetryKey(GameEngine engine, int playerID) {
-	}
-
-	@Override
-	public void netlobbyOnDisconnect(NetLobbyFrame lobby, NetPlayerClient client, Throwable ex) {
-		for(int i = 0; i < getPlayers(); i++) {
-			owner.engine[i].stat = GameEngine.STAT_NOTHING;
-		}
-	}
-
-	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
-		// Player状態変更
-		if(message[0].equals("playerupdate")) {
-			NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
-
-			if((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
-				int playerID = getPlayerIDbySeatID(pInfo.seatID);
-
-				if(isReady[playerID] != pInfo.ready) {
-					isReady[playerID] = pInfo.ready;
-
-					if((playerID == 0) && (playerSeatNumber != -1)) {
-						isReadyChangePending = false;
-					} else {
-						if(pInfo.ready) receiver.playSE("decide");
-						else if(!pInfo.playing) receiver.playSE("change");
-					}
-				}
-			}
-
-			updatePlayerExist();
-			updatePlayerNames();
-		}
-		// Player切断
-		if(message[0].equals("playerlogout")) {
-			NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
-
-			if((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
-				updatePlayerExist();
-				updatePlayerNames();
-			}
-		}
-		// 参戦状態変更
-		if(message[0].equals("changestatus")) {
-			int uid = Integer.parseInt(message[2]);
-
-			if(uid == netLobby.netPlayerClient.getPlayerUID()) {
-				playerSeatNumber = client.getYourPlayerInfo().seatID;
-				isReady[0] = false;
-
-				updatePlayerExist();
-				updatePlayerNames();
-
-				if(playerSeatNumber >= 0) {
-					// 参戦
-					owner.engine[0].displaysize = 0;
-					owner.engine[0].enableSE = true;
-					for(int i = 1; i < getPlayers(); i++) {
-						owner.engine[i].displaysize = -1;
-					}
-				} else {
-					// 観戦
-					for(int i = 0; i < getPlayers(); i++) {
-						owner.engine[i].displaysize = -1;
-						owner.engine[i].enableSE = false;
-					}
-				}
-
-				// Apply 1vs1 layout
-				if((currentRoomInfo != null) && (currentRoomInfo.maxPlayers == 2)) {
-					owner.engine[0].displaysize = 0;
-					owner.engine[1].displaysize = 0;
-				}
-
-				isPractice = false;
-				owner.engine[0].stat = GameEngine.STAT_SETTING;
-
-				for(int i = 0; i < getPlayers(); i++) {
-					if(owner.engine[i].field != null) {
-						owner.engine[i].field.reset();
-					}
-					owner.engine[i].nowPieceObject = null;
-					garbage[i] = 0;
-
-					if((owner.engine[i].stat == GameEngine.STAT_NOTHING) || (isNetGameFinished)) {
-						owner.engine[i].stat = GameEngine.STAT_SETTING;
-					}
-					owner.engine[i].resetStatc();
-				}
-			} else {
-				if(message[1].equals("watchonly")) {
-					int seatID = Integer.parseInt(message[4]);
-					int playerID = getPlayerIDbySeatID(seatID);
-					isPlayerExist[playerID] = false;
-					isReady[playerID] = false;
-					garbage[playerID] = 0;
-				}
-			}
-		}
-		// 誰か来た
-		if(message[0].equals("playerenter")) {
-			int seatID = Integer.parseInt(message[3]);
-			if((seatID != -1) && (numPlayers < 2)) {
-				owner.receiver.playSE("levelstop");
-			}
-		}
-		// 誰か出て行った
-		if(message[0].equals("playerleave")) {
-			int seatID = Integer.parseInt(message[3]);
-
-			if(seatID != -1) {
-				int playerID = getPlayerIDbySeatID(seatID);
-				isPlayerExist[playerID] = false;
-				isReady[playerID] = false;
-				garbage[playerID] = 0;
-
-				numPlayers--;
-				if(numPlayers < 2) {
-					isReady[0] = false;
-					autoStartActive = false;
-				}
-			}
-		}
-		// Automatic timer start
-		if(message[0].equals("autostartbegin")) {
-			if(numPlayers >= 2) {
-				int seconds = Integer.parseInt(message[1]);
-				autoStartTimer = seconds * 60;
-				autoStartActive = true;
-			}
-		}
-		// Automatic timer stop
-		if(message[0].equals("autostartstop")) {
-			autoStartActive = false;
-		}
-		// game start
-		if(message[0].equals("start")) {
-			long randseed = Long.parseLong(message[1], 16);
-			numNowPlayers = Integer.parseInt(message[2]);
-			if((numNowPlayers >= 2) && (playerSeatNumber != -1)) numGames++;
-			numAlivePlayers = numNowPlayers;
-			mapNo = Integer.parseInt(message[3]);
-
-			resetFlags();
-			owner.reset();
-
-			autoStartActive = false;
-			isNetGameActive = true;
-			netPlayTimer = 0;
-
-			if(currentRoomInfo != null)
-				currentRoomInfo.playing = true;
-
-			if((playerSeatNumber != -1) && (!rulelockFlag) && (netLobby.ruleOptPlayer != null))
-				owner.engine[0].ruleopt.copy(netLobby.ruleOptPlayer);	// Restore rules
-
-			updatePlayerExist();
-			updatePlayerNames();
-
-			log.debug("Game Started numNowPlayers:" + numNowPlayers + " numMaxPlayers:" + numMaxPlayers + " mapNo:" + mapNo);
-
-			for(int i = 0; i < getPlayers(); i++) {
-				GameEngine engine = owner.engine[i];
-				engine.resetStatc();
-
-				if(isPlayerExist[i]) {
-					engine.stat = GameEngine.STAT_READY;
-					engine.randSeed = randseed;
-					engine.random = new Random(randseed);
-
-					if((numMaxPlayers == 2) && (numNowPlayers == 2)) {
-						engine.isVisible = true;
-						engine.displaysize = 0;
-
-						if( (rulelockFlag) || ((i == 0) && (playerSeatNumber != -1)) ) {
-							engine.isNextVisible = true;
-							engine.isHoldVisible = true;
-
-							if(i != 0) {
-								engine.randomizer = owner.engine[0].randomizer;
-							}
-						} else {
-							engine.isNextVisible = false;
-							engine.isHoldVisible = false;
-						}
-					}
-				} else if(i < numMaxPlayers) {
-					engine.stat = GameEngine.STAT_SETTING;
-					engine.isVisible = true;
-					engine.isNextVisible = false;
-					engine.isHoldVisible = false;
-
-					if((numMaxPlayers == 2) && (numNowPlayers == 2)) {
-						engine.isVisible = false;
-					}
-				} else {
-					engine.stat = GameEngine.STAT_SETTING;
-					engine.isVisible = false;
-				}
-
-				isDead[i] = false;
-				isReady[i] = false;
-			}
-		}
-		// 死亡
-		if(message[0].equals("dead")) {
-			int seatID = Integer.parseInt(message[3]);
-			int playerID = getPlayerIDbySeatID(seatID);
-			int koUID = -1;
-			if(message.length > 5) koUID = Integer.parseInt(message[5]);
-
-//			if((useTankMode == true) && (playerTeamsIsTank[playerID] == true)) {
-//				String teamName = playerTeams[playerID];
-//				for(int i = 0; i < MAX_PLAYERS; i++ ){
-//					if((playerTeams[i].length() > 0) && (isPlayerExist[i]) && (playerTeams[i].equals(teamName))) {
-//						if(i != playerID) {
-//							playerTeamsIsTank[i] = true;
-//						}
-//					}
+                        GarbageEntry garbageEntry = garbageEntries.getFirst();
+                        garbageEntry.lines -= pts[i];
+
+                        if(garbageEntry.lines <= 0) {
+                            pts[i] = Math.abs(garbageEntry.lines);
+                            garbageEntries.removeFirst();
+                        } else {
+                            pts[i] = 0;
+                        }
+                    }
+                }
+            }
+
+            //  Attack
+            if(!isPractice && (numPlayers + numSpectators >= 2)) {
+                garbage[playerID] = getTotalGarbageLines();
+
+                String stringPts = "";
+                for(int i : pts){
+                    stringPts += i + "\t";
+                }
+                netLobby.netPlayerClient.send("game\tattack\t" + stringPts + "\t" + lastevent[playerID] + "\t" + lastb2b[playerID] + "\t" +
+                        lastcombo[playerID] + "\t" + garbage[playerID] + "\t" + lastpiece[playerID] + "\n");
+            }
+        }
+
+        // せり上がり
+        if(((lines == 0) || (!currentRoomInfo.rensaBlock)) && (getTotalGarbageLines() >= GARBAGE_DENOMINATOR) && (!isPractice)) {
+            engine.playSE("garbage");
+
+            int smallGarbageCount = 0;    // 10pts未満のgarbage blockcountの合計count(後でまとめてせり上げる)
+            int hole = lastHole;
+            int newHole;
+            if(hole == -1) {
+                hole = engine.random.nextInt(engine.field.getWidth());
+            }
+
+            int finalGarbagePercent = garbagePercent;
+            if(divideChangeRateByPlayers){
+                finalGarbagePercent /= (getNumberOfTeamsAlive() - 1);
+            }
+
+            while(!garbageEntries.isEmpty()) {
+                GarbageEntry garbageEntry = garbageEntries.poll();
+                smallGarbageCount += garbageEntry.lines % GARBAGE_DENOMINATOR;
+
+                if(garbageEntry.lines / GARBAGE_DENOMINATOR > 0) {
+                    int seatFrom = allPlayerSeatNumbers[garbageEntry.playerID];
+                    int garbageColor = (seatFrom < 0) ? Block.BLOCK_COLOR_GRAY : PLAYER_COLOR_BLOCK[seatFrom];
+                    lastAttackerUID = garbageEntry.uid;
+                    if(garbageChangePerAttack == true){
+                        if(engine.random.nextInt(100) < finalGarbagePercent) {
+                            newHole = engine.random.nextInt(engine.field.getWidth() - 1);
+                            if(newHole >= hole) {
+                                newHole++;
+                            }
+                            hole = newHole;
+                        }
+                        engine.field.addSingleHoleGarbage(hole, garbageColor, engine.getSkin(),
+                                  garbageEntry.lines / GARBAGE_DENOMINATOR);
+                    } else {
+                        for(int i = garbageEntry.lines / GARBAGE_DENOMINATOR; i > 0; i--) {
+                            if(engine.random.nextInt(100) < finalGarbagePercent) {
+                                newHole = engine.random.nextInt(engine.field.getWidth() - 1);
+                                if(newHole >= hole) {
+                                    newHole++;
+                                }
+                                hole = newHole;
+                            }
+
+                            engine.field.addSingleHoleGarbage(hole, garbageColor, engine.getSkin(), 1);
+                        }
+                    }
+                }
+            }
+
+            if(smallGarbageCount > 0) {
+                // 10pts以上の部分をすべてせり上げる
+
+                //int hole = engine.random.nextInt(engine.field.getWidth());
+                //engine.field.addSingleHoleGarbage(hole, Block.BLOCK_COLOR_GRAY, engine.getSkin(),
+                //          Block.BLOCK_ATTRIBUTE_GARBAGE | Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE,
+                //          smallGarbageCount / GARBAGE_DENOMINATOR);
+
+                if(smallGarbageCount / GARBAGE_DENOMINATOR > 0) {
+                    lastAttackerUID = -1;
+
+                    if(garbageChangePerAttack == true){
+                        if(engine.random.nextInt(100) < finalGarbagePercent) {
+                            newHole = engine.random.nextInt(engine.field.getWidth() - 1);
+                            if(newHole >= hole) {
+                                newHole++;
+                            }
+                            hole = newHole;
+                        }
+                        engine.field.addSingleHoleGarbage(hole, Block.BLOCK_COLOR_GRAY, engine.getSkin(),
+                                  smallGarbageCount / GARBAGE_DENOMINATOR);
+                    } else {
+                        for(int i = smallGarbageCount / GARBAGE_DENOMINATOR; i > 0; i--) {
+                            if(engine.random.nextInt(100) < finalGarbagePercent) {
+                                newHole = engine.random.nextInt(engine.field.getWidth() - 1);
+                                if(newHole >= hole) {
+                                    newHole++;
+                                }
+                                hole = newHole;
+                            }
+
+                            engine.field.addSingleHoleGarbage(hole, Block.BLOCK_COLOR_GRAY, engine.getSkin(), 1);
+                        }
+                    }
+
+                }
+                // 10pts未満は次回繰越
+                if(smallGarbageCount % GARBAGE_DENOMINATOR > 0) {
+                    GarbageEntry smallGarbageEntry = new GarbageEntry(smallGarbageCount % GARBAGE_DENOMINATOR, -1);
+                    garbageEntries.add(smallGarbageEntry);
+                }
+            }
+
+            lastHole = hole;
+        }
+
+        // HURRY UP!
+        if((hurryupSeconds >= 0) && (engine.timerActive) && (!isPractice)) {
+            if(hurryupStarted) {
+                hurryupCount++;
+
+                if(hurryupCount % hurryupInterval == 0) {
+                    engine.field.addHurryupFloor(1, engine.getSkin());
+                }
+            } else {
+                hurryupCount = hurryupInterval - 1;
+            }
+        }
+    }
+
+    /*
+     * ARE
+     */
+    @Override
+    public boolean onARE(GameEngine engine, int playerID) {
+        if((engine.statc[0] == 0) && (engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
+            sendField(engine);
+            if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
+        }
+        return false;
+    }
+
+    /*
+     * Called after every frame
+     */
+    @Override
+    public void onLast(GameEngine engine, int playerID) {
+        scgettime[playerID]++;
+        if((playerID == 0) && (hurryupShowFrames > 0)) hurryupShowFrames--;
+
+        // HURRY UP!
+        if((playerID == 0) && (engine.timerActive) && (hurryupSeconds >= 0) && (engine.statistics.time == hurryupSeconds * 60) &&
+           (!isPractice) && (!hurryupStarted))
+        {
+            netLobby.netPlayerClient.send("game\thurryup\n");
+            owner.receiver.playSE("hurryup");
+            hurryupStarted = true;
+            hurryupShowFrames = 60 * 5;
+        }
+
+        // せり上がりMeter
+        int tempGarbage = garbage[playerID] / GARBAGE_DENOMINATOR;
+        float tempGarbageF = (float) garbage[playerID] / GARBAGE_DENOMINATOR;
+        int newMeterValue = (int)(tempGarbageF * receiver.getBlockGraphicsHeight(engine, playerID));
+        if((playerID == 0) && (playerSeatNumber != -1)) {
+            if(newMeterValue > engine.meterValue) {
+                engine.meterValue += receiver.getBlockGraphicsHeight(engine, playerID) / 2;
+                if(engine.meterValue > newMeterValue) {
+                    engine.meterValue = newMeterValue;
+                }
+            } else if(newMeterValue < engine.meterValue) {
+                engine.meterValue--;
+            }
+        } else {
+            engine.meterValue = newMeterValue;
+        }
+        if(tempGarbage >= 4) engine.meterColor = GameEngine.METER_COLOR_RED;
+        else if(tempGarbage >= 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+        else if(tempGarbage >= 1) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+        else engine.meterColor = GameEngine.METER_COLOR_GREEN;
+
+        // APL & APM
+        if((playerID == 0) && (engine.gameActive) && (engine.timerActive)) {
+            float tempGarbageSent = (float)garbageSent[playerID] / GARBAGE_DENOMINATOR;
+            playerAPM = (tempGarbageSent * 3600) / (engine.statistics.time);
+
+            if(engine.statistics.lines > 0) {
+                playerAPL = (float)(tempGarbageSent / engine.statistics.lines);
+            } else {
+                playerAPL = 0f;
+            }
+        }
+
+        // Timer
+        if((playerID == 0) && (netPlayTimerActive)) netPlayTimer++;
+
+        // Automatically start timer
+        if((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
+            if(numPlayers <= 1) {
+                autoStartActive = false;
+            } else if(autoStartTimer > 0) {
+                autoStartTimer--;
+            } else {
+                if(playerSeatNumber != -1) {
+                    netLobby.netPlayerClient.send("autostart\n");
+                }
+                autoStartTimer = 0;
+                autoStartActive = false;
+            }
+        }
+
+        // End practice mode
+        if((playerID == 0) && ((isPractice) && (isPracticeExitAllowed)) && (engine.ctrl.isPush(Controller.BUTTON_F))) {
+            engine.timerActive = false;
+            owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+            isPracticeExitAllowed = false;
+
+            if(isPractice) {
+                isPractice = false;
+                engine.field.reset();
+                engine.gameEnded();
+                engine.stat = GameEngine.STAT_SETTING;
+                engine.resetStatc();
+            } else {
+                engine.stat = GameEngine.STAT_GAMEOVER;
+                engine.resetStatc();
+            }
+        }
+
+        /*
+        if(currentRoomID == -1) {
+            engine.isVisible = false;
+        } else if((netLobby.netClient != null) && (currentRoomID != -1)) {
+            NetRoomInfo roomInfo = netLobby.netClient.getRoomInfo(currentRoomID);
+            if((roomInfo == null) || (playerID >= roomInfo.maxPlayers)) {
+                engine.isVisible = false;
+            }
+        }
+        */
+    }
+
+    /*
+     * Drawing processing at the end of every frame
+     */
+    @Override
+    public void renderLast(GameEngine engine, int playerID) {
+        // Number of players
+        if((playerID == getPlayers() - 1) && (netLobby != null) && (netLobby.netPlayerClient != null) && (netLobby.netPlayerClient.isConnected()) &&
+           (!owner.engine[1].isVisible || owner.engine[1].displaysize == -1 || !isNetGameActive))
+        {
+            int x = (owner.receiver.getNextDisplayType() == 2) ? 544 : 503;
+            if(currentRoomID != -1) {
+                receiver.drawDirectFont(engine, 0, x, 286, "PLAYERS", EventReceiver.COLOR_CYAN, 0.5f);
+                receiver.drawDirectFont(engine, 0, x, 294, "" + numPlayers, EventReceiver.COLOR_WHITE, 0.5f);
+                receiver.drawDirectFont(engine, 0, x, 302, "SPECTATORS", EventReceiver.COLOR_CYAN, 0.5f);
+                receiver.drawDirectFont(engine, 0, x, 310, "" + numSpectators, EventReceiver.COLOR_WHITE, 0.5f);
+                receiver.drawDirectFont(engine, 0, x, 318, "MATCHES", EventReceiver.COLOR_CYAN, 0.5f);
+                receiver.drawDirectFont(engine, 0, x, 326, "" + numGames, EventReceiver.COLOR_WHITE, 0.5f);
+                receiver.drawDirectFont(engine, 0, x, 334, "WINS", EventReceiver.COLOR_CYAN, 0.5f);
+                receiver.drawDirectFont(engine, 0, x, 342, "" + numWins, EventReceiver.COLOR_WHITE, 0.5f);
+            }
+            receiver.drawDirectFont(engine, 0, x, 358, "ALL ROOMS", EventReceiver.COLOR_GREEN, 0.5f);
+            receiver.drawDirectFont(engine, 0, x, 366, "" + netLobby.netPlayerClient.getRoomInfoList().size(), EventReceiver.COLOR_WHITE, 0.5f);
+        }
+
+        // All number of players
+        if(playerID == getPlayers() - 1) netDrawAllPlayersCount(engine);
+
+        // 経過 time
+        if((playerID == 0) && (currentRoomID != -1)) {
+            receiver.drawDirectFont(engine, 0, 256, 16, GeneralUtil.getTime(netPlayTimer));
+
+            if((hurryupSeconds >= 0) && (hurryupShowFrames > 0) && (!isPractice) && (hurryupStarted)) {
+                receiver.drawDirectFont(engine, 0, 256 - 8, 32, "HURRY UP!", (hurryupShowFrames % 2 == 0));
+            }
+        }
+
+        if((isPlayerExist[playerID]) && (engine.isVisible)) {
+            int x = receiver.getFieldDisplayPositionX(engine, playerID);
+            int y = receiver.getFieldDisplayPositionY(engine, playerID);
+
+            // Name
+            if((playerNames != null) && (playerNames[playerID] != null) && (playerNames[playerID].length() > 0)) {
+                String name = playerNames[playerID];
+                int fontcolorNum = playerTeamColors[playerID];
+                if(fontcolorNum < 0) fontcolorNum = 0;
+                if(fontcolorNum > TEAM_FONT_COLORS.length - 1) fontcolorNum = TEAM_FONT_COLORS.length - 1;
+                int fontcolor = TEAM_FONT_COLORS[fontcolorNum];
+
+                if(engine.displaysize == -1) {
+                    if(name.length() > 7) name = name.substring(0, 7) + "..";
+                    receiver.drawTTFDirectFont(engine, playerID, x, y - 16, name, fontcolor);
+                } else if(playerID == 0) {
+                    if(name.length() > 14) name = name.substring(0, 14) + "..";
+                    receiver.drawTTFDirectFont(engine, playerID, x, y - 20, name, fontcolor);
+                } else {
+                    receiver.drawTTFDirectFont(engine, playerID, x, y - 20, name, fontcolor);
+                }
+            }
+
+            // garbage blockcount
+            if((garbage[playerID] > 0) && (useFractionalGarbage)) {
+                String strTempGarbage;
+
+                int fontColor = EventReceiver.COLOR_WHITE;
+                if(garbage[playerID] >= GARBAGE_DENOMINATOR) fontColor = EventReceiver.COLOR_YELLOW;
+                if(garbage[playerID] >= GARBAGE_DENOMINATOR*3) fontColor = EventReceiver.COLOR_ORANGE;
+                if(garbage[playerID] >= GARBAGE_DENOMINATOR*4) fontColor = EventReceiver.COLOR_RED;
+
+                if(engine.displaysize != -1) {
+                    //strTempGarbage = String.format(Locale.ROOT, "%5.2f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
+                    strTempGarbage = String.format(Locale.US, "%5.2f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
+                    receiver.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor, 1.0f);
+                } else {
+                    //strTempGarbage = String.format(Locale.ROOT, "%4.1f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
+                    strTempGarbage = String.format(Locale.US, "%4.1f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
+                    receiver.drawDirectFont(engine, playerID, x + 64, y + 168, strTempGarbage, fontColor, 0.5f);
+                }
+            }
+        }
+
+        // Practice mode
+        if((playerID == 0) && ((isPractice) || (numNowPlayers == 1)) && (isPracticeExitAllowed)) {
+            if((lastevent[playerID] == EVENT_NONE) || (scgettime[playerID] >= 120)) {
+                receiver.drawMenuFont(engine, 0, 0, 21,
+                        "F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):\n END GAME",
+                        EventReceiver.COLOR_PURPLE);
+            }
+
+            if(isPractice && engine.timerActive) {
+                receiver.drawDirectFont(engine, 0, 256, 32, GeneralUtil.getTime(engine.statistics.time), EventReceiver.COLOR_PURPLE);
+            }
+        }
+
+        // Automatically start timer
+        if((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
+            receiver.drawDirectFont(engine, 0, 496, 16, GeneralUtil.getTime(autoStartTimer),
+                                    currentRoomInfo.autoStartTNET2, EventReceiver.COLOR_RED, EventReceiver.COLOR_YELLOW);
+        }
+
+        // Line clear event
+        if((lastevent[playerID] != EVENT_NONE) && (scgettime[playerID] < 120)) {
+            String strPieceName = Piece.getPieceName(lastpiece[playerID]);
+
+            if(engine.displaysize != -1) {
+                switch(lastevent[playerID]) {
+                case EVENT_SINGLE:
+                    receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", EventReceiver.COLOR_DARKBLUE);
+                    break;
+                case EVENT_DOUBLE:
+                    receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", EventReceiver.COLOR_BLUE);
+                    break;
+                case EVENT_TRIPLE:
+                    receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", EventReceiver.COLOR_GREEN);
+                    break;
+                case EVENT_FOUR:
+                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_RED);
+                    else receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_ORANGE);
+                    break;
+                case EVENT_TSPIN_SINGLE_MINI:
+                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_RED);
+                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE);
+                    break;
+                case EVENT_TSPIN_SINGLE:
+                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_RED);
+                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE);
+                    break;
+                case EVENT_TSPIN_DOUBLE_MINI:
+                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_RED);
+                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE);
+                    break;
+                case EVENT_TSPIN_DOUBLE:
+                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED);
+                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE);
+                    break;
+                case EVENT_TSPIN_TRIPLE:
+                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED);
+                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE);
+                    break;
+                case EVENT_TSPIN_EZ:
+                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_RED);
+                    else receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE);
+                    break;
+                }
+
+                if(lastcombo[playerID] >= 2)
+                    receiver.drawMenuFont(engine, playerID, 2, 22, (lastcombo[playerID] - 1) + "COMBO", EventReceiver.COLOR_CYAN);
+            } else {
+                int x = receiver.getFieldDisplayPositionX(engine, playerID);
+                int y = receiver.getFieldDisplayPositionY(engine, playerID);
+                int x2 = 8;
+                if(useFractionalGarbage && (garbage[playerID] > 0)) x2 = 0;
+
+                switch(lastevent[playerID]) {
+                case EVENT_SINGLE:
+                    receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "SINGLE", EventReceiver.COLOR_DARKBLUE, 0.5f);
+                    break;
+                case EVENT_DOUBLE:
+                    receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "DOUBLE", EventReceiver.COLOR_BLUE, 0.5f);
+                    break;
+                case EVENT_TRIPLE:
+                    receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "TRIPLE", EventReceiver.COLOR_GREEN, 0.5f);
+                    break;
+                case EVENT_FOUR:
+                    if(lastb2b[playerID]) receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_RED, 0.5f);
+                    else receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_ORANGE, 0.5f);
+                    break;
+                case EVENT_TSPIN_SINGLE_MINI:
+                    if(lastb2b[playerID])
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_RED, 0.5f);
+                    else
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE, 0.5f);
+                    break;
+                case EVENT_TSPIN_SINGLE:
+                    if(lastb2b[playerID])
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_RED, 0.5f);
+                    else
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE, 0.5f);
+                    break;
+                case EVENT_TSPIN_DOUBLE_MINI:
+                    if(lastb2b[playerID])
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_RED, 0.5f);
+                    else
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE, 0.5f);
+                    break;
+                case EVENT_TSPIN_DOUBLE:
+                    if(lastb2b[playerID])
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED, 0.5f);
+                    else
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE, 0.5f);
+                    break;
+                case EVENT_TSPIN_TRIPLE:
+                    if(lastb2b[playerID])
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED, 0.5f);
+                    else
+                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE, 0.5f);
+                    break;
+                case EVENT_TSPIN_EZ:
+                    if(lastb2b[playerID])
+                        receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_RED, 0.5f);
+                    else
+                        receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE, 0.5f);
+                    break;
+                }
+
+                if(lastcombo[playerID] >= 2)
+                    receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 176, (lastcombo[playerID] - 1) + "COMBO", EventReceiver.COLOR_CYAN, 0.5f);
+            }
+        }
+        // Games count
+        else if(isPlayerExist[playerID] && engine.isVisible && !isPractice) {
+            String strTemp = playerWinCount[playerID] + "/" + playerGamesCount[playerID];
+
+            if(engine.displaysize != -1) {
+                int y = 21;
+                if(engine.stat == GameEngine.STAT_RESULT) y = 22;
+                receiver.drawMenuFont(engine, playerID, 0, y, strTemp, EventReceiver.COLOR_WHITE);
+            } else {
+                int x = receiver.getFieldDisplayPositionX(engine, playerID);
+                int y = receiver.getFieldDisplayPositionY(engine, playerID);
+                receiver.drawDirectFont(engine, playerID, x + 4, y + 168, strTemp, EventReceiver.COLOR_WHITE, 0.5f);
+            }
+        }
+    }
+
+    /*
+     * game over
+     */
+    @Override
+    public boolean onGameOver(GameEngine engine, int playerID) {
+        engine.gameEnded();
+        engine.allowTextRenderByReceiver = false;
+        isPracticeExitAllowed = false;
+
+        if((playerID == 0) && (isPractice)) {
+            if(engine.statc[0] < engine.field.getHeight() + 1) {
+                return false;
+            } else {
+                engine.field.reset();
+                engine.stat = GameEngine.STAT_RESULT;
+                engine.resetStatc();
+                return true;
+            }
+        }
+
+        if((playerID == 0) && (!isDead[playerID])) {
+            owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+            engine.resetFieldVisible();
+
+            sendField(engine);
+            if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
+            netLobby.netPlayerClient.send("dead\t" + lastAttackerUID + "\n");
+
+            engine.stat = GameEngine.STAT_CUSTOM;
+            engine.resetStatc();
+            return true;
+        }
+
+        if(isDead[playerID]) {
+            if(playerPlace[playerID] <= 2) {
+                engine.statistics.time = netPlayTimer;
+            }
+            if(engine.field == null) {
+                engine.stat = GameEngine.STAT_SETTING;
+                engine.resetStatc();
+                return true;
+            }
+            if( (engine.statc[0] < engine.field.getHeight() + 1) || ((playerID == 0) && (playerSeatNumber >= 0)) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /*
+     * game overDraw the screen
+     */
+    @Override
+    public void renderGameOver(GameEngine engine, int playerID) {
+        if((playerID == 0) && (isPractice)) return;
+        if(engine.isVisible == false) return;
+
+        int x = receiver.getFieldDisplayPositionX(engine, playerID);
+        int y = receiver.getFieldDisplayPositionY(engine, playerID);
+        int place = playerPlace[playerID];
+
+        if(engine.displaysize != -1) {
+            if(isReady[playerID] && !isNetGameActive) {
+                receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", EventReceiver.COLOR_YELLOW);
+            } else if((numNowPlayers == 2) && (isDead[playerID])) {
+                receiver.drawDirectFont(engine, playerID, x + 52, y + 204, "LOSE", EventReceiver.COLOR_WHITE);
+            } else if(place == 1) {
+                //receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "GAME OVER", EventReceiver.COLOR_WHITE);
+            } else if(place == 2) {
+                receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "2ND PLACE", EventReceiver.COLOR_WHITE);
+            } else if(place == 3) {
+                receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "3RD PLACE", EventReceiver.COLOR_RED);
+            } else if(place == 4) {
+                receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "4TH PLACE", EventReceiver.COLOR_GREEN);
+            } else if(place == 5) {
+                receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "5TH PLACE", EventReceiver.COLOR_BLUE);
+            } else if(place == 6) {
+                receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "6TH PLACE", EventReceiver.COLOR_PURPLE);
+            }
+
+            if(playerKObyYou[playerID]) {
+                receiver.drawDirectFont(engine, playerID, x + 52, y + 236, "K.O.", EventReceiver.COLOR_PINK);
+            }
+        } else {
+            if(isReady[playerID] && !isNetGameActive) {
+                receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", EventReceiver.COLOR_YELLOW, 0.5f);
+            } else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
+                receiver.drawDirectFont(engine, playerID, x + 28, y + 80, "LOSE", EventReceiver.COLOR_WHITE, 0.5f);
+            } else if(place == 1) {
+                //receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "GAME OVER", EventReceiver.COLOR_WHITE, 0.5f);
+            } else if(place == 2) {
+                receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "2ND PLACE", EventReceiver.COLOR_WHITE, 0.5f);
+            } else if(place == 3) {
+                receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "3RD PLACE", EventReceiver.COLOR_RED, 0.5f);
+            } else if(place == 4) {
+                receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "4TH PLACE", EventReceiver.COLOR_GREEN, 0.5f);
+            } else if(place == 5) {
+                receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "5TH PLACE", EventReceiver.COLOR_BLUE, 0.5f);
+            } else if(place == 6) {
+                receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "6TH PLACE", EventReceiver.COLOR_PURPLE, 0.5f);
+            }
+
+            if(playerKObyYou[playerID]) {
+                receiver.drawDirectFont(engine, playerID, x + 28, y + 96, "K.O.", EventReceiver.COLOR_PINK, 0.5f);
+            }
+        }
+    }
+
+    /*
+     * After being defeated
+     */
+    @Override
+    public boolean onCustom(GameEngine engine, int playerID) {
+        if(!isNetGameActive) {
+            isDead[playerID] = true;
+            engine.stat = GameEngine.STAT_GAMEOVER;
+            engine.resetStatc();
+        }
+        return false;
+    }
+
+    /*
+     * EXCELLENT画面の処理
+     */
+    @Override
+    public boolean onExcellent(GameEngine engine, int playerID) {
+        engine.gameEnded();
+        engine.allowTextRenderByReceiver = false;
+
+        if(engine.statc[0] == 0) {
+            //if((playerID == 0) && (playerSeatNumber != -1)) numWins++;
+            owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+            if(engine.ai != null) engine.ai.shutdown(engine, playerID);
+            engine.resetFieldVisible();
+            engine.playSE("excellent");
+        }
+
+        if((engine.statc[0] >= 120) && (engine.ctrl.isPush(Controller.BUTTON_A))) {
+            engine.statc[0] = engine.field.getHeight() + 1 + 180;
+        }
+
+        if((engine.statc[0] >= engine.field.getHeight() + 1 + 180) && (!isNetGameActive) && (playerID == 0) && (playerSeatNumber != -1)) {
+            if(engine.field != null) engine.field.reset();
+            engine.resetStatc();
+            engine.stat = GameEngine.STAT_RESULT;
+        } else {
+            engine.statc[0]++;
+        }
+
+        return true;
+    }
+
+    /*
+     * EXCELLENT画面の描画処理
+     */
+    @Override
+    public void renderExcellent(GameEngine engine, int playerID) {
+        if(engine.isVisible == false) return;
+
+        int x = receiver.getFieldDisplayPositionX(engine, playerID);
+        int y = receiver.getFieldDisplayPositionY(engine, playerID);
+
+        if(engine.displaysize != -1) {
+            if(isReady[playerID] && !isNetGameActive) {
+                receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", EventReceiver.COLOR_YELLOW);
+            } else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
+                receiver.drawDirectFont(engine, playerID, x + 52, y + 204, "WIN!", EventReceiver.COLOR_YELLOW);
+            } else {
+                receiver.drawDirectFont(engine, playerID, x + 4, y + 204, "1ST PLACE!", EventReceiver.COLOR_YELLOW);
+            }
+        } else {
+            if(isReady[playerID] && !isNetGameActive) {
+                receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", EventReceiver.COLOR_YELLOW, 0.5f);
+            } else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
+                receiver.drawDirectFont(engine, playerID, x + 28, y + 80, "WIN!", EventReceiver.COLOR_YELLOW, 0.5f);
+            } else {
+                receiver.drawDirectFont(engine, playerID, x + 4, y + 80, "1ST PLACE!", EventReceiver.COLOR_YELLOW, 0.5f);
+            }
+        }
+    }
+
+    /*
+     * 結果画面の処理
+     */
+    @Override
+    public boolean onResult(GameEngine engine, int playerID) {
+        engine.allowTextRenderByReceiver = false;
+
+        // 設定画面へ
+        if(engine.ctrl.isPush(Controller.BUTTON_A) && !isNetGameActive && (playerID == 0)) {
+            engine.playSE("decide");
+            resetFlags();
+            owner.reset();
+        }
+        // Practice mode
+        if(engine.ctrl.isPush(Controller.BUTTON_F) && (playerID == 0)) {
+            engine.playSE("decide");
+            startPractice(engine);
+        }
+
+        return true;
+    }
+
+    /*
+     * Render results screen処理
+     */
+    @Override
+    public void renderResult(GameEngine engine, int playerID) {
+        if(!isPractice) {
+            receiver.drawMenuFont(engine, playerID, 0, 0, "RESULT", EventReceiver.COLOR_ORANGE);
+
+            if(playerPlace[playerID] == 1) {
+                if(numNowPlayers == 2) {
+                    receiver.drawMenuFont(engine, playerID, 6, 1, "WIN!", EventReceiver.COLOR_YELLOW);
+                } else if(numNowPlayers > 2) {
+                    receiver.drawMenuFont(engine, playerID, 6, 1, "1ST!", EventReceiver.COLOR_YELLOW);
+                }
+            } else if(playerPlace[playerID] == 2) {
+                if(numNowPlayers == 2) {
+                    receiver.drawMenuFont(engine, playerID, 6, 1, "LOSE", EventReceiver.COLOR_WHITE);
+                } else {
+                    receiver.drawMenuFont(engine, playerID, 7, 1, "2ND", EventReceiver.COLOR_WHITE);
+                }
+            } else if(playerPlace[playerID] == 3) {
+                receiver.drawMenuFont(engine, playerID, 7, 1, "3RD", EventReceiver.COLOR_RED);
+            } else if(playerPlace[playerID] == 4) {
+                receiver.drawMenuFont(engine, playerID, 7, 1, "4TH", EventReceiver.COLOR_GREEN);
+            } else if(playerPlace[playerID] == 5) {
+                receiver.drawMenuFont(engine, playerID, 7, 1, "5TH", EventReceiver.COLOR_BLUE);
+            } else if(playerPlace[playerID] == 6) {
+                receiver.drawMenuFont(engine, playerID, 7, 1, "6TH", EventReceiver.COLOR_DARKBLUE);
+            }
+        } else {
+            receiver.drawMenuFont(engine, playerID, 0, 0, "PRACTICE", EventReceiver.COLOR_PINK);
+        }
+
+        drawResult(engine, playerID, receiver, 2, EventReceiver.COLOR_ORANGE,
+                "ATTACK", String.format("%10g", (float)garbageSent[playerID] / GARBAGE_DENOMINATOR),
+                "LINE", String.format("%10d", engine.statistics.lines),
+                "PIECE", String.format("%10d", engine.statistics.totalPieceLocked),
+                "ATK/LINE", String.format("%10g", playerAPL),
+                "ATTACK/MIN", String.format("%10g", playerAPM),
+                "LINE/MIN", String.format("%10g", engine.statistics.lpm),
+                "PIECE/SEC", String.format("%10g", engine.statistics.pps),
+                "TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+
+        if(!isNetGameActive && (playerSeatNumber >= 0) && (playerID == 0)) {
+            String strTemp = "A(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_A) + " KEY):";
+            if(strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
+            receiver.drawMenuFont(engine, playerID, 0, 18, strTemp, EventReceiver.COLOR_RED);
+            receiver.drawMenuFont(engine, playerID, 1, 19, "RESTART", EventReceiver.COLOR_RED);
+        }
+
+        String strTempF = "F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):";
+        if(strTempF.length() > 10) strTempF = strTempF.substring(0, 10);
+        receiver.drawMenuFont(engine, playerID, 0, 20, strTempF, EventReceiver.COLOR_PURPLE);
+        if(!isPractice) {
+            receiver.drawMenuFont(engine, playerID, 1, 21, "PRACTICE", EventReceiver.COLOR_PURPLE);
+        } else {
+            receiver.drawMenuFont(engine, playerID, 1, 21, "RETRY", EventReceiver.COLOR_PURPLE);
+        }
+    }
+
+    /**
+     * No retry key.
+     */
+    @Override
+    public void netplayOnRetryKey(GameEngine engine, int playerID) {
+    }
+
+    @Override
+    public void netlobbyOnDisconnect(NetLobbyFrame lobby, NetPlayerClient client, Throwable ex) {
+        for(int i = 0; i < getPlayers(); i++) {
+            owner.engine[i].stat = GameEngine.STAT_NOTHING;
+        }
+    }
+
+    @Override
+    public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
+        // Player状態変更
+        if(message[0].equals("playerupdate")) {
+            NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
+
+            if((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
+                int playerID = getPlayerIDbySeatID(pInfo.seatID);
+
+                if(isReady[playerID] != pInfo.ready) {
+                    isReady[playerID] = pInfo.ready;
+
+                    if((playerID == 0) && (playerSeatNumber != -1)) {
+                        isReadyChangePending = false;
+                    } else {
+                        if(pInfo.ready) receiver.playSE("decide");
+                        else if(!pInfo.playing) receiver.playSE("change");
+                    }
+                }
+            }
+
+            updatePlayerExist();
+            updatePlayerNames();
+        }
+        // Player切断
+        if(message[0].equals("playerlogout")) {
+            NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
+
+            if((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
+                updatePlayerExist();
+                updatePlayerNames();
+            }
+        }
+        // 参戦状態変更
+        if(message[0].equals("changestatus")) {
+            int uid = Integer.parseInt(message[2]);
+
+            if(uid == netLobby.netPlayerClient.getPlayerUID()) {
+                playerSeatNumber = client.getYourPlayerInfo().seatID;
+                isReady[0] = false;
+
+                updatePlayerExist();
+                updatePlayerNames();
+
+                if(playerSeatNumber >= 0) {
+                    // 参戦
+                    owner.engine[0].displaysize = 0;
+                    owner.engine[0].enableSE = true;
+                    for(int i = 1; i < getPlayers(); i++) {
+                        owner.engine[i].displaysize = -1;
+                    }
+                } else {
+                    // 観戦
+                    for(int i = 0; i < getPlayers(); i++) {
+                        owner.engine[i].displaysize = -1;
+                        owner.engine[i].enableSE = false;
+                    }
+                }
+
+                // Apply 1vs1 layout
+                if((currentRoomInfo != null) && (currentRoomInfo.maxPlayers == 2)) {
+                    owner.engine[0].displaysize = 0;
+                    owner.engine[1].displaysize = 0;
+                }
+
+                isPractice = false;
+                owner.engine[0].stat = GameEngine.STAT_SETTING;
+
+                for(int i = 0; i < getPlayers(); i++) {
+                    if(owner.engine[i].field != null) {
+                        owner.engine[i].field.reset();
+                    }
+                    owner.engine[i].nowPieceObject = null;
+                    garbage[i] = 0;
+
+                    if((owner.engine[i].stat == GameEngine.STAT_NOTHING) || (isNetGameFinished)) {
+                        owner.engine[i].stat = GameEngine.STAT_SETTING;
+                    }
+                    owner.engine[i].resetStatc();
+                }
+            } else {
+                if(message[1].equals("watchonly")) {
+                    int seatID = Integer.parseInt(message[4]);
+                    int playerID = getPlayerIDbySeatID(seatID);
+                    isPlayerExist[playerID] = false;
+                    isReady[playerID] = false;
+                    garbage[playerID] = 0;
+                }
+            }
+        }
+        // 誰か来た
+        if(message[0].equals("playerenter")) {
+            int seatID = Integer.parseInt(message[3]);
+            if((seatID != -1) && (numPlayers < 2)) {
+                owner.receiver.playSE("levelstop");
+            }
+        }
+        // 誰か出て行った
+        if(message[0].equals("playerleave")) {
+            int seatID = Integer.parseInt(message[3]);
+
+            if(seatID != -1) {
+                int playerID = getPlayerIDbySeatID(seatID);
+                isPlayerExist[playerID] = false;
+                isReady[playerID] = false;
+                garbage[playerID] = 0;
+
+                numPlayers--;
+                if(numPlayers < 2) {
+                    isReady[0] = false;
+                    autoStartActive = false;
+                }
+            }
+        }
+        // Automatic timer start
+        if(message[0].equals("autostartbegin")) {
+            if(numPlayers >= 2) {
+                int seconds = Integer.parseInt(message[1]);
+                autoStartTimer = seconds * 60;
+                autoStartActive = true;
+            }
+        }
+        // Automatic timer stop
+        if(message[0].equals("autostartstop")) {
+            autoStartActive = false;
+        }
+        // game start
+        if(message[0].equals("start")) {
+            long randseed = Long.parseLong(message[1], 16);
+            numNowPlayers = Integer.parseInt(message[2]);
+            if((numNowPlayers >= 2) && (playerSeatNumber != -1)) numGames++;
+            numAlivePlayers = numNowPlayers;
+            mapNo = Integer.parseInt(message[3]);
+
+            resetFlags();
+            owner.reset();
+
+            autoStartActive = false;
+            isNetGameActive = true;
+            netPlayTimer = 0;
+
+            if(currentRoomInfo != null)
+                currentRoomInfo.playing = true;
+
+            if((playerSeatNumber != -1) && (!rulelockFlag) && (netLobby.ruleOptPlayer != null))
+                owner.engine[0].ruleopt.copy(netLobby.ruleOptPlayer);    // Restore rules
+
+            updatePlayerExist();
+            updatePlayerNames();
+
+            log.debug("Game Started numNowPlayers:" + numNowPlayers + " numMaxPlayers:" + numMaxPlayers + " mapNo:" + mapNo);
+
+            for(int i = 0; i < getPlayers(); i++) {
+                GameEngine engine = owner.engine[i];
+                engine.resetStatc();
+
+                if(isPlayerExist[i]) {
+                    engine.stat = GameEngine.STAT_READY;
+                    engine.randSeed = randseed;
+                    engine.random = new Random(randseed);
+
+                    if((numMaxPlayers == 2) && (numNowPlayers == 2)) {
+                        engine.isVisible = true;
+                        engine.displaysize = 0;
+
+                        if( (rulelockFlag) || ((i == 0) && (playerSeatNumber != -1)) ) {
+                            engine.isNextVisible = true;
+                            engine.isHoldVisible = true;
+
+                            if(i != 0) {
+                                engine.randomizer = owner.engine[0].randomizer;
+                            }
+                        } else {
+                            engine.isNextVisible = false;
+                            engine.isHoldVisible = false;
+                        }
+                    }
+                } else if(i < numMaxPlayers) {
+                    engine.stat = GameEngine.STAT_SETTING;
+                    engine.isVisible = true;
+                    engine.isNextVisible = false;
+                    engine.isHoldVisible = false;
+
+                    if((numMaxPlayers == 2) && (numNowPlayers == 2)) {
+                        engine.isVisible = false;
+                    }
+                } else {
+                    engine.stat = GameEngine.STAT_SETTING;
+                    engine.isVisible = false;
+                }
+
+                isDead[i] = false;
+                isReady[i] = false;
+            }
+        }
+        // 死亡
+        if(message[0].equals("dead")) {
+            int seatID = Integer.parseInt(message[3]);
+            int playerID = getPlayerIDbySeatID(seatID);
+            int koUID = -1;
+            if(message.length > 5) koUID = Integer.parseInt(message[5]);
+
+//            if((useTankMode == true) && (playerTeamsIsTank[playerID] == true)) {
+//                String teamName = playerTeams[playerID];
+//                for(int i = 0; i < MAX_PLAYERS; i++ ){
+//                    if((playerTeams[i].length() > 0) && (isPlayerExist[i]) && (playerTeams[i].equals(teamName))) {
+//                        if(i != playerID) {
+//                            playerTeamsIsTank[i] = true;
+//                        }
+//                    }
 //
-//				}
-//				isTank = true;
-//			}
+//                }
+//                isTank = true;
+//            }
 
-			if(!isDead[playerID]) {
-				isDead[playerID] = true;
-				playerPlace[playerID] = Integer.parseInt(message[4]);
-				owner.engine[playerID].gameEnded();
-				owner.engine[playerID].stat = GameEngine.STAT_GAMEOVER;
-				owner.engine[playerID].resetStatc();
-				numAlivePlayers--;
+            if(!isDead[playerID]) {
+                isDead[playerID] = true;
+                playerPlace[playerID] = Integer.parseInt(message[4]);
+                owner.engine[playerID].gameEnded();
+                owner.engine[playerID].stat = GameEngine.STAT_GAMEOVER;
+                owner.engine[playerID].resetStatc();
+                numAlivePlayers--;
 
-				if(koUID == netLobby.netPlayerClient.getPlayerUID()) {
-					playerKObyYou[playerID] = true;
-					currentKO++;
-				}
-				if((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
-					sendGameStat(owner.engine[playerID], playerID);
-				}
-			}
-		}
-		// game finished
-		if(message[0].equals("finish")) {
-			log.debug("Game Finished");
+                if(koUID == netLobby.netPlayerClient.getPlayerUID()) {
+                    playerKObyYou[playerID] = true;
+                    currentKO++;
+                }
+                if((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
+                    sendGameStat(owner.engine[playerID], playerID);
+                }
+            }
+        }
+        // game finished
+        if(message[0].equals("finish")) {
+            log.debug("Game Finished");
 
-			isNetGameActive = false;
-			isNetGameFinished = true;
-			isNewcomer = false;
-			netPlayTimerActive = false;
+            isNetGameActive = false;
+            isNetGameFinished = true;
+            isNewcomer = false;
+            netPlayTimerActive = false;
 
-			if(currentRoomInfo != null)
-				currentRoomInfo.playing = false;
+            if(currentRoomInfo != null)
+                currentRoomInfo.playing = false;
 
-			if(isPractice) {
-				isPractice = false;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-				owner.engine[0].gameEnded();
-				owner.engine[0].stat = GameEngine.STAT_SETTING;
-				owner.engine[0].resetStatc();
-			}
+            if(isPractice) {
+                isPractice = false;
+                owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+                owner.engine[0].gameEnded();
+                owner.engine[0].stat = GameEngine.STAT_SETTING;
+                owner.engine[0].resetStatc();
+            }
 
-			boolean flagTeamWin = Boolean.parseBoolean(message[4]);
+            boolean flagTeamWin = Boolean.parseBoolean(message[4]);
 
-			if(flagTeamWin) {
-				//String strTeam = NetUtil.urlDecode(message[3]);
-				for(int i = 0; i < MAX_PLAYERS; i++) {
-					if(isPlayerExist[i] && !isDead[i]) {
-						playerPlace[i] = 1;
-						owner.engine[i].gameEnded();
-						owner.engine[i].stat = GameEngine.STAT_EXCELLENT;
-						owner.engine[i].resetStatc();
-						owner.engine[i].statistics.time = netPlayTimer;
-						numAlivePlayers--;
+            if(flagTeamWin) {
+                //String strTeam = NetUtil.urlDecode(message[3]);
+                for(int i = 0; i < MAX_PLAYERS; i++) {
+                    if(isPlayerExist[i] && !isDead[i]) {
+                        playerPlace[i] = 1;
+                        owner.engine[i].gameEnded();
+                        owner.engine[i].stat = GameEngine.STAT_EXCELLENT;
+                        owner.engine[i].resetStatc();
+                        owner.engine[i].statistics.time = netPlayTimer;
+                        numAlivePlayers--;
 
-						if((i == 0) && (playerSeatNumber != -1)) {
-							numWins++;
-							sendGameStat(owner.engine[i], i);
-						}
-					}
-				}
-			} else {
-				int seatID = Integer.parseInt(message[2]);
-				if(seatID != -1) {
-					int playerID = getPlayerIDbySeatID(seatID);
-					if(isPlayerExist[playerID]) {
-						playerPlace[playerID] = 1;
-						owner.engine[playerID].gameEnded();
-						owner.engine[playerID].stat = GameEngine.STAT_EXCELLENT;
-						owner.engine[playerID].resetStatc();
-						owner.engine[playerID].statistics.time = netPlayTimer;
-						numAlivePlayers--;
+                        if((i == 0) && (playerSeatNumber != -1)) {
+                            numWins++;
+                            sendGameStat(owner.engine[i], i);
+                        }
+                    }
+                }
+            } else {
+                int seatID = Integer.parseInt(message[2]);
+                if(seatID != -1) {
+                    int playerID = getPlayerIDbySeatID(seatID);
+                    if(isPlayerExist[playerID]) {
+                        playerPlace[playerID] = 1;
+                        owner.engine[playerID].gameEnded();
+                        owner.engine[playerID].stat = GameEngine.STAT_EXCELLENT;
+                        owner.engine[playerID].resetStatc();
+                        owner.engine[playerID].statistics.time = netPlayTimer;
+                        numAlivePlayers--;
 
-						if((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
-							numWins++;
-							sendGameStat(owner.engine[playerID], playerID);
-						}
-					}
-				}
-			}
+                        if((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
+                            numWins++;
+                            sendGameStat(owner.engine[playerID], playerID);
+                        }
+                    }
+                }
+            }
 
-			if((playerSeatNumber == -1) || (playerPlace[0] >= 3)) {
-				owner.receiver.playSE("matchend");
-			}
+            if((playerSeatNumber == -1) || (playerPlace[0] >= 3)) {
+                owner.receiver.playSE("matchend");
+            }
 
-			updatePlayerExist();
-			updatePlayerNames();
-		}
-		// game messages
-		if(message[0].equals("game")) {
-			int uid = Integer.parseInt(message[1]);
-			int seatID = Integer.parseInt(message[2]);
-			int playerID = getPlayerIDbySeatID(seatID);
+            updatePlayerExist();
+            updatePlayerNames();
+        }
+        // game messages
+        if(message[0].equals("game")) {
+            int uid = Integer.parseInt(message[1]);
+            int seatID = Integer.parseInt(message[2]);
+            int playerID = getPlayerIDbySeatID(seatID);
 
-			if(owner.engine[playerID].field == null) {
-				owner.engine[playerID].field = new Field();
-			}
+            if(owner.engine[playerID].field == null) {
+                owner.engine[playerID].field = new Field();
+            }
 
-			// Field without attributes
-			if(message[3].equals("field")) {
-				if(message.length > 7) {
-					owner.engine[playerID].nowPieceObject = null;
-					owner.engine[playerID].holdDisable = false;
-					garbage[playerID] = Integer.parseInt(message[4]);
-					int skin = Integer.parseInt(message[5]);
-					int highestGarbageY = Integer.parseInt(message[6]);
-					int highestWallY = Integer.parseInt(message[7]);
-					playerSkin[playerID] = skin;
-					if(message.length > 9) {
-						String strFieldData = message[8];
-						boolean isCompressed = Boolean.parseBoolean(message[9]);
-						if(isCompressed) {
-							strFieldData = NetUtil.decompressString(strFieldData);
-						}
-						owner.engine[playerID].field.stringToField(strFieldData, skin, highestGarbageY, highestWallY);
-					} else {
-						owner.engine[playerID].field.reset();
-					}
-				}
-			}
-			// Field with attributes
-			if(message[3].equals("fieldattr")) {
-				if(message.length > 5) {
-					owner.engine[playerID].nowPieceObject = null;
-					owner.engine[playerID].holdDisable = false;
-					garbage[playerID] = Integer.parseInt(message[4]);
-					int skin = Integer.parseInt(message[5]);
-					playerSkin[playerID] = skin;
-					if(message.length > 7) {
-						String strFieldData = message[6];
-						boolean isCompressed = Boolean.parseBoolean(message[7]);
-						if(isCompressed) {
-							strFieldData = NetUtil.decompressString(strFieldData);
-						}
-						owner.engine[playerID].field.attrStringToField(strFieldData, skin);
-					} else {
-						owner.engine[playerID].field.reset();
-					}
-				}
-			}
-			// 操作中Block
-			if(message[3].equals("piece")) {
-				int id = Integer.parseInt(message[4]);
+            // Field without attributes
+            if(message[3].equals("field")) {
+                if(message.length > 7) {
+                    owner.engine[playerID].nowPieceObject = null;
+                    owner.engine[playerID].holdDisable = false;
+                    garbage[playerID] = Integer.parseInt(message[4]);
+                    int skin = Integer.parseInt(message[5]);
+                    int highestGarbageY = Integer.parseInt(message[6]);
+                    int highestWallY = Integer.parseInt(message[7]);
+                    playerSkin[playerID] = skin;
+                    if(message.length > 9) {
+                        String strFieldData = message[8];
+                        boolean isCompressed = Boolean.parseBoolean(message[9]);
+                        if(isCompressed) {
+                            strFieldData = NetUtil.decompressString(strFieldData);
+                        }
+                        owner.engine[playerID].field.stringToField(strFieldData, skin, highestGarbageY, highestWallY);
+                    } else {
+                        owner.engine[playerID].field.reset();
+                    }
+                }
+            }
+            // Field with attributes
+            if(message[3].equals("fieldattr")) {
+                if(message.length > 5) {
+                    owner.engine[playerID].nowPieceObject = null;
+                    owner.engine[playerID].holdDisable = false;
+                    garbage[playerID] = Integer.parseInt(message[4]);
+                    int skin = Integer.parseInt(message[5]);
+                    playerSkin[playerID] = skin;
+                    if(message.length > 7) {
+                        String strFieldData = message[6];
+                        boolean isCompressed = Boolean.parseBoolean(message[7]);
+                        if(isCompressed) {
+                            strFieldData = NetUtil.decompressString(strFieldData);
+                        }
+                        owner.engine[playerID].field.attrStringToField(strFieldData, skin);
+                    } else {
+                        owner.engine[playerID].field.reset();
+                    }
+                }
+            }
+            // 操作中Block
+            if(message[3].equals("piece")) {
+                int id = Integer.parseInt(message[4]);
 
-				if(id >= 0) {
-					int pieceX = Integer.parseInt(message[5]);
-					int pieceY = Integer.parseInt(message[6]);
-					int pieceDir = Integer.parseInt(message[7]);
-					//int pieceBottomY = Integer.parseInt(message[8]);
-					int pieceColor = Integer.parseInt(message[9]);
-					int pieceSkin = Integer.parseInt(message[10]);
-					boolean pieceBig = (message.length > 11) ? Boolean.parseBoolean(message[11]) : false;
+                if(id >= 0) {
+                    int pieceX = Integer.parseInt(message[5]);
+                    int pieceY = Integer.parseInt(message[6]);
+                    int pieceDir = Integer.parseInt(message[7]);
+                    //int pieceBottomY = Integer.parseInt(message[8]);
+                    int pieceColor = Integer.parseInt(message[9]);
+                    int pieceSkin = Integer.parseInt(message[10]);
+                    boolean pieceBig = (message.length > 11) ? Boolean.parseBoolean(message[11]) : false;
 
-					owner.engine[playerID].nowPieceObject = new Piece(id);
-					owner.engine[playerID].nowPieceObject.direction = pieceDir;
-					owner.engine[playerID].nowPieceObject.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-					owner.engine[playerID].nowPieceObject.setColor(pieceColor);
-					owner.engine[playerID].nowPieceObject.setSkin(pieceSkin);
-					owner.engine[playerID].nowPieceX = pieceX;
-					owner.engine[playerID].nowPieceY = pieceY;
-					//owner.engine[playerID].nowPieceBottomY = pieceBottomY;
-					owner.engine[playerID].nowPieceObject.big = pieceBig;
-					owner.engine[playerID].nowPieceObject.updateConnectData();
-					owner.engine[playerID].nowPieceBottomY =
-						owner.engine[playerID].nowPieceObject.getBottom(pieceX, pieceY, owner.engine[playerID].field);
+                    owner.engine[playerID].nowPieceObject = new Piece(id);
+                    owner.engine[playerID].nowPieceObject.direction = pieceDir;
+                    owner.engine[playerID].nowPieceObject.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+                    owner.engine[playerID].nowPieceObject.setColor(pieceColor);
+                    owner.engine[playerID].nowPieceObject.setSkin(pieceSkin);
+                    owner.engine[playerID].nowPieceX = pieceX;
+                    owner.engine[playerID].nowPieceY = pieceY;
+                    //owner.engine[playerID].nowPieceBottomY = pieceBottomY;
+                    owner.engine[playerID].nowPieceObject.big = pieceBig;
+                    owner.engine[playerID].nowPieceObject.updateConnectData();
+                    owner.engine[playerID].nowPieceBottomY =
+                        owner.engine[playerID].nowPieceObject.getBottom(pieceX, pieceY, owner.engine[playerID].field);
 
-					if(owner.engine[playerID].stat != GameEngine.STAT_EXCELLENT) {
-						owner.engine[playerID].stat = GameEngine.STAT_MOVE;
-						owner.engine[playerID].statc[0] = 2;
-					}
+                    if(owner.engine[playerID].stat != GameEngine.STAT_EXCELLENT) {
+                        owner.engine[playerID].stat = GameEngine.STAT_MOVE;
+                        owner.engine[playerID].statc[0] = 2;
+                    }
 
-					playerSkin[playerID] = pieceSkin;
-				} else {
-					owner.engine[playerID].nowPieceObject = null;
-				}
+                    playerSkin[playerID] = pieceSkin;
+                } else {
+                    owner.engine[playerID].nowPieceObject = null;
+                }
 
-				if((playerSeatNumber == -1) && (!netPlayTimerActive) && (!isNetGameFinished) && (!isNewcomer)) {
-					netPlayTimerActive = true;
-					netPlayTimer = 0;
-				}
+                if((playerSeatNumber == -1) && (!netPlayTimerActive) && (!isNetGameFinished) && (!isNewcomer)) {
+                    netPlayTimerActive = true;
+                    netPlayTimer = 0;
+                }
 
-				if((playerSeatNumber != -1) && (netPlayTimerActive) && (!isPractice) &&
-				   (owner.engine[0].stat == GameEngine.STAT_READY) && (owner.engine[0].statc[0] < owner.engine[0].goEnd))
-				{
-					owner.engine[0].statc[0] = owner.engine[0].goEnd;
-				}
-			}
-//			if((message[3].equals("tank")) && (useTankMode == true)){
-//				String teamName = playerTeams[playerID];
-//				for(int i = 0; i < MAX_PLAYERS; i++ ){
-//					if((playerTeams[i].length() > 0) && (isPlayerExist[i]) && (playerTeams[i].equals(teamName))) {
-//						if(i != playerID) {
-//							playerTeamsIsTank[i] = false;
-//						}
-//					}
+                if((playerSeatNumber != -1) && (netPlayTimerActive) && (!isPractice) &&
+                   (owner.engine[0].stat == GameEngine.STAT_READY) && (owner.engine[0].statc[0] < owner.engine[0].goEnd))
+                {
+                    owner.engine[0].statc[0] = owner.engine[0].goEnd;
+                }
+            }
+//            if((message[3].equals("tank")) && (useTankMode == true)){
+//                String teamName = playerTeams[playerID];
+//                for(int i = 0; i < MAX_PLAYERS; i++ ){
+//                    if((playerTeams[i].length() > 0) && (isPlayerExist[i]) && (playerTeams[i].equals(teamName))) {
+//                        if(i != playerID) {
+//                            playerTeamsIsTank[i] = false;
+//                        }
+//                    }
 //
-//				}
-//				isTank = true;
-//				playerTeamsIsTank[playerID] = true;
-//			}
-			//  Attack
-			if(message[3].equals("attack")) {
-				//int pts = Integer.parseInt(message[4]);
-				int[] pts = new int[ATTACK_CATEGORIES];
-				int sumPts = 0;
+//                }
+//                isTank = true;
+//                playerTeamsIsTank[playerID] = true;
+//            }
+            //  Attack
+            if(message[3].equals("attack")) {
+                //int pts = Integer.parseInt(message[4]);
+                int[] pts = new int[ATTACK_CATEGORIES];
+                int sumPts = 0;
 
-				for(int i = 0; i < ATTACK_CATEGORIES; i++){
-					pts[i] = Integer.parseInt(message[4+i]);
-					sumPts += pts[i];
-				}
+                for(int i = 0; i < ATTACK_CATEGORIES; i++){
+                    pts[i] = Integer.parseInt(message[4+i]);
+                    sumPts += pts[i];
+                }
 
-				lastevent[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 5]);
-				lastb2b[playerID] = Boolean.parseBoolean(message[ATTACK_CATEGORIES + 6]);
-				lastcombo[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 7]);
-				garbage[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 8]);
-				lastpiece[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 9]);
-				scgettime[playerID] = 0;
+                lastevent[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 5]);
+                lastb2b[playerID] = Boolean.parseBoolean(message[ATTACK_CATEGORIES + 6]);
+                lastcombo[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 7]);
+                garbage[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 8]);
+                lastpiece[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 9]);
+                scgettime[playerID] = 0;
 
-				if( (playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
-					    ((playerTeams[0].length() <= 0) || (playerTeams[playerID].length() <= 0) || !playerTeams[0].equalsIgnoreCase(playerTeams[playerID])))
-//				if( (playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
-//				    ((playerTeams[0].length() <= 0) || (playerTeams[playerID].length() <= 0) || (!playerTeams[0].equalsIgnoreCase(playerTeams[playerID]))) &&
-//				    (playerTeamsIsTank[0]) )
-				{
-					int secondAdd = 0; //TODO: Allow for chunking of attack types other than b2b.
-					if(currentRoomInfo.b2bChunk){
-						secondAdd = pts[ATTACK_CATEGORY_B2B];
-					}
+                if( (playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
+                        ((playerTeams[0].length() <= 0) || (playerTeams[playerID].length() <= 0) || !playerTeams[0].equalsIgnoreCase(playerTeams[playerID])))
+//                if( (playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
+//                    ((playerTeams[0].length() <= 0) || (playerTeams[playerID].length() <= 0) || (!playerTeams[0].equalsIgnoreCase(playerTeams[playerID]))) &&
+//                    (playerTeamsIsTank[0]) )
+                {
+                    int secondAdd = 0; //TODO: Allow for chunking of attack types other than b2b.
+                    if(currentRoomInfo.b2bChunk){
+                        secondAdd = pts[ATTACK_CATEGORY_B2B];
+                    }
 
-					GarbageEntry garbageEntry = new GarbageEntry(sumPts - secondAdd, playerID, uid);
-					garbageEntries.add(garbageEntry);
+                    GarbageEntry garbageEntry = new GarbageEntry(sumPts - secondAdd, playerID, uid);
+                    garbageEntries.add(garbageEntry);
 
-					if(secondAdd > 0){
-						garbageEntry = new GarbageEntry(secondAdd, playerID, uid);
-						garbageEntries.add(garbageEntry);
-					}
+                    if(secondAdd > 0){
+                        garbageEntry = new GarbageEntry(secondAdd, playerID, uid);
+                        garbageEntries.add(garbageEntry);
+                    }
 
-					garbage[0] = getTotalGarbageLines();
-					if(garbage[0] >= 4*GARBAGE_DENOMINATOR) owner.engine[0].playSE("danger");
-					netLobby.netPlayerClient.send("game\tgarbageupdate\t" + garbage[0] + "\n");
-				}
-			}
-			// せり上がりバー更新
-			if(message[3].equals("garbageupdate")) {
-				garbage[playerID] = Integer.parseInt(message[4]);
-			}
-			// NEXT and HOLD
-			if(message[3].equals("next")) {
-				int maxNext = Integer.parseInt(message[4]);
-				owner.engine[playerID].ruleopt.nextDisplay = maxNext;
-				owner.engine[playerID].holdDisable = Boolean.parseBoolean(message[5]);
+                    garbage[0] = getTotalGarbageLines();
+                    if(garbage[0] >= 4*GARBAGE_DENOMINATOR) owner.engine[0].playSE("danger");
+                    netLobby.netPlayerClient.send("game\tgarbageupdate\t" + garbage[0] + "\n");
+                }
+            }
+            // せり上がりバー更新
+            if(message[3].equals("garbageupdate")) {
+                garbage[playerID] = Integer.parseInt(message[4]);
+            }
+            // NEXT and HOLD
+            if(message[3].equals("next")) {
+                int maxNext = Integer.parseInt(message[4]);
+                owner.engine[playerID].ruleopt.nextDisplay = maxNext;
+                owner.engine[playerID].holdDisable = Boolean.parseBoolean(message[5]);
 
-				for(int i = 0; i < maxNext + 1; i++) {
-					if(i + 6 < message.length) {
-						String[] strPieceData = message[i + 6].split(";");
-						int pieceID = Integer.parseInt(strPieceData[0]);
-						int pieceDirection = Integer.parseInt(strPieceData[1]);
-						int pieceColor = Integer.parseInt(strPieceData[2]);
+                for(int i = 0; i < maxNext + 1; i++) {
+                    if(i + 6 < message.length) {
+                        String[] strPieceData = message[i + 6].split(";");
+                        int pieceID = Integer.parseInt(strPieceData[0]);
+                        int pieceDirection = Integer.parseInt(strPieceData[1]);
+                        int pieceColor = Integer.parseInt(strPieceData[2]);
 
-						if(i == 0) {
-							if(pieceID == Piece.PIECE_NONE) {
-								owner.engine[playerID].holdPieceObject = null;
-							} else {
-								owner.engine[playerID].holdPieceObject = new Piece(pieceID);
-								owner.engine[playerID].holdPieceObject.direction = pieceDirection;
-								owner.engine[playerID].holdPieceObject.setColor(pieceColor);
-								owner.engine[playerID].holdPieceObject.setSkin(playerSkin[playerID]);
-								owner.engine[playerID].holdPieceObject.updateConnectData();
-							}
-						} else {
-							if((owner.engine[playerID].nextPieceArrayObject == null) || (owner.engine[playerID].nextPieceArrayObject.length < maxNext)) {
-								owner.engine[playerID].nextPieceArrayObject = new Piece[maxNext];
-							}
-							owner.engine[playerID].nextPieceArrayObject[i - 1] = new Piece(pieceID);
-							owner.engine[playerID].nextPieceArrayObject[i - 1].direction = pieceDirection;
-							owner.engine[playerID].nextPieceArrayObject[i - 1].setColor(pieceColor);
-							owner.engine[playerID].nextPieceArrayObject[i - 1].setSkin(playerSkin[playerID]);
-							owner.engine[playerID].nextPieceArrayObject[i - 1].updateConnectData();
-						}
-					}
-				}
+                        if(i == 0) {
+                            if(pieceID == Piece.PIECE_NONE) {
+                                owner.engine[playerID].holdPieceObject = null;
+                            } else {
+                                owner.engine[playerID].holdPieceObject = new Piece(pieceID);
+                                owner.engine[playerID].holdPieceObject.direction = pieceDirection;
+                                owner.engine[playerID].holdPieceObject.setColor(pieceColor);
+                                owner.engine[playerID].holdPieceObject.setSkin(playerSkin[playerID]);
+                                owner.engine[playerID].holdPieceObject.updateConnectData();
+                            }
+                        } else {
+                            if((owner.engine[playerID].nextPieceArrayObject == null) || (owner.engine[playerID].nextPieceArrayObject.length < maxNext)) {
+                                owner.engine[playerID].nextPieceArrayObject = new Piece[maxNext];
+                            }
+                            owner.engine[playerID].nextPieceArrayObject[i - 1] = new Piece(pieceID);
+                            owner.engine[playerID].nextPieceArrayObject[i - 1].direction = pieceDirection;
+                            owner.engine[playerID].nextPieceArrayObject[i - 1].setColor(pieceColor);
+                            owner.engine[playerID].nextPieceArrayObject[i - 1].setSkin(playerSkin[playerID]);
+                            owner.engine[playerID].nextPieceArrayObject[i - 1].updateConnectData();
+                        }
+                    }
+                }
 
-				owner.engine[playerID].isNextVisible = true;
-				owner.engine[playerID].isHoldVisible = true;
-			}
-			// HurryUp
-			if(message[3].equals("hurryup")) {
-				if(!hurryupStarted && (hurryupSeconds > 0)) {
-					if((playerSeatNumber != -1) && (owner.engine[0].timerActive)) {
-						owner.receiver.playSE("hurryup");
-					}
-					hurryupStarted = true;
-					hurryupShowFrames = 60 * 5;
-				}
-			}
-		}
-	}
+                owner.engine[playerID].isNextVisible = true;
+                owner.engine[playerID].isHoldVisible = true;
+            }
+            // HurryUp
+            if(message[3].equals("hurryup")) {
+                if(!hurryupStarted && (hurryupSeconds > 0)) {
+                    if((playerSeatNumber != -1) && (owner.engine[0].timerActive)) {
+                        owner.receiver.playSE("hurryup");
+                    }
+                    hurryupStarted = true;
+                    hurryupShowFrames = 60 * 5;
+                }
+            }
+        }
+    }
 
-	/**
-	 * 敵から送られてきたgarbage blockの data
-	 */
-	private class GarbageEntry {
-		/** garbage blockcount */
-		public int lines = 0;
+    /**
+     * 敵から送られてきたgarbage blockの data
+     */
+    private class GarbageEntry {
+        /** garbage blockcount */
+        public int lines = 0;
 
-		/** 送信元(ゲーム用Player number) */
-		public int playerID = 0;
+        /** 送信元(ゲーム用Player number) */
+        public int playerID = 0;
 
-		/** 送信元(ゲーム以外用Player number) */
-		public int uid = 0;
+        /** 送信元(ゲーム以外用Player number) */
+        public int uid = 0;
 
-		/**
-		 * Constructor
-		 */
-		@SuppressWarnings("unused")
-		public GarbageEntry() {
-		}
+        /**
+         * Constructor
+         */
+        @SuppressWarnings("unused")
+        public GarbageEntry() {
+        }
 
-		/**
-		 * パラメータ付きConstructor
-		 * @param g garbage blockcount
-		 */
-		@SuppressWarnings("unused")
-		public GarbageEntry(int g) {
-			lines = g;
-		}
+        /**
+         * パラメータ付きConstructor
+         * @param g garbage blockcount
+         */
+        @SuppressWarnings("unused")
+        public GarbageEntry(int g) {
+            lines = g;
+        }
 
-		/**
-		 * パラメータ付きConstructor
-		 * @param g garbage blockcount
-		 * @param p 送信元(ゲーム用Player number)
-		 */
-		public GarbageEntry(int g, int p) {
-			lines = g;
-			playerID = p;
-		}
+        /**
+         * パラメータ付きConstructor
+         * @param g garbage blockcount
+         * @param p 送信元(ゲーム用Player number)
+         */
+        public GarbageEntry(int g, int p) {
+            lines = g;
+            playerID = p;
+        }
 
-		/**
-		 * パラメータ付きConstructor
-		 * @param g garbage blockcount
-		 * @param p 送信元(ゲーム用Player number)
-		 * @param s 送信元(ゲーム以外用Player number)
-		 */
-		public GarbageEntry(int g, int p, int s) {
-			lines = g;
-			playerID = p;
-			uid = s;
-		}
-	}
+        /**
+         * パラメータ付きConstructor
+         * @param g garbage blockcount
+         * @param p 送信元(ゲーム用Player number)
+         * @param s 送信元(ゲーム以外用Player number)
+         */
+        public GarbageEntry(int g, int p, int s) {
+            lines = g;
+            playerID = p;
+            uid = s;
+        }
+    }
 }

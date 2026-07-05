@@ -309,385 +309,385 @@ public class Nohoho extends DummyAI implements Runnable {
                 input |= Controller.BUTTON_BIT_LEFT;
             else if(moveDir == 1 && (!ctrl.isPress(Controller.BUTTON_RIGHT) || useDAS))
                 input |= Controller.BUTTON_BIT_RIGHT;
-        	if(drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
-				input |= Controller.BUTTON_BIT_UP;
-			else if(drop == -1)
-				input |= Controller.BUTTON_BIT_DOWN;
+            if(drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
+                input |= Controller.BUTTON_BIT_UP;
+            else if(drop == -1)
+                input |= Controller.BUTTON_BIT_DOWN;
 
-			if (rotateDir != 0)
-			{
-				if(engine.ruleopt.rotateButtonAllowDouble &&
-						rotateDir == 2 && !ctrl.isPress(Controller.BUTTON_E))
-					input |= Controller.BUTTON_BIT_E;
-				else if(engine.ruleopt.rotateButtonAllowReverse &&
-						  !engine.ruleopt.rotateButtonDefaultRight && (rotateDir == 1))
-				{
-					if(!ctrl.isPress(Controller.BUTTON_B))
-						input |= Controller.BUTTON_BIT_B;
-				}
-				else if(engine.ruleopt.rotateButtonAllowReverse &&
-						  engine.ruleopt.rotateButtonDefaultRight && (rotateDir == -1))
-				{
-					if(!ctrl.isPress(Controller.BUTTON_B))
-						input |= Controller.BUTTON_BIT_B;
-				}
-				else if(!ctrl.isPress(Controller.BUTTON_A))
-					input |= Controller.BUTTON_BIT_A;
-			}
-			if (setDAS != moveDir)
-				setDAS = 0;
+            if (rotateDir != 0)
+            {
+                if(engine.ruleopt.rotateButtonAllowDouble &&
+                        rotateDir == 2 && !ctrl.isPress(Controller.BUTTON_E))
+                    input |= Controller.BUTTON_BIT_E;
+                else if(engine.ruleopt.rotateButtonAllowReverse &&
+                          !engine.ruleopt.rotateButtonDefaultRight && (rotateDir == 1))
+                {
+                    if(!ctrl.isPress(Controller.BUTTON_B))
+                        input |= Controller.BUTTON_BIT_B;
+                }
+                else if(engine.ruleopt.rotateButtonAllowReverse &&
+                          engine.ruleopt.rotateButtonDefaultRight && (rotateDir == -1))
+                {
+                    if(!ctrl.isPress(Controller.BUTTON_B))
+                        input |= Controller.BUTTON_BIT_B;
+                }
+                else if(!ctrl.isPress(Controller.BUTTON_A))
+                    input |= Controller.BUTTON_BIT_A;
+            }
+            if (setDAS != moveDir)
+                setDAS = 0;
 
-			lastInput = input;
-			lastX = nowX;
-			lastY = nowY;
-			lastRt = rt;
+            lastInput = input;
+            lastX = nowX;
+            lastY = nowY;
+            lastRt = rt;
 
-			if (DEBUG_ALL) log.debug ("Input = " + input + ", moveDir = " + moveDir  + ", rotateDir = " + rotateDir +
-					 ", sync = " + sync  + ", drop = " + drop  + ", setDAS = " + setDAS);
+            if (DEBUG_ALL) log.debug ("Input = " + input + ", moveDir = " + moveDir  + ", rotateDir = " + rotateDir +
+                     ", sync = " + sync  + ", drop = " + drop  + ", setDAS = " + setDAS);
 
-			delay = 0;
-			ctrl.setButtonBit(input);
-		}
-		else {
-			//dropDelay = 0;
-			delay++;
-			ctrl.setButtonBit(inputARE);
-		}
-	}
+            delay = 0;
+            ctrl.setButtonBit(input);
+        }
+        else {
+            //dropDelay = 0;
+            delay++;
+            ctrl.setButtonBit(inputARE);
+        }
+    }
 
-	/**
-	 * Search for the best choice
-	 * @param engine The GameEngine that owns this AI
-	 * @param playerID Player ID
-	 */
-	public void thinkBestPosition(GameEngine engine, int playerID) {
-		if (DEBUG_ALL) log.debug("thinkBestPosition called, inARE = " + inARE + ", piece: ");
-		bestHold = false;
-		bestX = 0;
-		bestY = 0;
-		bestRt = 0;
-		bestXSub = 0;
-		bestYSub = 0;
-		bestRtSub = -1;
-		bestPts = 0;
-		thinkSuccess = false;
+    /**
+     * Search for the best choice
+     * @param engine The GameEngine that owns this AI
+     * @param playerID Player ID
+     */
+    public void thinkBestPosition(GameEngine engine, int playerID) {
+        if (DEBUG_ALL) log.debug("thinkBestPosition called, inARE = " + inARE + ", piece: ");
+        bestHold = false;
+        bestX = 0;
+        bestY = 0;
+        bestRt = 0;
+        bestXSub = 0;
+        bestYSub = 0;
+        bestRtSub = -1;
+        bestPts = 0;
+        thinkSuccess = false;
 
-		engine.createFieldIfNeeded();
-		Field fld = new Field(engine.field);
-		Piece pieceNow = engine.nowPieceObject;
-		Piece pieceHold = engine.holdPieceObject;
-		boolean holdOK = engine.isHoldOK();
-		int nowX, nowY;
-		if (inARE || pieceNow == null)
-		{
-			pieceNow = engine.getNextObjectCopy(engine.nextPieceCount);
-			nowX = engine.getSpawnPosX(fld, pieceNow);
-			nowY = engine.getSpawnPosY(pieceNow);
-			if(holdOK && pieceHold == null)
-				pieceHold = engine.getNextObjectCopy(engine.nextPieceCount+1);
-		}
-		else {
-			nowX = engine.nowPieceX;
-			nowY = engine.nowPieceY;
-			if(holdOK && pieceHold == null)
-				pieceHold = engine.getNextObjectCopy(engine.nextPieceCount);
-		}
-		pieceNow = checkOffset(pieceNow, engine);
-		if(holdOK && pieceHold == null) {
-			pieceHold = checkOffset(pieceHold, engine);
-			if (pieceHold.id == pieceNow.id)
-				pieceHold = null;
-		}
+        engine.createFieldIfNeeded();
+        Field fld = new Field(engine.field);
+        Piece pieceNow = engine.nowPieceObject;
+        Piece pieceHold = engine.holdPieceObject;
+        boolean holdOK = engine.isHoldOK();
+        int nowX, nowY;
+        if (inARE || pieceNow == null)
+        {
+            pieceNow = engine.getNextObjectCopy(engine.nextPieceCount);
+            nowX = engine.getSpawnPosX(fld, pieceNow);
+            nowY = engine.getSpawnPosY(pieceNow);
+            if(holdOK && pieceHold == null)
+                pieceHold = engine.getNextObjectCopy(engine.nextPieceCount+1);
+        }
+        else {
+            nowX = engine.nowPieceX;
+            nowY = engine.nowPieceY;
+            if(holdOK && pieceHold == null)
+                pieceHold = engine.getNextObjectCopy(engine.nextPieceCount);
+        }
+        pieceNow = checkOffset(pieceNow, engine);
+        if(holdOK && pieceHold == null) {
+            pieceHold = checkOffset(pieceHold, engine);
+            if (pieceHold.id == pieceNow.id)
+                pieceHold = null;
+        }
 
-		int defcon = 5; //Defense condition. 1 = most defensive, 5 = least defensive.
-		int[] depths = getColumnDepths(fld);
-		if (depths[2] <= 3)
-			defcon = 1;
-		else if (depths[3] <= 0)
-			defcon = (depths[2] <= 6) ? 3 : 4;
-		
-		if (defcon >= 4)
-		{
-			int x, maxX;
-			if (depths[3] <= 0)
-				maxX = 2;
-			else if (depths[4] <= 0)
-				maxX = 3;
-			else if (depths[5] <= 0)
-				maxX = 4;
-			else
-				maxX = 5;
-			for(int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
-				x = maxX - pieceNow.getMaximumBlockX();
-				fld.copy(engine.field);
-				int y = pieceNow.getBottom(x, nowY, rt, fld);
+        int defcon = 5; //Defense condition. 1 = most defensive, 5 = least defensive.
+        int[] depths = getColumnDepths(fld);
+        if (depths[2] <= 3)
+            defcon = 1;
+        else if (depths[3] <= 0)
+            defcon = (depths[2] <= 6) ? 3 : 4;
+        
+        if (defcon >= 4)
+        {
+            int x, maxX;
+            if (depths[3] <= 0)
+                maxX = 2;
+            else if (depths[4] <= 0)
+                maxX = 3;
+            else if (depths[5] <= 0)
+                maxX = 4;
+            else
+                maxX = 5;
+            for(int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
+                x = maxX - pieceNow.getMaximumBlockX();
+                fld.copy(engine.field);
+                int y = pieceNow.getBottom(x, nowY, rt, fld);
 
-				if(!pieceNow.checkCollision(x, y, rt, fld)) {
-					int pts = thinkMain(x, y, rt, -1, fld, pieceNow, defcon);
+                if(!pieceNow.checkCollision(x, y, rt, fld)) {
+                    int pts = thinkMain(x, y, rt, -1, fld, pieceNow, defcon);
 
-					if(pts >= bestPts) {
-						bestHold = false;
-						bestX = x;
-						bestY = y;
-						bestRt = rt;
-						bestXSub = x;
-						bestYSub = y;
-						bestRtSub = -1;
-						bestPts = pts;
-						if (DEBUG_ALL)
-							logBest(1);
-						thinkSuccess = true;
-					}
-				}
-				if((holdOK == true) && (pieceHold != null)) {
-					x = maxX - pieceHold.getMaximumBlockX();
-					fld.copy(engine.field);
-					y = pieceHold.getBottom(x, nowY, rt, fld);
+                    if(pts >= bestPts) {
+                        bestHold = false;
+                        bestX = x;
+                        bestY = y;
+                        bestRt = rt;
+                        bestXSub = x;
+                        bestYSub = y;
+                        bestRtSub = -1;
+                        bestPts = pts;
+                        if (DEBUG_ALL)
+                            logBest(1);
+                        thinkSuccess = true;
+                    }
+                }
+                if((holdOK == true) && (pieceHold != null)) {
+                    x = maxX - pieceHold.getMaximumBlockX();
+                    fld.copy(engine.field);
+                    y = pieceHold.getBottom(x, nowY, rt, fld);
 
-					if(!pieceHold.checkCollision(x, y, rt, fld)) {
-						int pts = thinkMain(x, y, rt, -1, fld, pieceHold, defcon);
+                    if(!pieceHold.checkCollision(x, y, rt, fld)) {
+                        int pts = thinkMain(x, y, rt, -1, fld, pieceHold, defcon);
 
-						if(pts >= bestPts) {
-							bestHold = false;
-							bestX = x;
-							bestY = y;
-							bestRt = rt;
-							bestXSub = x;
-							bestYSub = y;
-							bestRtSub = -1;
-							bestPts = pts;
-							if (DEBUG_ALL)
-								logBest(2);
-							thinkSuccess = true;
-						}
-					}
-				}
-			}
-		}
-		else {
-			for(int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
-				int minX = pieceNow.getMostMovableLeft(nowX, nowY, rt, engine.field);
-				int maxX = pieceNow.getMostMovableRight(nowX, nowY, rt, engine.field);
-				for(int x = minX; x <= maxX; x++) {
-					fld.copy(engine.field);
-					int y = pieceNow.getBottom(x, nowY, rt, fld);
+                        if(pts >= bestPts) {
+                            bestHold = false;
+                            bestX = x;
+                            bestY = y;
+                            bestRt = rt;
+                            bestXSub = x;
+                            bestYSub = y;
+                            bestRtSub = -1;
+                            bestPts = pts;
+                            if (DEBUG_ALL)
+                                logBest(2);
+                            thinkSuccess = true;
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            for(int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
+                int minX = pieceNow.getMostMovableLeft(nowX, nowY, rt, engine.field);
+                int maxX = pieceNow.getMostMovableRight(nowX, nowY, rt, engine.field);
+                for(int x = minX; x <= maxX; x++) {
+                    fld.copy(engine.field);
+                    int y = pieceNow.getBottom(x, nowY, rt, fld);
 
-					if(!pieceNow.checkCollision(x, y, rt, fld)) {
-						// そのまま
-						int pts = thinkMain(x, y, rt, -1, fld, pieceNow, defcon);
+                    if(!pieceNow.checkCollision(x, y, rt, fld)) {
+                        // そのまま
+                        int pts = thinkMain(x, y, rt, -1, fld, pieceNow, defcon);
 
-						if(pts >= bestPts) {
-							bestHold = false;
-							bestX = x;
-							bestY = y;
-							bestRt = rt;
-							bestXSub = x;
-							bestYSub = y;
-							bestRtSub = -1;
-							bestPts = pts;
-							if (DEBUG_ALL)
-								logBest(3);
-							thinkSuccess = true;
-						}
-					}
-				}
+                        if(pts >= bestPts) {
+                            bestHold = false;
+                            bestX = x;
+                            bestY = y;
+                            bestRt = rt;
+                            bestXSub = x;
+                            bestYSub = y;
+                            bestRtSub = -1;
+                            bestPts = pts;
+                            if (DEBUG_ALL)
+                                logBest(3);
+                            thinkSuccess = true;
+                        }
+                    }
+                }
 
-				// Hold piece
-				if((holdOK == true) && (pieceHold != null)) {
-					int spawnX = engine.getSpawnPosX(engine.field, pieceHold);
-					int spawnY = engine.getSpawnPosY(pieceHold);
-					int minHoldX = pieceHold.getMostMovableLeft(spawnX, spawnY, rt, engine.field);
-					int maxHoldX = pieceHold.getMostMovableRight(spawnX, spawnY, rt, engine.field);
+                // Hold piece
+                if((holdOK == true) && (pieceHold != null)) {
+                    int spawnX = engine.getSpawnPosX(engine.field, pieceHold);
+                    int spawnY = engine.getSpawnPosY(pieceHold);
+                    int minHoldX = pieceHold.getMostMovableLeft(spawnX, spawnY, rt, engine.field);
+                    int maxHoldX = pieceHold.getMostMovableRight(spawnX, spawnY, rt, engine.field);
 
-					for(int x = minHoldX; x <= maxHoldX; x++)
-					{
-						fld.copy(engine.field);
-						int y = pieceHold.getBottom(x, spawnY, rt, fld);
+                    for(int x = minHoldX; x <= maxHoldX; x++)
+                    {
+                        fld.copy(engine.field);
+                        int y = pieceHold.getBottom(x, spawnY, rt, fld);
 
-						if(!pieceHold.checkCollision(x, y, rt, fld)) {
-							// そのまま
-							int pts = thinkMain(x, y, rt, -1, fld, pieceHold, defcon);
-							if(pts >= bestPts) {
-								bestHold = true;
-								bestX = x;
-								bestY = y;
-								bestRt = rt;
-								bestXSub = x;
-								bestYSub = y;
-								bestRtSub = -1;
-								bestPts = pts;
-								if (DEBUG_ALL)
-									logBest(4);
-								thinkSuccess = true;
-							}
-						}
-					}
-				}
-			}
-		}
+                        if(!pieceHold.checkCollision(x, y, rt, fld)) {
+                            // そのまま
+                            int pts = thinkMain(x, y, rt, -1, fld, pieceHold, defcon);
+                            if(pts >= bestPts) {
+                                bestHold = true;
+                                bestX = x;
+                                bestY = y;
+                                bestRt = rt;
+                                bestXSub = x;
+                                bestYSub = y;
+                                bestRtSub = -1;
+                                bestPts = pts;
+                                if (DEBUG_ALL)
+                                    logBest(4);
+                                thinkSuccess = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-		thinkLastPieceNo++;
+        thinkLastPieceNo++;
 
-		//System.out.println("X:" + bestX + " Y:" + bestY + " R:" + bestRt + " H:" + bestHold + " Pts:" + bestPts);
-	}
+        //System.out.println("X:" + bestX + " Y:" + bestY + " R:" + bestRt + " H:" + bestHold + " Pts:" + bestPts);
+    }
 
-	/**
-	 * Think routine
-	 * @param x X-coordinate
-	 * @param y Y-coordinate
-	 * @param rt Direction
-	 * @param rtOld Direction before rotation (-1: None）
-	 * @param fld Field (Can be modified without problems)
-	 * @param piece Piece
-	 * @param defcon Defense level (the lower, the more defensive)
-	 * @return Evaluation score
-	 */
-	public int thinkMain(int x, int y, int rt, int rtOld, Field fld, Piece piece, int defcon) {
-		int pts = 0;
+    /**
+     * Think routine
+     * @param x X-coordinate
+     * @param y Y-coordinate
+     * @param rt Direction
+     * @param rtOld Direction before rotation (-1: None）
+     * @param fld Field (Can be modified without problems)
+     * @param piece Piece
+     * @param defcon Defense level (the lower, the more defensive)
+     * @return Evaluation score
+     */
+    public int thinkMain(int x, int y, int rt, int rtOld, Field fld, Piece piece, int defcon) {
+        int pts = 0;
 
-		if (defcon <= 3)
-			pts -= fld.getHighestBlockY(2);
-		
-		// ピースを置く
-		if(!piece.placeToField(x, y, rt, fld)) {
-			if (DEBUG_ALL)
-				log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld +
-					", fld, piece " + piece.id + ", " + defcon + "). pts = MIN_VALUE (Cannot place piece)");
-			return Integer.MIN_VALUE;
-		}
+        if (defcon <= 3)
+            pts -= fld.getHighestBlockY(2);
+        
+        // ピースを置く
+        if(!piece.placeToField(x, y, rt, fld)) {
+            if (DEBUG_ALL)
+                log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld +
+                    ", fld, piece " + piece.id + ", " + defcon + "). pts = MIN_VALUE (Cannot place piece)");
+            return Integer.MIN_VALUE;
+        }
 
-		fld.freeFall();
-		
-		if (defcon >= 4)
-		{
-			int maxX = piece.getMaximumBlockX()+x;
-			if(maxX < 2) {
-				if (DEBUG_ALL)
-					log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld + ", fld, piece "
-							+ piece.id + ", " + defcon + "). pts = MIN_VALUE (Invalid location/defcon combination)");
-				return Integer.MIN_VALUE;
-			}
-			int maxY = fld.getHighestBlockY(maxX);
-			int clear = fld.clearColor(maxX, maxY, true, true, false, true);
-			if (clear >= 4)
-				pts += (defcon == 5) ? -4 : 4;
-			else if (clear == 3)
-				pts += 2;
-			else if (clear == 2)
-				pts++;
-			
-			if ((rt&1) == 1)
-			{
-				pts++;
-				clear = fld.clearColor(maxX, maxY+1, true, true, false, true);
-			}
-			else
-				clear = fld.clearColor(maxX-1, fld.getHighestBlockY(maxX-1), true, true, false, true);
-			if (clear >= 4)
-				pts += (defcon == 5) ? -4 : 4;
-			else if (clear == 3)
-				pts += 2;
-			else if (clear == 2)
-				pts++;
-		}
+        fld.freeFall();
+        
+        if (defcon >= 4)
+        {
+            int maxX = piece.getMaximumBlockX()+x;
+            if(maxX < 2) {
+                if (DEBUG_ALL)
+                    log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld + ", fld, piece "
+                            + piece.id + ", " + defcon + "). pts = MIN_VALUE (Invalid location/defcon combination)");
+                return Integer.MIN_VALUE;
+            }
+            int maxY = fld.getHighestBlockY(maxX);
+            int clear = fld.clearColor(maxX, maxY, true, true, false, true);
+            if (clear >= 4)
+                pts += (defcon == 5) ? -4 : 4;
+            else if (clear == 3)
+                pts += 2;
+            else if (clear == 2)
+                pts++;
+            
+            if ((rt&1) == 1)
+            {
+                pts++;
+                clear = fld.clearColor(maxX, maxY+1, true, true, false, true);
+            }
+            else
+                clear = fld.clearColor(maxX-1, fld.getHighestBlockY(maxX-1), true, true, false, true);
+            if (clear >= 4)
+                pts += (defcon == 5) ? -4 : 4;
+            else if (clear == 3)
+                pts += 2;
+            else if (clear == 2)
+                pts++;
+        }
 
-		// Clear
-		int chain = 1;
-		while (true)
-		{
-			int clear = fld.clearColor(4, true, false, true);
-			if (clear <= 0)
-				break;
-			else if (defcon <= 4)
-			{
-				if (chain == 0)
-					pts += clear;
-				else if (chain == 2)
-					pts += clear << 3;
-				else if (chain == 3)
-					pts += clear << 4;
-				else if (chain >= 4)
-					pts += clear*32*(chain-3);
-			}
-			fld.freeFall();
-			chain++;
-		}
+        // Clear
+        int chain = 1;
+        while (true)
+        {
+            int clear = fld.clearColor(4, true, false, true);
+            if (clear <= 0)
+                break;
+            else if (defcon <= 4)
+            {
+                if (chain == 0)
+                    pts += clear;
+                else if (chain == 2)
+                    pts += clear << 3;
+                else if (chain == 3)
+                    pts += clear << 4;
+                else if (chain >= 4)
+                    pts += clear*32*(chain-3);
+            }
+            fld.freeFall();
+            chain++;
+        }
 
-		if (defcon <= 3)
-			pts += fld.getHighestBlockY(2);
+        if (defcon <= 3)
+            pts += fld.getHighestBlockY(2);
 
-		// All clear
-		boolean allclear = fld.isEmpty();
-		if(allclear) pts += 1000;
+        // All clear
+        boolean allclear = fld.isEmpty();
+        if(allclear) pts += 1000;
 
-		if (DEBUG_ALL)
-			log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld +
-					", fld, piece " + piece.id + ", " + defcon + "). pts = " + pts);
-		return pts;
-	}
-	//private static final int[][] HI_PENALTY = {{6, 2}, {7, 6}, {6, 2}, {1, 0}};
-	public static Piece checkOffset(Piece p, GameEngine engine)
-	{
-		Piece result = new Piece(p);
-		result.big = engine.big;
-		if (!p.offsetApplied)
-			result.applyOffsetArray(engine.ruleopt.pieceOffsetX[p.id], engine.ruleopt.pieceOffsetY[p.id]);
-		return result;
-	}
+        if (DEBUG_ALL)
+            log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld +
+                    ", fld, piece " + piece.id + ", " + defcon + "). pts = " + pts);
+        return pts;
+    }
+    //private static final int[][] HI_PENALTY = {{6, 2}, {7, 6}, {6, 2}, {1, 0}};
+    public static Piece checkOffset(Piece p, GameEngine engine)
+    {
+        Piece result = new Piece(p);
+        result.big = engine.big;
+        if (!p.offsetApplied)
+            result.applyOffsetArray(engine.ruleopt.pieceOffsetX[p.id], engine.ruleopt.pieceOffsetY[p.id]);
+        return result;
+    }
 
-	public static int[] getColumnDepths (Field fld)
-	{
-		int width = fld.getWidth();
-		int[] result = new int[width];
-		for (int x = 0; x < width; x++)
-			result[x] = fld.getHighestBlockY(x);
-		return result;
-	}
+    public static int[] getColumnDepths (Field fld)
+    {
+        int width = fld.getWidth();
+        int[] result = new int[width];
+        for (int x = 0; x < width; x++)
+            result[x] = fld.getHighestBlockY(x);
+        return result;
+    }
 
-	protected void logBest(int caseNum)
-	{
-		log.debug("New best position found (Case " + caseNum +
-				"): bestHold = " + bestHold +
-				", bestX = " + bestX +
-				", bestY = " + bestY +
-				", bestRt = " + bestRt +
-				", bestXSub = " + bestXSub +
-				", bestYSub = " + bestYSub +
-				", bestRtSub = " + bestRtSub +
-				", bestPts = " + bestPts);
-	}
+    protected void logBest(int caseNum)
+    {
+        log.debug("New best position found (Case " + caseNum +
+                "): bestHold = " + bestHold +
+                ", bestX = " + bestX +
+                ", bestY = " + bestY +
+                ", bestRt = " + bestRt +
+                ", bestXSub = " + bestXSub +
+                ", bestYSub = " + bestYSub +
+                ", bestRtSub = " + bestRtSub +
+                ", bestPts = " + bestPts);
+    }
 
-	/*
-	 * スレッドの処理
-	 */
-	public void run() {
-		log.info("Nohoho: Thread start");
-		threadRunning = true;
+    /*
+     * スレッドの処理
+     */
+    public void run() {
+        log.info("Nohoho: Thread start");
+        threadRunning = true;
 
-		while(threadRunning) {
-			if(thinkRequest) {
-				thinkRequest = false;
-				thinking = true;
-				try {
-					thinkBestPosition(gEngine, gEngine.playerID);
-					thinkComplete = true;
-					log.debug("Nohoho: thinkBestPosition completed successfully");
-				} catch (Throwable e) {
-					log.debug("Nohoho: thinkBestPosition Failed", e);
-				}
-				thinking = false;
-			}
+        while(threadRunning) {
+            if(thinkRequest) {
+                thinkRequest = false;
+                thinking = true;
+                try {
+                    thinkBestPosition(gEngine, gEngine.playerID);
+                    thinkComplete = true;
+                    log.debug("Nohoho: thinkBestPosition completed successfully");
+                } catch (Throwable e) {
+                    log.debug("Nohoho: thinkBestPosition Failed", e);
+                }
+                thinking = false;
+            }
 
-			if(thinkDelay > 0) {
-				try {
-					Thread.sleep(thinkDelay);
-				} catch (InterruptedException e) {
-					break;
-				}
-			}
-		}
+            if(thinkDelay > 0) {
+                try {
+                    Thread.sleep(thinkDelay);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
 
-		threadRunning = false;
-		log.info("Nohoho: Thread end");
-	}
+        threadRunning = false;
+        log.info("Nohoho: Thread end");
+    }
 }

@@ -1078,853 +1078,853 @@ public class RuleEditor extends JFrame implements ActionListener {
         chkboxMoveDASInMoveFirstFrame = new JCheckBox(getUIText("Move_DASInMoveFirstFrame"));
         panelMove.add(chkboxMoveDASInMoveFirstFrame);
         chkboxMoveDASInLockFlash = new JCheckBox(getUIText("Move_DASInLockFlash"));
-    	panelMove.add(chkboxMoveDASInLockFlash);
-		chkboxMoveDASInLineClear = new JCheckBox(getUIText("Move_DASInLineClear"));
-		panelMove.add(chkboxMoveDASInLineClear);
-		chkboxMoveDASInARE = new JCheckBox(getUIText("Move_DASInARE"));
-		panelMove.add(chkboxMoveDASInARE);
-		chkboxMoveDASInARELastFrame = new JCheckBox(getUIText("Move_DASInARELastFrame"));
-		panelMove.add(chkboxMoveDASInARELastFrame);
-		chkboxMoveDASInEndingStart = new JCheckBox(getUIText("Move_DASInEndingStart"));
-		panelMove.add(chkboxMoveDASInEndingStart);
-		chkboxMoveDASChargeOnBlockedMove = new JCheckBox(getUIText("Move_DASChargeOnBlockedMove"));
-		panelMove.add(chkboxMoveDASChargeOnBlockedMove);
-		chkboxMoveDASStoreChargeOnNeutral = new JCheckBox(getUIText("Move_DASStoreChargeOnNeutral"));
+        panelMove.add(chkboxMoveDASInLockFlash);
+        chkboxMoveDASInLineClear = new JCheckBox(getUIText("Move_DASInLineClear"));
+        panelMove.add(chkboxMoveDASInLineClear);
+        chkboxMoveDASInARE = new JCheckBox(getUIText("Move_DASInARE"));
+        panelMove.add(chkboxMoveDASInARE);
+        chkboxMoveDASInARELastFrame = new JCheckBox(getUIText("Move_DASInARELastFrame"));
+        panelMove.add(chkboxMoveDASInARELastFrame);
+        chkboxMoveDASInEndingStart = new JCheckBox(getUIText("Move_DASInEndingStart"));
+        panelMove.add(chkboxMoveDASInEndingStart);
+        chkboxMoveDASChargeOnBlockedMove = new JCheckBox(getUIText("Move_DASChargeOnBlockedMove"));
+        panelMove.add(chkboxMoveDASChargeOnBlockedMove);
+        chkboxMoveDASStoreChargeOnNeutral = new JCheckBox(getUIText("Move_DASStoreChargeOnNeutral"));
       panelMove.add(chkboxMoveDASStoreChargeOnNeutral);
       chkboxMoveDASRedirectInDelay = new JCheckBox(getUIText("Move_DASRedirectInDelay"));
       panelMove.add(chkboxMoveDASRedirectInDelay);
 
-		// 最初の frame に移動可能
-		chkboxMoveFirstFrame = new JCheckBox(getUIText("Move_FirstFrame"));
-		panelMove.add(chkboxMoveFirstFrame);
-
-		// 斜め移動
-		chkboxMoveDiagonal = new JCheckBox(getUIText("Move_Diagonal"));
-		panelMove.add(chkboxMoveDiagonal);
-
-		// Up下同時押し
-		chkboxMoveUpAndDown = new JCheckBox(getUIText("Move_UpAndDown"));
-		panelMove.add(chkboxMoveUpAndDown);
-
-		// 左右同時押し
-		chkboxMoveLeftAndRightAllow = new JCheckBox(getUIText("Move_LeftAndRightAllow"));
-		panelMove.add(chkboxMoveLeftAndRightAllow);
-
-		// 左右同時押ししたときに前 frame の input を優先
-		chkboxMoveLeftAndRightUsePreviousInput = new JCheckBox(getUIText("Move_LeftAndRightUsePreviousInput"));
-		panelMove.add(chkboxMoveLeftAndRightUsePreviousInput);
-
-		// Shift lock
-		chkboxMoveShiftLockEnable = new JCheckBox(getUIText("Move_ShiftLock"));
-		panelMove.add(chkboxMoveShiftLockEnable);
-
-		// rotationパターン補正タブ ------------------------------------------------
-		JPanel panelPieceOffset = new JPanel();
-		panelPieceOffset.setLayout(new BoxLayout(panelPieceOffset, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_PieceOffset"), panelPieceOffset);
-
-		tabPieceOffset = new JTabbedPane();
-		panelPieceOffset.add(tabPieceOffset);
-
-		// rotationパターン補正(X)タブ --------------------------------------------------
-		JPanel panelPieceOffsetX = new JPanel();
-		panelPieceOffsetX.setLayout(new BoxLayout(panelPieceOffsetX, BoxLayout.Y_AXIS));
-		tabPieceOffset.addTab(getUIText("TabName_PieceOffsetX"), panelPieceOffsetX);
-
-		JPanel[] pPieceOffsetX = new JPanel[Piece.PIECE_COUNT];
-
-		txtfldPieceOffsetX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceOffsetX[i] = new JPanel();
-			panelPieceOffsetX.add(pPieceOffsetX[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceOffsetX[i].add(lPieceName);
-
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				txtfldPieceOffsetX[i][j] = new JTextField("", 5);
-				pPieceOffsetX[i].add(txtfldPieceOffsetX[i][j]);
-			}
-		}
-
-		// rotationパターン補正(Y)タブ --------------------------------------------------
-		JPanel panelPieceOffsetY = new JPanel();
-		panelPieceOffsetY.setLayout(new BoxLayout(panelPieceOffsetY, BoxLayout.Y_AXIS));
-		tabPieceOffset.addTab(getUIText("TabName_PieceOffsetY"), panelPieceOffsetY);
-
-		JPanel[] pPieceOffsetY = new JPanel[Piece.PIECE_COUNT];
-
-		txtfldPieceOffsetY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceOffsetY[i] = new JPanel();
-			panelPieceOffsetY.add(pPieceOffsetY[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceOffsetY[i].add(lPieceName);
-
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				txtfldPieceOffsetY[i][j] = new JTextField("", 5);
-				pPieceOffsetY[i].add(txtfldPieceOffsetY[i][j]);
-			}
-		}
-
-		// 出現位置補正タブ ------------------------------------------------
-		JPanel panelPieceSpawn = new JPanel();
-		panelPieceSpawn.setLayout(new BoxLayout(panelPieceSpawn, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_PieceSpawn"), panelPieceSpawn);
-
-		tabPieceSpawn = new JTabbedPane();
-		panelPieceSpawn.add(tabPieceSpawn);
-
-		// 出現位置補正(X)タブ --------------------------------------------------
-		JPanel panelPieceSpawnX = new JPanel();
-		panelPieceSpawnX.setLayout(new BoxLayout(panelPieceSpawnX, BoxLayout.Y_AXIS));
-		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnX"), panelPieceSpawnX);
-
-		JPanel[] pPieceSpawnX = new JPanel[Piece.PIECE_COUNT];
-
-		txtfldPieceSpawnX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceSpawnX[i] = new JPanel();
-			panelPieceSpawnX.add(pPieceSpawnX[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceSpawnX[i].add(lPieceName);
-
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				txtfldPieceSpawnX[i][j] = new JTextField("", 5);
-				pPieceSpawnX[i].add(txtfldPieceSpawnX[i][j]);
-			}
-		}
-
-		// 出現位置補正(Y)タブ --------------------------------------------------
-		JPanel panelPieceSpawnY = new JPanel();
-		panelPieceSpawnY.setLayout(new BoxLayout(panelPieceSpawnY, BoxLayout.Y_AXIS));
-		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnY"), panelPieceSpawnY);
-
-		JPanel[] pPieceSpawnY = new JPanel[Piece.PIECE_COUNT];
-
-		txtfldPieceSpawnY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceSpawnY[i] = new JPanel();
-			panelPieceSpawnY.add(pPieceSpawnY[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceSpawnY[i].add(lPieceName);
-
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				txtfldPieceSpawnY[i][j] = new JTextField("", 5);
-				pPieceSpawnY[i].add(txtfldPieceSpawnY[i][j]);
-			}
-		}
-
-		// Big時出現位置補正(X)タブ --------------------------------------------------
-		JPanel panelPieceSpawnBigX = new JPanel();
-		panelPieceSpawnBigX.setLayout(new BoxLayout(panelPieceSpawnBigX, BoxLayout.Y_AXIS));
-		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnBigX"), panelPieceSpawnBigX);
-
-		JPanel[] pPieceSpawnBigX = new JPanel[Piece.PIECE_COUNT];
-
-		txtfldPieceSpawnBigX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceSpawnBigX[i] = new JPanel();
-			panelPieceSpawnBigX.add(pPieceSpawnBigX[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceSpawnBigX[i].add(lPieceName);
-
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				txtfldPieceSpawnBigX[i][j] = new JTextField("", 5);
-				pPieceSpawnBigX[i].add(txtfldPieceSpawnBigX[i][j]);
-			}
-		}
-
-		// Big時出現位置補正(Y)タブ --------------------------------------------------
-		JPanel panelPieceSpawnBigY = new JPanel();
-		panelPieceSpawnBigY.setLayout(new BoxLayout(panelPieceSpawnBigY, BoxLayout.Y_AXIS));
-		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnBigY"), panelPieceSpawnBigY);
-
-		JPanel[] pPieceSpawnBigY = new JPanel[Piece.PIECE_COUNT];
-
-		txtfldPieceSpawnBigY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceSpawnBigY[i] = new JPanel();
-			panelPieceSpawnBigY.add(pPieceSpawnBigY[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceSpawnBigY[i].add(lPieceName);
-
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				txtfldPieceSpawnBigY[i][j] = new JTextField("", 5);
-				pPieceSpawnBigY[i].add(txtfldPieceSpawnBigY[i][j]);
-			}
-		}
-
-		// 色設定タブ --------------------------------------------------
-		JPanel panelPieceColor = new JPanel();
-		panelPieceColor.setLayout(new BoxLayout(panelPieceColor, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_PieceColor"), panelPieceColor);
-
-		String[] strColorNames = new String[Block.BLOCK_COLOR_COUNT - 1];
-		for(int i = 0; i < strColorNames.length; i++) strColorNames[i] = getUIText("ColorName" + i);
-
-		JPanel[] pPieceColor = new JPanel[Piece.PIECE_COUNT];
-
-		comboboxPieceColor = new JComboBox[Piece.PIECE_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceColor[i] = new JPanel();
-			panelPieceColor.add(pPieceColor[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceColor[i].add(lPieceName);
-
-			comboboxPieceColor[i] = new JComboBox(strColorNames);
-			comboboxPieceColor[i].setPreferredSize(new Dimension(100, 30));
-			comboboxPieceColor[i].setMaximumRowCount(strColorNames.length);
-			pPieceColor[i].add(comboboxPieceColor[i]);
-		}
-
-		// 初期Direction設定タブ --------------------------------------------------
-		JPanel panelPieceDirection = new JPanel();
-		panelPieceDirection.setLayout(new BoxLayout(panelPieceDirection, BoxLayout.Y_AXIS));
-		tabPane.addTab(getUIText("TabName_PieceDirection"), panelPieceDirection);
-
-		String[] strDirectionNames = new String[Piece.DIRECTION_COUNT + 1];
-		for(int i = 0; i < strDirectionNames.length; i++) strDirectionNames[i] = getUIText("DirectionName" + i);
-
-		JPanel[] pPieceDirection = new JPanel[Piece.PIECE_COUNT];
-
-		comboboxPieceDirection = new JComboBox[Piece.PIECE_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			pPieceDirection[i] = new JPanel();
-			panelPieceDirection.add(pPieceDirection[i]);
-
-			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
-			pPieceDirection[i].add(lPieceName);
-
-			comboboxPieceDirection[i] = new JComboBox(strDirectionNames);
-			comboboxPieceDirection[i].setPreferredSize(new Dimension(150, 30));
-			comboboxPieceDirection[i].setMaximumRowCount(strDirectionNames.length);
-			pPieceDirection[i].add(comboboxPieceDirection[i]);
-		}
-	}
-
-	/**
-	 * Block画像を読み込み
-	 */
-	private void loadBlockSkins() {
-		String skindir = propConfig.getProperty("custom.skin.directory", "res");
-
-		int numBlocks = 0;
-		File file = null;
-		while(true) {
-			file = new File(skindir + "/graphics/blockskin/normal/n" + numBlocks + ".png");
-			if(file.canRead()) {
-				numBlocks++;
-			} else {
-				break;
-			}
-		}
-		log.debug(numBlocks + " block skins found");
-
-		imgBlockSkins = new BufferedImage[numBlocks];
-
-		for(int i = 0; i < numBlocks; i++) {
-			BufferedImage imgBlock = (BufferedImage) loadImage(getURL(skindir + "/graphics/blockskin/normal/n" + i + ".png"));
-			boolean isSticky = ((imgBlock != null) && (imgBlock.getWidth() >= 400) && (imgBlock.getHeight() >= 304));
-
-			imgBlockSkins[i] = new BufferedImage(144, 16, BufferedImage.TYPE_INT_RGB);
-
-			if(isSticky) {
-				for(int j = 0; j < 9; j++) {
-					imgBlockSkins[i].getGraphics().drawImage(imgBlock, j * 16, 0, (j * 16) + 16, 16, 0, j * 16, 16, (j * 16) + 16, null);
-				}
-			} else {
-				imgBlockSkins[i].getGraphics().drawImage(imgBlock, 0, 0, 144, 16, 0, 0, 144, 16, null);
-			}
-		}
-	}
-
-	/**
-	 * 画像を読み込み
-	 * @param url 画像ファイルのURL
-	 * @return 画像ファイル (失敗するとnull）
-	 */
-	public BufferedImage loadImage(URL url) {
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(url);
-			log.debug("Loaded image from " + url);
-		} catch (IOException e) {
-			log.error("Failed to load image from " + url, e);
-		}
-		return img;
-	}
-
-	/**
-	 * リソースファイルのURLを返す
-	 * @param str Filename
-	 * @return リソースファイルのURL
-	 */
-	public URL getURL(String str) {
-		URL url = null;
-
-		try {
-			char sep = File.separator.charAt(0);
-			String file = str.replace(sep, '/');
-
-			// 参考：http://www.asahi-net.or.jp/~DP8T-ASM/java/tips/HowToMakeURL.html
-			if(file.charAt(0) != '/') {
-				String dir = System.getProperty("user.dir");
-				dir = dir.replace(sep, '/') + '/';
-				if(dir.charAt(0) != '/') {
-					dir = "/" + dir;
-				}
-				file = dir + file;
-			}
-			url = new URL("file", "", file);
-		} catch(MalformedURLException e) {
-			log.warn("Invalid URL:" + str, e);
-			return null;
-		}
-
-		return url;
-	}
-
-	/**
-	 * テキストファイルを読み込んでVector&lt;String&gt;に入れる
-	 * @param filename Filename
-	 * @return テキストファイルを読み込んだVector&lt;String&gt;
-	 */
-	public Vector<String> getTextFileVector(String filename) {
-		Vector<String> vec = new Vector<String>();
-
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(filename));
-
-			while(true) {
-				String str = in.readLine();
-				if((str == null) || (str.length() <= 0)) break;
-				vec.add(str);
-			}
-		} catch (IOException e) {}
-
-		return vec;
-	}
-
-	/**
-	 * 特定のVector&lt;String&gt;の最後のドット記号から先だけを取り出したVector&lt;String&gt;を作成
-	 * @param vecSrc 元のVector&lt;String&gt;
-	 * @return 加工したVector&lt;String&gt;
-	 */
-	public Vector<String> createShortStringVector(Vector<String> vecSrc) {
-		Vector<String> vec = new Vector<String>();
-
-		for(int i = 0; i < vecSrc.size(); i++) {
-			String str = vecSrc.get(i);
-			int last = str.lastIndexOf('.');
-
-			String newStr = "";
-			if(last != -1) {
-				newStr = str.substring(last + 1);
-			} else {
-				newStr = str;
-			}
-
-			vec.add(newStr);
-		}
-
-		return vec;
-	}
-
-	/**
-	 * ルール設定をUIに反映させる
-	 * @param r ルール設定
-	 */
-	public void readRuleToUI(RuleOptions r) {
-		txtfldRuleName.setText(String.valueOf(r.strRuleName));
-		txtfldNextDisplay.setText(String.valueOf(r.nextDisplay));
-		comboboxStyle.setSelectedIndex(r.style);
-		comboboxSkin.setSelectedIndex(r.skin);
-		chkboxGhost.setSelected(r.ghost);
-		chkboxEnterAboveField.setSelected(r.pieceEnterAboveField);
-		txtfldEnterMaxDistanceY.setText(String.valueOf(r.pieceEnterMaxDistanceY));
-		int indexRandomizer = vectorRandomizer.indexOf(r.strRandomizer);
-		comboboxRandomizer.setSelectedIndex(indexRandomizer);
-
-		txtfldFieldWidth.setText(String.valueOf(r.fieldWidth));
-		txtfldFieldHeight.setText(String.valueOf(r.fieldHeight));
-		txtfldFieldHiddenHeight.setText(String.valueOf(r.fieldHiddenHeight));
-		chkboxFieldCeiling.setSelected(r.fieldCeiling);
-		chkboxFieldLockoutDeath.setSelected(r.fieldLockoutDeath);
-		chkboxFieldPartialLockoutDeath.setSelected(r.fieldPartialLockoutDeath);
-
-		chkboxHoldEnable.setSelected(r.holdEnable);
-		chkboxHoldInitial.setSelected(r.holdInitial);
-		chkboxHoldInitialLimit.setSelected(r.holdInitialLimit);
-		chkboxHoldResetDirection.setSelected(r.holdResetDirection);
-		txtfldHoldLimit.setText(String.valueOf(r.holdLimit));
-
-		chkboxDropHardDropEnable.setSelected(r.harddropEnable);
-		chkboxDropHardDropLock.setSelected(r.harddropLock);
-		chkboxDropHardDropLimit.setSelected(r.harddropLimit);
-		chkboxDropSoftDropEnable.setSelected(r.softdropEnable);
-		chkboxDropSoftDropLock.setSelected(r.softdropLock);
-		chkboxDropSoftDropLimit.setSelected(r.softdropLimit);
-		chkboxDropSoftDropSurfaceLock.setSelected(r.softdropSurfaceLock);
-		txtfldDropSoftDropSpeed.setText(String.valueOf(r.softdropSpeed));
-		chkboxDropSoftDropMultiplyNativeSpeed.setSelected(r.softdropMultiplyNativeSpeed);
-		chkboxDropSoftDropGravitySpeedLimit.setSelected(r.softdropGravitySpeedLimit);
-
-		chkboxRotateInitial.setSelected(r.rotateInitial);
-		chkboxRotateInitialLimit.setSelected(r.rotateInitialLimit);
-		chkboxRotateWallkick.setSelected(r.rotateWallkick);
-		chkboxRotateInitialWallkick.setSelected(r.rotateInitialWallkick);
-		txtfldRotateMaxUpwardWallkick.setText(String.valueOf(r.rotateMaxUpwardWallkick));
-		chkboxRotateButtonDefaultRight.setSelected(r.rotateButtonDefaultRight);
-		chkboxRotateButtonAllowReverse.setSelected(r.rotateButtonAllowReverse);
-		chkboxRotateButtonAllowDouble.setSelected(r.rotateButtonAllowDouble);
-		int indexWallkick = vectorWallkickSystem.indexOf(r.strWallkick);
-		comboboxWallkickSystem.setSelectedIndex(indexWallkick);
-
-		txtfldLockDelayMin.setText(String.valueOf(r.minLockDelay));
-		txtfldLockDelayMax.setText(String.valueOf(r.maxLockDelay));
-		chkboxLockDelayLockResetFall.setSelected(r.lockresetFall);
-		chkboxLockDelayLockResetMove.setSelected(r.lockresetMove);
-		chkboxLockDelayLockResetRotate.setSelected(r.lockresetRotate);
-		chkboxLockDelayLockResetWallkick.setSelected(r.lockresetWallkick);
-		chkboxLockDelayLockResetLimitShareCount.setSelected(r.lockresetLimitShareCount);
-		txtfldLockDelayLockResetLimitMove.setText(String.valueOf(r.lockresetLimitMove));
-		txtfldLockDelayLockResetLimitRotate.setText(String.valueOf(r.lockresetLimitRotate));
-		if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NORESET)
-			radioLockDelayLockResetLimitOverNoReset.setSelected(true);
-		else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT)
-			radioLockDelayLockResetLimitOverInstant.setSelected(true);
-		else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK)
-			radioLockDelayLockResetLimitOverNoWallkick.setSelected(true);
-
-		txtfldAREMin.setText(String.valueOf(r.minARE));
-		txtfldAREMax.setText(String.valueOf(r.maxARE));
-		txtfldARELineMin.setText(String.valueOf(r.minARELine));
-		txtfldARELineMax.setText(String.valueOf(r.maxARELine));
-		txtfldARELockFlash.setText(String.valueOf(r.lockflash));
-		chkboxARELockFlashOnlyFrame.setSelected(r.lockflashOnlyFrame);
-		chkboxARELockFlashBeforeLineClear.setSelected(r.lockflashBeforeLineClear);
-		chkboxARECancelMove.setSelected(r.areCancelMove);
-		chkboxARECancelRotate.setSelected(r.areCancelRotate);
-		chkboxARECancelHold.setSelected(r.areCancelHold);
-
-		txtfldLineDelayMin.setText(String.valueOf(r.minLineDelay));
-		txtfldLineDelayMax.setText(String.valueOf(r.maxLineDelay));
-		chkboxLineFallAnim.setSelected(r.lineFallAnim);
-		chkboxLineCancelMove.setSelected(r.lineCancelMove);
-		chkboxLineCancelRotate.setSelected(r.lineCancelRotate);
-		chkboxLineCancelHold.setSelected(r.lineCancelHold);
-
-		txtfldMoveDASMin.setText(String.valueOf(r.minDAS));
-		txtfldMoveDASMax.setText(String.valueOf(r.maxDAS));
-		txtfldMoveDASDelay.setText(String.valueOf(r.dasDelay));
-		chkboxMoveDASInReady.setSelected(r.dasInReady);
-		chkboxMoveDASInMoveFirstFrame.setSelected(r.dasInMoveFirstFrame);
-		chkboxMoveDASInLockFlash.setSelected(r.dasInLockFlash);
-		chkboxMoveDASInLineClear.setSelected(r.dasInLineClear);
-		chkboxMoveDASInARE.setSelected(r.dasInARE);
-		chkboxMoveDASInARELastFrame.setSelected(r.dasInARELastFrame);
-		chkboxMoveDASInEndingStart.setSelected(r.dasInEndingStart);
-		chkboxMoveDASChargeOnBlockedMove.setSelected(r.dasChargeOnBlockedMove);
-		chkboxMoveDASStoreChargeOnNeutral.setSelected(r.dasStoreChargeOnNeutral);
-		chkboxMoveDASRedirectInDelay.setSelected(r.dasRedirectInDelay);
-		chkboxMoveFirstFrame.setSelected(r.moveFirstFrame);
-		chkboxMoveDiagonal.setSelected(r.moveDiagonal);
-		chkboxMoveUpAndDown.setSelected(r.moveUpAndDown);
-		chkboxMoveLeftAndRightAllow.setSelected(r.moveLeftAndRightAllow);
-		chkboxMoveLeftAndRightUsePreviousInput.setSelected(r.moveLeftAndRightUsePreviousInput);
-		chkboxMoveShiftLockEnable.setSelected(r.shiftLockEnable);
-
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				txtfldPieceOffsetX[i][j].setText(String.valueOf(r.pieceOffsetX[i][j]));
-				txtfldPieceOffsetY[i][j].setText(String.valueOf(r.pieceOffsetY[i][j]));
-				txtfldPieceSpawnX[i][j].setText(String.valueOf(r.pieceSpawnX[i][j]));
-				txtfldPieceSpawnY[i][j].setText(String.valueOf(r.pieceSpawnY[i][j]));
-				txtfldPieceSpawnBigX[i][j].setText(String.valueOf(r.pieceSpawnXBig[i][j]));
-				txtfldPieceSpawnBigY[i][j].setText(String.valueOf(r.pieceSpawnYBig[i][j]));
-			}
-			comboboxPieceColor[i].setSelectedIndex(r.pieceColor[i] - 1);
-			comboboxPieceDirection[i].setSelectedIndex(r.pieceDefaultDirection[i]);
-		}
-	}
-
-	/**
-	 * ルール設定をUIから書き込む
-	 * @param r ルール設定
-	 */
-	public void writeRuleFromUI(RuleOptions r) {
-		r.strRuleName = txtfldRuleName.getText();
-		r.nextDisplay = getIntTextField(txtfldNextDisplay);
-		r.style = comboboxStyle.getSelectedIndex();
-		r.skin = comboboxSkin.getSelectedIndex();
-		r.ghost = chkboxGhost.isSelected();
-		r.pieceEnterAboveField = chkboxEnterAboveField.isSelected();
-		r.pieceEnterMaxDistanceY = getIntTextField(txtfldEnterMaxDistanceY);
-		int indexRandomizer = comboboxRandomizer.getSelectedIndex();
-		if(indexRandomizer >= 0) r.strRandomizer = vectorRandomizer.get(indexRandomizer);
-		else r.strRandomizer = "";
-
-		r.fieldWidth = getIntTextField(txtfldFieldWidth);
-		r.fieldHeight = getIntTextField(txtfldFieldHeight);
-		r.fieldHiddenHeight = getIntTextField(txtfldFieldHiddenHeight);
-		r.fieldCeiling = chkboxFieldCeiling.isSelected();
-		r.fieldLockoutDeath = chkboxFieldLockoutDeath.isSelected();
-		r.fieldPartialLockoutDeath = chkboxFieldPartialLockoutDeath.isSelected();
-
-		r.holdEnable = chkboxHoldEnable.isSelected();
-		r.holdInitial = chkboxHoldInitial.isSelected();
-		r.holdInitialLimit = chkboxHoldInitialLimit.isSelected();
-		r.holdResetDirection = chkboxHoldResetDirection.isSelected();
-		r.holdLimit = getIntTextField(txtfldHoldLimit);
-
-		r.harddropEnable = chkboxDropHardDropEnable.isSelected();
-		r.harddropLock = chkboxDropHardDropLock.isSelected();
-		r.harddropLimit = chkboxDropHardDropLimit.isSelected();
-		r.softdropEnable = chkboxDropSoftDropEnable.isSelected();
-		r.softdropLock = chkboxDropSoftDropLock.isSelected();
-		r.softdropLimit = chkboxDropSoftDropLimit.isSelected();
-		r.softdropSurfaceLock = chkboxDropSoftDropSurfaceLock.isSelected();
-		r.softdropSpeed = getFloatTextField(txtfldDropSoftDropSpeed);
-		r.softdropMultiplyNativeSpeed = chkboxDropSoftDropMultiplyNativeSpeed.isSelected();
-		r.softdropGravitySpeedLimit = chkboxDropSoftDropGravitySpeedLimit.isSelected();
-
-		r.rotateInitial = chkboxRotateInitial.isSelected();
-		r.rotateInitialLimit = chkboxRotateInitialLimit.isSelected();
-		r.rotateWallkick = chkboxRotateWallkick.isSelected();
-		r.rotateInitialWallkick = chkboxRotateInitialWallkick.isSelected();
-		r.rotateMaxUpwardWallkick = getIntTextField(txtfldRotateMaxUpwardWallkick);
-		r.rotateButtonDefaultRight = chkboxRotateButtonDefaultRight.isSelected();
-		r.rotateButtonAllowReverse = chkboxRotateButtonAllowReverse.isSelected();
-		r.rotateButtonAllowDouble = chkboxRotateButtonAllowDouble.isSelected();
-		int indexWallkick = comboboxWallkickSystem.getSelectedIndex();
-		if(indexWallkick >= 0) r.strWallkick = vectorWallkickSystem.get(indexWallkick);
-		else r.strWallkick = "";
-
-		r.minLockDelay = getIntTextField(txtfldLockDelayMin);
-		r.maxLockDelay = getIntTextField(txtfldLockDelayMax);
-		r.lockresetFall = chkboxLockDelayLockResetFall.isSelected();
-		r.lockresetMove = chkboxLockDelayLockResetMove.isSelected();
-		r.lockresetRotate = chkboxLockDelayLockResetRotate.isSelected();
-		r.lockresetWallkick = chkboxLockDelayLockResetWallkick.isSelected();
-		r.lockresetLimitShareCount = chkboxLockDelayLockResetLimitShareCount.isSelected();
-		r.lockresetLimitMove = getIntTextField(txtfldLockDelayLockResetLimitMove);
-		r.lockresetLimitRotate = getIntTextField(txtfldLockDelayLockResetLimitRotate);
-		if(radioLockDelayLockResetLimitOverNoReset.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NORESET;
-		if(radioLockDelayLockResetLimitOverInstant.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT;
-		if(radioLockDelayLockResetLimitOverNoWallkick.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK;
-
-		r.minARE = getIntTextField(txtfldAREMin);
-		r.maxARE = getIntTextField(txtfldAREMax);
-		r.minARELine = getIntTextField(txtfldARELineMin);
-		r.maxARELine = getIntTextField(txtfldARELineMax);
-		r.lockflash = getIntTextField(txtfldARELockFlash);
-		r.lockflashOnlyFrame = chkboxARELockFlashOnlyFrame.isSelected();
-		r.lockflashBeforeLineClear = chkboxARELockFlashBeforeLineClear.isSelected();
-		r.areCancelMove = chkboxARECancelMove.isSelected();
-		r.areCancelRotate = chkboxARECancelRotate.isSelected();
-		r.areCancelHold = chkboxARECancelHold.isSelected();
-
-		r.minLineDelay = getIntTextField(txtfldLineDelayMin);
-		r.maxLineDelay = getIntTextField(txtfldLineDelayMax);
-		r.lineFallAnim = chkboxLineFallAnim.isSelected();
-		r.lineCancelMove = chkboxLineCancelMove.isSelected();
-		r.lineCancelRotate = chkboxLineCancelRotate.isSelected();
-		r.lineCancelHold = chkboxLineCancelHold.isSelected();
-
-		r.minDAS = getIntTextField(txtfldMoveDASMin);
-		r.maxDAS = getIntTextField(txtfldMoveDASMax);
-		r.dasDelay = getIntTextField(txtfldMoveDASDelay);
-		r.dasInReady = chkboxMoveDASInReady.isSelected();
-		r.dasInMoveFirstFrame = chkboxMoveDASInMoveFirstFrame.isSelected();
-		r.dasInLockFlash = chkboxMoveDASInLockFlash.isSelected();
-		r.dasInLineClear = chkboxMoveDASInLineClear.isSelected();
-		r.dasInARE = chkboxMoveDASInARE.isSelected();
-		r.dasInARELastFrame = chkboxMoveDASInARELastFrame.isSelected();
-		r.dasInEndingStart = chkboxMoveDASInEndingStart.isSelected();
-		r.dasChargeOnBlockedMove = chkboxMoveDASChargeOnBlockedMove.isSelected();
-		r.dasStoreChargeOnNeutral = chkboxMoveDASStoreChargeOnNeutral.isSelected();
-		r.dasRedirectInDelay = chkboxMoveDASRedirectInDelay.isSelected();
-		r.moveFirstFrame = chkboxMoveFirstFrame.isSelected();
-		r.moveDiagonal = chkboxMoveDiagonal.isSelected();
-		r.moveUpAndDown = chkboxMoveUpAndDown.isSelected();
-		r.moveLeftAndRightAllow = chkboxMoveLeftAndRightAllow.isSelected();
-		r.moveLeftAndRightUsePreviousInput = chkboxMoveLeftAndRightUsePreviousInput.isSelected();
-		r.shiftLockEnable = chkboxMoveShiftLockEnable.isSelected();
-
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				r.pieceOffsetX[i][j] = getIntTextField(txtfldPieceOffsetX[i][j]);
-				r.pieceOffsetY[i][j] = getIntTextField(txtfldPieceOffsetY[i][j]);
-				r.pieceSpawnX[i][j] = getIntTextField(txtfldPieceSpawnX[i][j]);
-				r.pieceSpawnY[i][j] = getIntTextField(txtfldPieceSpawnY[i][j]);
-				r.pieceSpawnXBig[i][j] = getIntTextField(txtfldPieceSpawnBigX[i][j]);
-				r.pieceSpawnYBig[i][j] = getIntTextField(txtfldPieceSpawnBigY[i][j]);
-			}
-			r.pieceColor[i] = comboboxPieceColor[i].getSelectedIndex() + 1;
-			r.pieceDefaultDirection[i] = comboboxPieceDirection[i].getSelectedIndex();
-		}
-	}
-
-	/**
-	 * ルールをファイルに保存
-	 * @param filename Filename
-	 * @throws IOException 保存に失敗したとき
-	 */
-	public void save(String filename) throws IOException {
-		RuleOptions ruleopt = new RuleOptions();
-		writeRuleFromUI(ruleopt);
-
-		CustomProperties prop = new CustomProperties();
-		ruleopt.writeProperty(prop, 0);
-
-		FileOutputStream out = new FileOutputStream(filename);
-		prop.store(out, "NullpoMino RuleData");
-		out.close();
-
-		log.debug("Saved rule file to " + filename);
-	}
-
-	/**
-	 * ルールをファイルから読み込み
-	 * @param filename Filename
-	 * @return ルール data
-	 * @throws IOException Failed to loadしたとき
-	 */
-	public RuleOptions load(String filename) throws IOException {
-		CustomProperties prop = new CustomProperties();
-
-		FileInputStream in = new FileInputStream(filename);
-		prop.load(in);
-		in.close();
-
-		RuleOptions ruleopt = new RuleOptions();
-		ruleopt.readProperty(prop, 0);
-
-		log.debug("Loaded rule file from " + filename);
-
-		return ruleopt;
-	}
-
-	/**
-	 * 翻訳後のUIの文字列を取得
-	 * @param str 文字列
-	 * @return 翻訳後のUIの文字列 (無いならそのままstrを返す）
-	 */
-	public String getUIText(String str) {
-		String result = propLang.getProperty(str);
-		if(result == null) {
-			result = propLangDefault.getProperty(str, str);
-		}
-		return result;
-	}
-
-	/**
-	 * テキストfieldからint型の値を取得
-	 * @param txtfld テキストfield
-	 * @return テキストfieldから値を取得できた場合はその値, 失敗したら0
-	 */
-	public int getIntTextField(JTextField txtfld) {
-		int v = 0;
-
-		try {
-			v = Integer.parseInt(txtfld.getText());
-		} catch(Exception e) {}
-
-		return v;
-	}
-
-	/**
-	 * テキストfieldからfloat型の値を取得
-	 * @param txtfld テキストfield
-	 * @return テキストfieldから値を取得できた場合はその値, 失敗したら0f
-	 */
-	public float getFloatTextField(JTextField txtfld) {
-		float v = 0f;
-
-		try {
-			v = Float.parseFloat(txtfld.getText());
-		} catch (Exception e) {}
-
-		return v;
-	}
-
-	/**
-	 * アクション発生時の処理
-	 */
-	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand() == "New") {
-			// 新規作成
-			strNowFile = null;
-			setTitle(getUIText("Title_RuleEditor"));
-			readRuleToUI(new RuleOptions());
-		} else if(e.getActionCommand() == "Open") {
-			// 開く
-			JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
-			c.setFileFilter(new FileFilterRUL());
-
-			if(c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-				File file = c.getSelectedFile();
-				RuleOptions ruleopt = new RuleOptions();
-
-				strNowFile = file.getPath();
-				setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
-
-				try {
-					ruleopt = load(file.getPath());
-				} catch (IOException e2) {
-					log.error("Failed to load rule data from " + strNowFile, e2);
-					JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e2, getUIText("Title_FileLoadFailed"),
-												  JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				readRuleToUI(ruleopt);
-			}
-		} else if((e.getActionCommand() == "Save") && (strNowFile != null)) {
-			// Up書き保存
-			try {
-				save(strNowFile);
-			} catch (IOException e2) {
-				log.error("Failed to save rule data to " + strNowFile, e2);
-				JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
-											  JOptionPane.ERROR_MESSAGE);
-			}
-		} else if((e.getActionCommand() == "Save") || (e.getActionCommand() == "SaveAs")) {
-			// Nameを付けて保存
-			JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
-			c.setFileFilter(new FileFilterRUL());
-
-			if(c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-				File file = c.getSelectedFile();
-				String filename = file.getPath();
-				if(!filename.endsWith(".rul")) filename = filename + ".rul";
-
-				try {
-					save(filename);
-				} catch (Exception e2) {
-					log.error("Failed to save rule data to " + filename, e2);
-					JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
-												  JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				strNowFile = filename;
-				setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
-			}
-		} else if(e.getActionCommand() == "ResetRandomizer") {
-			// NEXT順生成アルゴリズムの選択リセット
-			comboboxRandomizer.setSelectedItem(null);
-		} else if(e.getActionCommand() == "Exit") {
-			// 終了
-			dispose();
-		}
-	}
-
-	/**
-	 * メイン関count
-	 * @param args コマンドLines引count
-	 */
-	public static void main(String[] args) {
-		PropertyConfigurator.configure("config/etc/log.cfg");
-		log.debug("RuleEditor start");
-
-		if(args.length > 0) {
-			new RuleEditor(args[0]);
-		} else {
-			new RuleEditor();
-		}
-	}
-
-	/**
-	 * ファイル選択画面のフィルタ
-	 */
-	protected class FileFilterRUL extends FileFilter {
-		@Override
-		public boolean accept(File f) {
-			if(f.isDirectory()) return true;
-			if(f.getName().endsWith(".rul")) return true;
-			return false;
-		}
-
-		@Override
-		public String getDescription() {
-			return getUIText("FileChooser_RuleFile");
-		}
-	}
-
-	/**
-	 * 画像表示Comboボックスの項目<br>
-	 * <a href="http://www.javadrive.jp/tutorial/jcombobox/index20.html">出典</a>
-	 */
-	protected class ComboLabel {
-		private String text = "";
-		private Icon icon = null;
-
-		public ComboLabel() {
-		}
-
-		public ComboLabel(String text) {
-			this.text = text;
-		}
-
-		public ComboLabel(Icon icon) {
-			this.icon = icon;
-		}
-
-		public ComboLabel(String text, Icon icon) {
-			this.text = text;
-			this.icon = icon;
-		}
-
-		public void setText(String text) {
-			this.text = text;
-		}
-
-		public String getText() {
-			return text;
-		}
-
-		public void setIcon(Icon icon) {
-			this.icon = icon;
-		}
-
-		public Icon getIcon() {
-			return icon;
-		}
-	}
-
-	/**
-	 * 画像表示ComboボックスのListCellRenderer<br>
-	 * <a href="http://www.javadrive.jp/tutorial/jcombobox/index20.html">出典</a>
-	 */
-	protected class ComboLabelCellRenderer extends JLabel implements ListCellRenderer {
-		private static final long serialVersionUID = 1L;
-
-		public ComboLabelCellRenderer() {
-			this.setOpaque(true);
-		}
-
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			ComboLabel data = (ComboLabel)value;
-			setText(data.getText());
-			setIcon(data.getIcon());
-
-			if(isSelected) {
-				setForeground(Color.white);
-				setBackground(Color.black);
-			} else {
-				setForeground(Color.black);
-				setBackground(Color.white);
-			}
-
-			return this;
-		}
-	}
+        // 最初の frame に移動可能
+        chkboxMoveFirstFrame = new JCheckBox(getUIText("Move_FirstFrame"));
+        panelMove.add(chkboxMoveFirstFrame);
+
+        // 斜め移動
+        chkboxMoveDiagonal = new JCheckBox(getUIText("Move_Diagonal"));
+        panelMove.add(chkboxMoveDiagonal);
+
+        // Up下同時押し
+        chkboxMoveUpAndDown = new JCheckBox(getUIText("Move_UpAndDown"));
+        panelMove.add(chkboxMoveUpAndDown);
+
+        // 左右同時押し
+        chkboxMoveLeftAndRightAllow = new JCheckBox(getUIText("Move_LeftAndRightAllow"));
+        panelMove.add(chkboxMoveLeftAndRightAllow);
+
+        // 左右同時押ししたときに前 frame の input を優先
+        chkboxMoveLeftAndRightUsePreviousInput = new JCheckBox(getUIText("Move_LeftAndRightUsePreviousInput"));
+        panelMove.add(chkboxMoveLeftAndRightUsePreviousInput);
+
+        // Shift lock
+        chkboxMoveShiftLockEnable = new JCheckBox(getUIText("Move_ShiftLock"));
+        panelMove.add(chkboxMoveShiftLockEnable);
+
+        // rotationパターン補正タブ ------------------------------------------------
+        JPanel panelPieceOffset = new JPanel();
+        panelPieceOffset.setLayout(new BoxLayout(panelPieceOffset, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_PieceOffset"), panelPieceOffset);
+
+        tabPieceOffset = new JTabbedPane();
+        panelPieceOffset.add(tabPieceOffset);
+
+        // rotationパターン補正(X)タブ --------------------------------------------------
+        JPanel panelPieceOffsetX = new JPanel();
+        panelPieceOffsetX.setLayout(new BoxLayout(panelPieceOffsetX, BoxLayout.Y_AXIS));
+        tabPieceOffset.addTab(getUIText("TabName_PieceOffsetX"), panelPieceOffsetX);
+
+        JPanel[] pPieceOffsetX = new JPanel[Piece.PIECE_COUNT];
+
+        txtfldPieceOffsetX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceOffsetX[i] = new JPanel();
+            panelPieceOffsetX.add(pPieceOffsetX[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceOffsetX[i].add(lPieceName);
+
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                txtfldPieceOffsetX[i][j] = new JTextField("", 5);
+                pPieceOffsetX[i].add(txtfldPieceOffsetX[i][j]);
+            }
+        }
+
+        // rotationパターン補正(Y)タブ --------------------------------------------------
+        JPanel panelPieceOffsetY = new JPanel();
+        panelPieceOffsetY.setLayout(new BoxLayout(panelPieceOffsetY, BoxLayout.Y_AXIS));
+        tabPieceOffset.addTab(getUIText("TabName_PieceOffsetY"), panelPieceOffsetY);
+
+        JPanel[] pPieceOffsetY = new JPanel[Piece.PIECE_COUNT];
+
+        txtfldPieceOffsetY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceOffsetY[i] = new JPanel();
+            panelPieceOffsetY.add(pPieceOffsetY[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceOffsetY[i].add(lPieceName);
+
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                txtfldPieceOffsetY[i][j] = new JTextField("", 5);
+                pPieceOffsetY[i].add(txtfldPieceOffsetY[i][j]);
+            }
+        }
+
+        // 出現位置補正タブ ------------------------------------------------
+        JPanel panelPieceSpawn = new JPanel();
+        panelPieceSpawn.setLayout(new BoxLayout(panelPieceSpawn, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_PieceSpawn"), panelPieceSpawn);
+
+        tabPieceSpawn = new JTabbedPane();
+        panelPieceSpawn.add(tabPieceSpawn);
+
+        // 出現位置補正(X)タブ --------------------------------------------------
+        JPanel panelPieceSpawnX = new JPanel();
+        panelPieceSpawnX.setLayout(new BoxLayout(panelPieceSpawnX, BoxLayout.Y_AXIS));
+        tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnX"), panelPieceSpawnX);
+
+        JPanel[] pPieceSpawnX = new JPanel[Piece.PIECE_COUNT];
+
+        txtfldPieceSpawnX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceSpawnX[i] = new JPanel();
+            panelPieceSpawnX.add(pPieceSpawnX[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceSpawnX[i].add(lPieceName);
+
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                txtfldPieceSpawnX[i][j] = new JTextField("", 5);
+                pPieceSpawnX[i].add(txtfldPieceSpawnX[i][j]);
+            }
+        }
+
+        // 出現位置補正(Y)タブ --------------------------------------------------
+        JPanel panelPieceSpawnY = new JPanel();
+        panelPieceSpawnY.setLayout(new BoxLayout(panelPieceSpawnY, BoxLayout.Y_AXIS));
+        tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnY"), panelPieceSpawnY);
+
+        JPanel[] pPieceSpawnY = new JPanel[Piece.PIECE_COUNT];
+
+        txtfldPieceSpawnY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceSpawnY[i] = new JPanel();
+            panelPieceSpawnY.add(pPieceSpawnY[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceSpawnY[i].add(lPieceName);
+
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                txtfldPieceSpawnY[i][j] = new JTextField("", 5);
+                pPieceSpawnY[i].add(txtfldPieceSpawnY[i][j]);
+            }
+        }
+
+        // Big時出現位置補正(X)タブ --------------------------------------------------
+        JPanel panelPieceSpawnBigX = new JPanel();
+        panelPieceSpawnBigX.setLayout(new BoxLayout(panelPieceSpawnBigX, BoxLayout.Y_AXIS));
+        tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnBigX"), panelPieceSpawnBigX);
+
+        JPanel[] pPieceSpawnBigX = new JPanel[Piece.PIECE_COUNT];
+
+        txtfldPieceSpawnBigX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceSpawnBigX[i] = new JPanel();
+            panelPieceSpawnBigX.add(pPieceSpawnBigX[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceSpawnBigX[i].add(lPieceName);
+
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                txtfldPieceSpawnBigX[i][j] = new JTextField("", 5);
+                pPieceSpawnBigX[i].add(txtfldPieceSpawnBigX[i][j]);
+            }
+        }
+
+        // Big時出現位置補正(Y)タブ --------------------------------------------------
+        JPanel panelPieceSpawnBigY = new JPanel();
+        panelPieceSpawnBigY.setLayout(new BoxLayout(panelPieceSpawnBigY, BoxLayout.Y_AXIS));
+        tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnBigY"), panelPieceSpawnBigY);
+
+        JPanel[] pPieceSpawnBigY = new JPanel[Piece.PIECE_COUNT];
+
+        txtfldPieceSpawnBigY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceSpawnBigY[i] = new JPanel();
+            panelPieceSpawnBigY.add(pPieceSpawnBigY[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceSpawnBigY[i].add(lPieceName);
+
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                txtfldPieceSpawnBigY[i][j] = new JTextField("", 5);
+                pPieceSpawnBigY[i].add(txtfldPieceSpawnBigY[i][j]);
+            }
+        }
+
+        // 色設定タブ --------------------------------------------------
+        JPanel panelPieceColor = new JPanel();
+        panelPieceColor.setLayout(new BoxLayout(panelPieceColor, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_PieceColor"), panelPieceColor);
+
+        String[] strColorNames = new String[Block.BLOCK_COLOR_COUNT - 1];
+        for(int i = 0; i < strColorNames.length; i++) strColorNames[i] = getUIText("ColorName" + i);
+
+        JPanel[] pPieceColor = new JPanel[Piece.PIECE_COUNT];
+
+        comboboxPieceColor = new JComboBox[Piece.PIECE_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceColor[i] = new JPanel();
+            panelPieceColor.add(pPieceColor[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceColor[i].add(lPieceName);
+
+            comboboxPieceColor[i] = new JComboBox(strColorNames);
+            comboboxPieceColor[i].setPreferredSize(new Dimension(100, 30));
+            comboboxPieceColor[i].setMaximumRowCount(strColorNames.length);
+            pPieceColor[i].add(comboboxPieceColor[i]);
+        }
+
+        // 初期Direction設定タブ --------------------------------------------------
+        JPanel panelPieceDirection = new JPanel();
+        panelPieceDirection.setLayout(new BoxLayout(panelPieceDirection, BoxLayout.Y_AXIS));
+        tabPane.addTab(getUIText("TabName_PieceDirection"), panelPieceDirection);
+
+        String[] strDirectionNames = new String[Piece.DIRECTION_COUNT + 1];
+        for(int i = 0; i < strDirectionNames.length; i++) strDirectionNames[i] = getUIText("DirectionName" + i);
+
+        JPanel[] pPieceDirection = new JPanel[Piece.PIECE_COUNT];
+
+        comboboxPieceDirection = new JComboBox[Piece.PIECE_COUNT];
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            pPieceDirection[i] = new JPanel();
+            panelPieceDirection.add(pPieceDirection[i]);
+
+            JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
+            pPieceDirection[i].add(lPieceName);
+
+            comboboxPieceDirection[i] = new JComboBox(strDirectionNames);
+            comboboxPieceDirection[i].setPreferredSize(new Dimension(150, 30));
+            comboboxPieceDirection[i].setMaximumRowCount(strDirectionNames.length);
+            pPieceDirection[i].add(comboboxPieceDirection[i]);
+        }
+    }
+
+    /**
+     * Block画像を読み込み
+     */
+    private void loadBlockSkins() {
+        String skindir = propConfig.getProperty("custom.skin.directory", "res");
+
+        int numBlocks = 0;
+        File file = null;
+        while(true) {
+            file = new File(skindir + "/graphics/blockskin/normal/n" + numBlocks + ".png");
+            if(file.canRead()) {
+                numBlocks++;
+            } else {
+                break;
+            }
+        }
+        log.debug(numBlocks + " block skins found");
+
+        imgBlockSkins = new BufferedImage[numBlocks];
+
+        for(int i = 0; i < numBlocks; i++) {
+            BufferedImage imgBlock = (BufferedImage) loadImage(getURL(skindir + "/graphics/blockskin/normal/n" + i + ".png"));
+            boolean isSticky = ((imgBlock != null) && (imgBlock.getWidth() >= 400) && (imgBlock.getHeight() >= 304));
+
+            imgBlockSkins[i] = new BufferedImage(144, 16, BufferedImage.TYPE_INT_RGB);
+
+            if(isSticky) {
+                for(int j = 0; j < 9; j++) {
+                    imgBlockSkins[i].getGraphics().drawImage(imgBlock, j * 16, 0, (j * 16) + 16, 16, 0, j * 16, 16, (j * 16) + 16, null);
+                }
+            } else {
+                imgBlockSkins[i].getGraphics().drawImage(imgBlock, 0, 0, 144, 16, 0, 0, 144, 16, null);
+            }
+        }
+    }
+
+    /**
+     * 画像を読み込み
+     * @param url 画像ファイルのURL
+     * @return 画像ファイル (失敗するとnull）
+     */
+    public BufferedImage loadImage(URL url) {
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(url);
+            log.debug("Loaded image from " + url);
+        } catch (IOException e) {
+            log.error("Failed to load image from " + url, e);
+        }
+        return img;
+    }
+
+    /**
+     * リソースファイルのURLを返す
+     * @param str Filename
+     * @return リソースファイルのURL
+     */
+    public URL getURL(String str) {
+        URL url = null;
+
+        try {
+            char sep = File.separator.charAt(0);
+            String file = str.replace(sep, '/');
+
+            // 参考：http://www.asahi-net.or.jp/~DP8T-ASM/java/tips/HowToMakeURL.html
+            if(file.charAt(0) != '/') {
+                String dir = System.getProperty("user.dir");
+                dir = dir.replace(sep, '/') + '/';
+                if(dir.charAt(0) != '/') {
+                    dir = "/" + dir;
+                }
+                file = dir + file;
+            }
+            url = new URL("file", "", file);
+        } catch(MalformedURLException e) {
+            log.warn("Invalid URL:" + str, e);
+            return null;
+        }
+
+        return url;
+    }
+
+    /**
+     * テキストファイルを読み込んでVector&lt;String&gt;に入れる
+     * @param filename Filename
+     * @return テキストファイルを読み込んだVector&lt;String&gt;
+     */
+    public Vector<String> getTextFileVector(String filename) {
+        Vector<String> vec = new Vector<String>();
+
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(filename));
+
+            while(true) {
+                String str = in.readLine();
+                if((str == null) || (str.length() <= 0)) break;
+                vec.add(str);
+            }
+        } catch (IOException e) {}
+
+        return vec;
+    }
+
+    /**
+     * 特定のVector&lt;String&gt;の最後のドット記号から先だけを取り出したVector&lt;String&gt;を作成
+     * @param vecSrc 元のVector&lt;String&gt;
+     * @return 加工したVector&lt;String&gt;
+     */
+    public Vector<String> createShortStringVector(Vector<String> vecSrc) {
+        Vector<String> vec = new Vector<String>();
+
+        for(int i = 0; i < vecSrc.size(); i++) {
+            String str = vecSrc.get(i);
+            int last = str.lastIndexOf('.');
+
+            String newStr = "";
+            if(last != -1) {
+                newStr = str.substring(last + 1);
+            } else {
+                newStr = str;
+            }
+
+            vec.add(newStr);
+        }
+
+        return vec;
+    }
+
+    /**
+     * ルール設定をUIに反映させる
+     * @param r ルール設定
+     */
+    public void readRuleToUI(RuleOptions r) {
+        txtfldRuleName.setText(String.valueOf(r.strRuleName));
+        txtfldNextDisplay.setText(String.valueOf(r.nextDisplay));
+        comboboxStyle.setSelectedIndex(r.style);
+        comboboxSkin.setSelectedIndex(r.skin);
+        chkboxGhost.setSelected(r.ghost);
+        chkboxEnterAboveField.setSelected(r.pieceEnterAboveField);
+        txtfldEnterMaxDistanceY.setText(String.valueOf(r.pieceEnterMaxDistanceY));
+        int indexRandomizer = vectorRandomizer.indexOf(r.strRandomizer);
+        comboboxRandomizer.setSelectedIndex(indexRandomizer);
+
+        txtfldFieldWidth.setText(String.valueOf(r.fieldWidth));
+        txtfldFieldHeight.setText(String.valueOf(r.fieldHeight));
+        txtfldFieldHiddenHeight.setText(String.valueOf(r.fieldHiddenHeight));
+        chkboxFieldCeiling.setSelected(r.fieldCeiling);
+        chkboxFieldLockoutDeath.setSelected(r.fieldLockoutDeath);
+        chkboxFieldPartialLockoutDeath.setSelected(r.fieldPartialLockoutDeath);
+
+        chkboxHoldEnable.setSelected(r.holdEnable);
+        chkboxHoldInitial.setSelected(r.holdInitial);
+        chkboxHoldInitialLimit.setSelected(r.holdInitialLimit);
+        chkboxHoldResetDirection.setSelected(r.holdResetDirection);
+        txtfldHoldLimit.setText(String.valueOf(r.holdLimit));
+
+        chkboxDropHardDropEnable.setSelected(r.harddropEnable);
+        chkboxDropHardDropLock.setSelected(r.harddropLock);
+        chkboxDropHardDropLimit.setSelected(r.harddropLimit);
+        chkboxDropSoftDropEnable.setSelected(r.softdropEnable);
+        chkboxDropSoftDropLock.setSelected(r.softdropLock);
+        chkboxDropSoftDropLimit.setSelected(r.softdropLimit);
+        chkboxDropSoftDropSurfaceLock.setSelected(r.softdropSurfaceLock);
+        txtfldDropSoftDropSpeed.setText(String.valueOf(r.softdropSpeed));
+        chkboxDropSoftDropMultiplyNativeSpeed.setSelected(r.softdropMultiplyNativeSpeed);
+        chkboxDropSoftDropGravitySpeedLimit.setSelected(r.softdropGravitySpeedLimit);
+
+        chkboxRotateInitial.setSelected(r.rotateInitial);
+        chkboxRotateInitialLimit.setSelected(r.rotateInitialLimit);
+        chkboxRotateWallkick.setSelected(r.rotateWallkick);
+        chkboxRotateInitialWallkick.setSelected(r.rotateInitialWallkick);
+        txtfldRotateMaxUpwardWallkick.setText(String.valueOf(r.rotateMaxUpwardWallkick));
+        chkboxRotateButtonDefaultRight.setSelected(r.rotateButtonDefaultRight);
+        chkboxRotateButtonAllowReverse.setSelected(r.rotateButtonAllowReverse);
+        chkboxRotateButtonAllowDouble.setSelected(r.rotateButtonAllowDouble);
+        int indexWallkick = vectorWallkickSystem.indexOf(r.strWallkick);
+        comboboxWallkickSystem.setSelectedIndex(indexWallkick);
+
+        txtfldLockDelayMin.setText(String.valueOf(r.minLockDelay));
+        txtfldLockDelayMax.setText(String.valueOf(r.maxLockDelay));
+        chkboxLockDelayLockResetFall.setSelected(r.lockresetFall);
+        chkboxLockDelayLockResetMove.setSelected(r.lockresetMove);
+        chkboxLockDelayLockResetRotate.setSelected(r.lockresetRotate);
+        chkboxLockDelayLockResetWallkick.setSelected(r.lockresetWallkick);
+        chkboxLockDelayLockResetLimitShareCount.setSelected(r.lockresetLimitShareCount);
+        txtfldLockDelayLockResetLimitMove.setText(String.valueOf(r.lockresetLimitMove));
+        txtfldLockDelayLockResetLimitRotate.setText(String.valueOf(r.lockresetLimitRotate));
+        if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NORESET)
+            radioLockDelayLockResetLimitOverNoReset.setSelected(true);
+        else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT)
+            radioLockDelayLockResetLimitOverInstant.setSelected(true);
+        else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK)
+            radioLockDelayLockResetLimitOverNoWallkick.setSelected(true);
+
+        txtfldAREMin.setText(String.valueOf(r.minARE));
+        txtfldAREMax.setText(String.valueOf(r.maxARE));
+        txtfldARELineMin.setText(String.valueOf(r.minARELine));
+        txtfldARELineMax.setText(String.valueOf(r.maxARELine));
+        txtfldARELockFlash.setText(String.valueOf(r.lockflash));
+        chkboxARELockFlashOnlyFrame.setSelected(r.lockflashOnlyFrame);
+        chkboxARELockFlashBeforeLineClear.setSelected(r.lockflashBeforeLineClear);
+        chkboxARECancelMove.setSelected(r.areCancelMove);
+        chkboxARECancelRotate.setSelected(r.areCancelRotate);
+        chkboxARECancelHold.setSelected(r.areCancelHold);
+
+        txtfldLineDelayMin.setText(String.valueOf(r.minLineDelay));
+        txtfldLineDelayMax.setText(String.valueOf(r.maxLineDelay));
+        chkboxLineFallAnim.setSelected(r.lineFallAnim);
+        chkboxLineCancelMove.setSelected(r.lineCancelMove);
+        chkboxLineCancelRotate.setSelected(r.lineCancelRotate);
+        chkboxLineCancelHold.setSelected(r.lineCancelHold);
+
+        txtfldMoveDASMin.setText(String.valueOf(r.minDAS));
+        txtfldMoveDASMax.setText(String.valueOf(r.maxDAS));
+        txtfldMoveDASDelay.setText(String.valueOf(r.dasDelay));
+        chkboxMoveDASInReady.setSelected(r.dasInReady);
+        chkboxMoveDASInMoveFirstFrame.setSelected(r.dasInMoveFirstFrame);
+        chkboxMoveDASInLockFlash.setSelected(r.dasInLockFlash);
+        chkboxMoveDASInLineClear.setSelected(r.dasInLineClear);
+        chkboxMoveDASInARE.setSelected(r.dasInARE);
+        chkboxMoveDASInARELastFrame.setSelected(r.dasInARELastFrame);
+        chkboxMoveDASInEndingStart.setSelected(r.dasInEndingStart);
+        chkboxMoveDASChargeOnBlockedMove.setSelected(r.dasChargeOnBlockedMove);
+        chkboxMoveDASStoreChargeOnNeutral.setSelected(r.dasStoreChargeOnNeutral);
+        chkboxMoveDASRedirectInDelay.setSelected(r.dasRedirectInDelay);
+        chkboxMoveFirstFrame.setSelected(r.moveFirstFrame);
+        chkboxMoveDiagonal.setSelected(r.moveDiagonal);
+        chkboxMoveUpAndDown.setSelected(r.moveUpAndDown);
+        chkboxMoveLeftAndRightAllow.setSelected(r.moveLeftAndRightAllow);
+        chkboxMoveLeftAndRightUsePreviousInput.setSelected(r.moveLeftAndRightUsePreviousInput);
+        chkboxMoveShiftLockEnable.setSelected(r.shiftLockEnable);
+
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                txtfldPieceOffsetX[i][j].setText(String.valueOf(r.pieceOffsetX[i][j]));
+                txtfldPieceOffsetY[i][j].setText(String.valueOf(r.pieceOffsetY[i][j]));
+                txtfldPieceSpawnX[i][j].setText(String.valueOf(r.pieceSpawnX[i][j]));
+                txtfldPieceSpawnY[i][j].setText(String.valueOf(r.pieceSpawnY[i][j]));
+                txtfldPieceSpawnBigX[i][j].setText(String.valueOf(r.pieceSpawnXBig[i][j]));
+                txtfldPieceSpawnBigY[i][j].setText(String.valueOf(r.pieceSpawnYBig[i][j]));
+            }
+            comboboxPieceColor[i].setSelectedIndex(r.pieceColor[i] - 1);
+            comboboxPieceDirection[i].setSelectedIndex(r.pieceDefaultDirection[i]);
+        }
+    }
+
+    /**
+     * ルール設定をUIから書き込む
+     * @param r ルール設定
+     */
+    public void writeRuleFromUI(RuleOptions r) {
+        r.strRuleName = txtfldRuleName.getText();
+        r.nextDisplay = getIntTextField(txtfldNextDisplay);
+        r.style = comboboxStyle.getSelectedIndex();
+        r.skin = comboboxSkin.getSelectedIndex();
+        r.ghost = chkboxGhost.isSelected();
+        r.pieceEnterAboveField = chkboxEnterAboveField.isSelected();
+        r.pieceEnterMaxDistanceY = getIntTextField(txtfldEnterMaxDistanceY);
+        int indexRandomizer = comboboxRandomizer.getSelectedIndex();
+        if(indexRandomizer >= 0) r.strRandomizer = vectorRandomizer.get(indexRandomizer);
+        else r.strRandomizer = "";
+
+        r.fieldWidth = getIntTextField(txtfldFieldWidth);
+        r.fieldHeight = getIntTextField(txtfldFieldHeight);
+        r.fieldHiddenHeight = getIntTextField(txtfldFieldHiddenHeight);
+        r.fieldCeiling = chkboxFieldCeiling.isSelected();
+        r.fieldLockoutDeath = chkboxFieldLockoutDeath.isSelected();
+        r.fieldPartialLockoutDeath = chkboxFieldPartialLockoutDeath.isSelected();
+
+        r.holdEnable = chkboxHoldEnable.isSelected();
+        r.holdInitial = chkboxHoldInitial.isSelected();
+        r.holdInitialLimit = chkboxHoldInitialLimit.isSelected();
+        r.holdResetDirection = chkboxHoldResetDirection.isSelected();
+        r.holdLimit = getIntTextField(txtfldHoldLimit);
+
+        r.harddropEnable = chkboxDropHardDropEnable.isSelected();
+        r.harddropLock = chkboxDropHardDropLock.isSelected();
+        r.harddropLimit = chkboxDropHardDropLimit.isSelected();
+        r.softdropEnable = chkboxDropSoftDropEnable.isSelected();
+        r.softdropLock = chkboxDropSoftDropLock.isSelected();
+        r.softdropLimit = chkboxDropSoftDropLimit.isSelected();
+        r.softdropSurfaceLock = chkboxDropSoftDropSurfaceLock.isSelected();
+        r.softdropSpeed = getFloatTextField(txtfldDropSoftDropSpeed);
+        r.softdropMultiplyNativeSpeed = chkboxDropSoftDropMultiplyNativeSpeed.isSelected();
+        r.softdropGravitySpeedLimit = chkboxDropSoftDropGravitySpeedLimit.isSelected();
+
+        r.rotateInitial = chkboxRotateInitial.isSelected();
+        r.rotateInitialLimit = chkboxRotateInitialLimit.isSelected();
+        r.rotateWallkick = chkboxRotateWallkick.isSelected();
+        r.rotateInitialWallkick = chkboxRotateInitialWallkick.isSelected();
+        r.rotateMaxUpwardWallkick = getIntTextField(txtfldRotateMaxUpwardWallkick);
+        r.rotateButtonDefaultRight = chkboxRotateButtonDefaultRight.isSelected();
+        r.rotateButtonAllowReverse = chkboxRotateButtonAllowReverse.isSelected();
+        r.rotateButtonAllowDouble = chkboxRotateButtonAllowDouble.isSelected();
+        int indexWallkick = comboboxWallkickSystem.getSelectedIndex();
+        if(indexWallkick >= 0) r.strWallkick = vectorWallkickSystem.get(indexWallkick);
+        else r.strWallkick = "";
+
+        r.minLockDelay = getIntTextField(txtfldLockDelayMin);
+        r.maxLockDelay = getIntTextField(txtfldLockDelayMax);
+        r.lockresetFall = chkboxLockDelayLockResetFall.isSelected();
+        r.lockresetMove = chkboxLockDelayLockResetMove.isSelected();
+        r.lockresetRotate = chkboxLockDelayLockResetRotate.isSelected();
+        r.lockresetWallkick = chkboxLockDelayLockResetWallkick.isSelected();
+        r.lockresetLimitShareCount = chkboxLockDelayLockResetLimitShareCount.isSelected();
+        r.lockresetLimitMove = getIntTextField(txtfldLockDelayLockResetLimitMove);
+        r.lockresetLimitRotate = getIntTextField(txtfldLockDelayLockResetLimitRotate);
+        if(radioLockDelayLockResetLimitOverNoReset.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NORESET;
+        if(radioLockDelayLockResetLimitOverInstant.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT;
+        if(radioLockDelayLockResetLimitOverNoWallkick.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK;
+
+        r.minARE = getIntTextField(txtfldAREMin);
+        r.maxARE = getIntTextField(txtfldAREMax);
+        r.minARELine = getIntTextField(txtfldARELineMin);
+        r.maxARELine = getIntTextField(txtfldARELineMax);
+        r.lockflash = getIntTextField(txtfldARELockFlash);
+        r.lockflashOnlyFrame = chkboxARELockFlashOnlyFrame.isSelected();
+        r.lockflashBeforeLineClear = chkboxARELockFlashBeforeLineClear.isSelected();
+        r.areCancelMove = chkboxARECancelMove.isSelected();
+        r.areCancelRotate = chkboxARECancelRotate.isSelected();
+        r.areCancelHold = chkboxARECancelHold.isSelected();
+
+        r.minLineDelay = getIntTextField(txtfldLineDelayMin);
+        r.maxLineDelay = getIntTextField(txtfldLineDelayMax);
+        r.lineFallAnim = chkboxLineFallAnim.isSelected();
+        r.lineCancelMove = chkboxLineCancelMove.isSelected();
+        r.lineCancelRotate = chkboxLineCancelRotate.isSelected();
+        r.lineCancelHold = chkboxLineCancelHold.isSelected();
+
+        r.minDAS = getIntTextField(txtfldMoveDASMin);
+        r.maxDAS = getIntTextField(txtfldMoveDASMax);
+        r.dasDelay = getIntTextField(txtfldMoveDASDelay);
+        r.dasInReady = chkboxMoveDASInReady.isSelected();
+        r.dasInMoveFirstFrame = chkboxMoveDASInMoveFirstFrame.isSelected();
+        r.dasInLockFlash = chkboxMoveDASInLockFlash.isSelected();
+        r.dasInLineClear = chkboxMoveDASInLineClear.isSelected();
+        r.dasInARE = chkboxMoveDASInARE.isSelected();
+        r.dasInARELastFrame = chkboxMoveDASInARELastFrame.isSelected();
+        r.dasInEndingStart = chkboxMoveDASInEndingStart.isSelected();
+        r.dasChargeOnBlockedMove = chkboxMoveDASChargeOnBlockedMove.isSelected();
+        r.dasStoreChargeOnNeutral = chkboxMoveDASStoreChargeOnNeutral.isSelected();
+        r.dasRedirectInDelay = chkboxMoveDASRedirectInDelay.isSelected();
+        r.moveFirstFrame = chkboxMoveFirstFrame.isSelected();
+        r.moveDiagonal = chkboxMoveDiagonal.isSelected();
+        r.moveUpAndDown = chkboxMoveUpAndDown.isSelected();
+        r.moveLeftAndRightAllow = chkboxMoveLeftAndRightAllow.isSelected();
+        r.moveLeftAndRightUsePreviousInput = chkboxMoveLeftAndRightUsePreviousInput.isSelected();
+        r.shiftLockEnable = chkboxMoveShiftLockEnable.isSelected();
+
+        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                r.pieceOffsetX[i][j] = getIntTextField(txtfldPieceOffsetX[i][j]);
+                r.pieceOffsetY[i][j] = getIntTextField(txtfldPieceOffsetY[i][j]);
+                r.pieceSpawnX[i][j] = getIntTextField(txtfldPieceSpawnX[i][j]);
+                r.pieceSpawnY[i][j] = getIntTextField(txtfldPieceSpawnY[i][j]);
+                r.pieceSpawnXBig[i][j] = getIntTextField(txtfldPieceSpawnBigX[i][j]);
+                r.pieceSpawnYBig[i][j] = getIntTextField(txtfldPieceSpawnBigY[i][j]);
+            }
+            r.pieceColor[i] = comboboxPieceColor[i].getSelectedIndex() + 1;
+            r.pieceDefaultDirection[i] = comboboxPieceDirection[i].getSelectedIndex();
+        }
+    }
+
+    /**
+     * ルールをファイルに保存
+     * @param filename Filename
+     * @throws IOException 保存に失敗したとき
+     */
+    public void save(String filename) throws IOException {
+        RuleOptions ruleopt = new RuleOptions();
+        writeRuleFromUI(ruleopt);
+
+        CustomProperties prop = new CustomProperties();
+        ruleopt.writeProperty(prop, 0);
+
+        FileOutputStream out = new FileOutputStream(filename);
+        prop.store(out, "NullpoMino RuleData");
+        out.close();
+
+        log.debug("Saved rule file to " + filename);
+    }
+
+    /**
+     * ルールをファイルから読み込み
+     * @param filename Filename
+     * @return ルール data
+     * @throws IOException Failed to loadしたとき
+     */
+    public RuleOptions load(String filename) throws IOException {
+        CustomProperties prop = new CustomProperties();
+
+        FileInputStream in = new FileInputStream(filename);
+        prop.load(in);
+        in.close();
+
+        RuleOptions ruleopt = new RuleOptions();
+        ruleopt.readProperty(prop, 0);
+
+        log.debug("Loaded rule file from " + filename);
+
+        return ruleopt;
+    }
+
+    /**
+     * 翻訳後のUIの文字列を取得
+     * @param str 文字列
+     * @return 翻訳後のUIの文字列 (無いならそのままstrを返す）
+     */
+    public String getUIText(String str) {
+        String result = propLang.getProperty(str);
+        if(result == null) {
+            result = propLangDefault.getProperty(str, str);
+        }
+        return result;
+    }
+
+    /**
+     * テキストfieldからint型の値を取得
+     * @param txtfld テキストfield
+     * @return テキストfieldから値を取得できた場合はその値, 失敗したら0
+     */
+    public int getIntTextField(JTextField txtfld) {
+        int v = 0;
+
+        try {
+            v = Integer.parseInt(txtfld.getText());
+        } catch(Exception e) {}
+
+        return v;
+    }
+
+    /**
+     * テキストfieldからfloat型の値を取得
+     * @param txtfld テキストfield
+     * @return テキストfieldから値を取得できた場合はその値, 失敗したら0f
+     */
+    public float getFloatTextField(JTextField txtfld) {
+        float v = 0f;
+
+        try {
+            v = Float.parseFloat(txtfld.getText());
+        } catch (Exception e) {}
+
+        return v;
+    }
+
+    /**
+     * アクション発生時の処理
+     */
+    public void actionPerformed(ActionEvent e) {
+        if(e.getActionCommand() == "New") {
+            // 新規作成
+            strNowFile = null;
+            setTitle(getUIText("Title_RuleEditor"));
+            readRuleToUI(new RuleOptions());
+        } else if(e.getActionCommand() == "Open") {
+            // 開く
+            JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
+            c.setFileFilter(new FileFilterRUL());
+
+            if(c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = c.getSelectedFile();
+                RuleOptions ruleopt = new RuleOptions();
+
+                strNowFile = file.getPath();
+                setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
+
+                try {
+                    ruleopt = load(file.getPath());
+                } catch (IOException e2) {
+                    log.error("Failed to load rule data from " + strNowFile, e2);
+                    JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e2, getUIText("Title_FileLoadFailed"),
+                                                  JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                readRuleToUI(ruleopt);
+            }
+        } else if((e.getActionCommand() == "Save") && (strNowFile != null)) {
+            // Up書き保存
+            try {
+                save(strNowFile);
+            } catch (IOException e2) {
+                log.error("Failed to save rule data to " + strNowFile, e2);
+                JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
+                                              JOptionPane.ERROR_MESSAGE);
+            }
+        } else if((e.getActionCommand() == "Save") || (e.getActionCommand() == "SaveAs")) {
+            // Nameを付けて保存
+            JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
+            c.setFileFilter(new FileFilterRUL());
+
+            if(c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = c.getSelectedFile();
+                String filename = file.getPath();
+                if(!filename.endsWith(".rul")) filename = filename + ".rul";
+
+                try {
+                    save(filename);
+                } catch (Exception e2) {
+                    log.error("Failed to save rule data to " + filename, e2);
+                    JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
+                                                  JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                strNowFile = filename;
+                setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
+            }
+        } else if(e.getActionCommand() == "ResetRandomizer") {
+            // NEXT順生成アルゴリズムの選択リセット
+            comboboxRandomizer.setSelectedItem(null);
+        } else if(e.getActionCommand() == "Exit") {
+            // 終了
+            dispose();
+        }
+    }
+
+    /**
+     * メイン関count
+     * @param args コマンドLines引count
+     */
+    public static void main(String[] args) {
+        PropertyConfigurator.configure("config/etc/log.cfg");
+        log.debug("RuleEditor start");
+
+        if(args.length > 0) {
+            new RuleEditor(args[0]);
+        } else {
+            new RuleEditor();
+        }
+    }
+
+    /**
+     * ファイル選択画面のフィルタ
+     */
+    protected class FileFilterRUL extends FileFilter {
+        @Override
+        public boolean accept(File f) {
+            if(f.isDirectory()) return true;
+            if(f.getName().endsWith(".rul")) return true;
+            return false;
+        }
+
+        @Override
+        public String getDescription() {
+            return getUIText("FileChooser_RuleFile");
+        }
+    }
+
+    /**
+     * 画像表示Comboボックスの項目<br>
+     * <a href="http://www.javadrive.jp/tutorial/jcombobox/index20.html">出典</a>
+     */
+    protected class ComboLabel {
+        private String text = "";
+        private Icon icon = null;
+
+        public ComboLabel() {
+        }
+
+        public ComboLabel(String text) {
+            this.text = text;
+        }
+
+        public ComboLabel(Icon icon) {
+            this.icon = icon;
+        }
+
+        public ComboLabel(String text, Icon icon) {
+            this.text = text;
+            this.icon = icon;
+        }
+
+        public void setText(String text) {
+            this.text = text;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public void setIcon(Icon icon) {
+            this.icon = icon;
+        }
+
+        public Icon getIcon() {
+            return icon;
+        }
+    }
+
+    /**
+     * 画像表示ComboボックスのListCellRenderer<br>
+     * <a href="http://www.javadrive.jp/tutorial/jcombobox/index20.html">出典</a>
+     */
+    protected class ComboLabelCellRenderer extends JLabel implements ListCellRenderer {
+        private static final long serialVersionUID = 1L;
+
+        public ComboLabelCellRenderer() {
+            this.setOpaque(true);
+        }
+
+        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            ComboLabel data = (ComboLabel)value;
+            setText(data.getText());
+            setIcon(data.getIcon());
+
+            if(isSelected) {
+                setForeground(Color.white);
+                setBackground(Color.black);
+            } else {
+                setForeground(Color.black);
+                setBackground(Color.white);
+            }
+
+            return this;
+        }
+    }
 }

@@ -2971,1989 +2971,1989 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
         }
 
         Object listboxCreateRoom1PRuleListSelectedValue = listboxCreateRoom1PRuleList.getSelectedValue();
-		if((listboxCreateRoom1PRuleListSelectedValue != null) && (listboxCreateRoom1PRuleListSelectedValue instanceof String) &&
-		   (listboxCreateRoom1PRuleList.getSelectedIndex() >= 1))
-		{
-			propConfig.setProperty("createroom1p.listboxCreateRoom1PRuleList.value", (String)listboxCreateRoom1PRuleListSelectedValue);
-		} else {
-			propConfig.setProperty("createroom1p.listboxCreateRoom1PRuleList.value", "");
-		}
-
-		propConfig.setProperty("createroom.defaultPresetID", (Integer)spinnerCreateRoomPresetID.getValue());
-
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/netlobby.cfg");
-			propConfig.store(out, "NullpoMino NetLobby Config");
-			out.close();
-		} catch (IOException e) {
-			log.warn("Failed to save netlobby config file", e);
-		}
-	}
-
-	/**
-	 * Save global config file
-	 */
-	public void saveGlobalConfig() {
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/global.cfg");
-			propGlobal.store(out, "NullpoMino Global Config");
-			out.close();
-		} catch (IOException e) {
-			log.warn("Failed to save global config file", e);
-		}
-	}
-
-	/**
-	 * 終了処理
-	 */
-	public void shutdown() {
-		saveConfig();
-
-		if(writerLobbyLog != null) {
-			writerLobbyLog.flush();
-			writerLobbyLog.close();
-			writerLobbyLog = null;
-		}
-		if(writerRoomLog != null) {
-			writerRoomLog.flush();
-			writerRoomLog.close();
-			writerRoomLog = null;
-		}
-
-		// 切断
-		if(netPlayerClient != null) {
-			if(netPlayerClient.isConnected()) {
-				netPlayerClient.send("disconnect\n");
-			}
-			netPlayerClient.threadRunning = false;
-			netPlayerClient.interrupt();
-			netPlayerClient = null;
-		}
-
-		// Listener呼び出し
-		if(listeners != null) {
-			for(NetLobbyListener l: listeners) {
-				l.netlobbyOnExit(this);
-			}
-			listeners = null;
-		}
-		if(netDummyMode != null) {
-			netDummyMode.netlobbyOnExit(this);
-			netDummyMode = null;
-		}
-
-		this.dispose();
-	}
-
-	/**
-	 * サーバー削除 buttonが押されたときの処理
-	 */
-	public void serverSelectDeleteButtonClicked() {
-		int index = listboxServerList.getSelectedIndex();
-		if(index != -1) {
-			String server = (String)listboxServerList.getSelectedValue();
-			int answer = JOptionPane.showConfirmDialog(this,
-													   getUIText("MessageBody_ServerDelete") + "\n" + server,
-													   getUIText("MessageTitle_ServerDelete"),
-													   JOptionPane.YES_NO_OPTION);
-			if(answer == JOptionPane.YES_OPTION) {
-				listmodelServerList.remove(index);
-				saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist.cfg");
-			}
-		}
-	}
-
-	/**
-	 * サーバー接続 buttonが押されたときの処理
-	 */
-	public void serverSelectConnectButtonClicked() {
-		int index = listboxServerList.getSelectedIndex();
-		if(index != -1) {
-			String strServer = (String)listboxServerList.getSelectedValue();
-			int portSpliter = strServer.indexOf(":");
-			if(portSpliter == -1) portSpliter = strServer.length();
-
-			String strHost = strServer.substring(0, portSpliter);
-			log.debug("Host:" + strHost);
-
-			int port = NetPlayerClient.DEFAULT_PORT;
-			try {
-				String strPort = strServer.substring(portSpliter + 1, strServer.length());
-				port = Integer.parseInt(strPort);
-			} catch (Exception e2) {
-				log.debug("Failed to get port number; Try to use default port");
-			}
-			log.debug("Port:" + port);
-
-			netPlayerClient = new NetPlayerClient(strHost, port, txtfldPlayerName.getText(), txtfldPlayerTeam.getText().trim());
-			netPlayerClient.setDaemon(true);
-			netPlayerClient.addListener(this);
-			netPlayerClient.start();
-
-			txtpaneLobbyChatLog.setText("");
-			setLobbyButtonsEnabled(0);
-			tablemodelRoomList.setRowCount(0);
-
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-	}
-
-	/**
-	 * 監視設定 buttonが押されたときの処理
-	 */
-	public void serverSelectSetObserverButtonClicked() {
-		int index = listboxServerList.getSelectedIndex();
-		if(index != -1) {
-			String strServer = (String)listboxServerList.getSelectedValue();
-			int portSpliter = strServer.indexOf(":");
-			if(portSpliter == -1) portSpliter = strServer.length();
-
-			String strHost = strServer.substring(0, portSpliter);
-			log.debug("Host:" + strHost);
-
-			int port = NetPlayerClient.DEFAULT_PORT;
-			try {
-				String strPort = strServer.substring(portSpliter + 1, strServer.length());
-				port = Integer.parseInt(strPort);
-			} catch (Exception e2) {
-				log.debug("Failed to get port number; Try to use default port");
-			}
-			log.debug("Port:" + port);
-
-			int answer = JOptionPane.showConfirmDialog(this,
-					   getUIText("MessageBody_SetObserver") + "\n" + strServer,
-					   getUIText("MessageTitle_SetObserver"),
-					   JOptionPane.YES_NO_OPTION);
-
-			if(answer == JOptionPane.YES_OPTION) {
-				propObserver.setProperty("observer.enable", true);
-				propObserver.setProperty("observer.host", strHost);
-				propObserver.setProperty("observer.port", port);
-
-				try {
-					FileOutputStream out = new FileOutputStream("config/setting/netobserver.cfg");
-					propObserver.store(out, "NullpoMino NetObserver Config");
-					out.close();
-				} catch (IOException e) {
-					log.warn("Failed to save NetObserver config file", e);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Get currenlty selected map set ID
-	 * @return Map set ID
-	 */
-	public int getCurrentSelectedMapSetID() {
-		if(spinnerCreateRoomMapSetID != null) {
-			return (Integer)spinnerCreateRoomMapSetID.getValue();
-		}
-		return 0;
-	}
-
-	/**
-	 * Send a chat message
-	 * @param roomchat <code>true</code> if room chat
-	 * @param strMsg Message to send
-	 */
-	public void sendChat(boolean roomchat, String strMsg) {
-		String msg = strMsg;
-		if(msg.startsWith("/team")) {
-			msg = msg.replaceFirst("/team", "");
-			msg = msg.trim();
-			netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(msg) + "\n");
-		} else if(roomchat) {
-			netPlayerClient.send("chat\t" + NetUtil.urlEncode(msg) + "\n");
-		} else {
-			netPlayerClient.send("lobbychat\t" + NetUtil.urlEncode(msg) + "\n");
-		}
-	}
-
-	/**
-	 * Creates NetRoomInfo from Create Room screen
-	 * @return NetRoomInfo
-	 */
-	public NetRoomInfo exportRoomInfoFromCreateRoomScreen() {
-		try {
-			NetRoomInfo roomInfo = new NetRoomInfo();
-
-			String roomName = txtfldCreateRoomName.getText();
-			Integer integerMaxPlayers = (Integer)spinnerCreateRoomMaxPlayers.getValue();
-			Integer integerAutoStartSeconds = (Integer)spinnerCreateRoomAutoStartSeconds.getValue();
-			Integer integerGravity = (Integer)spinnerCreateRoomGravity.getValue();
-			Integer integerDenominator = (Integer)spinnerCreateRoomDenominator.getValue();
-			Integer integerARE = (Integer)spinnerCreateRoomARE.getValue();
-			Integer integerARELine = (Integer)spinnerCreateRoomARELine.getValue();
-			Integer integerLineDelay = (Integer)spinnerCreateRoomLineDelay.getValue();
-			Integer integerLockDelay = (Integer)spinnerCreateRoomLockDelay.getValue();
-			Integer integerDAS = (Integer)spinnerCreateRoomDAS.getValue();
-			Integer integerHurryupSeconds = (Integer)spinnerCreateRoomHurryupSeconds.getValue();
-			Integer integerHurryupInterval = (Integer)spinnerCreateRoomHurryupInterval.getValue();
-			boolean rulelock = chkboxCreateRoomRuleLock.isSelected();
-			int tspinEnableType = comboboxCreateRoomTSpinEnableType.getSelectedIndex();
-			int spinCheckType = comboboxCreateRoomSpinCheckType.getSelectedIndex();
-			boolean tspinEnableEZ = chkboxCreateRoomTSpinEnableEZ.isSelected();
-			boolean b2b = chkboxCreateRoomB2B.isSelected();
-			boolean combo = chkboxCreateRoomCombo.isSelected();
-			boolean rensaBlock = chkboxCreateRoomRensaBlock.isSelected();
-			boolean counter = chkboxCreateRoomCounter.isSelected();
-			boolean bravo = chkboxCreateRoomBravo.isSelected();
-			boolean reduceLineSend = chkboxCreateRoomReduceLineSend.isSelected();
-			boolean autoStartTNET2 = chkboxCreateRoomAutoStartTNET2.isSelected();
-			boolean disableTimerAfterSomeoneCancelled = chkboxCreateRoomDisableTimerAfterSomeoneCancelled.isSelected();
-			boolean useMap = chkboxCreateRoomUseMap.isSelected();
-			boolean useFractionalGarbage = chkboxCreateRoomUseFractionalGarbage.isSelected();
-			boolean garbageChangePerAttack = chkboxCreateRoomGarbageChangePerAttack.isSelected();
-			boolean divideChangeRateByPlayers = chkboxCreateRoomDivideChangeRateByPlayers.isSelected();
-			Integer integerGarbagePercent = (Integer)spinnerCreateRoomGarbagePercent.getValue();
-			boolean b2bChunk = chkboxCreateRoomB2BChunk.isSelected();
-
-			roomInfo.strName = roomName;
-			roomInfo.maxPlayers = integerMaxPlayers;
-			roomInfo.autoStartSeconds = integerAutoStartSeconds;
-			roomInfo.gravity = integerGravity;
-			roomInfo.denominator = integerDenominator;
-			roomInfo.are = integerARE;
-			roomInfo.areLine = integerARELine;
-			roomInfo.lineDelay = integerLineDelay;
-			roomInfo.lockDelay = integerLockDelay;
-			roomInfo.das = integerDAS;
-			roomInfo.hurryupSeconds = integerHurryupSeconds;
-			roomInfo.hurryupInterval = integerHurryupInterval;
-			roomInfo.ruleLock = rulelock;
-			roomInfo.tspinEnableType = tspinEnableType;
-			roomInfo.spinCheckType = spinCheckType;
-			roomInfo.tspinEnableEZ = tspinEnableEZ;
-			roomInfo.b2b = b2b;
-			roomInfo.combo = combo;
-			roomInfo.rensaBlock = rensaBlock;
-			roomInfo.counter = counter;
-			roomInfo.bravo = bravo;
-			roomInfo.reduceLineSend = reduceLineSend;
-			roomInfo.autoStartTNET2 = autoStartTNET2;
-			roomInfo.disableTimerAfterSomeoneCancelled = disableTimerAfterSomeoneCancelled;
-			roomInfo.useMap = useMap;
-			roomInfo.useFractionalGarbage = useFractionalGarbage;
-			roomInfo.garbageChangePerAttack = garbageChangePerAttack;
-			roomInfo.divideChangeRateByPlayers = divideChangeRateByPlayers;
-			roomInfo.garbagePercent = integerGarbagePercent;
-			roomInfo.b2bChunk = b2bChunk;
-
-			return roomInfo;
-		} catch (Exception e) {
-			log.error("Exception on exportRoomInfoFromCreateRoomScreen", e);
-		}
-		return null;
-	}
-
-	/**
-	 * Import NetRoomInfo to Create Room screen
-	 * @param r NetRoomInfo
-	 */
-	public void importRoomInfoToCreateRoomScreen(NetRoomInfo r) {
-		if(r != null) {
-			txtfldCreateRoomName.setText(r.strName);
-			spinnerCreateRoomMaxPlayers.setValue(r.maxPlayers);
-			spinnerCreateRoomAutoStartSeconds.setValue(r.autoStartSeconds);
-			spinnerCreateRoomGravity.setValue(r.gravity);
-			spinnerCreateRoomDenominator.setValue(r.denominator);
-			spinnerCreateRoomARE.setValue(r.are);
-			spinnerCreateRoomARELine.setValue(r.areLine);
-			spinnerCreateRoomLineDelay.setValue(r.lineDelay);
-			spinnerCreateRoomLockDelay.setValue(r.lockDelay);
-			spinnerCreateRoomDAS.setValue(r.das);
-			spinnerCreateRoomHurryupSeconds.setValue(r.hurryupSeconds);
-			spinnerCreateRoomHurryupInterval.setValue(r.hurryupInterval);
-			spinnerCreateRoomGarbagePercent.setValue(r.garbagePercent);
-			chkboxCreateRoomUseMap.setSelected(r.useMap);
-			chkboxCreateRoomRuleLock.setSelected(r.ruleLock);
-			comboboxCreateRoomTSpinEnableType.setSelectedIndex(r.tspinEnableType);
-			comboboxCreateRoomSpinCheckType.setSelectedIndex(r.spinCheckType);
-			chkboxCreateRoomTSpinEnableEZ.setSelected(r.tspinEnableEZ);
-			chkboxCreateRoomB2B.setSelected(r.b2b);
-			chkboxCreateRoomCombo.setSelected(r.combo);
-			chkboxCreateRoomRensaBlock.setSelected(r.rensaBlock);
-			chkboxCreateRoomCounter.setSelected(r.counter);
-			chkboxCreateRoomBravo.setSelected(r.bravo);
-			chkboxCreateRoomReduceLineSend.setSelected(r.reduceLineSend);
-			chkboxCreateRoomGarbageChangePerAttack.setSelected(r.garbageChangePerAttack);
-			chkboxCreateRoomDivideChangeRateByPlayers.setSelected(r.divideChangeRateByPlayers);
-			chkboxCreateRoomB2BChunk.setSelected(r.b2bChunk);
-			chkboxCreateRoomUseFractionalGarbage.setSelected(r.useFractionalGarbage);
-			chkboxCreateRoomAutoStartTNET2.setSelected(r.autoStartTNET2);
-			chkboxCreateRoomDisableTimerAfterSomeoneCancelled.setSelected(r.disableTimerAfterSomeoneCancelled);
-		}
-	}
-
-	/**
-	 * Get rule file list (for rule change screen)
-	 * @return Rule file list. null if directory doesn't exist.
-	 */
-	public String[] getRuleFileList() {
-		File dir = new File("config/rule");
-
-		FilenameFilter filter = new FilenameFilter() {
-			public boolean accept(File dir1, String name) {
-				return name.endsWith(".rul");
-			}
-		};
-
-		String[] list = dir.list(filter);
-
-		if(!System.getProperty("os.name").startsWith("Windows")) {
-			// Sort if not windows
-			Arrays.sort(list);
-		}
-
-		return list;
-	}
-
-	/**
-	 * Create rule entries (for rule change screen)
-	 * @param filelist Rule file list
-	 */
-	public void createRuleEntries(String[] filelist) {
-		ruleEntries = new LinkedList<RuleEntry>();
-
-		for(int i = 0; i < filelist.length; i++) {
-			RuleEntry entry = new RuleEntry();
-
-			File file = new File("config/rule/" + filelist[i]);
-			entry.filename = filelist[i];
-			entry.filepath = file.getPath();
-
-			CustomProperties prop = new CustomProperties();
-			try {
-				FileInputStream in = new FileInputStream("config/rule/" + filelist[i]);
-				prop.load(in);
-				in.close();
-				entry.rulename = prop.getProperty("0.ruleopt.strRuleName", "");
-				entry.style = prop.getProperty("0.ruleopt.style", 0);
-			} catch (Exception e) {
-				entry.rulename = "";
-				entry.style = -1;
-			}
-
-			ruleEntries.add(entry);
-		}
-	}
-
-	/**
-	 * Get subset of rule entries (for rule change screen)
-	 * @param currentStyle Current style
-	 * @return Subset of rule entries
-	 */
-	public LinkedList<RuleEntry> getSubsetEntries(int currentStyle) {
-		LinkedList<RuleEntry> subEntries = new LinkedList<RuleEntry>();
-		for(int i = 0; i < ruleEntries.size(); i++) {
-			if(ruleEntries.get(i).style == currentStyle) {
-				subEntries.add(ruleEntries.get(i));
-			}
-		}
-		return subEntries;
-	}
-
-	/**
-	 * Get rule name + file name list as String[] (for rule change screen)
-	 * @param currentStyle Current style
-	 * @return Rule name + file name list
-	 */
-	public String[] extractRuleListFromRuleEntries(int currentStyle) {
-		LinkedList<RuleEntry> subEntries = getSubsetEntries(currentStyle);
-
-		String[] result = new String[subEntries.size()];
-		for(int i = 0; i < subEntries.size(); i++) {
-			RuleEntry entry = subEntries.get(i);
-			result[i] = entry.rulename + " (" + entry.filename + ")";
-		}
-
-		return result;
-	}
-
-	/**
-	 * Enter rule change screen
-	 */
-	public void enterRuleChangeScreen() {
-		String[] strCurrentFileName = new String[GameEngine.MAX_GAMESTYLE];
-
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			if(i == 0) {
-				strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile", "");
-			} else {
-				strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile." + i, "");
-			}
-
-			LinkedList<RuleEntry> subEntries = getSubsetEntries(i);
-
-			for(int j = 0; j < subEntries.size(); j++) {
-				if(subEntries.get(j).filename.equals(strCurrentFileName[i])) {
-					listboxRuleChangeRuleList[i].setSelectedIndex(j);
-				}
-			}
-		}
-
-		changeCurrentScreenCard(SCREENCARD_RULECHANGE);
-	}
-
-	/*
-	 * Menu 実行時の処理
-	 */
-	public void actionPerformed(ActionEvent e) {
-		//addSystemChatLog(getCurrentChatLogTextPane(), e.getActionCommand(), Color.magenta);
-
-		// サーバー追加
-		if(e.getActionCommand() == "ServerSelect_ServerAdd") {
-			changeCurrentScreenCard(SCREENCARD_SERVERADD);
-		}
-		// サーバー削除
-		if(e.getActionCommand() == "ServerSelect_ServerDelete") {
-			serverSelectDeleteButtonClicked();
-		}
-		// サーバー接続
-		if(e.getActionCommand() == "ServerSelect_Connect") {
-			serverSelectConnectButtonClicked();
-		}
-		// 監視設定
-		if(e.getActionCommand() == "ServerSelect_SetObserver") {
-			serverSelectSetObserverButtonClicked();
-		}
-		// 監視解除
-		if(e.getActionCommand() == "ServerSelect_UnsetObserver") {
-			if(propObserver.getProperty("observer.enable", false) == true) {
-				String strCurrentHost = propObserver.getProperty("observer.host", "");
-				int currentPort = propObserver.getProperty("observer.port", 0);
-				String strMessageBox = String.format(getUIText("MessageBody_UnsetObserver"), strCurrentHost, currentPort);
-
-				int answer = JOptionPane.showConfirmDialog(this, strMessageBox, getUIText("MessageTitle_UnsetObserver"), JOptionPane.YES_NO_OPTION);
-
-				if(answer == JOptionPane.YES_OPTION) {
-					propObserver.setProperty("observer.enable", false);
-					try {
-						FileOutputStream out = new FileOutputStream("config/setting/netobserver.cfg");
-						propObserver.store(out, "NullpoMino NetObserver Config");
-						out.close();
-					} catch (IOException e2) {
-						log.warn("Failed to save NetObserver config file", e2);
-					}
-				}
-			}
-		}
-		// 終了
-		if(e.getActionCommand() == "ServerSelect_Exit") {
-			shutdown();
-		}
-		// クイックスタート
-		if(e.getActionCommand() == "Lobby_QuickStart") {
-			// TODO:クイックスタート
-		}
-		// Create Room 1P
-		if(e.getActionCommand() == "Lobby_RoomCreate1P") {
-			currentViewDetailRoomID = -1;
-			setCreateRoom1PUIType(false, null);
-			changeCurrentScreenCard(SCREENCARD_CREATEROOM1P);
-		}
-		// Create Room Multiplayer
-		if(e.getActionCommand() == "Lobby_RoomCreate") {
-			currentViewDetailRoomID = -1;
-			// setCreateRoomUIType(false, null);
-			changeCurrentScreenCard(SCREENCARD_CREATERATED_WAITING);
-			netPlayerClient.send("getpresets\n");
-		}
-		// Lobby Options
-		if(e.getActionCommand() == "Lobby_Options") {
-			popupLobbyOptions.show(btnRoomListOptions, 0, 0);
-		}
-		// Rule Change
-		if(e.getActionCommand() == "Lobby_RuleChange") {
-			enterRuleChangeScreen();
-		}
-		// チーム変更(Lobby screen)
-		if(e.getActionCommand() == "Lobby_TeamChange") {
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				txtfldRoomListTeam.setText(netPlayerClient.getYourPlayerInfo().strTeam);
-				roomListTopBarCardLayout.next(subpanelRoomListTopBar);
-			}
-		}
-		// 切断
-		if(e.getActionCommand() == "Lobby_Disconnect") {
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				netPlayerClient.send("disconnect\n");
-				netPlayerClient.threadRunning = false;
-				netPlayerClient.interrupt();
-				netPlayerClient = null;
-			}
-			tabLobbyAndRoom.setSelectedIndex(0);
-			tabLobbyAndRoom.setEnabledAt(1, false);
-			tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_NoRoom"));
-			setLobbyButtonsEnabled(1);
-			setTitle(getUIText("Title_NetLobby"));
-			changeCurrentScreenCard(SCREENCARD_SERVERSELECT);
-		}
-		// Multiplayer Leaderboard
-		if((e.getActionCommand() == "Lobby_Ranking") || (e.getActionCommand() == "Room_Ranking")) {
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				tablemodelMPRanking[0].setRowCount(0);
-				netPlayerClient.send("mpranking\t0\n");
-				changeCurrentScreenCard(SCREENCARD_MPRANKING);
-			}
-		}
-		// チャット送信
-		if((e.getActionCommand() == "Lobby_ChatSend") || (e.getActionCommand() == "Room_ChatSend")) {
-			if((txtfldLobbyChatInput.getText().length() > 0) && (netPlayerClient != null) && netPlayerClient.isConnected()) {
-				sendChat(false, txtfldLobbyChatInput.getText());
-				txtfldLobbyChatInput.setText("");
-			}
-
-			if((netPlayerClient != null) && netPlayerClient.isConnected()) {
-				if(tabLobbyAndRoom.getSelectedIndex() == 0) {
-					if(txtfldLobbyChatInput.getText().length() > 0) {
-						sendChat(false, txtfldLobbyChatInput.getText());
-						txtfldLobbyChatInput.setText("");
-					}
-				} else {
-					if(txtfldRoomChatInput.getText().length() > 0) {
-						sendChat(true, txtfldRoomChatInput.getText());
-						txtfldRoomChatInput.setText("");
-					}
-				}
-			}
-		}
-		// チーム変更OK(Lobby screen)
-		if(e.getActionCommand() == "Lobby_TeamChange_OK") {
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(txtfldRoomListTeam.getText()) + "\n");
-				roomListTopBarCardLayout.first(subpanelRoomListTopBar);
-			}
-		}
-		// チーム変更Cancel(Lobby screen)
-		if(e.getActionCommand() == "Lobby_TeamChange_Cancel") {
-			roomListTopBarCardLayout.first(subpanelRoomListTopBar);
-		}
-		// 退出 button
-		if(e.getActionCommand() == "Room_Leave") {
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				netPlayerClient.send("roomjoin\t-1\tfalse\n");
-			}
-
-			tablemodelGameStat.setRowCount(0);
-			tablemodelGameStat1P.setRowCount(0);
-
-			tabLobbyAndRoom.setSelectedIndex(0);
-			tabLobbyAndRoom.setEnabledAt(1, false);
-			tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_NoRoom"));
-
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-
-			// Listener call
-			for(NetLobbyListener l: listeners) {
-				l.netlobbyOnRoomLeave(this, netPlayerClient);
-			}
-			if(netDummyMode != null) netDummyMode.netlobbyOnRoomLeave(this, netPlayerClient);
-		}
-		// 参戦 button
-		if(e.getActionCommand() == "Room_Join") {
-			netPlayerClient.send("changestatus\tfalse\n");
-			btnRoomButtonsJoin.setEnabled(false);
-		}
-		// 離脱(観戦のみ) button
-		if(e.getActionCommand() == "Room_SitOut") {
-			netPlayerClient.send("changestatus\ttrue\n");
-			btnRoomButtonsSitOut.setEnabled(false);
-		}
-		// チーム変更(Room screen)
-		if(e.getActionCommand() == "Room_TeamChange") {
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				txtfldRoomTeam.setText(netPlayerClient.getYourPlayerInfo().strTeam);
-				roomTopBarCardLayout.next(subpanelRoomTopBar);
-			}
-		}
-		// チーム変更OK(Room screen)
-		if(e.getActionCommand() == "Room_TeamChange_OK") {
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(txtfldRoomTeam.getText()) + "\n");
-				roomTopBarCardLayout.first(subpanelRoomTopBar);
-			}
-		}
-		// チーム変更Cancel(Room screen)
-		if(e.getActionCommand() == "Room_TeamChange_Cancel") {
-			roomTopBarCardLayout.first(subpanelRoomTopBar);
-		}
-		// ルール確認(Room screen)
-		if(e.getActionCommand() == "Room_ViewSetting") {
-			viewRoomDetail(netPlayerClient.getYourPlayerInfo().roomID);
-		}
-		// サーバー追加画面でのOK button
-		if(e.getActionCommand() == "ServerAdd_OK") {
-			if(txtfldServerAddHost.getText().length() > 0) {
-				listmodelServerList.addElement(txtfldServerAddHost.getText());
-				saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist.cfg");
-				txtfldServerAddHost.setText("");
-			}
-			changeCurrentScreenCard(SCREENCARD_SERVERSELECT);
-		}
-		// サーバー追加画面でのCancel button
-		if(e.getActionCommand() == "ServerAdd_Cancel") {
-			txtfldServerAddHost.setText("");
-			changeCurrentScreenCard(SCREENCARD_SERVERSELECT);
-		}
-		// Create rated cancel from waiting card
-		if(e.getActionCommand() == "CreateRated_Waiting_Cancel") {
-			currentViewDetailRoomID = -1;
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-		// Create rated OK
-		if(e.getActionCommand() == "CreateRated_OK") {
-			try {
-				int presetIndex = comboboxCreateRatedPresets.getSelectedIndex();
-				NetRoomInfo r = presets.get(presetIndex);
-				r.strName = txtfldCreateRatedName.getText();
-				backupRoomInfo = r;
-
-				String msg = "ratedroomcreate\t"+NetUtil.urlEncode(r.strName)+"\t"
-				+spinnerCreateRatedMaxPlayers.getValue()+"\t"+presetIndex+"\t"
-				+NetUtil.urlEncode("NET-VS-BATTLE")+"\n";
-
-				txtpaneRoomChatLog.setText("");
-				setRoomButtonsEnabled(false);
-				tabLobbyAndRoom.setEnabledAt(1, true);
-				tabLobbyAndRoom.setSelectedIndex(1);
-				changeCurrentScreenCard(SCREENCARD_LOBBY);
-
-				netPlayerClient.send(msg);
-			} catch (Exception e2) {
-				log.error("Error on CreateRated_OK", e2);
-			}
-		}
-		// Create rated - go to custom settings
-		if(e.getActionCommand() == "CreateRated_Custom") {
-			// Load preset into field
-			NetRoomInfo r = presets.get(comboboxCreateRatedPresets.getSelectedIndex());
-			setCreateRoomUIType(false, null);
-			importRoomInfoToCreateRoomScreen(r);
-			// Copy name and number of players
-			txtfldCreateRoomName.setText(txtfldCreateRatedName.getText());
-			spinnerCreateRoomMaxPlayers.setValue(spinnerCreateRatedMaxPlayers.getValue());
-			// Change screen card
-			changeCurrentScreenCard(SCREENCARD_CREATEROOM);
-		}
-		// Create rated cancel
-		if(e.getActionCommand() == "CreateRated_Cancel") {
-			currentViewDetailRoomID = -1;
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-		// ルーム作成画面でのOK button
-		if(e.getActionCommand() == "CreateRoom_OK") {
-			try {
-				NetRoomInfo r = exportRoomInfoFromCreateRoomScreen();
-				backupRoomInfo = r;
-
-				String msg;
-				msg = "roomcreate\t" + NetUtil.urlEncode(r.strName) + "\t";
-				msg += NetUtil.urlEncode(r.exportString()) + "\t";
-				msg += NetUtil.urlEncode("NET-VS-BATTLE") + "\t";
-
-				// Map send
-				if(r.useMap) {
-					int setID = getCurrentSelectedMapSetID();
-					log.debug("MapSetID:" + setID);
-
-					mapList.clear();
-					CustomProperties propMap = new CustomProperties();
-					try {
-						FileInputStream in = new FileInputStream("config/map/vsbattle/" + setID + ".map");
-						propMap.load(in);
-						in.close();
-					} catch (IOException e2) {
-						log.error("Map set " + setID + " not found", e2);
-					}
-
-					int maxMap = propMap.getProperty("map.maxMapNumber", 0);
-					log.debug("Number of maps:" + maxMap);
-
-					String strMap = "";
-
-					for(int i = 0; i < maxMap; i++) {
-						String strMapTemp = propMap.getProperty("map." + i, "");
-						mapList.add(strMapTemp);
-						strMap += strMapTemp;
-						if(i < maxMap - 1) strMap += "\t";
-					}
-
-					String strCompressed = NetUtil.compressString(strMap);
-					log.debug("Map uncompressed:" + strMap.length() + " compressed:" + strCompressed.length());
-
-					msg += strCompressed;
-				}
-
-				msg += "\n";
-
-				txtpaneRoomChatLog.setText("");
-				setRoomButtonsEnabled(false);
-				tabLobbyAndRoom.setEnabledAt(1, true);
-				tabLobbyAndRoom.setSelectedIndex(1);
-				changeCurrentScreenCard(SCREENCARD_LOBBY);
-
-				netPlayerClient.send(msg);
-			} catch (Exception e2) {
-				log.error("Error on CreateRoom_OK", e2);
-			}
-		}
-		// Save Preset (Create Room)
-		if(e.getActionCommand() == "CreateRoom_PresetSave") {
-			NetRoomInfo r = exportRoomInfoFromCreateRoomScreen();
-			Integer id = (Integer)spinnerCreateRoomPresetID.getValue();
-			propConfig.setProperty("0.preset." + id, NetUtil.compressString(r.exportString()));
-		}
-		// Load Preset (Create Room)
-		if(e.getActionCommand() == "CreateRoom_PresetLoad") {
-			Integer id = (Integer)spinnerCreateRoomPresetID.getValue();
-			String strPresetC = propConfig.getProperty("0.preset." + id);
-			if(strPresetC != null) {
-				String strPreset = NetUtil.decompressString(strPresetC);
-				NetRoomInfo r = new NetRoomInfo(strPreset);
-				importRoomInfoToCreateRoomScreen(r);
-			}
-		}
-		// Preset code export (Create Room)
-		if(e.getActionCommand() == "CreateRoom_PresetCodeExport") {
-			NetRoomInfo r = exportRoomInfoFromCreateRoomScreen();
-			if(r == null) {
-				txtfldCreateRoomPresetCode.setText("");
-			} else {
-				txtfldCreateRoomPresetCode.setText(NetUtil.compressString(r.exportString()));
-			}
-		}
-		// Preset code import (Create Room)
-		if(e.getActionCommand() == "CreateRoom_PresetCodeImport") {
-			try {
-				String strPresetCode = txtfldCreateRoomPresetCode.getText();
-				if(strPresetCode.length() > 0) {
-					String strPresetCodeD = NetUtil.decompressString(strPresetCode);
-					NetRoomInfo r = new NetRoomInfo(strPresetCodeD);
-					importRoomInfoToCreateRoomScreen(r);
-				}
-			} catch (Exception e2) {
-				log.error("Failed to import preset code", e2);
-			}
-		}
-		// ルーム作成画面での参戦 button
-		if(e.getActionCommand() == "CreateRoom_Join") {
-			joinRoom(currentViewDetailRoomID, false);
-		}
-		// ルーム作成画面での観戦 button
-		if(e.getActionCommand() == "CreateRoom_Watch") {
-			joinRoom(currentViewDetailRoomID, true);
-		}
-		// ルーム作成画面でのCancel button
-		if(e.getActionCommand() == "CreateRoom_Cancel") {
-			currentViewDetailRoomID = -1;
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-		// OK button (Create Room 1P)
-		if(e.getActionCommand() == "CreateRoom1P_OK") {
-			//singleroomcreate\t[roomName]\t[mode]
-			try {
-				if(currentViewDetailRoomID != -1) {
-					joinRoom(currentViewDetailRoomID, true);
-				} else if(listboxCreateRoom1PModeList.getSelectedIndex() != -1) {
-					String strMode = (String)listboxCreateRoom1PModeList.getSelectedValue();
-					String strRule = "";
-					if(listboxCreateRoom1PRuleList.getSelectedIndex() >= 1) {
-						strRule = (String)listboxCreateRoom1PRuleList.getSelectedValue();
-					}
-
-					txtpaneRoomChatLog.setText("");
-					setRoomButtonsEnabled(false);
-					tabLobbyAndRoom.setEnabledAt(1, true);
-					tabLobbyAndRoom.setSelectedIndex(1);
-					changeCurrentScreenCard(SCREENCARD_LOBBY);
-
-					netPlayerClient.send("singleroomcreate\t" + "\t" + NetUtil.urlEncode(strMode) + "\t" + NetUtil.urlEncode(strRule) + "\n");
-				}
-			} catch (Exception e2) {
-				log.error("Error on CreateRoom1P_OK", e2);
-			}
-		}
-		// Cancel button (Create Room 1P)
-		if(e.getActionCommand() == "CreateRoom1P_Cancel") {
-			currentViewDetailRoomID = -1;
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-		// OK button (MPRanking)
-		if(e.getActionCommand() == "MPRanking_OK") {
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-		// Cancel button (Rule change)
-		if(e.getActionCommand() == "RuleChange_Cancel") {
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-		// OK button (Rule change)
-		if(e.getActionCommand() == "RuleChange_OK") {
-			for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-				int id = listboxRuleChangeRuleList[i].getSelectedIndex();
-				LinkedList<RuleEntry> subEntries = getSubsetEntries(i);
-				RuleEntry entry = null;
-				if (id >= 0) { entry = subEntries.get(id); }
-
-
-				if(i == 0) {
-					if(id >= 0) {
-						propGlobal.setProperty(0 + ".rule", entry.filepath);
-						propGlobal.setProperty(0 + ".rulefile", entry.filename);
-						propGlobal.setProperty(0 + ".rulename", entry.rulename);
-					} else {
-						propGlobal.setProperty(0 + ".rule", "");
-						propGlobal.setProperty(0 + ".rulefile", "");
-						propGlobal.setProperty(0 + ".rulename", "");
-					}
-				} else {
-					if(id >= 0) {
-						propGlobal.setProperty(0 + ".rule." + i, entry.filepath);
-						propGlobal.setProperty(0 + ".rulefile." + i, entry.filename);
-						propGlobal.setProperty(0 + ".rulename." + i, entry.rulename);
-					} else {
-						propGlobal.setProperty(0 + ".rule." + i, "");
-						propGlobal.setProperty(0 + ".rulefile." + i, "");
-						propGlobal.setProperty(0 + ".rulename." + i, "");
-					}
-				}
-			}
-			saveGlobalConfig();
-
-			// Load rule
-			String strFileName = propGlobal.getProperty(0 + ".rule", "");
-			CustomProperties propRule = new CustomProperties();
-			try {
-				FileInputStream in = new FileInputStream(strFileName);
-				propRule.load(in);
-				in.close();
-			} catch (Exception e2) {}
-			ruleOptPlayer = new RuleOptions();
-			ruleOptPlayer.readProperty(propRule, 0);
-
-			// Send rule
-			if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
-				sendMyRuleDataToServer();
-			}
-
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
-		}
-	}
-
-	/*
-	 * メッセージ受信
-	 */
-	public void netOnMessage(NetBaseClient client, String[] message) throws IOException {
-		//addSystemChatLog(getCurrentChatLogTextPane(), message[0], Color.green);
-
-		// 接続完了
-		if(message[0].equals("welcome")) {
-			//welcome\t[VERSION]\t[PLAYERS]
-			// Chat logファイル作成
-			if(writerLobbyLog == null) {
-				try {
-					GregorianCalendar currentTime = new GregorianCalendar();
-					int month = currentTime.get(Calendar.MONTH) + 1;
-					String filename = String.format(
-							"log/lobby_%04d_%02d_%02d_%02d_%02d_%02d.txt",
-							currentTime.get(Calendar.YEAR), month, currentTime.get(Calendar.DATE), currentTime.get(Calendar.HOUR_OF_DAY),
-							currentTime.get(Calendar.MINUTE), currentTime.get(Calendar.SECOND)
-					);
-					writerLobbyLog = new PrintWriter(filename);
-				} catch (Exception e) {
-					log.warn("Failed to create lobby log file", e);
-				}
-			}
-			if(writerRoomLog == null) {
-				try {
-					GregorianCalendar currentTime = new GregorianCalendar();
-					int month = currentTime.get(Calendar.MONTH) + 1;
-					String filename = String.format(
-							"log/room_%04d_%02d_%02d_%02d_%02d_%02d.txt",
-							currentTime.get(Calendar.YEAR), month, currentTime.get(Calendar.DATE), currentTime.get(Calendar.HOUR_OF_DAY),
-							currentTime.get(Calendar.MINUTE), currentTime.get(Calendar.SECOND)
-					);
-					writerRoomLog = new PrintWriter(filename);
-				} catch (Exception e) {
-					log.warn("Failed to create room log file", e);
-				}
-			}
-
-			String strTemp = String.format(getUIText("SysMsg_ServerConnected"), netPlayerClient.getHost(), netPlayerClient.getPort());
-			addSystemChatLogLater(txtpaneLobbyChatLog, strTemp, Color.blue);
-
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_ServerVersion") + message[1], Color.blue);
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_NumberOfPlayers") + message[2], Color.blue);
-		}
-		// ログイン成功
-		if(message[0].equals("loginsuccess")) {
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_LoginOK"), Color.blue);
-			addSystemChatLogLater(txtpaneLobbyChatLog,
-								  getUIText("SysMsg_YourNickname") + convTripCode(NetUtil.urlDecode(message[1])), Color.blue);
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_YourUID") + netPlayerClient.getPlayerUID(), Color.blue);
-
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_SendRuleDataStart"), Color.blue);
-			sendMyRuleDataToServer();
-		}
-		// ログイン失敗
-		if(message[0].equals("loginfail")) {
-			setLobbyButtonsEnabled(0);
-
-			if((message.length > 1) && message[1].equals("DIFFERENT_VERSION")) {
-				String strClientVer = String.valueOf(GameManager.getVersionMajor());
-				String strServerVer = message[2];
-				String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentVersion"), strClientVer, strServerVer);
-				addSystemChatLogLater(txtpaneLobbyChatLog, strErrorMsg, Color.red);
-			} else {
-				String reason = "";
-				for(int i = 1; i < message.length; i++) {
-					reason += message[i] + " ";
-				}
-				addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_LoginFail") + reason, Color.red);
-			}
-		}
-		// Banned
-		if(message[0].equals("banned")) {
-			setLobbyButtonsEnabled(0);
-
-			Calendar cStart = GeneralUtil.importCalendarString(message[1]);
-			Calendar cExpire = ((message.length > 2) && (message[2].length() > 0)) ? GeneralUtil.importCalendarString(message[2]) : null;
-
-			String strStart = (cStart != null) ? GeneralUtil.getCalendarString(cStart) : "???";
-			String strExpire = (cExpire != null) ? GeneralUtil.getCalendarString(cExpire) : getUIText("SysMsg_Banned_Permanent");
-
-			addSystemChatLogLater(txtpaneLobbyChatLog, String.format(getUIText("SysMsg_Banned"), strStart, strExpire), Color.red);
-		}
-		// ルール data送信成功
-		if(message[0].equals("ruledatasuccess")) {
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_SendRuleDataOK"), Color.blue);
-
-			// Listener呼び出し
-			for(NetLobbyListener l: listeners) {
-				l.netlobbyOnLoginOK(this, netPlayerClient);
-			}
-			if(netDummyMode != null) netDummyMode.netlobbyOnLoginOK(this, netPlayerClient);
-
-			setLobbyButtonsEnabled(1);
-		}
-		// ルール data送信失敗
-		if(message[0].equals("ruledatafail")) {
-			sendMyRuleDataToServer();
-		}
-		// Rule receive (for rule-locked games)
-		if(message[0].equals("rulelock")) {
-			if(ruleOptLock == null) ruleOptLock = new RuleOptions();
-
-			String strRuleData = NetUtil.decompressString(message[1]);
-
-			CustomProperties prop = new CustomProperties();
-			prop.decode(strRuleData);
-			ruleOptLock.readProperty(prop, 0);
-
-			log.info("Received rule data (" + ruleOptLock.strRuleName + ")");
-		}
-		// Rated-game rule list
-		if(message[0].equals("rulelist")) {
-			int style = Integer.parseInt(message[1]);
-
-			if(style < listRatedRuleName.length) {
-				listRatedRuleName[style].clear();
-
-				for(int i = 0; i < message.length - 2; i++) {
-					String name = NetUtil.urlDecode(message[2 + i]);
-					listRatedRuleName[style].add(name);
-				}
-			}
-
-			if(style == 0) {
-				listmodelCreateRoom1PRuleList.clear();
-				listmodelCreateRoom1PRuleList.addElement(getUIText("CreateRoom1P_YourRule"));
-				listboxCreateRoom1PRuleList.setSelectedIndex(0);
-
-				for(int i = 0; i < listRatedRuleName[style].size(); i++) {
-					String name = (String)listRatedRuleName[style].get(i);
-					listmodelCreateRoom1PRuleList.addElement(name);
-				}
-
-				listboxCreateRoom1PRuleList.setSelectedValue(propConfig.getProperty("createroom1p.listboxCreateRoom1PRuleList.value", ""), true);
-			}
-		}
-		// Playerリスト
-		if(message[0].equals("playerlist") || message[0].equals("playerupdate") ||
-		   message[0].equals("playernew") || message[0].equals("playerlogout"))
-		{
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					updateLobbyUserList();
-				}
-			});
-
-			if(tabLobbyAndRoom.isEnabledAt(1)) {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						updateRoomUserList();
-					}
-				});
-
-				if(message[0].equals("playerlogout")) {
-					NetPlayerInfo p = new NetPlayerInfo(message[1]);
-					NetPlayerInfo p2 = netPlayerClient.getYourPlayerInfo();
-					if((p != null) && (p2 != null) && (p.roomID == p2.roomID)) {
-						String strTemp = "";
-						if(p.strHost.length() > 0) {
-							strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(p), p.strHost);
-						} else {
-							strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(p));
-						}
-						addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					}
-				}
-			}
-		}
-		// Player入室
-		if(message[0].equals("playerenter")) {
-			int uid = Integer.parseInt(message[1]);
-			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
-
-			if(pInfo != null) {
-				String strTemp = "";
-				if(pInfo.strHost.length() > 0) {
-					strTemp = String.format(getUIText("SysMsg_EnterRoomWithHost"), getPlayerNameWithTripCode(pInfo), pInfo.strHost);
-				} else {
-					strTemp = String.format(getUIText("SysMsg_EnterRoom"), getPlayerNameWithTripCode(pInfo));
-				}
-				addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-			}
-		}
-		// Player退出
-		if(message[0].equals("playerleave")) {
-			int uid = Integer.parseInt(message[1]);
-			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
-
-			if(pInfo != null) {
-				String strTemp = "";
-				if(pInfo.strHost.length() > 0) {
-					strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(pInfo), pInfo.strHost);
-				} else {
-					strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(pInfo));
-				}
-				addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-			}
-		}
-		// チーム変更
-		if(message[0].equals("changeteam")) {
-			int uid = Integer.parseInt(message[1]);
-			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
-
-			if(pInfo != null) {
-				String strTeam = "";
-				String strTemp = "";
-
-				if(message.length > 3) {
-					strTeam = NetUtil.urlDecode(message[3]);
-					strTemp = String.format(getUIText("SysMsg_ChangeTeam"), getPlayerNameWithTripCode(pInfo), strTeam);
-				} else {
-					strTemp = String.format(getUIText("SysMsg_ChangeTeam_None"), getPlayerNameWithTripCode(pInfo));
-				}
-
-				addSystemChatLogLater(getCurrentChatLogTextPane(), strTemp, Color.blue);
-			}
-		}
-		// ルームリスト
-		if(message[0].equals("roomlist")) {
-			int size = Integer.parseInt(message[1]);
-
-			tablemodelRoomList.setRowCount(0);
-			for(int i = 0; i < size; i++) {
-				NetRoomInfo r = new NetRoomInfo(message[2 + i]);
-				tablemodelRoomList.addRow(createRoomListRowData(r));
-			}
-		}
-		// Receive presets
-		if(message[0].equals("ratedpresets")) {
-			if (currentScreenCardNumber == SCREENCARD_CREATERATED_WAITING) {
-				if (message.length == 1) {
-					currentViewDetailRoomID = -1;
-					setCreateRoomUIType(false, null);
-					changeCurrentScreenCard(SCREENCARD_CREATEROOM);
-				} else {
-					comboboxCreateRatedPresets.removeAllItems();
-					String preset;
-					for (int i = 1; i < message.length; i++) {
-						preset = NetUtil.decompressString(message[i]);
-						NetRoomInfo r = new NetRoomInfo(preset);
-						presets.add(r);
-						comboboxCreateRatedPresets.addItem(r.strName);
-					}
-					changeCurrentScreenCard(SCREENCARD_CREATERATED);
-				}
-			}
-		}
-		// 新規ルーム出現
-		if(message[0].equals("roomcreate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
-			tablemodelRoomList.addRow(createRoomListRowData(r));
-		}
-		// ルーム情報更新
-		if(message[0].equals("roomupdate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
-			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-
-			for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
-				String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
-				int roomID = Integer.parseInt(strID);
-
-				if(roomID == r.roomID) {
-					String[] rowData = createRoomListRowData(r);
-					for(int j = 0; j < rowData.length; j++) {
-						tablemodelRoomList.setValueAt(rowData[j], i, j);
-					}
-					break;
-				}
-			}
-		}
-		// ルーム消滅
-		if(message[0].equals("roomdelete")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
-			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-
-			for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
-				String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
-				int roomID = Integer.parseInt(strID);
-
-				if(roomID == r.roomID) {
-					tablemodelRoomList.removeRow(i);
-					break;
-				}
-			}
-
-			if((r.roomID == currentViewDetailRoomID) && (currentScreenCardNumber == SCREENCARD_CREATEROOM)) {
-				changeCurrentScreenCard(SCREENCARD_LOBBY);
-			}
-		}
-		// ルーム作成・入室成功
-		if(message[0].equals("roomcreatesuccess") || message[0].equals("roomjoinsuccess")) {
-			int roomID = Integer.parseInt(message[1]);
-			int seatID = Integer.parseInt(message[2]);
-			int queueID = Integer.parseInt(message[3]);
-
-			netPlayerClient.getYourPlayerInfo().roomID = roomID;
-			netPlayerClient.getYourPlayerInfo().seatID = seatID;
-			netPlayerClient.getYourPlayerInfo().queueID = queueID;
-
-			if(roomID != -1) {
-				NetRoomInfo roomInfo = netPlayerClient.getRoomInfo(roomID);
-				NetPlayerInfo pInfo = netPlayerClient.getYourPlayerInfo();
-
-				if((seatID == -1) && (queueID == -1)) {
-					String strTemp = String.format(getUIText("SysMsg_StatusChange_Spectator"), getPlayerNameWithTripCode(pInfo));
-					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					setRoomJoinButtonVisible(true);
-				} else if(seatID == -1) {
-					String strTemp = String.format(getUIText("SysMsg_StatusChange_Queue"), getPlayerNameWithTripCode(pInfo));
-					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					setRoomJoinButtonVisible(false);
-				} else {
-					String strTemp = String.format(getUIText("SysMsg_StatusChange_Joined"), getPlayerNameWithTripCode(pInfo));
-					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					setRoomJoinButtonVisible(false);
-				}
-
-				if((netPlayerClient != null) && (netPlayerClient.getRoomInfo(roomID) != null)) {
-					if(netPlayerClient.getRoomInfo(roomID).singleplayer) {
-						btnRoomButtonsJoin.setVisible(false);
-						btnRoomButtonsSitOut.setVisible(false);
-						btnRoomButtonsRanking.setVisible(false);
-						gameStatCardLayout.show(subpanelGameStat, "GameStat1P");
-					} else {
-						btnRoomButtonsRanking.setVisible(netPlayerClient.getRoomInfo(roomID).rated);
-						gameStatCardLayout.show(subpanelGameStat, "GameStatMP");
-					}
-				}
-
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						setRoomButtonsEnabled(true);
-						updateRoomUserList();
-					}
-				});
-
-				String strTitle = roomInfo.strName;
-				this.setTitle(getUIText("Title_NetLobby") + " - " + strTitle);
-				tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_Room") + strTitle);
-
-				addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_Title") + strTitle, Color.blue);
-				addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_ID") + roomInfo.roomID, Color.blue);
-				if(roomInfo.ruleLock) {
-					addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_Rule") + roomInfo.ruleName, Color.blue);
-				}
-
-				setLobbyButtonsEnabled(2);
-				changeCurrentScreenCard(SCREENCARD_LOBBY);
-
-				// Listener呼び出し
-				for(NetLobbyListener l: listeners) {
-					l.netlobbyOnRoomJoin(this, netPlayerClient, roomInfo);
-				}
-				if(netDummyMode != null) netDummyMode.netlobbyOnRoomJoin(this, netPlayerClient, roomInfo);
-			} else {
-				addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_Lobby"), Color.blue);
-
-				this.setTitle(getUIText("Title_NetLobby"));
-				tabLobbyAndRoom.setSelectedIndex(0);
-				tabLobbyAndRoom.setEnabledAt(1, false);
-				tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_NoRoom"));
-
-				setLobbyButtonsEnabled(1);
-				changeCurrentScreenCard(SCREENCARD_LOBBY);
-
-				// Listener呼び出し
-				for(NetLobbyListener l: listeners) {
-					l.netlobbyOnRoomLeave(this, netPlayerClient);
-				}
-				if(netDummyMode != null) netDummyMode.netlobbyOnRoomLeave(this, netPlayerClient);
-			}
-		}
-		// ルーム入室失敗
-		if(message[0].equals("roomjoinfail")) {
-			addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoinFail"), Color.red);
-		}
-		// Kicked from a room
-		if(message[0].equals("roomkicked")) {
-			String strKickMsg = String.format(getUIText("SysMsg_Kicked_" + message[1]), NetUtil.urlDecode(message[3]), message[2]);
-			addSystemChatLogLater(txtpaneLobbyChatLog, strKickMsg, Color.red);
-		}
-		// Map receive
-		if(message[0].equals("map")) {
-			String strDecompressed = NetUtil.decompressString(message[1]);
-			String[] strMaps = strDecompressed.split("\t");
-
-			mapList.clear();
-
-			int maxMap = strMaps.length;
-			for(int i = 0; i < maxMap; i++) {
-				mapList.add(strMaps[i]);
-			}
-
-			log.debug("Received " + mapList.size() + " maps");
-		}
-		// Lobby chat
-		if(message[0].equals("lobbychat")) {
-			int uid = Integer.parseInt(message[1]);
-			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
-
-			if(pInfo != null) {
-				Calendar calendar = GeneralUtil.importCalendarString(message[3]);
-				String strMsgBody = NetUtil.urlDecode(message[4]);
-				addUserChatLogLater(txtpaneLobbyChatLog, getPlayerNameWithTripCode(pInfo), calendar, strMsgBody);
-			}
-		}
-		// Room chat
-		if(message[0].equals("chat")) {
-			int uid = Integer.parseInt(message[1]);
-			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
-
-			if(pInfo != null) {
-				Calendar calendar = GeneralUtil.importCalendarString(message[3]);
-				String strMsgBody = NetUtil.urlDecode(message[4]);
-				addUserChatLogLater(txtpaneRoomChatLog, getPlayerNameWithTripCode(pInfo), calendar, strMsgBody);
-			}
-		}
-		// Lobby chat/Room chat (history)
-		if(message[0].equals("lobbychath") || message[0].equals("chath")) {
-			String strUsername = convTripCode(NetUtil.urlDecode(message[1]));
-			Calendar calendar = GeneralUtil.importCalendarString(message[2]);
-			String strMsgBody = NetUtil.urlDecode(message[3]);
-			JTextPane txtpane = message[0].equals("lobbychath") ? txtpaneLobbyChatLog : txtpaneRoomChatLog;
-			addRecordedUserChatLogLater(txtpane, strUsername, calendar, strMsgBody);
-		}
-		// 参戦状態変更
-		if(message[0].equals("changestatus")) {
-			int uid = Integer.parseInt(message[2]);
-			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
-
-			if(pInfo != null) {
-				if(message[1].equals("watchonly")) {
-					String strTemp = String.format(getUIText("SysMsg_StatusChange_Spectator"), getPlayerNameWithTripCode(pInfo));
-					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					if(uid == netPlayerClient.getPlayerUID()) setRoomJoinButtonVisible(true);
-				} else if(message[1].equals("joinqueue")) {
-					String strTemp = String.format(getUIText("SysMsg_StatusChange_Queue"), getPlayerNameWithTripCode(pInfo));
-					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					if(uid == netPlayerClient.getPlayerUID()) setRoomJoinButtonVisible(false);
-				} else if(message[1].equals("joinseat")) {
-					String strTemp = String.format(getUIText("SysMsg_StatusChange_Joined"), getPlayerNameWithTripCode(pInfo));
-					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					if(uid == netPlayerClient.getPlayerUID()) setRoomJoinButtonVisible(false);
-				}
-			}
-
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					updateRoomUserList();
-				}
-			});
-		}
-		// Automatically start timer開始
-		if(message[0].equals("autostartbegin")) {
-			String strTemp = String.format(getUIText("SysMsg_AutoStartBegin"), message[1]);
-			addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(64, 128, 0));
-		}
-		// game start
-		if(message[0].equals("start")) {
-			addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_GameStart"), new Color(0, 128, 0));
-			tablemodelGameStat.setRowCount(0);
-			tablemodelGameStat1P.setRowCount(0);
-
-			if(netPlayerClient.getYourPlayerInfo().seatID != -1) {
-				btnRoomButtonsSitOut.setEnabled(false);
-				btnRoomButtonsTeamChange.setEnabled(false);
-				itemLobbyMenuTeamChange.setEnabled(false);
-				roomTopBarCardLayout.first(subpanelRoomTopBar);
-			}
-		}
-		// 死亡
-		if(message[0].equals("dead")) {
-			int uid = Integer.parseInt(message[1]);
-			String name = convTripCode(NetUtil.urlDecode(message[2]));
-
-			if(message.length > 6) {
-				String strTemp = String.format(getUIText("SysMsg_KO"), convTripCode(NetUtil.urlDecode(message[6])), name);
-				addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(0, 128, 0));
-			}
-
-			if(uid == netPlayerClient.getPlayerUID()) {
-				btnRoomButtonsSitOut.setEnabled(true);
-				btnRoomButtonsTeamChange.setEnabled(true);
-				itemLobbyMenuTeamChange.setEnabled(true);
-			}
-		}
-		// Game stats (Multiplayer)
-		if(message[0].equals("gstat")) {
-			String[] rowdata = new String[13];
-			int myRank = Integer.parseInt(message[4]);
-
-			rowdata[0] = Integer.toString(myRank);						// Rank
-			rowdata[1] = convTripCode(NetUtil.urlDecode(message[3]));	// Name
-			rowdata[2] = message[5];									// Attack count
-			rowdata[3] = message[6];									// APL
-			rowdata[4] = message[7];									// APM
-			rowdata[5] = message[8];									// Line count
-			rowdata[6] = message[9];									// LPM
-			rowdata[7] = message[10];									// Piece count
-			rowdata[8] = message[11];									// PPS
-			rowdata[9] = GeneralUtil.getTime(Integer.parseInt(message[12]));	//  Time
-			rowdata[10] = message[13];									// KO
-			rowdata[11] = message[14];									// Win
-			rowdata[12] = message[15];									// Games
-
-			int insertPos = 0;
-			for(int i = 0; i < tablemodelGameStat.getRowCount(); i++) {
-				String strRank = (String)tablemodelGameStat.getValueAt(i, 0);
-				int rank = Integer.parseInt(strRank);
-
-				if(myRank > rank) {
-					insertPos = i + 1;
-				}
-			}
-
-			tablemodelGameStat.insertRow(insertPos, rowdata);
-
-			if(writerRoomLog != null) {
-				writerRoomLog.print("[" + getCurrentTimeAsString() + "] ");
-
-				for(int i = 0; i < rowdata.length; i++) {
-					writerRoomLog.print(rowdata[i]);
-					if(i < rowdata.length - 1) writerRoomLog.print(",");
-					else writerRoomLog.print("\n");
-				}
-
-				writerRoomLog.flush();
-			}
-		}
-		// Game stats (Single player)
-		if(message[0].equals("gstat1p")) {
-			String strRowData = NetUtil.urlDecode(message[1]);
-			String[] rowData = strRowData.split("\t");
-
-			if(writerRoomLog != null) {
-				writerRoomLog.print("[" + getCurrentTimeAsString() + "]\n");
-			}
-
-			tablemodelGameStat1P.setRowCount(0);
-			for(int i = 0; i < rowData.length; i++) {
-				String[] strTempArray = rowData[i].split(";");
-				tablemodelGameStat1P.addRow(strTempArray);
-
-				if((writerRoomLog != null) && (strTempArray.length > 1)) {
-					writerRoomLog.print(" " + strTempArray[0] + ":" + strTempArray[1] + "\n");
-				}
-			}
-
-			if(writerRoomLog != null) {
-				writerRoomLog.flush();
-			}
-		}
-		// game finished
-		if(message[0].equals("finish")) {
-			addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_GameEnd"), new Color(0, 128, 0));
-
-			if((message.length > 3) && (message[3].length() > 0)) {
-				boolean flagTeamWin = false;
-				if(message.length > 4) flagTeamWin = Boolean.parseBoolean(message[4]);
-
-				String strWinner = "";
-				if(flagTeamWin) strWinner = String.format(getUIText("SysMsg_WinnerTeam"), NetUtil.urlDecode(message[3]));
-				else strWinner = String.format(getUIText("SysMsg_Winner"), convTripCode(NetUtil.urlDecode(message[3])));
-				addSystemChatLogLater(txtpaneRoomChatLog, strWinner, new Color(0, 128, 0));
-			}
-
-			btnRoomButtonsSitOut.setEnabled(true);
-			btnRoomButtonsTeamChange.setEnabled(true);
-			itemLobbyMenuTeamChange.setEnabled(true);
-		}
-		// Rating change
-		if(message[0].equals("rating")) {
-			String strPlayerName = convTripCode(NetUtil.urlDecode(message[3]));
-			int ratingNow = Integer.parseInt(message[4]);
-			int ratingChange = Integer.parseInt(message[5]);
-			String strTemp = String.format(getUIText("SysMsg_Rating"), strPlayerName, ratingNow, ratingChange);
-			addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(0, 128, 0));
-		}
-		// Multiplayer Leaderboard
-		if(message[0].equals("mpranking")) {
-			int style = Integer.parseInt(message[1]);
-			int myRank = Integer.parseInt(message[2]);
-
-			tablemodelMPRanking[style].setRowCount(0);
-
-			String strPData = NetUtil.decompressString(message[3]);
-			String[] strPDataA = strPData.split("\t");
-
-			for(int i = 0; i < strPDataA.length; i++) {
-				String[] strRankData = strPDataA[i].split(";");
-				String[] strRowData = new String[MPRANKING_COLUMNNAMES.length];
-				int rank = Integer.parseInt(strRankData[0]);
-				if(rank == -1) {
-					strRowData[0] = "N/A";
-				} else {
-					strRowData[0] = Integer.toString(rank + 1);
-				}
-				strRowData[1] = convTripCode(NetUtil.urlDecode(strRankData[1]));
-				strRowData[2] = strRankData[2];
-				strRowData[3] = strRankData[3];
-				strRowData[4] = strRankData[4];
-				tablemodelMPRanking[style].addRow(strRowData);
-			}
-
-			if(myRank == -1) {
-				int tableRowMax = tablemodelMPRanking[style].getRowCount();
-				tableMPRanking[style].getSelectionModel().setSelectionInterval(tableRowMax - 1, tableRowMax - 1);
-			} else {
-				tableMPRanking[style].getSelectionModel().setSelectionInterval(myRank, myRank);
-			}
-		}
-		// Announcement from the admin
-		if(message[0].equals("announce")) {
-			String strTime = getCurrentTimeAsString();
-			String strMessage = "[" + strTime + "]<ADMIN>:" + NetUtil.urlDecode(message[1]);
-			addSystemChatLogLater(getCurrentChatLogTextPane(), strMessage, new Color(255,32,0));
-		}
-		// Single player replay download
-		if(message[0].equals("spdownload")) {
-			long sChecksum = Long.parseLong(message[1]);
-			Adler32 checksumObj = new Adler32();
-			checksumObj.update(NetUtil.stringToBytes(message[2]));
-
-			if(checksumObj.getValue() == sChecksum) {
-				String strReplay = NetUtil.decompressString(message[2]);
-				CustomProperties prop = new CustomProperties();
-				prop.decode(strReplay);
-
-				try {
-					FileOutputStream out = new FileOutputStream("replay/netreplay.rep");
-					prop.store(out, "NullpoMino NetReplay from " + netPlayerClient.getHost());
-					addSystemChatLog(getCurrentChatLogTextPane(), getUIText("SysMsg_ReplaySaved"), Color.magenta);
-				} catch (IOException e) {
-					log.error("Failed to write replay to replay/netreplay.rep", e);
-				}
-			}
-		}
-
-		// Listener呼び出し
-		if(listeners != null) {
-			for(NetLobbyListener l: listeners) {
-				l.netlobbyOnMessage(this, netPlayerClient, message);
-			}
-		}
-		if(netDummyMode != null) netDummyMode.netlobbyOnMessage(this, netPlayerClient, message);
-	}
-
-	/*
-	 * 切断されたとき
-	 */
-	public void netOnDisconnect(NetBaseClient client, Throwable ex) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				setLobbyButtonsEnabled(0);
-				setRoomButtonsEnabled(false);
-				tablemodelRoomList.setRowCount(0);
-			}
-		});
-
-		if(ex != null) {
-			addSystemChatLogLater(getCurrentChatLogTextPane(), getUIText("SysMsg_DisconnectedError") + "\n" + ex.getLocalizedMessage(), Color.red);
-			log.info("Server Disconnected", ex);
-		} else {
-			addSystemChatLogLater(getCurrentChatLogTextPane(), getUIText("SysMsg_DisconnectedOK"), new Color(128, 0, 0));
-			log.info("Server Disconnected (null)");
-		}
-
-		// Listener呼び出し
-		if(listeners != null) {
-			for(NetLobbyListener l: listeners) {
-				if(l != null) {
-					l.netlobbyOnDisconnect(this, netPlayerClient, ex);
-				}
-			}
-		}
-		if(netDummyMode != null) netDummyMode.netlobbyOnDisconnect(this, netPlayerClient, ex);
-	}
-
-	/**
-	 * Add an new NetLobbyListener, but don't add NetDummyMode!
-	 * @param l A NetLobbyListener to add
-	 */
-	public void addListener(NetLobbyListener l) {
-		listeners.add(l);
-	}
-
-	/**
-	 * Remove a NetLobbyListener from the listeners list
-	 * @param l NetLobbyListener to remove
-	 * @return true if removed, false if not found or already removed
-	 */
-	public boolean removeListener(NetLobbyListener l) {
-		return listeners.remove(l);
-	}
-
-	/**
-	 * Set new game mode
-	 * @param m Mode
-	 */
-	public void setNetDummyMode(NetDummyMode m) {
-		netDummyMode = m;
-	}
-
-	/**
-	 * Get current game mode
-	 * @return Current game mode
-	 */
-	public NetDummyMode getNetDummyMode() {
-		return netDummyMode;
-	}
-
-	/**
-	 * メイン関count
-	 * @param args コマンドLines引count
-	 */
-	public static void main(String[] args) {
-		PropertyConfigurator.configure("config/etc/log.cfg");
-		NetLobbyFrame frame = new NetLobbyFrame();
-		frame.init();
-		frame.setVisible(true);
-	}
-
-	/**
-	 * テキスト input 欄用ポップアップMenu
-	 * <a href="http://terai.xrea.jp/Swing/DefaultEditorKit.html">出展</a>
-	 */
-	protected class TextComponentPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action cutAction;
-		private Action copyAction;
-		@SuppressWarnings("unused")
-		private Action pasteAction;
-		private Action deleteAction;
-		private Action selectAllAction;
-
-		public TextComponentPopupMenu(final JTextComponent field) {
-			super();
-
-			add(cutAction = new AbstractAction(getUIText("Popup_Cut")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.cut();
-				}
-			});
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.copy();
-				}
-			});
-			add(pasteAction = new AbstractAction(getUIText("Popup_Paste")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.paste();
-				}
-			});
-			add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.replaceSelection(null);
-				}
-			});
-			add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.selectAll();
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTextComponent field = (JTextComponent) c;
-			boolean flg = field.getSelectedText() != null;
-			cutAction.setEnabled(flg);
-			copyAction.setEnabled(flg);
-			deleteAction.setEnabled(flg);
-			selectAllAction.setEnabled(field.isFocusOwner());
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * リストボックス用ポップアップMenu
-	 */
-	protected class ListBoxPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private JList listbox;
-		private Action copyAction;
-
-		public ListBoxPopupMenu(JList l) {
-			super();
-
-			this.listbox = l;
-
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					if(listbox == null) return;
-					Object selectedObj = listbox.getSelectedValue();
-
-					if((selectedObj != null) && (selectedObj instanceof String)) {
-						String selectedString = (String)selectedObj;
-						StringSelection ss = new StringSelection(selectedString);
-						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-						clipboard.setContents(ss, ss);
-					}
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			if(listbox.getSelectedIndex() != -1) {
-				copyAction.setEnabled(true);
-				super.show(c, x, y);
-			}
-		}
-	}
-
-	/**
-	 * サーバー選択リストボックス用ポップアップMenu
-	 */
-	protected class ServerSelectListBoxPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		@SuppressWarnings("unused")
-		private Action connectAction;
-		@SuppressWarnings("unused")
-		private Action deleteAction;
-		@SuppressWarnings("unused")
-		private Action setObserverAction;
-
-		public ServerSelectListBoxPopupMenu() {
-			super();
-
-			add(connectAction = new AbstractAction(getUIText("Popup_ServerSelect_Connect")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					serverSelectConnectButtonClicked();
-				}
-			});
-			add(deleteAction = new AbstractAction(getUIText("Popup_ServerSelect_Delete")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					serverSelectDeleteButtonClicked();
-				}
-			});
-			add(setObserverAction = new AbstractAction(getUIText("Popup_ServerSelect_SetObserver")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					serverSelectSetObserverButtonClicked();
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			if(listboxServerList.getSelectedIndex() != -1) {
-				super.show(c, x, y);
-			}
-		}
-	}
-
-	/**
-	 * サーバー選択リストボックス用MouseAdapter
-	 */
-	protected class ServerSelectListBoxMouseAdapter extends MouseAdapter {
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if((e.getClickCount() == 2) && (e.getButton() == MouseEvent.BUTTON1)) {
-				serverSelectConnectButtonClicked();
-			}
-		}
-	}
-
-	/**
-	 * Room list table用ポップアップMenu
-	 */
-	protected class RoomTablePopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action joinAction;
-		private Action watchAction;
-		private Action detailAction;
-
-		public RoomTablePopupMenu() {
-			super();
-
-			add(joinAction = new AbstractAction(getUIText("Popup_RoomTable_Join")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					int row = tableRoomList.getSelectedRow();
-					if(row != -1) {
-						int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-						String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
-						int roomID = Integer.parseInt(strRoomID);
-						joinRoom(roomID, false);
-					}
-				}
-			});
-			add(watchAction = new AbstractAction(getUIText("Popup_RoomTable_Watch")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					int row = tableRoomList.getSelectedRow();
-					if(row != -1) {
-						int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-						String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
-						int roomID = Integer.parseInt(strRoomID);
-						joinRoom(roomID, true);
-					}
-				}
-			});
-			add(detailAction = new AbstractAction(getUIText("Popup_RoomTable_Detail")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					int row = tableRoomList.getSelectedRow();
-					if(row != -1) {
-						int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-						String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
-						int roomID = Integer.parseInt(strRoomID);
-						viewRoomDetail(roomID);
-					}
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			if(tableRoomList.getSelectedRow() != -1) {
-				joinAction.setEnabled(true);
-				watchAction.setEnabled(true);
-				detailAction.setEnabled(true);
-				super.show(c, x, y);
-			}
-		}
-	}
-
-	/**
-	 * Room list table用MouseAdapter
-	 */
-	protected class RoomTableMouseAdapter extends MouseAdapter {
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if((e.getClickCount() == 2) && (e.getButton() == MouseEvent.BUTTON1)) {
-				Point pt = e.getPoint();
-				int row = tableRoomList.rowAtPoint(pt);
-
-				if(row != -1) {
-					int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-					String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
-					int roomID = Integer.parseInt(strRoomID);
-					joinRoom(roomID, false);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Room list table用KeyAdapter
-	 */
-	protected class RoomTableKeyAdapter extends KeyAdapter {
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				e.consume();
-			}
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-				int row = tableRoomList.getSelectedRow();
-				if(row != -1) {
-					int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-					String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
-					int roomID = Integer.parseInt(strRoomID);
-					joinRoom(roomID, false);
-				}
-				e.consume();
-			}
-		}
-	}
-
-	/**
-	 * ログ表示欄用ポップアップMenu
-	 */
-	protected class LogPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action copyAction;
-		private Action selectAllAction;
-		@SuppressWarnings("unused")
-		private Action clearAction;
-
-		public LogPopupMenu(final JTextComponent field) {
-			super();
-
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.copy();
-				}
-			});
-			add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.selectAll();
-				}
-			});
-			add(clearAction = new AbstractAction(getUIText("Popup_Clear")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.setText(null);
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTextComponent field = (JTextComponent) c;
-			boolean flg = field.getSelectedText() != null;
-			copyAction.setEnabled(flg);
-			selectAllAction.setEnabled(field.isFocusOwner());
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * ログ表示欄用KeyAdapter
-	 */
-	protected class LogKeyAdapter extends KeyAdapter {
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if( (e.getKeyCode() != KeyEvent.VK_UP) && (e.getKeyCode() != KeyEvent.VK_DOWN) &&
-			    (e.getKeyCode() != KeyEvent.VK_LEFT) && (e.getKeyCode() != KeyEvent.VK_RIGHT) &&
-			    (e.getKeyCode() != KeyEvent.VK_HOME) && (e.getKeyCode() != KeyEvent.VK_END) &&
-			    (e.getKeyCode() != KeyEvent.VK_PAGE_UP) && (e.getKeyCode() != KeyEvent.VK_PAGE_DOWN) &&
-			    ((e.getKeyCode() != KeyEvent.VK_A) || (e.isControlDown() == false)) &&
-			    ((e.getKeyCode() != KeyEvent.VK_C) || (e.isControlDown() == false)) &&
-			    (!e.isAltDown()) )
-			{
-				e.consume();
-			}
-		}
-		@Override
-		public void keyTyped(KeyEvent e) {
-			e.consume();
-		}
-	}
-
-	/**
-	 * Popup menu for any table
-	 */
-	protected class TablePopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action copyAction;
-
-		public TablePopupMenu(final JTable table) {
-			super();
-
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					int row = table.getSelectedRow();
-
-					if(row != -1) {
-						String strCopy = "";
-
-						for(int column = 0; column < table.getColumnCount(); column++) {
-							Object selectedObject = table.getValueAt(row, column);
-							if(selectedObject instanceof String) {
-								if(column == 0) {
-									strCopy += (String)selectedObject;
-								} else {
-									strCopy += "," + (String)selectedObject;
-								}
-							}
-						}
-
-						StringSelection ss = new StringSelection(strCopy);
-						Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-						clipboard.setContents(ss, ss);
-					}
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTable table = (JTable) c;
-			boolean flg = table.getSelectedRow() != -1;
-			copyAction.setEnabled(flg);
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * Rule entry for rule change screen
-	 */
-	protected class RuleEntry {
-		/** File name */
-		public String filename;
-		/** File path */
-		public String filepath;
-		/** Rule name */
-		public String rulename;
-		/** Game style */
-		public int style;
-	}
+        if((listboxCreateRoom1PRuleListSelectedValue != null) && (listboxCreateRoom1PRuleListSelectedValue instanceof String) &&
+           (listboxCreateRoom1PRuleList.getSelectedIndex() >= 1))
+        {
+            propConfig.setProperty("createroom1p.listboxCreateRoom1PRuleList.value", (String)listboxCreateRoom1PRuleListSelectedValue);
+        } else {
+            propConfig.setProperty("createroom1p.listboxCreateRoom1PRuleList.value", "");
+        }
+
+        propConfig.setProperty("createroom.defaultPresetID", (Integer)spinnerCreateRoomPresetID.getValue());
+
+        try {
+            FileOutputStream out = new FileOutputStream("config/setting/netlobby.cfg");
+            propConfig.store(out, "NullpoMino NetLobby Config");
+            out.close();
+        } catch (IOException e) {
+            log.warn("Failed to save netlobby config file", e);
+        }
+    }
+
+    /**
+     * Save global config file
+     */
+    public void saveGlobalConfig() {
+        try {
+            FileOutputStream out = new FileOutputStream("config/setting/global.cfg");
+            propGlobal.store(out, "NullpoMino Global Config");
+            out.close();
+        } catch (IOException e) {
+            log.warn("Failed to save global config file", e);
+        }
+    }
+
+    /**
+     * 終了処理
+     */
+    public void shutdown() {
+        saveConfig();
+
+        if(writerLobbyLog != null) {
+            writerLobbyLog.flush();
+            writerLobbyLog.close();
+            writerLobbyLog = null;
+        }
+        if(writerRoomLog != null) {
+            writerRoomLog.flush();
+            writerRoomLog.close();
+            writerRoomLog = null;
+        }
+
+        // 切断
+        if(netPlayerClient != null) {
+            if(netPlayerClient.isConnected()) {
+                netPlayerClient.send("disconnect\n");
+            }
+            netPlayerClient.threadRunning = false;
+            netPlayerClient.interrupt();
+            netPlayerClient = null;
+        }
+
+        // Listener呼び出し
+        if(listeners != null) {
+            for(NetLobbyListener l: listeners) {
+                l.netlobbyOnExit(this);
+            }
+            listeners = null;
+        }
+        if(netDummyMode != null) {
+            netDummyMode.netlobbyOnExit(this);
+            netDummyMode = null;
+        }
+
+        this.dispose();
+    }
+
+    /**
+     * サーバー削除 buttonが押されたときの処理
+     */
+    public void serverSelectDeleteButtonClicked() {
+        int index = listboxServerList.getSelectedIndex();
+        if(index != -1) {
+            String server = (String)listboxServerList.getSelectedValue();
+            int answer = JOptionPane.showConfirmDialog(this,
+                                                       getUIText("MessageBody_ServerDelete") + "\n" + server,
+                                                       getUIText("MessageTitle_ServerDelete"),
+                                                       JOptionPane.YES_NO_OPTION);
+            if(answer == JOptionPane.YES_OPTION) {
+                listmodelServerList.remove(index);
+                saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist.cfg");
+            }
+        }
+    }
+
+    /**
+     * サーバー接続 buttonが押されたときの処理
+     */
+    public void serverSelectConnectButtonClicked() {
+        int index = listboxServerList.getSelectedIndex();
+        if(index != -1) {
+            String strServer = (String)listboxServerList.getSelectedValue();
+            int portSpliter = strServer.indexOf(":");
+            if(portSpliter == -1) portSpliter = strServer.length();
+
+            String strHost = strServer.substring(0, portSpliter);
+            log.debug("Host:" + strHost);
+
+            int port = NetPlayerClient.DEFAULT_PORT;
+            try {
+                String strPort = strServer.substring(portSpliter + 1, strServer.length());
+                port = Integer.parseInt(strPort);
+            } catch (Exception e2) {
+                log.debug("Failed to get port number; Try to use default port");
+            }
+            log.debug("Port:" + port);
+
+            netPlayerClient = new NetPlayerClient(strHost, port, txtfldPlayerName.getText(), txtfldPlayerTeam.getText().trim());
+            netPlayerClient.setDaemon(true);
+            netPlayerClient.addListener(this);
+            netPlayerClient.start();
+
+            txtpaneLobbyChatLog.setText("");
+            setLobbyButtonsEnabled(0);
+            tablemodelRoomList.setRowCount(0);
+
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+    }
+
+    /**
+     * 監視設定 buttonが押されたときの処理
+     */
+    public void serverSelectSetObserverButtonClicked() {
+        int index = listboxServerList.getSelectedIndex();
+        if(index != -1) {
+            String strServer = (String)listboxServerList.getSelectedValue();
+            int portSpliter = strServer.indexOf(":");
+            if(portSpliter == -1) portSpliter = strServer.length();
+
+            String strHost = strServer.substring(0, portSpliter);
+            log.debug("Host:" + strHost);
+
+            int port = NetPlayerClient.DEFAULT_PORT;
+            try {
+                String strPort = strServer.substring(portSpliter + 1, strServer.length());
+                port = Integer.parseInt(strPort);
+            } catch (Exception e2) {
+                log.debug("Failed to get port number; Try to use default port");
+            }
+            log.debug("Port:" + port);
+
+            int answer = JOptionPane.showConfirmDialog(this,
+                       getUIText("MessageBody_SetObserver") + "\n" + strServer,
+                       getUIText("MessageTitle_SetObserver"),
+                       JOptionPane.YES_NO_OPTION);
+
+            if(answer == JOptionPane.YES_OPTION) {
+                propObserver.setProperty("observer.enable", true);
+                propObserver.setProperty("observer.host", strHost);
+                propObserver.setProperty("observer.port", port);
+
+                try {
+                    FileOutputStream out = new FileOutputStream("config/setting/netobserver.cfg");
+                    propObserver.store(out, "NullpoMino NetObserver Config");
+                    out.close();
+                } catch (IOException e) {
+                    log.warn("Failed to save NetObserver config file", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Get currenlty selected map set ID
+     * @return Map set ID
+     */
+    public int getCurrentSelectedMapSetID() {
+        if(spinnerCreateRoomMapSetID != null) {
+            return (Integer)spinnerCreateRoomMapSetID.getValue();
+        }
+        return 0;
+    }
+
+    /**
+     * Send a chat message
+     * @param roomchat <code>true</code> if room chat
+     * @param strMsg Message to send
+     */
+    public void sendChat(boolean roomchat, String strMsg) {
+        String msg = strMsg;
+        if(msg.startsWith("/team")) {
+            msg = msg.replaceFirst("/team", "");
+            msg = msg.trim();
+            netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(msg) + "\n");
+        } else if(roomchat) {
+            netPlayerClient.send("chat\t" + NetUtil.urlEncode(msg) + "\n");
+        } else {
+            netPlayerClient.send("lobbychat\t" + NetUtil.urlEncode(msg) + "\n");
+        }
+    }
+
+    /**
+     * Creates NetRoomInfo from Create Room screen
+     * @return NetRoomInfo
+     */
+    public NetRoomInfo exportRoomInfoFromCreateRoomScreen() {
+        try {
+            NetRoomInfo roomInfo = new NetRoomInfo();
+
+            String roomName = txtfldCreateRoomName.getText();
+            Integer integerMaxPlayers = (Integer)spinnerCreateRoomMaxPlayers.getValue();
+            Integer integerAutoStartSeconds = (Integer)spinnerCreateRoomAutoStartSeconds.getValue();
+            Integer integerGravity = (Integer)spinnerCreateRoomGravity.getValue();
+            Integer integerDenominator = (Integer)spinnerCreateRoomDenominator.getValue();
+            Integer integerARE = (Integer)spinnerCreateRoomARE.getValue();
+            Integer integerARELine = (Integer)spinnerCreateRoomARELine.getValue();
+            Integer integerLineDelay = (Integer)spinnerCreateRoomLineDelay.getValue();
+            Integer integerLockDelay = (Integer)spinnerCreateRoomLockDelay.getValue();
+            Integer integerDAS = (Integer)spinnerCreateRoomDAS.getValue();
+            Integer integerHurryupSeconds = (Integer)spinnerCreateRoomHurryupSeconds.getValue();
+            Integer integerHurryupInterval = (Integer)spinnerCreateRoomHurryupInterval.getValue();
+            boolean rulelock = chkboxCreateRoomRuleLock.isSelected();
+            int tspinEnableType = comboboxCreateRoomTSpinEnableType.getSelectedIndex();
+            int spinCheckType = comboboxCreateRoomSpinCheckType.getSelectedIndex();
+            boolean tspinEnableEZ = chkboxCreateRoomTSpinEnableEZ.isSelected();
+            boolean b2b = chkboxCreateRoomB2B.isSelected();
+            boolean combo = chkboxCreateRoomCombo.isSelected();
+            boolean rensaBlock = chkboxCreateRoomRensaBlock.isSelected();
+            boolean counter = chkboxCreateRoomCounter.isSelected();
+            boolean bravo = chkboxCreateRoomBravo.isSelected();
+            boolean reduceLineSend = chkboxCreateRoomReduceLineSend.isSelected();
+            boolean autoStartTNET2 = chkboxCreateRoomAutoStartTNET2.isSelected();
+            boolean disableTimerAfterSomeoneCancelled = chkboxCreateRoomDisableTimerAfterSomeoneCancelled.isSelected();
+            boolean useMap = chkboxCreateRoomUseMap.isSelected();
+            boolean useFractionalGarbage = chkboxCreateRoomUseFractionalGarbage.isSelected();
+            boolean garbageChangePerAttack = chkboxCreateRoomGarbageChangePerAttack.isSelected();
+            boolean divideChangeRateByPlayers = chkboxCreateRoomDivideChangeRateByPlayers.isSelected();
+            Integer integerGarbagePercent = (Integer)spinnerCreateRoomGarbagePercent.getValue();
+            boolean b2bChunk = chkboxCreateRoomB2BChunk.isSelected();
+
+            roomInfo.strName = roomName;
+            roomInfo.maxPlayers = integerMaxPlayers;
+            roomInfo.autoStartSeconds = integerAutoStartSeconds;
+            roomInfo.gravity = integerGravity;
+            roomInfo.denominator = integerDenominator;
+            roomInfo.are = integerARE;
+            roomInfo.areLine = integerARELine;
+            roomInfo.lineDelay = integerLineDelay;
+            roomInfo.lockDelay = integerLockDelay;
+            roomInfo.das = integerDAS;
+            roomInfo.hurryupSeconds = integerHurryupSeconds;
+            roomInfo.hurryupInterval = integerHurryupInterval;
+            roomInfo.ruleLock = rulelock;
+            roomInfo.tspinEnableType = tspinEnableType;
+            roomInfo.spinCheckType = spinCheckType;
+            roomInfo.tspinEnableEZ = tspinEnableEZ;
+            roomInfo.b2b = b2b;
+            roomInfo.combo = combo;
+            roomInfo.rensaBlock = rensaBlock;
+            roomInfo.counter = counter;
+            roomInfo.bravo = bravo;
+            roomInfo.reduceLineSend = reduceLineSend;
+            roomInfo.autoStartTNET2 = autoStartTNET2;
+            roomInfo.disableTimerAfterSomeoneCancelled = disableTimerAfterSomeoneCancelled;
+            roomInfo.useMap = useMap;
+            roomInfo.useFractionalGarbage = useFractionalGarbage;
+            roomInfo.garbageChangePerAttack = garbageChangePerAttack;
+            roomInfo.divideChangeRateByPlayers = divideChangeRateByPlayers;
+            roomInfo.garbagePercent = integerGarbagePercent;
+            roomInfo.b2bChunk = b2bChunk;
+
+            return roomInfo;
+        } catch (Exception e) {
+            log.error("Exception on exportRoomInfoFromCreateRoomScreen", e);
+        }
+        return null;
+    }
+
+    /**
+     * Import NetRoomInfo to Create Room screen
+     * @param r NetRoomInfo
+     */
+    public void importRoomInfoToCreateRoomScreen(NetRoomInfo r) {
+        if(r != null) {
+            txtfldCreateRoomName.setText(r.strName);
+            spinnerCreateRoomMaxPlayers.setValue(r.maxPlayers);
+            spinnerCreateRoomAutoStartSeconds.setValue(r.autoStartSeconds);
+            spinnerCreateRoomGravity.setValue(r.gravity);
+            spinnerCreateRoomDenominator.setValue(r.denominator);
+            spinnerCreateRoomARE.setValue(r.are);
+            spinnerCreateRoomARELine.setValue(r.areLine);
+            spinnerCreateRoomLineDelay.setValue(r.lineDelay);
+            spinnerCreateRoomLockDelay.setValue(r.lockDelay);
+            spinnerCreateRoomDAS.setValue(r.das);
+            spinnerCreateRoomHurryupSeconds.setValue(r.hurryupSeconds);
+            spinnerCreateRoomHurryupInterval.setValue(r.hurryupInterval);
+            spinnerCreateRoomGarbagePercent.setValue(r.garbagePercent);
+            chkboxCreateRoomUseMap.setSelected(r.useMap);
+            chkboxCreateRoomRuleLock.setSelected(r.ruleLock);
+            comboboxCreateRoomTSpinEnableType.setSelectedIndex(r.tspinEnableType);
+            comboboxCreateRoomSpinCheckType.setSelectedIndex(r.spinCheckType);
+            chkboxCreateRoomTSpinEnableEZ.setSelected(r.tspinEnableEZ);
+            chkboxCreateRoomB2B.setSelected(r.b2b);
+            chkboxCreateRoomCombo.setSelected(r.combo);
+            chkboxCreateRoomRensaBlock.setSelected(r.rensaBlock);
+            chkboxCreateRoomCounter.setSelected(r.counter);
+            chkboxCreateRoomBravo.setSelected(r.bravo);
+            chkboxCreateRoomReduceLineSend.setSelected(r.reduceLineSend);
+            chkboxCreateRoomGarbageChangePerAttack.setSelected(r.garbageChangePerAttack);
+            chkboxCreateRoomDivideChangeRateByPlayers.setSelected(r.divideChangeRateByPlayers);
+            chkboxCreateRoomB2BChunk.setSelected(r.b2bChunk);
+            chkboxCreateRoomUseFractionalGarbage.setSelected(r.useFractionalGarbage);
+            chkboxCreateRoomAutoStartTNET2.setSelected(r.autoStartTNET2);
+            chkboxCreateRoomDisableTimerAfterSomeoneCancelled.setSelected(r.disableTimerAfterSomeoneCancelled);
+        }
+    }
+
+    /**
+     * Get rule file list (for rule change screen)
+     * @return Rule file list. null if directory doesn't exist.
+     */
+    public String[] getRuleFileList() {
+        File dir = new File("config/rule");
+
+        FilenameFilter filter = new FilenameFilter() {
+            public boolean accept(File dir1, String name) {
+                return name.endsWith(".rul");
+            }
+        };
+
+        String[] list = dir.list(filter);
+
+        if(!System.getProperty("os.name").startsWith("Windows")) {
+            // Sort if not windows
+            Arrays.sort(list);
+        }
+
+        return list;
+    }
+
+    /**
+     * Create rule entries (for rule change screen)
+     * @param filelist Rule file list
+     */
+    public void createRuleEntries(String[] filelist) {
+        ruleEntries = new LinkedList<RuleEntry>();
+
+        for(int i = 0; i < filelist.length; i++) {
+            RuleEntry entry = new RuleEntry();
+
+            File file = new File("config/rule/" + filelist[i]);
+            entry.filename = filelist[i];
+            entry.filepath = file.getPath();
+
+            CustomProperties prop = new CustomProperties();
+            try {
+                FileInputStream in = new FileInputStream("config/rule/" + filelist[i]);
+                prop.load(in);
+                in.close();
+                entry.rulename = prop.getProperty("0.ruleopt.strRuleName", "");
+                entry.style = prop.getProperty("0.ruleopt.style", 0);
+            } catch (Exception e) {
+                entry.rulename = "";
+                entry.style = -1;
+            }
+
+            ruleEntries.add(entry);
+        }
+    }
+
+    /**
+     * Get subset of rule entries (for rule change screen)
+     * @param currentStyle Current style
+     * @return Subset of rule entries
+     */
+    public LinkedList<RuleEntry> getSubsetEntries(int currentStyle) {
+        LinkedList<RuleEntry> subEntries = new LinkedList<RuleEntry>();
+        for(int i = 0; i < ruleEntries.size(); i++) {
+            if(ruleEntries.get(i).style == currentStyle) {
+                subEntries.add(ruleEntries.get(i));
+            }
+        }
+        return subEntries;
+    }
+
+    /**
+     * Get rule name + file name list as String[] (for rule change screen)
+     * @param currentStyle Current style
+     * @return Rule name + file name list
+     */
+    public String[] extractRuleListFromRuleEntries(int currentStyle) {
+        LinkedList<RuleEntry> subEntries = getSubsetEntries(currentStyle);
+
+        String[] result = new String[subEntries.size()];
+        for(int i = 0; i < subEntries.size(); i++) {
+            RuleEntry entry = subEntries.get(i);
+            result[i] = entry.rulename + " (" + entry.filename + ")";
+        }
+
+        return result;
+    }
+
+    /**
+     * Enter rule change screen
+     */
+    public void enterRuleChangeScreen() {
+        String[] strCurrentFileName = new String[GameEngine.MAX_GAMESTYLE];
+
+        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+            if(i == 0) {
+                strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile", "");
+            } else {
+                strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile." + i, "");
+            }
+
+            LinkedList<RuleEntry> subEntries = getSubsetEntries(i);
+
+            for(int j = 0; j < subEntries.size(); j++) {
+                if(subEntries.get(j).filename.equals(strCurrentFileName[i])) {
+                    listboxRuleChangeRuleList[i].setSelectedIndex(j);
+                }
+            }
+        }
+
+        changeCurrentScreenCard(SCREENCARD_RULECHANGE);
+    }
+
+    /*
+     * Menu 実行時の処理
+     */
+    public void actionPerformed(ActionEvent e) {
+        //addSystemChatLog(getCurrentChatLogTextPane(), e.getActionCommand(), Color.magenta);
+
+        // サーバー追加
+        if(e.getActionCommand() == "ServerSelect_ServerAdd") {
+            changeCurrentScreenCard(SCREENCARD_SERVERADD);
+        }
+        // サーバー削除
+        if(e.getActionCommand() == "ServerSelect_ServerDelete") {
+            serverSelectDeleteButtonClicked();
+        }
+        // サーバー接続
+        if(e.getActionCommand() == "ServerSelect_Connect") {
+            serverSelectConnectButtonClicked();
+        }
+        // 監視設定
+        if(e.getActionCommand() == "ServerSelect_SetObserver") {
+            serverSelectSetObserverButtonClicked();
+        }
+        // 監視解除
+        if(e.getActionCommand() == "ServerSelect_UnsetObserver") {
+            if(propObserver.getProperty("observer.enable", false) == true) {
+                String strCurrentHost = propObserver.getProperty("observer.host", "");
+                int currentPort = propObserver.getProperty("observer.port", 0);
+                String strMessageBox = String.format(getUIText("MessageBody_UnsetObserver"), strCurrentHost, currentPort);
+
+                int answer = JOptionPane.showConfirmDialog(this, strMessageBox, getUIText("MessageTitle_UnsetObserver"), JOptionPane.YES_NO_OPTION);
+
+                if(answer == JOptionPane.YES_OPTION) {
+                    propObserver.setProperty("observer.enable", false);
+                    try {
+                        FileOutputStream out = new FileOutputStream("config/setting/netobserver.cfg");
+                        propObserver.store(out, "NullpoMino NetObserver Config");
+                        out.close();
+                    } catch (IOException e2) {
+                        log.warn("Failed to save NetObserver config file", e2);
+                    }
+                }
+            }
+        }
+        // 終了
+        if(e.getActionCommand() == "ServerSelect_Exit") {
+            shutdown();
+        }
+        // クイックスタート
+        if(e.getActionCommand() == "Lobby_QuickStart") {
+            // TODO:クイックスタート
+        }
+        // Create Room 1P
+        if(e.getActionCommand() == "Lobby_RoomCreate1P") {
+            currentViewDetailRoomID = -1;
+            setCreateRoom1PUIType(false, null);
+            changeCurrentScreenCard(SCREENCARD_CREATEROOM1P);
+        }
+        // Create Room Multiplayer
+        if(e.getActionCommand() == "Lobby_RoomCreate") {
+            currentViewDetailRoomID = -1;
+            // setCreateRoomUIType(false, null);
+            changeCurrentScreenCard(SCREENCARD_CREATERATED_WAITING);
+            netPlayerClient.send("getpresets\n");
+        }
+        // Lobby Options
+        if(e.getActionCommand() == "Lobby_Options") {
+            popupLobbyOptions.show(btnRoomListOptions, 0, 0);
+        }
+        // Rule Change
+        if(e.getActionCommand() == "Lobby_RuleChange") {
+            enterRuleChangeScreen();
+        }
+        // チーム変更(Lobby screen)
+        if(e.getActionCommand() == "Lobby_TeamChange") {
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                txtfldRoomListTeam.setText(netPlayerClient.getYourPlayerInfo().strTeam);
+                roomListTopBarCardLayout.next(subpanelRoomListTopBar);
+            }
+        }
+        // 切断
+        if(e.getActionCommand() == "Lobby_Disconnect") {
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                netPlayerClient.send("disconnect\n");
+                netPlayerClient.threadRunning = false;
+                netPlayerClient.interrupt();
+                netPlayerClient = null;
+            }
+            tabLobbyAndRoom.setSelectedIndex(0);
+            tabLobbyAndRoom.setEnabledAt(1, false);
+            tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_NoRoom"));
+            setLobbyButtonsEnabled(1);
+            setTitle(getUIText("Title_NetLobby"));
+            changeCurrentScreenCard(SCREENCARD_SERVERSELECT);
+        }
+        // Multiplayer Leaderboard
+        if((e.getActionCommand() == "Lobby_Ranking") || (e.getActionCommand() == "Room_Ranking")) {
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                tablemodelMPRanking[0].setRowCount(0);
+                netPlayerClient.send("mpranking\t0\n");
+                changeCurrentScreenCard(SCREENCARD_MPRANKING);
+            }
+        }
+        // チャット送信
+        if((e.getActionCommand() == "Lobby_ChatSend") || (e.getActionCommand() == "Room_ChatSend")) {
+            if((txtfldLobbyChatInput.getText().length() > 0) && (netPlayerClient != null) && netPlayerClient.isConnected()) {
+                sendChat(false, txtfldLobbyChatInput.getText());
+                txtfldLobbyChatInput.setText("");
+            }
+
+            if((netPlayerClient != null) && netPlayerClient.isConnected()) {
+                if(tabLobbyAndRoom.getSelectedIndex() == 0) {
+                    if(txtfldLobbyChatInput.getText().length() > 0) {
+                        sendChat(false, txtfldLobbyChatInput.getText());
+                        txtfldLobbyChatInput.setText("");
+                    }
+                } else {
+                    if(txtfldRoomChatInput.getText().length() > 0) {
+                        sendChat(true, txtfldRoomChatInput.getText());
+                        txtfldRoomChatInput.setText("");
+                    }
+                }
+            }
+        }
+        // チーム変更OK(Lobby screen)
+        if(e.getActionCommand() == "Lobby_TeamChange_OK") {
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(txtfldRoomListTeam.getText()) + "\n");
+                roomListTopBarCardLayout.first(subpanelRoomListTopBar);
+            }
+        }
+        // チーム変更Cancel(Lobby screen)
+        if(e.getActionCommand() == "Lobby_TeamChange_Cancel") {
+            roomListTopBarCardLayout.first(subpanelRoomListTopBar);
+        }
+        // 退出 button
+        if(e.getActionCommand() == "Room_Leave") {
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                netPlayerClient.send("roomjoin\t-1\tfalse\n");
+            }
+
+            tablemodelGameStat.setRowCount(0);
+            tablemodelGameStat1P.setRowCount(0);
+
+            tabLobbyAndRoom.setSelectedIndex(0);
+            tabLobbyAndRoom.setEnabledAt(1, false);
+            tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_NoRoom"));
+
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+
+            // Listener call
+            for(NetLobbyListener l: listeners) {
+                l.netlobbyOnRoomLeave(this, netPlayerClient);
+            }
+            if(netDummyMode != null) netDummyMode.netlobbyOnRoomLeave(this, netPlayerClient);
+        }
+        // 参戦 button
+        if(e.getActionCommand() == "Room_Join") {
+            netPlayerClient.send("changestatus\tfalse\n");
+            btnRoomButtonsJoin.setEnabled(false);
+        }
+        // 離脱(観戦のみ) button
+        if(e.getActionCommand() == "Room_SitOut") {
+            netPlayerClient.send("changestatus\ttrue\n");
+            btnRoomButtonsSitOut.setEnabled(false);
+        }
+        // チーム変更(Room screen)
+        if(e.getActionCommand() == "Room_TeamChange") {
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                txtfldRoomTeam.setText(netPlayerClient.getYourPlayerInfo().strTeam);
+                roomTopBarCardLayout.next(subpanelRoomTopBar);
+            }
+        }
+        // チーム変更OK(Room screen)
+        if(e.getActionCommand() == "Room_TeamChange_OK") {
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(txtfldRoomTeam.getText()) + "\n");
+                roomTopBarCardLayout.first(subpanelRoomTopBar);
+            }
+        }
+        // チーム変更Cancel(Room screen)
+        if(e.getActionCommand() == "Room_TeamChange_Cancel") {
+            roomTopBarCardLayout.first(subpanelRoomTopBar);
+        }
+        // ルール確認(Room screen)
+        if(e.getActionCommand() == "Room_ViewSetting") {
+            viewRoomDetail(netPlayerClient.getYourPlayerInfo().roomID);
+        }
+        // サーバー追加画面でのOK button
+        if(e.getActionCommand() == "ServerAdd_OK") {
+            if(txtfldServerAddHost.getText().length() > 0) {
+                listmodelServerList.addElement(txtfldServerAddHost.getText());
+                saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist.cfg");
+                txtfldServerAddHost.setText("");
+            }
+            changeCurrentScreenCard(SCREENCARD_SERVERSELECT);
+        }
+        // サーバー追加画面でのCancel button
+        if(e.getActionCommand() == "ServerAdd_Cancel") {
+            txtfldServerAddHost.setText("");
+            changeCurrentScreenCard(SCREENCARD_SERVERSELECT);
+        }
+        // Create rated cancel from waiting card
+        if(e.getActionCommand() == "CreateRated_Waiting_Cancel") {
+            currentViewDetailRoomID = -1;
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+        // Create rated OK
+        if(e.getActionCommand() == "CreateRated_OK") {
+            try {
+                int presetIndex = comboboxCreateRatedPresets.getSelectedIndex();
+                NetRoomInfo r = presets.get(presetIndex);
+                r.strName = txtfldCreateRatedName.getText();
+                backupRoomInfo = r;
+
+                String msg = "ratedroomcreate\t"+NetUtil.urlEncode(r.strName)+"\t"
+                +spinnerCreateRatedMaxPlayers.getValue()+"\t"+presetIndex+"\t"
+                +NetUtil.urlEncode("NET-VS-BATTLE")+"\n";
+
+                txtpaneRoomChatLog.setText("");
+                setRoomButtonsEnabled(false);
+                tabLobbyAndRoom.setEnabledAt(1, true);
+                tabLobbyAndRoom.setSelectedIndex(1);
+                changeCurrentScreenCard(SCREENCARD_LOBBY);
+
+                netPlayerClient.send(msg);
+            } catch (Exception e2) {
+                log.error("Error on CreateRated_OK", e2);
+            }
+        }
+        // Create rated - go to custom settings
+        if(e.getActionCommand() == "CreateRated_Custom") {
+            // Load preset into field
+            NetRoomInfo r = presets.get(comboboxCreateRatedPresets.getSelectedIndex());
+            setCreateRoomUIType(false, null);
+            importRoomInfoToCreateRoomScreen(r);
+            // Copy name and number of players
+            txtfldCreateRoomName.setText(txtfldCreateRatedName.getText());
+            spinnerCreateRoomMaxPlayers.setValue(spinnerCreateRatedMaxPlayers.getValue());
+            // Change screen card
+            changeCurrentScreenCard(SCREENCARD_CREATEROOM);
+        }
+        // Create rated cancel
+        if(e.getActionCommand() == "CreateRated_Cancel") {
+            currentViewDetailRoomID = -1;
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+        // ルーム作成画面でのOK button
+        if(e.getActionCommand() == "CreateRoom_OK") {
+            try {
+                NetRoomInfo r = exportRoomInfoFromCreateRoomScreen();
+                backupRoomInfo = r;
+
+                String msg;
+                msg = "roomcreate\t" + NetUtil.urlEncode(r.strName) + "\t";
+                msg += NetUtil.urlEncode(r.exportString()) + "\t";
+                msg += NetUtil.urlEncode("NET-VS-BATTLE") + "\t";
+
+                // Map send
+                if(r.useMap) {
+                    int setID = getCurrentSelectedMapSetID();
+                    log.debug("MapSetID:" + setID);
+
+                    mapList.clear();
+                    CustomProperties propMap = new CustomProperties();
+                    try {
+                        FileInputStream in = new FileInputStream("config/map/vsbattle/" + setID + ".map");
+                        propMap.load(in);
+                        in.close();
+                    } catch (IOException e2) {
+                        log.error("Map set " + setID + " not found", e2);
+                    }
+
+                    int maxMap = propMap.getProperty("map.maxMapNumber", 0);
+                    log.debug("Number of maps:" + maxMap);
+
+                    String strMap = "";
+
+                    for(int i = 0; i < maxMap; i++) {
+                        String strMapTemp = propMap.getProperty("map." + i, "");
+                        mapList.add(strMapTemp);
+                        strMap += strMapTemp;
+                        if(i < maxMap - 1) strMap += "\t";
+                    }
+
+                    String strCompressed = NetUtil.compressString(strMap);
+                    log.debug("Map uncompressed:" + strMap.length() + " compressed:" + strCompressed.length());
+
+                    msg += strCompressed;
+                }
+
+                msg += "\n";
+
+                txtpaneRoomChatLog.setText("");
+                setRoomButtonsEnabled(false);
+                tabLobbyAndRoom.setEnabledAt(1, true);
+                tabLobbyAndRoom.setSelectedIndex(1);
+                changeCurrentScreenCard(SCREENCARD_LOBBY);
+
+                netPlayerClient.send(msg);
+            } catch (Exception e2) {
+                log.error("Error on CreateRoom_OK", e2);
+            }
+        }
+        // Save Preset (Create Room)
+        if(e.getActionCommand() == "CreateRoom_PresetSave") {
+            NetRoomInfo r = exportRoomInfoFromCreateRoomScreen();
+            Integer id = (Integer)spinnerCreateRoomPresetID.getValue();
+            propConfig.setProperty("0.preset." + id, NetUtil.compressString(r.exportString()));
+        }
+        // Load Preset (Create Room)
+        if(e.getActionCommand() == "CreateRoom_PresetLoad") {
+            Integer id = (Integer)spinnerCreateRoomPresetID.getValue();
+            String strPresetC = propConfig.getProperty("0.preset." + id);
+            if(strPresetC != null) {
+                String strPreset = NetUtil.decompressString(strPresetC);
+                NetRoomInfo r = new NetRoomInfo(strPreset);
+                importRoomInfoToCreateRoomScreen(r);
+            }
+        }
+        // Preset code export (Create Room)
+        if(e.getActionCommand() == "CreateRoom_PresetCodeExport") {
+            NetRoomInfo r = exportRoomInfoFromCreateRoomScreen();
+            if(r == null) {
+                txtfldCreateRoomPresetCode.setText("");
+            } else {
+                txtfldCreateRoomPresetCode.setText(NetUtil.compressString(r.exportString()));
+            }
+        }
+        // Preset code import (Create Room)
+        if(e.getActionCommand() == "CreateRoom_PresetCodeImport") {
+            try {
+                String strPresetCode = txtfldCreateRoomPresetCode.getText();
+                if(strPresetCode.length() > 0) {
+                    String strPresetCodeD = NetUtil.decompressString(strPresetCode);
+                    NetRoomInfo r = new NetRoomInfo(strPresetCodeD);
+                    importRoomInfoToCreateRoomScreen(r);
+                }
+            } catch (Exception e2) {
+                log.error("Failed to import preset code", e2);
+            }
+        }
+        // ルーム作成画面での参戦 button
+        if(e.getActionCommand() == "CreateRoom_Join") {
+            joinRoom(currentViewDetailRoomID, false);
+        }
+        // ルーム作成画面での観戦 button
+        if(e.getActionCommand() == "CreateRoom_Watch") {
+            joinRoom(currentViewDetailRoomID, true);
+        }
+        // ルーム作成画面でのCancel button
+        if(e.getActionCommand() == "CreateRoom_Cancel") {
+            currentViewDetailRoomID = -1;
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+        // OK button (Create Room 1P)
+        if(e.getActionCommand() == "CreateRoom1P_OK") {
+            //singleroomcreate\t[roomName]\t[mode]
+            try {
+                if(currentViewDetailRoomID != -1) {
+                    joinRoom(currentViewDetailRoomID, true);
+                } else if(listboxCreateRoom1PModeList.getSelectedIndex() != -1) {
+                    String strMode = (String)listboxCreateRoom1PModeList.getSelectedValue();
+                    String strRule = "";
+                    if(listboxCreateRoom1PRuleList.getSelectedIndex() >= 1) {
+                        strRule = (String)listboxCreateRoom1PRuleList.getSelectedValue();
+                    }
+
+                    txtpaneRoomChatLog.setText("");
+                    setRoomButtonsEnabled(false);
+                    tabLobbyAndRoom.setEnabledAt(1, true);
+                    tabLobbyAndRoom.setSelectedIndex(1);
+                    changeCurrentScreenCard(SCREENCARD_LOBBY);
+
+                    netPlayerClient.send("singleroomcreate\t" + "\t" + NetUtil.urlEncode(strMode) + "\t" + NetUtil.urlEncode(strRule) + "\n");
+                }
+            } catch (Exception e2) {
+                log.error("Error on CreateRoom1P_OK", e2);
+            }
+        }
+        // Cancel button (Create Room 1P)
+        if(e.getActionCommand() == "CreateRoom1P_Cancel") {
+            currentViewDetailRoomID = -1;
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+        // OK button (MPRanking)
+        if(e.getActionCommand() == "MPRanking_OK") {
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+        // Cancel button (Rule change)
+        if(e.getActionCommand() == "RuleChange_Cancel") {
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+        // OK button (Rule change)
+        if(e.getActionCommand() == "RuleChange_OK") {
+            for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+                int id = listboxRuleChangeRuleList[i].getSelectedIndex();
+                LinkedList<RuleEntry> subEntries = getSubsetEntries(i);
+                RuleEntry entry = null;
+                if (id >= 0) { entry = subEntries.get(id); }
+
+
+                if(i == 0) {
+                    if(id >= 0) {
+                        propGlobal.setProperty(0 + ".rule", entry.filepath);
+                        propGlobal.setProperty(0 + ".rulefile", entry.filename);
+                        propGlobal.setProperty(0 + ".rulename", entry.rulename);
+                    } else {
+                        propGlobal.setProperty(0 + ".rule", "");
+                        propGlobal.setProperty(0 + ".rulefile", "");
+                        propGlobal.setProperty(0 + ".rulename", "");
+                    }
+                } else {
+                    if(id >= 0) {
+                        propGlobal.setProperty(0 + ".rule." + i, entry.filepath);
+                        propGlobal.setProperty(0 + ".rulefile." + i, entry.filename);
+                        propGlobal.setProperty(0 + ".rulename." + i, entry.rulename);
+                    } else {
+                        propGlobal.setProperty(0 + ".rule." + i, "");
+                        propGlobal.setProperty(0 + ".rulefile." + i, "");
+                        propGlobal.setProperty(0 + ".rulename." + i, "");
+                    }
+                }
+            }
+            saveGlobalConfig();
+
+            // Load rule
+            String strFileName = propGlobal.getProperty(0 + ".rule", "");
+            CustomProperties propRule = new CustomProperties();
+            try {
+                FileInputStream in = new FileInputStream(strFileName);
+                propRule.load(in);
+                in.close();
+            } catch (Exception e2) {}
+            ruleOptPlayer = new RuleOptions();
+            ruleOptPlayer.readProperty(propRule, 0);
+
+            // Send rule
+            if((netPlayerClient != null) && (netPlayerClient.isConnected())) {
+                sendMyRuleDataToServer();
+            }
+
+            changeCurrentScreenCard(SCREENCARD_LOBBY);
+        }
+    }
+
+    /*
+     * メッセージ受信
+     */
+    public void netOnMessage(NetBaseClient client, String[] message) throws IOException {
+        //addSystemChatLog(getCurrentChatLogTextPane(), message[0], Color.green);
+
+        // 接続完了
+        if(message[0].equals("welcome")) {
+            //welcome\t[VERSION]\t[PLAYERS]
+            // Chat logファイル作成
+            if(writerLobbyLog == null) {
+                try {
+                    GregorianCalendar currentTime = new GregorianCalendar();
+                    int month = currentTime.get(Calendar.MONTH) + 1;
+                    String filename = String.format(
+                            "log/lobby_%04d_%02d_%02d_%02d_%02d_%02d.txt",
+                            currentTime.get(Calendar.YEAR), month, currentTime.get(Calendar.DATE), currentTime.get(Calendar.HOUR_OF_DAY),
+                            currentTime.get(Calendar.MINUTE), currentTime.get(Calendar.SECOND)
+                    );
+                    writerLobbyLog = new PrintWriter(filename);
+                } catch (Exception e) {
+                    log.warn("Failed to create lobby log file", e);
+                }
+            }
+            if(writerRoomLog == null) {
+                try {
+                    GregorianCalendar currentTime = new GregorianCalendar();
+                    int month = currentTime.get(Calendar.MONTH) + 1;
+                    String filename = String.format(
+                            "log/room_%04d_%02d_%02d_%02d_%02d_%02d.txt",
+                            currentTime.get(Calendar.YEAR), month, currentTime.get(Calendar.DATE), currentTime.get(Calendar.HOUR_OF_DAY),
+                            currentTime.get(Calendar.MINUTE), currentTime.get(Calendar.SECOND)
+                    );
+                    writerRoomLog = new PrintWriter(filename);
+                } catch (Exception e) {
+                    log.warn("Failed to create room log file", e);
+                }
+            }
+
+            String strTemp = String.format(getUIText("SysMsg_ServerConnected"), netPlayerClient.getHost(), netPlayerClient.getPort());
+            addSystemChatLogLater(txtpaneLobbyChatLog, strTemp, Color.blue);
+
+            addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_ServerVersion") + message[1], Color.blue);
+            addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_NumberOfPlayers") + message[2], Color.blue);
+        }
+        // ログイン成功
+        if(message[0].equals("loginsuccess")) {
+            addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_LoginOK"), Color.blue);
+            addSystemChatLogLater(txtpaneLobbyChatLog,
+                                  getUIText("SysMsg_YourNickname") + convTripCode(NetUtil.urlDecode(message[1])), Color.blue);
+            addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_YourUID") + netPlayerClient.getPlayerUID(), Color.blue);
+
+            addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_SendRuleDataStart"), Color.blue);
+            sendMyRuleDataToServer();
+        }
+        // ログイン失敗
+        if(message[0].equals("loginfail")) {
+            setLobbyButtonsEnabled(0);
+
+            if((message.length > 1) && message[1].equals("DIFFERENT_VERSION")) {
+                String strClientVer = String.valueOf(GameManager.getVersionMajor());
+                String strServerVer = message[2];
+                String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentVersion"), strClientVer, strServerVer);
+                addSystemChatLogLater(txtpaneLobbyChatLog, strErrorMsg, Color.red);
+            } else {
+                String reason = "";
+                for(int i = 1; i < message.length; i++) {
+                    reason += message[i] + " ";
+                }
+                addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_LoginFail") + reason, Color.red);
+            }
+        }
+        // Banned
+        if(message[0].equals("banned")) {
+            setLobbyButtonsEnabled(0);
+
+            Calendar cStart = GeneralUtil.importCalendarString(message[1]);
+            Calendar cExpire = ((message.length > 2) && (message[2].length() > 0)) ? GeneralUtil.importCalendarString(message[2]) : null;
+
+            String strStart = (cStart != null) ? GeneralUtil.getCalendarString(cStart) : "???";
+            String strExpire = (cExpire != null) ? GeneralUtil.getCalendarString(cExpire) : getUIText("SysMsg_Banned_Permanent");
+
+            addSystemChatLogLater(txtpaneLobbyChatLog, String.format(getUIText("SysMsg_Banned"), strStart, strExpire), Color.red);
+        }
+        // ルール data送信成功
+        if(message[0].equals("ruledatasuccess")) {
+            addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_SendRuleDataOK"), Color.blue);
+
+            // Listener呼び出し
+            for(NetLobbyListener l: listeners) {
+                l.netlobbyOnLoginOK(this, netPlayerClient);
+            }
+            if(netDummyMode != null) netDummyMode.netlobbyOnLoginOK(this, netPlayerClient);
+
+            setLobbyButtonsEnabled(1);
+        }
+        // ルール data送信失敗
+        if(message[0].equals("ruledatafail")) {
+            sendMyRuleDataToServer();
+        }
+        // Rule receive (for rule-locked games)
+        if(message[0].equals("rulelock")) {
+            if(ruleOptLock == null) ruleOptLock = new RuleOptions();
+
+            String strRuleData = NetUtil.decompressString(message[1]);
+
+            CustomProperties prop = new CustomProperties();
+            prop.decode(strRuleData);
+            ruleOptLock.readProperty(prop, 0);
+
+            log.info("Received rule data (" + ruleOptLock.strRuleName + ")");
+        }
+        // Rated-game rule list
+        if(message[0].equals("rulelist")) {
+            int style = Integer.parseInt(message[1]);
+
+            if(style < listRatedRuleName.length) {
+                listRatedRuleName[style].clear();
+
+                for(int i = 0; i < message.length - 2; i++) {
+                    String name = NetUtil.urlDecode(message[2 + i]);
+                    listRatedRuleName[style].add(name);
+                }
+            }
+
+            if(style == 0) {
+                listmodelCreateRoom1PRuleList.clear();
+                listmodelCreateRoom1PRuleList.addElement(getUIText("CreateRoom1P_YourRule"));
+                listboxCreateRoom1PRuleList.setSelectedIndex(0);
+
+                for(int i = 0; i < listRatedRuleName[style].size(); i++) {
+                    String name = (String)listRatedRuleName[style].get(i);
+                    listmodelCreateRoom1PRuleList.addElement(name);
+                }
+
+                listboxCreateRoom1PRuleList.setSelectedValue(propConfig.getProperty("createroom1p.listboxCreateRoom1PRuleList.value", ""), true);
+            }
+        }
+        // Playerリスト
+        if(message[0].equals("playerlist") || message[0].equals("playerupdate") ||
+           message[0].equals("playernew") || message[0].equals("playerlogout"))
+        {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    updateLobbyUserList();
+                }
+            });
+
+            if(tabLobbyAndRoom.isEnabledAt(1)) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        updateRoomUserList();
+                    }
+                });
+
+                if(message[0].equals("playerlogout")) {
+                    NetPlayerInfo p = new NetPlayerInfo(message[1]);
+                    NetPlayerInfo p2 = netPlayerClient.getYourPlayerInfo();
+                    if((p != null) && (p2 != null) && (p.roomID == p2.roomID)) {
+                        String strTemp = "";
+                        if(p.strHost.length() > 0) {
+                            strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(p), p.strHost);
+                        } else {
+                            strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(p));
+                        }
+                        addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+                    }
+                }
+            }
+        }
+        // Player入室
+        if(message[0].equals("playerenter")) {
+            int uid = Integer.parseInt(message[1]);
+            NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
+
+            if(pInfo != null) {
+                String strTemp = "";
+                if(pInfo.strHost.length() > 0) {
+                    strTemp = String.format(getUIText("SysMsg_EnterRoomWithHost"), getPlayerNameWithTripCode(pInfo), pInfo.strHost);
+                } else {
+                    strTemp = String.format(getUIText("SysMsg_EnterRoom"), getPlayerNameWithTripCode(pInfo));
+                }
+                addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+            }
+        }
+        // Player退出
+        if(message[0].equals("playerleave")) {
+            int uid = Integer.parseInt(message[1]);
+            NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
+
+            if(pInfo != null) {
+                String strTemp = "";
+                if(pInfo.strHost.length() > 0) {
+                    strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(pInfo), pInfo.strHost);
+                } else {
+                    strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(pInfo));
+                }
+                addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+            }
+        }
+        // チーム変更
+        if(message[0].equals("changeteam")) {
+            int uid = Integer.parseInt(message[1]);
+            NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
+
+            if(pInfo != null) {
+                String strTeam = "";
+                String strTemp = "";
+
+                if(message.length > 3) {
+                    strTeam = NetUtil.urlDecode(message[3]);
+                    strTemp = String.format(getUIText("SysMsg_ChangeTeam"), getPlayerNameWithTripCode(pInfo), strTeam);
+                } else {
+                    strTemp = String.format(getUIText("SysMsg_ChangeTeam_None"), getPlayerNameWithTripCode(pInfo));
+                }
+
+                addSystemChatLogLater(getCurrentChatLogTextPane(), strTemp, Color.blue);
+            }
+        }
+        // ルームリスト
+        if(message[0].equals("roomlist")) {
+            int size = Integer.parseInt(message[1]);
+
+            tablemodelRoomList.setRowCount(0);
+            for(int i = 0; i < size; i++) {
+                NetRoomInfo r = new NetRoomInfo(message[2 + i]);
+                tablemodelRoomList.addRow(createRoomListRowData(r));
+            }
+        }
+        // Receive presets
+        if(message[0].equals("ratedpresets")) {
+            if (currentScreenCardNumber == SCREENCARD_CREATERATED_WAITING) {
+                if (message.length == 1) {
+                    currentViewDetailRoomID = -1;
+                    setCreateRoomUIType(false, null);
+                    changeCurrentScreenCard(SCREENCARD_CREATEROOM);
+                } else {
+                    comboboxCreateRatedPresets.removeAllItems();
+                    String preset;
+                    for (int i = 1; i < message.length; i++) {
+                        preset = NetUtil.decompressString(message[i]);
+                        NetRoomInfo r = new NetRoomInfo(preset);
+                        presets.add(r);
+                        comboboxCreateRatedPresets.addItem(r.strName);
+                    }
+                    changeCurrentScreenCard(SCREENCARD_CREATERATED);
+                }
+            }
+        }
+        // 新規ルーム出現
+        if(message[0].equals("roomcreate")) {
+            NetRoomInfo r = new NetRoomInfo(message[1]);
+            tablemodelRoomList.addRow(createRoomListRowData(r));
+        }
+        // ルーム情報更新
+        if(message[0].equals("roomupdate")) {
+            NetRoomInfo r = new NetRoomInfo(message[1]);
+            int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+
+            for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
+                String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
+                int roomID = Integer.parseInt(strID);
+
+                if(roomID == r.roomID) {
+                    String[] rowData = createRoomListRowData(r);
+                    for(int j = 0; j < rowData.length; j++) {
+                        tablemodelRoomList.setValueAt(rowData[j], i, j);
+                    }
+                    break;
+                }
+            }
+        }
+        // ルーム消滅
+        if(message[0].equals("roomdelete")) {
+            NetRoomInfo r = new NetRoomInfo(message[1]);
+            int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+
+            for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
+                String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
+                int roomID = Integer.parseInt(strID);
+
+                if(roomID == r.roomID) {
+                    tablemodelRoomList.removeRow(i);
+                    break;
+                }
+            }
+
+            if((r.roomID == currentViewDetailRoomID) && (currentScreenCardNumber == SCREENCARD_CREATEROOM)) {
+                changeCurrentScreenCard(SCREENCARD_LOBBY);
+            }
+        }
+        // ルーム作成・入室成功
+        if(message[0].equals("roomcreatesuccess") || message[0].equals("roomjoinsuccess")) {
+            int roomID = Integer.parseInt(message[1]);
+            int seatID = Integer.parseInt(message[2]);
+            int queueID = Integer.parseInt(message[3]);
+
+            netPlayerClient.getYourPlayerInfo().roomID = roomID;
+            netPlayerClient.getYourPlayerInfo().seatID = seatID;
+            netPlayerClient.getYourPlayerInfo().queueID = queueID;
+
+            if(roomID != -1) {
+                NetRoomInfo roomInfo = netPlayerClient.getRoomInfo(roomID);
+                NetPlayerInfo pInfo = netPlayerClient.getYourPlayerInfo();
+
+                if((seatID == -1) && (queueID == -1)) {
+                    String strTemp = String.format(getUIText("SysMsg_StatusChange_Spectator"), getPlayerNameWithTripCode(pInfo));
+                    addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+                    setRoomJoinButtonVisible(true);
+                } else if(seatID == -1) {
+                    String strTemp = String.format(getUIText("SysMsg_StatusChange_Queue"), getPlayerNameWithTripCode(pInfo));
+                    addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+                    setRoomJoinButtonVisible(false);
+                } else {
+                    String strTemp = String.format(getUIText("SysMsg_StatusChange_Joined"), getPlayerNameWithTripCode(pInfo));
+                    addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+                    setRoomJoinButtonVisible(false);
+                }
+
+                if((netPlayerClient != null) && (netPlayerClient.getRoomInfo(roomID) != null)) {
+                    if(netPlayerClient.getRoomInfo(roomID).singleplayer) {
+                        btnRoomButtonsJoin.setVisible(false);
+                        btnRoomButtonsSitOut.setVisible(false);
+                        btnRoomButtonsRanking.setVisible(false);
+                        gameStatCardLayout.show(subpanelGameStat, "GameStat1P");
+                    } else {
+                        btnRoomButtonsRanking.setVisible(netPlayerClient.getRoomInfo(roomID).rated);
+                        gameStatCardLayout.show(subpanelGameStat, "GameStatMP");
+                    }
+                }
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        setRoomButtonsEnabled(true);
+                        updateRoomUserList();
+                    }
+                });
+
+                String strTitle = roomInfo.strName;
+                this.setTitle(getUIText("Title_NetLobby") + " - " + strTitle);
+                tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_Room") + strTitle);
+
+                addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_Title") + strTitle, Color.blue);
+                addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_ID") + roomInfo.roomID, Color.blue);
+                if(roomInfo.ruleLock) {
+                    addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_Rule") + roomInfo.ruleName, Color.blue);
+                }
+
+                setLobbyButtonsEnabled(2);
+                changeCurrentScreenCard(SCREENCARD_LOBBY);
+
+                // Listener呼び出し
+                for(NetLobbyListener l: listeners) {
+                    l.netlobbyOnRoomJoin(this, netPlayerClient, roomInfo);
+                }
+                if(netDummyMode != null) netDummyMode.netlobbyOnRoomJoin(this, netPlayerClient, roomInfo);
+            } else {
+                addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoin_Lobby"), Color.blue);
+
+                this.setTitle(getUIText("Title_NetLobby"));
+                tabLobbyAndRoom.setSelectedIndex(0);
+                tabLobbyAndRoom.setEnabledAt(1, false);
+                tabLobbyAndRoom.setTitleAt(1, getUIText("Lobby_Tab_NoRoom"));
+
+                setLobbyButtonsEnabled(1);
+                changeCurrentScreenCard(SCREENCARD_LOBBY);
+
+                // Listener呼び出し
+                for(NetLobbyListener l: listeners) {
+                    l.netlobbyOnRoomLeave(this, netPlayerClient);
+                }
+                if(netDummyMode != null) netDummyMode.netlobbyOnRoomLeave(this, netPlayerClient);
+            }
+        }
+        // ルーム入室失敗
+        if(message[0].equals("roomjoinfail")) {
+            addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoinFail"), Color.red);
+        }
+        // Kicked from a room
+        if(message[0].equals("roomkicked")) {
+            String strKickMsg = String.format(getUIText("SysMsg_Kicked_" + message[1]), NetUtil.urlDecode(message[3]), message[2]);
+            addSystemChatLogLater(txtpaneLobbyChatLog, strKickMsg, Color.red);
+        }
+        // Map receive
+        if(message[0].equals("map")) {
+            String strDecompressed = NetUtil.decompressString(message[1]);
+            String[] strMaps = strDecompressed.split("\t");
+
+            mapList.clear();
+
+            int maxMap = strMaps.length;
+            for(int i = 0; i < maxMap; i++) {
+                mapList.add(strMaps[i]);
+            }
+
+            log.debug("Received " + mapList.size() + " maps");
+        }
+        // Lobby chat
+        if(message[0].equals("lobbychat")) {
+            int uid = Integer.parseInt(message[1]);
+            NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
+
+            if(pInfo != null) {
+                Calendar calendar = GeneralUtil.importCalendarString(message[3]);
+                String strMsgBody = NetUtil.urlDecode(message[4]);
+                addUserChatLogLater(txtpaneLobbyChatLog, getPlayerNameWithTripCode(pInfo), calendar, strMsgBody);
+            }
+        }
+        // Room chat
+        if(message[0].equals("chat")) {
+            int uid = Integer.parseInt(message[1]);
+            NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
+
+            if(pInfo != null) {
+                Calendar calendar = GeneralUtil.importCalendarString(message[3]);
+                String strMsgBody = NetUtil.urlDecode(message[4]);
+                addUserChatLogLater(txtpaneRoomChatLog, getPlayerNameWithTripCode(pInfo), calendar, strMsgBody);
+            }
+        }
+        // Lobby chat/Room chat (history)
+        if(message[0].equals("lobbychath") || message[0].equals("chath")) {
+            String strUsername = convTripCode(NetUtil.urlDecode(message[1]));
+            Calendar calendar = GeneralUtil.importCalendarString(message[2]);
+            String strMsgBody = NetUtil.urlDecode(message[3]);
+            JTextPane txtpane = message[0].equals("lobbychath") ? txtpaneLobbyChatLog : txtpaneRoomChatLog;
+            addRecordedUserChatLogLater(txtpane, strUsername, calendar, strMsgBody);
+        }
+        // 参戦状態変更
+        if(message[0].equals("changestatus")) {
+            int uid = Integer.parseInt(message[2]);
+            NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
+
+            if(pInfo != null) {
+                if(message[1].equals("watchonly")) {
+                    String strTemp = String.format(getUIText("SysMsg_StatusChange_Spectator"), getPlayerNameWithTripCode(pInfo));
+                    addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+                    if(uid == netPlayerClient.getPlayerUID()) setRoomJoinButtonVisible(true);
+                } else if(message[1].equals("joinqueue")) {
+                    String strTemp = String.format(getUIText("SysMsg_StatusChange_Queue"), getPlayerNameWithTripCode(pInfo));
+                    addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+                    if(uid == netPlayerClient.getPlayerUID()) setRoomJoinButtonVisible(false);
+                } else if(message[1].equals("joinseat")) {
+                    String strTemp = String.format(getUIText("SysMsg_StatusChange_Joined"), getPlayerNameWithTripCode(pInfo));
+                    addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
+                    if(uid == netPlayerClient.getPlayerUID()) setRoomJoinButtonVisible(false);
+                }
+            }
+
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    updateRoomUserList();
+                }
+            });
+        }
+        // Automatically start timer開始
+        if(message[0].equals("autostartbegin")) {
+            String strTemp = String.format(getUIText("SysMsg_AutoStartBegin"), message[1]);
+            addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(64, 128, 0));
+        }
+        // game start
+        if(message[0].equals("start")) {
+            addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_GameStart"), new Color(0, 128, 0));
+            tablemodelGameStat.setRowCount(0);
+            tablemodelGameStat1P.setRowCount(0);
+
+            if(netPlayerClient.getYourPlayerInfo().seatID != -1) {
+                btnRoomButtonsSitOut.setEnabled(false);
+                btnRoomButtonsTeamChange.setEnabled(false);
+                itemLobbyMenuTeamChange.setEnabled(false);
+                roomTopBarCardLayout.first(subpanelRoomTopBar);
+            }
+        }
+        // 死亡
+        if(message[0].equals("dead")) {
+            int uid = Integer.parseInt(message[1]);
+            String name = convTripCode(NetUtil.urlDecode(message[2]));
+
+            if(message.length > 6) {
+                String strTemp = String.format(getUIText("SysMsg_KO"), convTripCode(NetUtil.urlDecode(message[6])), name);
+                addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(0, 128, 0));
+            }
+
+            if(uid == netPlayerClient.getPlayerUID()) {
+                btnRoomButtonsSitOut.setEnabled(true);
+                btnRoomButtonsTeamChange.setEnabled(true);
+                itemLobbyMenuTeamChange.setEnabled(true);
+            }
+        }
+        // Game stats (Multiplayer)
+        if(message[0].equals("gstat")) {
+            String[] rowdata = new String[13];
+            int myRank = Integer.parseInt(message[4]);
+
+            rowdata[0] = Integer.toString(myRank);                        // Rank
+            rowdata[1] = convTripCode(NetUtil.urlDecode(message[3]));    // Name
+            rowdata[2] = message[5];                                    // Attack count
+            rowdata[3] = message[6];                                    // APL
+            rowdata[4] = message[7];                                    // APM
+            rowdata[5] = message[8];                                    // Line count
+            rowdata[6] = message[9];                                    // LPM
+            rowdata[7] = message[10];                                    // Piece count
+            rowdata[8] = message[11];                                    // PPS
+            rowdata[9] = GeneralUtil.getTime(Integer.parseInt(message[12]));    //  Time
+            rowdata[10] = message[13];                                    // KO
+            rowdata[11] = message[14];                                    // Win
+            rowdata[12] = message[15];                                    // Games
+
+            int insertPos = 0;
+            for(int i = 0; i < tablemodelGameStat.getRowCount(); i++) {
+                String strRank = (String)tablemodelGameStat.getValueAt(i, 0);
+                int rank = Integer.parseInt(strRank);
+
+                if(myRank > rank) {
+                    insertPos = i + 1;
+                }
+            }
+
+            tablemodelGameStat.insertRow(insertPos, rowdata);
+
+            if(writerRoomLog != null) {
+                writerRoomLog.print("[" + getCurrentTimeAsString() + "] ");
+
+                for(int i = 0; i < rowdata.length; i++) {
+                    writerRoomLog.print(rowdata[i]);
+                    if(i < rowdata.length - 1) writerRoomLog.print(",");
+                    else writerRoomLog.print("\n");
+                }
+
+                writerRoomLog.flush();
+            }
+        }
+        // Game stats (Single player)
+        if(message[0].equals("gstat1p")) {
+            String strRowData = NetUtil.urlDecode(message[1]);
+            String[] rowData = strRowData.split("\t");
+
+            if(writerRoomLog != null) {
+                writerRoomLog.print("[" + getCurrentTimeAsString() + "]\n");
+            }
+
+            tablemodelGameStat1P.setRowCount(0);
+            for(int i = 0; i < rowData.length; i++) {
+                String[] strTempArray = rowData[i].split(";");
+                tablemodelGameStat1P.addRow(strTempArray);
+
+                if((writerRoomLog != null) && (strTempArray.length > 1)) {
+                    writerRoomLog.print(" " + strTempArray[0] + ":" + strTempArray[1] + "\n");
+                }
+            }
+
+            if(writerRoomLog != null) {
+                writerRoomLog.flush();
+            }
+        }
+        // game finished
+        if(message[0].equals("finish")) {
+            addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_GameEnd"), new Color(0, 128, 0));
+
+            if((message.length > 3) && (message[3].length() > 0)) {
+                boolean flagTeamWin = false;
+                if(message.length > 4) flagTeamWin = Boolean.parseBoolean(message[4]);
+
+                String strWinner = "";
+                if(flagTeamWin) strWinner = String.format(getUIText("SysMsg_WinnerTeam"), NetUtil.urlDecode(message[3]));
+                else strWinner = String.format(getUIText("SysMsg_Winner"), convTripCode(NetUtil.urlDecode(message[3])));
+                addSystemChatLogLater(txtpaneRoomChatLog, strWinner, new Color(0, 128, 0));
+            }
+
+            btnRoomButtonsSitOut.setEnabled(true);
+            btnRoomButtonsTeamChange.setEnabled(true);
+            itemLobbyMenuTeamChange.setEnabled(true);
+        }
+        // Rating change
+        if(message[0].equals("rating")) {
+            String strPlayerName = convTripCode(NetUtil.urlDecode(message[3]));
+            int ratingNow = Integer.parseInt(message[4]);
+            int ratingChange = Integer.parseInt(message[5]);
+            String strTemp = String.format(getUIText("SysMsg_Rating"), strPlayerName, ratingNow, ratingChange);
+            addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(0, 128, 0));
+        }
+        // Multiplayer Leaderboard
+        if(message[0].equals("mpranking")) {
+            int style = Integer.parseInt(message[1]);
+            int myRank = Integer.parseInt(message[2]);
+
+            tablemodelMPRanking[style].setRowCount(0);
+
+            String strPData = NetUtil.decompressString(message[3]);
+            String[] strPDataA = strPData.split("\t");
+
+            for(int i = 0; i < strPDataA.length; i++) {
+                String[] strRankData = strPDataA[i].split(";");
+                String[] strRowData = new String[MPRANKING_COLUMNNAMES.length];
+                int rank = Integer.parseInt(strRankData[0]);
+                if(rank == -1) {
+                    strRowData[0] = "N/A";
+                } else {
+                    strRowData[0] = Integer.toString(rank + 1);
+                }
+                strRowData[1] = convTripCode(NetUtil.urlDecode(strRankData[1]));
+                strRowData[2] = strRankData[2];
+                strRowData[3] = strRankData[3];
+                strRowData[4] = strRankData[4];
+                tablemodelMPRanking[style].addRow(strRowData);
+            }
+
+            if(myRank == -1) {
+                int tableRowMax = tablemodelMPRanking[style].getRowCount();
+                tableMPRanking[style].getSelectionModel().setSelectionInterval(tableRowMax - 1, tableRowMax - 1);
+            } else {
+                tableMPRanking[style].getSelectionModel().setSelectionInterval(myRank, myRank);
+            }
+        }
+        // Announcement from the admin
+        if(message[0].equals("announce")) {
+            String strTime = getCurrentTimeAsString();
+            String strMessage = "[" + strTime + "]<ADMIN>:" + NetUtil.urlDecode(message[1]);
+            addSystemChatLogLater(getCurrentChatLogTextPane(), strMessage, new Color(255,32,0));
+        }
+        // Single player replay download
+        if(message[0].equals("spdownload")) {
+            long sChecksum = Long.parseLong(message[1]);
+            Adler32 checksumObj = new Adler32();
+            checksumObj.update(NetUtil.stringToBytes(message[2]));
+
+            if(checksumObj.getValue() == sChecksum) {
+                String strReplay = NetUtil.decompressString(message[2]);
+                CustomProperties prop = new CustomProperties();
+                prop.decode(strReplay);
+
+                try {
+                    FileOutputStream out = new FileOutputStream("replay/netreplay.rep");
+                    prop.store(out, "NullpoMino NetReplay from " + netPlayerClient.getHost());
+                    addSystemChatLog(getCurrentChatLogTextPane(), getUIText("SysMsg_ReplaySaved"), Color.magenta);
+                } catch (IOException e) {
+                    log.error("Failed to write replay to replay/netreplay.rep", e);
+                }
+            }
+        }
+
+        // Listener呼び出し
+        if(listeners != null) {
+            for(NetLobbyListener l: listeners) {
+                l.netlobbyOnMessage(this, netPlayerClient, message);
+            }
+        }
+        if(netDummyMode != null) netDummyMode.netlobbyOnMessage(this, netPlayerClient, message);
+    }
+
+    /*
+     * 切断されたとき
+     */
+    public void netOnDisconnect(NetBaseClient client, Throwable ex) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                setLobbyButtonsEnabled(0);
+                setRoomButtonsEnabled(false);
+                tablemodelRoomList.setRowCount(0);
+            }
+        });
+
+        if(ex != null) {
+            addSystemChatLogLater(getCurrentChatLogTextPane(), getUIText("SysMsg_DisconnectedError") + "\n" + ex.getLocalizedMessage(), Color.red);
+            log.info("Server Disconnected", ex);
+        } else {
+            addSystemChatLogLater(getCurrentChatLogTextPane(), getUIText("SysMsg_DisconnectedOK"), new Color(128, 0, 0));
+            log.info("Server Disconnected (null)");
+        }
+
+        // Listener呼び出し
+        if(listeners != null) {
+            for(NetLobbyListener l: listeners) {
+                if(l != null) {
+                    l.netlobbyOnDisconnect(this, netPlayerClient, ex);
+                }
+            }
+        }
+        if(netDummyMode != null) netDummyMode.netlobbyOnDisconnect(this, netPlayerClient, ex);
+    }
+
+    /**
+     * Add an new NetLobbyListener, but don't add NetDummyMode!
+     * @param l A NetLobbyListener to add
+     */
+    public void addListener(NetLobbyListener l) {
+        listeners.add(l);
+    }
+
+    /**
+     * Remove a NetLobbyListener from the listeners list
+     * @param l NetLobbyListener to remove
+     * @return true if removed, false if not found or already removed
+     */
+    public boolean removeListener(NetLobbyListener l) {
+        return listeners.remove(l);
+    }
+
+    /**
+     * Set new game mode
+     * @param m Mode
+     */
+    public void setNetDummyMode(NetDummyMode m) {
+        netDummyMode = m;
+    }
+
+    /**
+     * Get current game mode
+     * @return Current game mode
+     */
+    public NetDummyMode getNetDummyMode() {
+        return netDummyMode;
+    }
+
+    /**
+     * メイン関count
+     * @param args コマンドLines引count
+     */
+    public static void main(String[] args) {
+        PropertyConfigurator.configure("config/etc/log.cfg");
+        NetLobbyFrame frame = new NetLobbyFrame();
+        frame.init();
+        frame.setVisible(true);
+    }
+
+    /**
+     * テキスト input 欄用ポップアップMenu
+     * <a href="http://terai.xrea.jp/Swing/DefaultEditorKit.html">出展</a>
+     */
+    protected class TextComponentPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action cutAction;
+        private Action copyAction;
+        @SuppressWarnings("unused")
+        private Action pasteAction;
+        private Action deleteAction;
+        private Action selectAllAction;
+
+        public TextComponentPopupMenu(final JTextComponent field) {
+            super();
+
+            add(cutAction = new AbstractAction(getUIText("Popup_Cut")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.cut();
+                }
+            });
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.copy();
+                }
+            });
+            add(pasteAction = new AbstractAction(getUIText("Popup_Paste")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.paste();
+                }
+            });
+            add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.replaceSelection(null);
+                }
+            });
+            add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.selectAll();
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTextComponent field = (JTextComponent) c;
+            boolean flg = field.getSelectedText() != null;
+            cutAction.setEnabled(flg);
+            copyAction.setEnabled(flg);
+            deleteAction.setEnabled(flg);
+            selectAllAction.setEnabled(field.isFocusOwner());
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * リストボックス用ポップアップMenu
+     */
+    protected class ListBoxPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private JList listbox;
+        private Action copyAction;
+
+        public ListBoxPopupMenu(JList l) {
+            super();
+
+            this.listbox = l;
+
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    if(listbox == null) return;
+                    Object selectedObj = listbox.getSelectedValue();
+
+                    if((selectedObj != null) && (selectedObj instanceof String)) {
+                        String selectedString = (String)selectedObj;
+                        StringSelection ss = new StringSelection(selectedString);
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(ss, ss);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            if(listbox.getSelectedIndex() != -1) {
+                copyAction.setEnabled(true);
+                super.show(c, x, y);
+            }
+        }
+    }
+
+    /**
+     * サーバー選択リストボックス用ポップアップMenu
+     */
+    protected class ServerSelectListBoxPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        @SuppressWarnings("unused")
+        private Action connectAction;
+        @SuppressWarnings("unused")
+        private Action deleteAction;
+        @SuppressWarnings("unused")
+        private Action setObserverAction;
+
+        public ServerSelectListBoxPopupMenu() {
+            super();
+
+            add(connectAction = new AbstractAction(getUIText("Popup_ServerSelect_Connect")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    serverSelectConnectButtonClicked();
+                }
+            });
+            add(deleteAction = new AbstractAction(getUIText("Popup_ServerSelect_Delete")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    serverSelectDeleteButtonClicked();
+                }
+            });
+            add(setObserverAction = new AbstractAction(getUIText("Popup_ServerSelect_SetObserver")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    serverSelectSetObserverButtonClicked();
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            if(listboxServerList.getSelectedIndex() != -1) {
+                super.show(c, x, y);
+            }
+        }
+    }
+
+    /**
+     * サーバー選択リストボックス用MouseAdapter
+     */
+    protected class ServerSelectListBoxMouseAdapter extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if((e.getClickCount() == 2) && (e.getButton() == MouseEvent.BUTTON1)) {
+                serverSelectConnectButtonClicked();
+            }
+        }
+    }
+
+    /**
+     * Room list table用ポップアップMenu
+     */
+    protected class RoomTablePopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action joinAction;
+        private Action watchAction;
+        private Action detailAction;
+
+        public RoomTablePopupMenu() {
+            super();
+
+            add(joinAction = new AbstractAction(getUIText("Popup_RoomTable_Join")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    int row = tableRoomList.getSelectedRow();
+                    if(row != -1) {
+                        int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+                        String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
+                        int roomID = Integer.parseInt(strRoomID);
+                        joinRoom(roomID, false);
+                    }
+                }
+            });
+            add(watchAction = new AbstractAction(getUIText("Popup_RoomTable_Watch")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    int row = tableRoomList.getSelectedRow();
+                    if(row != -1) {
+                        int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+                        String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
+                        int roomID = Integer.parseInt(strRoomID);
+                        joinRoom(roomID, true);
+                    }
+                }
+            });
+            add(detailAction = new AbstractAction(getUIText("Popup_RoomTable_Detail")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    int row = tableRoomList.getSelectedRow();
+                    if(row != -1) {
+                        int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+                        String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
+                        int roomID = Integer.parseInt(strRoomID);
+                        viewRoomDetail(roomID);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            if(tableRoomList.getSelectedRow() != -1) {
+                joinAction.setEnabled(true);
+                watchAction.setEnabled(true);
+                detailAction.setEnabled(true);
+                super.show(c, x, y);
+            }
+        }
+    }
+
+    /**
+     * Room list table用MouseAdapter
+     */
+    protected class RoomTableMouseAdapter extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if((e.getClickCount() == 2) && (e.getButton() == MouseEvent.BUTTON1)) {
+                Point pt = e.getPoint();
+                int row = tableRoomList.rowAtPoint(pt);
+
+                if(row != -1) {
+                    int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+                    String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
+                    int roomID = Integer.parseInt(strRoomID);
+                    joinRoom(roomID, false);
+                }
+            }
+        }
+    }
+
+    /**
+     * Room list table用KeyAdapter
+     */
+    protected class RoomTableKeyAdapter extends KeyAdapter {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                e.consume();
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                int row = tableRoomList.getSelectedRow();
+                if(row != -1) {
+                    int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+                    String strRoomID = (String)tablemodelRoomList.getValueAt(row, columnID);
+                    int roomID = Integer.parseInt(strRoomID);
+                    joinRoom(roomID, false);
+                }
+                e.consume();
+            }
+        }
+    }
+
+    /**
+     * ログ表示欄用ポップアップMenu
+     */
+    protected class LogPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action copyAction;
+        private Action selectAllAction;
+        @SuppressWarnings("unused")
+        private Action clearAction;
+
+        public LogPopupMenu(final JTextComponent field) {
+            super();
+
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.copy();
+                }
+            });
+            add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.selectAll();
+                }
+            });
+            add(clearAction = new AbstractAction(getUIText("Popup_Clear")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.setText(null);
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTextComponent field = (JTextComponent) c;
+            boolean flg = field.getSelectedText() != null;
+            copyAction.setEnabled(flg);
+            selectAllAction.setEnabled(field.isFocusOwner());
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * ログ表示欄用KeyAdapter
+     */
+    protected class LogKeyAdapter extends KeyAdapter {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if( (e.getKeyCode() != KeyEvent.VK_UP) && (e.getKeyCode() != KeyEvent.VK_DOWN) &&
+                (e.getKeyCode() != KeyEvent.VK_LEFT) && (e.getKeyCode() != KeyEvent.VK_RIGHT) &&
+                (e.getKeyCode() != KeyEvent.VK_HOME) && (e.getKeyCode() != KeyEvent.VK_END) &&
+                (e.getKeyCode() != KeyEvent.VK_PAGE_UP) && (e.getKeyCode() != KeyEvent.VK_PAGE_DOWN) &&
+                ((e.getKeyCode() != KeyEvent.VK_A) || (e.isControlDown() == false)) &&
+                ((e.getKeyCode() != KeyEvent.VK_C) || (e.isControlDown() == false)) &&
+                (!e.isAltDown()) )
+            {
+                e.consume();
+            }
+        }
+        @Override
+        public void keyTyped(KeyEvent e) {
+            e.consume();
+        }
+    }
+
+    /**
+     * Popup menu for any table
+     */
+    protected class TablePopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action copyAction;
+
+        public TablePopupMenu(final JTable table) {
+            super();
+
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    int row = table.getSelectedRow();
+
+                    if(row != -1) {
+                        String strCopy = "";
+
+                        for(int column = 0; column < table.getColumnCount(); column++) {
+                            Object selectedObject = table.getValueAt(row, column);
+                            if(selectedObject instanceof String) {
+                                if(column == 0) {
+                                    strCopy += (String)selectedObject;
+                                } else {
+                                    strCopy += "," + (String)selectedObject;
+                                }
+                            }
+                        }
+
+                        StringSelection ss = new StringSelection(strCopy);
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(ss, ss);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTable table = (JTable) c;
+            boolean flg = table.getSelectedRow() != -1;
+            copyAction.setEnabled(flg);
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * Rule entry for rule change screen
+     */
+    protected class RuleEntry {
+        /** File name */
+        public String filename;
+        /** File path */
+        public String filepath;
+        /** Rule name */
+        public String rulename;
+        /** Game style */
+        public int style;
+    }
 }

@@ -807,860 +807,860 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
         // unban
         else if(commands[0].equalsIgnoreCase("unban")) {
             if(commands.length > 1) {
-            	sendCommand("unban\t" + commands[1]);
-			} else {
-				addConsoleLog(getUIText("Console_UnBan_NoParams"));
-			}
-		}
-		// playerdelete/pdel
-		else if(commands[0].equalsIgnoreCase("playerdelete")||commands[0].equalsIgnoreCase("pdel")) {
-			String strTemp = GeneralUtil.StringCombine(commands, " ", 1);
-			if(strTemp.length() > 0) {
-				sendCommand("playerdelete\t" + strTemp);
-			} else {
-				addConsoleLog(getUIText("Console_PlayerDelete_NoParams"));
-			}
-		}
-		// roomdelete/rdef
-		else if(commands[0].equalsIgnoreCase("roomdelete")||commands[0].equalsIgnoreCase("rdel")) {
-			if(commands.length > 1) {
-				sendCommand("roomdelete\t" + commands[1]);
-			} else {
-				addConsoleLog(getUIText("Console_RoomDelete_NoParams"));
-			}
-		}
-		// Invalid
-		else {
-			addConsoleLog(String.format(getUIText("Console_UnknownCommand"), commands[0]));
-		}
-	}
-
-	/**
-	 * Get translated GUI text
-	 * @param str String
-	 * @return Translated GUI text
-	 */
-	private static String getUIText(String str) {
-		String result = propLang.getProperty(str);
-		if(result == null) {
-			result = propLangDefault.getProperty(str, str);
-		}
-		return result;
-	}
-
-	/**
-	 * Copy the selected row to clipboard
-	 * @param table JTable
-	 */
-	private static void copyTableRowToClipboard(final JTable table) {
-		int row = table.getSelectedRow();
-
-		if(row != -1) {
-			String strCopy = "";
-
-			for(int column = 0; column < table.getColumnCount(); column++) {
-				Object selectedObject = table.getValueAt(row, column);
-				if(selectedObject instanceof String) {
-					if(column == 0) {
-						strCopy += (String)selectedObject;
-					} else {
-						strCopy += "," + (String)selectedObject;
-					}
-				}
-			}
-
-			StringSelection ss = new StringSelection(strCopy);
-			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-			clipboard.setContents(ss, ss);
-		}
-	}
-
-	/**
-	 * Program entry point
-	 * @param args Command line options
-	 */
-	public static void main(String[] args) {
-		PropertyConfigurator.configure("config/etc/log.cfg");
-		new NetAdmin();
-	}
-
-	/**
-	 * Sets a ban.
-	 * @param strIP IP
-	 * @param banLength Length of ban (-1:Kick only)
-	 * @param showMessage true if display a confirm dialog
-	 */
-	private void requestBanFromGUI(String strIP, int banLength, boolean showMessage) {
-		if((strIP == null) || (strIP.length() == 0)) return;
-
-		if(banLength == -1) {
-			int answer = JOptionPane.YES_OPTION;
-
-			if(showMessage) {
-				answer = JOptionPane.showConfirmDialog(
-						this,
-						getUIText("Message_ConfirmKick") + "\n" + strIP,
-						getUIText("Title_ConfirmKick"),
-						JOptionPane.YES_NO_OPTION);
-			}
-
-			if(answer == JOptionPane.YES_OPTION) {
-				sendCommand("ban\t" + strIP);
-			}
-		} else {
-			int answer = JOptionPane.YES_OPTION;
-
-			if(showMessage) {
-				answer = JOptionPane.showConfirmDialog(
-						this,
-						String.format(getUIText("Message_ConfirmBan"), getUIText("BanType" + banLength)) + "\n" + strIP,
-						getUIText("Title_ConfirmBan"),
-						JOptionPane.YES_NO_OPTION);
-			}
-
-			if(answer == JOptionPane.YES_OPTION) {
-				sendCommand("ban\t" + strIP + "\t" + banLength);
-			}
-		}
-	}
-
-	/**
-	 * Open ban dialog
-	 * @param strIP Default IP
-	 */
-	private void openBanDialog(String strIP) {
-		// Dialog box
-		final JDialog dialogBan = new JDialog();
-		dialogBan.setTitle(getUIText("Title_BanDialog"));
-		dialogBan.getContentPane().setLayout(new BoxLayout(dialogBan.getContentPane(), BoxLayout.Y_AXIS));
-
-		// IP options
-		final JPanel pBanIP = new JPanel();
-		dialogBan.getContentPane().add(pBanIP);
-
-		final JLabel lBanIP = new JLabel(getUIText("Ban_IP"));
-		pBanIP.add(lBanIP);
-
-		final JTextField txtfldBanIP = new JTextField(16);
-		if(strIP != null) txtfldBanIP.setText(strIP);
-		txtfldBanIP.setComponentPopupMenu(new TextComponentPopupMenu(txtfldBanIP));
-		pBanIP.add(txtfldBanIP);
-
-		// Ban length Options
-		final JPanel pBanLength = new JPanel();
-		dialogBan.getContentPane().add(pBanLength);
-
-		// Ban length
-		final JLabel lBanLength = new JLabel(getUIText("Ban_Length"));
-		pBanLength.add(lBanLength);
-
-		final JComboBox comboboxBanLength = new JComboBox();
-		comboboxBanLength.setToolTipText(getUIText("Ban_Length_Tip"));
-		for (int i = -1; i < NetServerBan.BANLENGTH_TOTAL; i++) {
-			comboboxBanLength.addItem(getUIText("BanType"+i));
-		}
-		pBanLength.add(comboboxBanLength);
-
-		// Buttons
-		final JPanel pButtons = new JPanel();
-		dialogBan.getContentPane().add(pButtons);
-
-		final JButton btnConfirm = new JButton(getUIText("Ban_Confirm"));
-		btnConfirm.setMnemonic('O');
-		btnConfirm.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				requestBanFromGUI(txtfldBanIP.getText(),comboboxBanLength.getSelectedIndex() - 1, false);
-				dialogBan.dispose();
-			}
-		});
-		pButtons.add(btnConfirm);
-
-		final JButton btnCancel = new JButton(getUIText("Ban_Cancel"));
-		btnCancel.setMnemonic('C');
-		btnCancel.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				dialogBan.dispose();
-			}
-		});
-		pButtons.add(btnCancel);
-
-		// Set frame vitals
-		dialogBan.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		dialogBan.setLocationRelativeTo(null);
-		dialogBan.setModal(true);
-		dialogBan.setResizable(false);
-		dialogBan.getRootPane().setDefaultButton(btnConfirm);
-		dialogBan.pack();
-		dialogBan.setVisible(true);
-	}
-
-	/*
-	 * Button clicked
-	 */
-	public void actionPerformed(ActionEvent e) {
-		// Login
-		if(e.getActionCommand() == "Login_Login") {
-			if((txtfldUsername.getText().length() > 0) && (passfldPassword.getPassword().length > 0)) {
-				setLoginUIEnabled(false);
-				labelLoginMessage.setForeground(Color.black);
-				labelLoginMessage.setText(getUIText("Login_Message_Connecting"));
-
-				// Get hostname and port number
-				String strHost = txtfldServer.getText();
-				if(strHost.length() == 0) strHost = "127.0.0.1";
-				int portSpliter = strHost.indexOf(':');
-				if(portSpliter == -1) portSpliter = strHost.length();
-
-				strServerHost = strHost.substring(0, portSpliter);
-
-				serverPort = NetBaseClient.DEFAULT_PORT;
-				try {
-					String strPort = strHost.substring(portSpliter + 1, strHost.length());
-					serverPort = Integer.parseInt(strPort);
-				} catch (Exception e2) {}
-
-				// Begin connect
-				isWantedDisconnect = false;
-				isShutdownRequested = false;
-				client = new NetBaseClient(strServerHost, serverPort);
-				client.setDaemon(true);
-				client.addListener(this);
-				client.start();
-			}
-		}
-		// Quit
-		if(e.getActionCommand() == "Login_Quit") {
-			shutdown();
-		}
-		// Execute console command
-		if(e.getActionCommand() == "Lobby_Console_Execute") {
-			String commandline = txtfldConsoleCommand.getText();
-			String[] commands = commandline.split(" ");
-			executeConsoleCommand(commands, commandline);
-			txtfldConsoleCommand.setText("");
-		}
-		// Load/Refresh Ranking
-		if(e.getActionCommand() == "MPRanking_Button_LoadRanking") {
-			btnRankingLoad.setEnabled(false);
-			client.send("mpranking\t0\n");
-		}
-	}
-
-	/*
-	 * Received a message
-	 */
-	public void netOnMessage(NetBaseClient client, String[] message) throws IOException {
-		//if(message.length > 0) log.debug(message[0]);
-
-		// Welcome
-		if(message[0].equals("welcome")) {
-			//welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[PING INTERVAL]
-			labelLoginMessage.setForeground(Color.black);
-			labelLoginMessage.setText(getUIText("Login_Message_LoggingIn"));
-
-			// Version check
-			float clientMajorVer = GameManager.getVersionMajor();
-			float serverMajorVer = Float.parseFloat(message[1]);
-
-			if(clientMajorVer != serverMajorVer) {
-				labelLoginMessage.setForeground(Color.red);
-				labelLoginMessage.setText(String.format(getUIText("Login_Message_VersionError"), clientMajorVer, serverMajorVer));
-				isWantedDisconnect = true;
-				logout();
-				return;
-			}
-			serverFullVer = message[5];
-
-			// Ping interval
-			long pingInterval = (message.length > 6) ? Long.parseLong(message[6]) : NetBaseClient.PING_INTERVAL;
-			if(pingInterval != NetBaseClient.PING_INTERVAL) {
-				client.startPingTask(pingInterval);
-			}
-
-			// Send login message
-			String strUsername = txtfldUsername.getText();
-
-			RC4 rc4 = new RC4(passfldPassword.getPassword());
-			byte[] ePassword = rc4.rc4(NetUtil.stringToBytes(strUsername));
-			char[] b64Password = Base64Coder.encode(ePassword);
-
-			String strLogin = "adminlogin\t" + clientMajorVer + "\t" + strUsername + "\t" + new String(b64Password) + "\n";
-			log.debug("Send login message:" + strLogin);
-			client.send(strLogin);
-		}
-		// Login failed
-		if(message[0].equals("adminloginfail")) {
-			isWantedDisconnect = true;
-			logout();
-
-			labelLoginMessage.setForeground(Color.red);
-			if((message.length > 1) && (message[1].equals("DISABLE"))) {
-				labelLoginMessage.setText(getUIText("Login_Message_DisabledError"));
-			} else {
-				labelLoginMessage.setText(getUIText("Login_Message_LoginError"));
-			}
-			return;
-		}
-		// Banned
-		if(message[0].equals("banned")) {
-			isWantedDisconnect = true;
-			logout();
-
-			labelLoginMessage.setForeground(Color.red);
-
-			Calendar cStart = GeneralUtil.importCalendarString(message[1]);
-			Calendar cExpire = ((message.length > 2) && (message[2].length() > 0)) ? GeneralUtil.importCalendarString(message[2]) : null;
-
-			String strStart = (cStart != null) ? GeneralUtil.getCalendarString(cStart) : "???";
-			String strExpire = (cExpire != null) ? GeneralUtil.getCalendarString(cExpire) : getUIText("Login_Message_Banned_Permanent");
-
-			labelLoginMessage.setText(String.format(getUIText("Login_Message_Banned"), strStart, strExpire));
-			return;
-		}
-		// Login successful
-		if(message[0].equals("adminloginsuccess")) {
-			strMyIP = message[1];
-			strMyHostname = message[2];
-
-			propConfig.setProperty("login.rememberUsername", chkboxRememberUsername.isSelected());
-			propConfig.setProperty("login.rememberPassword", chkboxRememberPassword.isSelected());
-
-			propConfig.setProperty("login.server", txtfldServer.getText());
-			if(chkboxRememberUsername.isSelected()) {
-				propConfig.setProperty("login.username", txtfldUsername.getText());
-			} else {
-				propConfig.setProperty("login.username", "");
-			}
-			if(chkboxRememberPassword.isSelected()) {
-				propConfig.setProperty("login.password", NetUtil.compressString(new String(passfldPassword.getPassword())));
-			} else {
-				propConfig.setProperty("login.password", "");
-			}
-
-			addConsoleLog(String.format(getUIText("Console_LoginOK"), strServerHost, serverPort));
-
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					changeCurrentScreenCard(SCREENCARD_LOBBY);
-				}
-			});
-		}
-		// Multiplayer Leaderboard
-		if(message[0].equals("mpranking")) {
-			btnRankingLoad.setEnabled(true);
-
-			int style = Integer.parseInt(message[1]);
-
-			tablemodelMPRanking[style].setRowCount(0);
-
-			String strPData = NetUtil.decompressString(message[3]);
-			String[] strPDataA = strPData.split("\t");
-
-			for(int i = 0; i < strPDataA.length; i++) {
-				String[] strRankData = strPDataA[i].split(";");
-
-				if(strRankData.length >= MPRANKING_COLUMNNAMES.length) {
-					String[] strRowData = new String[MPRANKING_COLUMNNAMES.length];
-					int rank = Integer.parseInt(strRankData[0]);
-					if(rank == -1) {
-						strRowData[0] = "N/A";
-					} else {
-						strRowData[0] = Integer.toString(rank + 1);
-					}
-					strRowData[1] = NetUtil.urlDecode(strRankData[1]);
-					strRowData[2] = strRankData[2];
-					strRowData[3] = strRankData[3];
-					strRowData[4] = strRankData[4];
-					tablemodelMPRanking[style].addRow(strRowData);
-				}
-			}
-		}
-		// Room List
-		if(message[0].equals("roomlist")) {
-			int size = Integer.parseInt(message[1]);
-
-			tablemodelRoomList.setRowCount(0);
-			for(int i = 0; i < size; i++) {
-				NetRoomInfo r = new NetRoomInfo(message[2 + i]);
-				tablemodelRoomList.addRow(createRoomListRowData(r));
-			}
-		}
-		// New room appeared
-		if(message[0].equals("roomcreate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
-			tablemodelRoomList.addRow(createRoomListRowData(r));
-		}
-		// Room update
-		if(message[0].equals("roomupdate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
-			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-
-			for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
-				String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
-				int roomID = Integer.parseInt(strID);
-
-				if(roomID == r.roomID) {
-					String[] rowData = createRoomListRowData(r);
-					for(int j = 0; j < rowData.length; j++) {
-						tablemodelRoomList.setValueAt(rowData[j], i, j);
-					}
-					break;
-				}
-			}
-		}
-		// Room delete
-		if(message[0].equals("roomdelete")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
-			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
-
-			for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
-				String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
-				int roomID = Integer.parseInt(strID);
-
-				if(roomID == r.roomID) {
-					tablemodelRoomList.removeRow(i);
-					break;
-				}
-			}
-		}
-		// Admin command result
-		if(message[0].equals("adminresult")) {
-			if(message.length > 1) {
-				String strAdminResultTemp = NetUtil.decompressString(message[1]);
-				String[] strAdminResultArray = strAdminResultTemp.split("\t");
-				onAdminResultMessage(client, strAdminResultArray);
-			}
-		}
-	}
-
-	/**
-	 * Create a row of room list
-	 * @param r NetRoomInfo
-	 * @return Row data
-	 */
-	private String[] createRoomListRowData(NetRoomInfo r) {
-		String[] rowData = new String[7];
-		rowData[0] = Integer.toString(r.roomID);
-		rowData[1] = r.strName;
-		rowData[2] = r.rated ? getUIText("RoomTable_Rated_True") : getUIText("RoomTable_Rated_False");
-		rowData[3] = r.ruleLock ? r.ruleName.toUpperCase() : getUIText("RoomTable_RuleName_Any");
-		rowData[4] = r.playing ? getUIText("RoomTable_Status_Playing") : getUIText("RoomTable_Status_Waiting");
-		rowData[5] = r.playerSeatedCount + "/" + r.maxPlayers;
-		rowData[6] = Integer.toString(r.spectatorCount);
-		return rowData;
-	}
-
-	/**
-	 * When received an admin command result
-	 * @param client NetBaseClient
-	 * @param message Message
-	 * @throws IOException When something bad happens
-	 */
-	private void onAdminResultMessage(NetBaseClient client, String[] message) throws IOException {
-		// Client list
-		if(message[0].equals("clientlist")) {
-			// Get current selected IP and Type
-			String strSelectedIP = null;
-			String strSelectedType = null;
-			if(tableUsers.getSelectedRow() != -1) {
-				strSelectedIP   = (String)tablemodelUsers.getValueAt(tableUsers.getSelectedRow(), 0);
-				strSelectedType = (String)tablemodelUsers.getValueAt(tableUsers.getSelectedRow(), 2);
-			}
-			tableUsers.getSelectionModel().clearSelection();
-
-			// Set number of rows
-			if(tablemodelUsers.getRowCount() > message.length - 1) {
-				tablemodelUsers.setRowCount(message.length - 1);
-			}
-
-			for(int i = 1; i < message.length; i++) {
-				String[] strClientData = message[i].split("\\|");
-
-				String strIP = strClientData[0];		// IP
-				String strHost = strClientData[1];		// Hostname
-
-				// Type of the client
-				int type = Integer.parseInt(strClientData[2]);
-				String strType = getUIText(USERTABLE_USERTYPES[type]);
-				if(strIP.equals(strMyIP) && strHost.equals(strMyHostname) && (type == 3))
-					strType = "*" + getUIText(USERTABLE_USERTYPES[type]);
-
-				// Player info
-				NetPlayerInfo pInfo = null;
-				if((type == 1) && (strClientData.length > 3)) {
-					String strPlayerInfoTemp = strClientData[3];
-					pInfo = new NetPlayerInfo(strPlayerInfoTemp);
-				}
-
-				// Create a row data
-				String[] strTableData = new String[tablemodelUsers.getColumnCount()];
-				strTableData[0] = strIP;
-				strTableData[1] = strHost;
-				strTableData[2] = strType;
-				strTableData[3] = (pInfo != null) ? pInfo.strName : "";
-
-				// Add the row data
-				int rowNumber = i - 1;
-				int maxRow = tablemodelUsers.getRowCount();
-				if(rowNumber < maxRow) {
-					// Modify an existing row
-					for(int j = 0; j < strTableData.length; j++) {
-						tablemodelUsers.setValueAt(strTableData[j], rowNumber, j);
-					}
-
-					// Set selected row
-					if((strSelectedIP != null) && (strSelectedType != null) &&
-						strSelectedIP.equals(strIP) && strSelectedType.equals(strType))
-					{
-						tableUsers.getSelectionModel().setSelectionInterval(rowNumber, rowNumber);
-						strSelectedIP = null;
-						strSelectedType = null;
-					}
-				} else {
-					// Add an new row
-					tablemodelUsers.addRow(strTableData);
-
-					// Set selected row
-					if((strSelectedIP != null) && (strSelectedType != null) &&
-						strSelectedIP.equals(strIP) && strSelectedType.equals(strType))
-					{
-						tableUsers.getSelectionModel().setSelectionInterval(maxRow, maxRow);
-						strSelectedIP = null;
-						strSelectedType = null;
-					}
-				}
-			}
-		}
-		// Ban
-		if(message[0].equals("ban")) {
-			if(message.length > 3) {
-				String strBanLength = getUIText("BanType" + message[2]);
-				addConsoleLog(String.format(getUIText("Console_Ban_Result"),message[1],strBanLength,message[3]), new Color(0, 64, 64));
-			}
-		}
-		// Ban List
-		if(message[0].equals("banlist")) {
-			if(message.length < 2) {
-				addConsoleLog(getUIText("Console_BanList_Result_None"), new Color(0, 64, 64));
-			} else {
-				for(int i = 0; i < message.length - 1; i++) {
-					NetServerBan ban = new NetServerBan();
-					ban.importString(message[i + 1]);
-
-					String strBanLength = getUIText("BanType" + ban.banLength);
-					String strDate = "";
-					if(ban.startDate != null) {
-						strDate = GeneralUtil.getCalendarString(ban.startDate);
-					}
-
-					addConsoleLog(String.format(getUIText("Console_BanList_Result"), ban.addr, strBanLength, strDate), new Color(0, 64, 64));
-				}
-			}
-		}
-		// Un-Ban
-		if(message[0].equals("unban")) {
-			if(message.length > 2) {
-				addConsoleLog(String.format(getUIText("Console_UnBan_Result"), message[1], message[2]), new Color(0, 64, 64));
-			}
-		}
-		// Player Delete
-		if(message[0].equals("playerdelete")) {
-			if(message.length > 1) {
-				addConsoleLog(String.format(getUIText("Console_PlayerDelete_Result"), message[1]), new Color(0, 64, 64));
-			}
-		}
-		// Room Delete (OK)
-		if(message[0].equals("roomdeletesuccess")) {
-			if(message.length > 2) {
-				addConsoleLog(String.format(getUIText("Console_RoomDelete_OK"), message[1], message[2]), new Color(0, 64, 64));
-			}
-		}
-		// Room Delete (NG)
-		if(message[0].equals("roomdeletefail")) {
-			if(message.length > 1) {
-				addConsoleLog(String.format(getUIText("Console_RoomDelete_NG"), message[1]), new Color(0, 64, 64));
-			}
-		}
-		// Diagnostics
-		if (message[0].equals("diag")) {
-			if(message.length > 1) {
-				addConsoleLog(message[1], new Color(0, 64, 64));
-			}
-		}
-	}
-
-	/*
-	 * Disconnected
-	 */
-	public void netOnDisconnect(NetBaseClient client, Throwable ex) {
-		if(isShutdownRequested) {
-			log.info("Server shutdown completed");
-			labelLoginMessage.setForeground(Color.black);
-			labelLoginMessage.setText(getUIText("Login_Message_Shutdown"));
-		} else if(isWantedDisconnect) {
-			log.info("Disconnected from the server");
-		} else {
-			labelLoginMessage.setForeground(Color.red);
-			if(ex == null) {
-				log.warn("ERROR Disconnected! (null)");
-				labelLoginMessage.setText(String.format(getUIText("Login_Message_UnwantedDisconnect"), "(null)"));
-			} else {
-				log.error("ERROR Disconnected!", ex);
-				labelLoginMessage.setText(String.format(getUIText("Login_Message_UnwantedDisconnect"), ex.toString()));
-			}
-		}
-		logout();
-	}
-
-	/**
-	 * Popup menu for text components
-	 */
-	private class TextComponentPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action cutAction;
-		private Action copyAction;
-		@SuppressWarnings("unused")
-		private Action pasteAction;
-		private Action deleteAction;
-		private Action selectAllAction;
-
-		public TextComponentPopupMenu(final JTextComponent field) {
-			super();
-
-			add(cutAction = new AbstractAction(getUIText("Popup_Cut")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.cut();
-				}
-			});
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.copy();
-				}
-			});
-			add(pasteAction = new AbstractAction(getUIText("Popup_Paste")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.paste();
-				}
-			});
-			add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.replaceSelection(null);
-				}
-			});
-			add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.selectAll();
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTextComponent field = (JTextComponent) c;
-			boolean flg = field.getSelectedText() != null;
-			cutAction.setEnabled(flg);
-			copyAction.setEnabled(flg);
-			deleteAction.setEnabled(flg);
-			selectAllAction.setEnabled(field.isFocusOwner());
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * Popup menu for console log
-	 */
-	private class LogPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action copyAction;
-		private Action selectAllAction;
-		@SuppressWarnings("unused")
-		private Action clearAction;
-
-		public LogPopupMenu(final JTextComponent field) {
-			super();
-
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.copy();
-				}
-			});
-			add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.selectAll();
-				}
-			});
-			add(clearAction = new AbstractAction(getUIText("Popup_Clear")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					field.setText(null);
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTextComponent field = (JTextComponent) c;
-			boolean flg = field.getSelectedText() != null;
-			copyAction.setEnabled(flg);
-			selectAllAction.setEnabled(field.isFocusOwner());
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * Popup menu for users table
-	 */
-	private class UserPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action copyAction;
-		private Action kickAction;
-		private Action banAction;
-
-		public UserPopupMenu(final JTable table) {
-			super();
-
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					copyTableRowToClipboard(table);
-				}
-			});
-			add(kickAction = new AbstractAction(getUIText("Popup_Kick")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					int rowNumber = table.getSelectedRow();
-					String strIP = (String)table.getValueAt(rowNumber, 0);
-					requestBanFromGUI(strIP, -1, true);
-				}
-			});
-			add(banAction = new AbstractAction(getUIText("Popup_Ban")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					int rowNumber = table.getSelectedRow();
-					final String strIP = (String)table.getValueAt(rowNumber, 0);
-					openBanDialog(strIP);
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTable table = (JTable) c;
-			boolean flg = table.getSelectedRow() != -1;
-			copyAction.setEnabled(flg);
-			kickAction.setEnabled(flg);
-			banAction.setEnabled(flg);
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * Popup menu for leaderboard table
-	 */
-	private class MPRankingPopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action copyAction;
-		private Action deleteAction;
-
-		public MPRankingPopupMenu(final JTable table) {
-			super();
-
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					copyTableRowToClipboard(table);
-				}
-			});
-			add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					int rowNumber = table.getSelectedRow();
-					String strName = (String)table.getValueAt(rowNumber, 1);
-					sendCommand("playerdelete\t" + strName);
-					client.send("mpranking\t0\n");
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTable table = (JTable) c;
-			boolean flg = table.getSelectedRow() != -1;
-			copyAction.setEnabled(flg);
-			deleteAction.setEnabled(flg);
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * Popup menu for room list table
-	 */
-	private class RoomTablePopupMenu extends JPopupMenu {
-		private static final long serialVersionUID = 1L;
-
-		private Action copyAction;
-		private Action deleteAction;
-
-		public RoomTablePopupMenu(final JTable table) {
-			super();
-
-			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent e) {
-					copyTableRowToClipboard(table);
-				}
-			});
-			add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
-				private static final long serialVersionUID = 1L;
-				public void actionPerformed(ActionEvent evt) {
-					int rowNumber = table.getSelectedRow();
-					String strID = (String)table.getValueAt(rowNumber, 0);
-					sendCommand("roomdelete\t" + strID);
-				}
-			});
-		}
-
-		@Override
-		public void show(Component c, int x, int y) {
-			JTable table = (JTable) c;
-			boolean flg = table.getSelectedRow() != -1;
-			copyAction.setEnabled(flg);
-			deleteAction.setEnabled(flg);
-			super.show(c, x, y);
-		}
-	}
-
-	/**
-	 * KeyAdapter for console log
-	 */
-	private class LogKeyAdapter extends KeyAdapter {
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if( (e.getKeyCode() != KeyEvent.VK_UP) && (e.getKeyCode() != KeyEvent.VK_DOWN) &&
-			    (e.getKeyCode() != KeyEvent.VK_LEFT) && (e.getKeyCode() != KeyEvent.VK_RIGHT) &&
-			    (e.getKeyCode() != KeyEvent.VK_HOME) && (e.getKeyCode() != KeyEvent.VK_END) &&
-			    (e.getKeyCode() != KeyEvent.VK_PAGE_UP) && (e.getKeyCode() != KeyEvent.VK_PAGE_DOWN) &&
-			    ((e.getKeyCode() != KeyEvent.VK_A) || (e.isControlDown() == false)) &&
-			    ((e.getKeyCode() != KeyEvent.VK_C) || (e.isControlDown() == false)) &&
-			    (!e.isAltDown()) )
-			{
-				e.consume();
-			}
-		}
-		@Override
-		public void keyTyped(KeyEvent e) {
-			e.consume();
-		}
-	}
+                sendCommand("unban\t" + commands[1]);
+            } else {
+                addConsoleLog(getUIText("Console_UnBan_NoParams"));
+            }
+        }
+        // playerdelete/pdel
+        else if(commands[0].equalsIgnoreCase("playerdelete")||commands[0].equalsIgnoreCase("pdel")) {
+            String strTemp = GeneralUtil.StringCombine(commands, " ", 1);
+            if(strTemp.length() > 0) {
+                sendCommand("playerdelete\t" + strTemp);
+            } else {
+                addConsoleLog(getUIText("Console_PlayerDelete_NoParams"));
+            }
+        }
+        // roomdelete/rdef
+        else if(commands[0].equalsIgnoreCase("roomdelete")||commands[0].equalsIgnoreCase("rdel")) {
+            if(commands.length > 1) {
+                sendCommand("roomdelete\t" + commands[1]);
+            } else {
+                addConsoleLog(getUIText("Console_RoomDelete_NoParams"));
+            }
+        }
+        // Invalid
+        else {
+            addConsoleLog(String.format(getUIText("Console_UnknownCommand"), commands[0]));
+        }
+    }
+
+    /**
+     * Get translated GUI text
+     * @param str String
+     * @return Translated GUI text
+     */
+    private static String getUIText(String str) {
+        String result = propLang.getProperty(str);
+        if(result == null) {
+            result = propLangDefault.getProperty(str, str);
+        }
+        return result;
+    }
+
+    /**
+     * Copy the selected row to clipboard
+     * @param table JTable
+     */
+    private static void copyTableRowToClipboard(final JTable table) {
+        int row = table.getSelectedRow();
+
+        if(row != -1) {
+            String strCopy = "";
+
+            for(int column = 0; column < table.getColumnCount(); column++) {
+                Object selectedObject = table.getValueAt(row, column);
+                if(selectedObject instanceof String) {
+                    if(column == 0) {
+                        strCopy += (String)selectedObject;
+                    } else {
+                        strCopy += "," + (String)selectedObject;
+                    }
+                }
+            }
+
+            StringSelection ss = new StringSelection(strCopy);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(ss, ss);
+        }
+    }
+
+    /**
+     * Program entry point
+     * @param args Command line options
+     */
+    public static void main(String[] args) {
+        PropertyConfigurator.configure("config/etc/log.cfg");
+        new NetAdmin();
+    }
+
+    /**
+     * Sets a ban.
+     * @param strIP IP
+     * @param banLength Length of ban (-1:Kick only)
+     * @param showMessage true if display a confirm dialog
+     */
+    private void requestBanFromGUI(String strIP, int banLength, boolean showMessage) {
+        if((strIP == null) || (strIP.length() == 0)) return;
+
+        if(banLength == -1) {
+            int answer = JOptionPane.YES_OPTION;
+
+            if(showMessage) {
+                answer = JOptionPane.showConfirmDialog(
+                        this,
+                        getUIText("Message_ConfirmKick") + "\n" + strIP,
+                        getUIText("Title_ConfirmKick"),
+                        JOptionPane.YES_NO_OPTION);
+            }
+
+            if(answer == JOptionPane.YES_OPTION) {
+                sendCommand("ban\t" + strIP);
+            }
+        } else {
+            int answer = JOptionPane.YES_OPTION;
+
+            if(showMessage) {
+                answer = JOptionPane.showConfirmDialog(
+                        this,
+                        String.format(getUIText("Message_ConfirmBan"), getUIText("BanType" + banLength)) + "\n" + strIP,
+                        getUIText("Title_ConfirmBan"),
+                        JOptionPane.YES_NO_OPTION);
+            }
+
+            if(answer == JOptionPane.YES_OPTION) {
+                sendCommand("ban\t" + strIP + "\t" + banLength);
+            }
+        }
+    }
+
+    /**
+     * Open ban dialog
+     * @param strIP Default IP
+     */
+    private void openBanDialog(String strIP) {
+        // Dialog box
+        final JDialog dialogBan = new JDialog();
+        dialogBan.setTitle(getUIText("Title_BanDialog"));
+        dialogBan.getContentPane().setLayout(new BoxLayout(dialogBan.getContentPane(), BoxLayout.Y_AXIS));
+
+        // IP options
+        final JPanel pBanIP = new JPanel();
+        dialogBan.getContentPane().add(pBanIP);
+
+        final JLabel lBanIP = new JLabel(getUIText("Ban_IP"));
+        pBanIP.add(lBanIP);
+
+        final JTextField txtfldBanIP = new JTextField(16);
+        if(strIP != null) txtfldBanIP.setText(strIP);
+        txtfldBanIP.setComponentPopupMenu(new TextComponentPopupMenu(txtfldBanIP));
+        pBanIP.add(txtfldBanIP);
+
+        // Ban length Options
+        final JPanel pBanLength = new JPanel();
+        dialogBan.getContentPane().add(pBanLength);
+
+        // Ban length
+        final JLabel lBanLength = new JLabel(getUIText("Ban_Length"));
+        pBanLength.add(lBanLength);
+
+        final JComboBox comboboxBanLength = new JComboBox();
+        comboboxBanLength.setToolTipText(getUIText("Ban_Length_Tip"));
+        for (int i = -1; i < NetServerBan.BANLENGTH_TOTAL; i++) {
+            comboboxBanLength.addItem(getUIText("BanType"+i));
+        }
+        pBanLength.add(comboboxBanLength);
+
+        // Buttons
+        final JPanel pButtons = new JPanel();
+        dialogBan.getContentPane().add(pButtons);
+
+        final JButton btnConfirm = new JButton(getUIText("Ban_Confirm"));
+        btnConfirm.setMnemonic('O');
+        btnConfirm.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                requestBanFromGUI(txtfldBanIP.getText(),comboboxBanLength.getSelectedIndex() - 1, false);
+                dialogBan.dispose();
+            }
+        });
+        pButtons.add(btnConfirm);
+
+        final JButton btnCancel = new JButton(getUIText("Ban_Cancel"));
+        btnCancel.setMnemonic('C');
+        btnCancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dialogBan.dispose();
+            }
+        });
+        pButtons.add(btnCancel);
+
+        // Set frame vitals
+        dialogBan.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialogBan.setLocationRelativeTo(null);
+        dialogBan.setModal(true);
+        dialogBan.setResizable(false);
+        dialogBan.getRootPane().setDefaultButton(btnConfirm);
+        dialogBan.pack();
+        dialogBan.setVisible(true);
+    }
+
+    /*
+     * Button clicked
+     */
+    public void actionPerformed(ActionEvent e) {
+        // Login
+        if(e.getActionCommand() == "Login_Login") {
+            if((txtfldUsername.getText().length() > 0) && (passfldPassword.getPassword().length > 0)) {
+                setLoginUIEnabled(false);
+                labelLoginMessage.setForeground(Color.black);
+                labelLoginMessage.setText(getUIText("Login_Message_Connecting"));
+
+                // Get hostname and port number
+                String strHost = txtfldServer.getText();
+                if(strHost.length() == 0) strHost = "127.0.0.1";
+                int portSpliter = strHost.indexOf(':');
+                if(portSpliter == -1) portSpliter = strHost.length();
+
+                strServerHost = strHost.substring(0, portSpliter);
+
+                serverPort = NetBaseClient.DEFAULT_PORT;
+                try {
+                    String strPort = strHost.substring(portSpliter + 1, strHost.length());
+                    serverPort = Integer.parseInt(strPort);
+                } catch (Exception e2) {}
+
+                // Begin connect
+                isWantedDisconnect = false;
+                isShutdownRequested = false;
+                client = new NetBaseClient(strServerHost, serverPort);
+                client.setDaemon(true);
+                client.addListener(this);
+                client.start();
+            }
+        }
+        // Quit
+        if(e.getActionCommand() == "Login_Quit") {
+            shutdown();
+        }
+        // Execute console command
+        if(e.getActionCommand() == "Lobby_Console_Execute") {
+            String commandline = txtfldConsoleCommand.getText();
+            String[] commands = commandline.split(" ");
+            executeConsoleCommand(commands, commandline);
+            txtfldConsoleCommand.setText("");
+        }
+        // Load/Refresh Ranking
+        if(e.getActionCommand() == "MPRanking_Button_LoadRanking") {
+            btnRankingLoad.setEnabled(false);
+            client.send("mpranking\t0\n");
+        }
+    }
+
+    /*
+     * Received a message
+     */
+    public void netOnMessage(NetBaseClient client, String[] message) throws IOException {
+        //if(message.length > 0) log.debug(message[0]);
+
+        // Welcome
+        if(message[0].equals("welcome")) {
+            //welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[PING INTERVAL]
+            labelLoginMessage.setForeground(Color.black);
+            labelLoginMessage.setText(getUIText("Login_Message_LoggingIn"));
+
+            // Version check
+            float clientMajorVer = GameManager.getVersionMajor();
+            float serverMajorVer = Float.parseFloat(message[1]);
+
+            if(clientMajorVer != serverMajorVer) {
+                labelLoginMessage.setForeground(Color.red);
+                labelLoginMessage.setText(String.format(getUIText("Login_Message_VersionError"), clientMajorVer, serverMajorVer));
+                isWantedDisconnect = true;
+                logout();
+                return;
+            }
+            serverFullVer = message[5];
+
+            // Ping interval
+            long pingInterval = (message.length > 6) ? Long.parseLong(message[6]) : NetBaseClient.PING_INTERVAL;
+            if(pingInterval != NetBaseClient.PING_INTERVAL) {
+                client.startPingTask(pingInterval);
+            }
+
+            // Send login message
+            String strUsername = txtfldUsername.getText();
+
+            RC4 rc4 = new RC4(passfldPassword.getPassword());
+            byte[] ePassword = rc4.rc4(NetUtil.stringToBytes(strUsername));
+            char[] b64Password = Base64Coder.encode(ePassword);
+
+            String strLogin = "adminlogin\t" + clientMajorVer + "\t" + strUsername + "\t" + new String(b64Password) + "\n";
+            log.debug("Send login message:" + strLogin);
+            client.send(strLogin);
+        }
+        // Login failed
+        if(message[0].equals("adminloginfail")) {
+            isWantedDisconnect = true;
+            logout();
+
+            labelLoginMessage.setForeground(Color.red);
+            if((message.length > 1) && (message[1].equals("DISABLE"))) {
+                labelLoginMessage.setText(getUIText("Login_Message_DisabledError"));
+            } else {
+                labelLoginMessage.setText(getUIText("Login_Message_LoginError"));
+            }
+            return;
+        }
+        // Banned
+        if(message[0].equals("banned")) {
+            isWantedDisconnect = true;
+            logout();
+
+            labelLoginMessage.setForeground(Color.red);
+
+            Calendar cStart = GeneralUtil.importCalendarString(message[1]);
+            Calendar cExpire = ((message.length > 2) && (message[2].length() > 0)) ? GeneralUtil.importCalendarString(message[2]) : null;
+
+            String strStart = (cStart != null) ? GeneralUtil.getCalendarString(cStart) : "???";
+            String strExpire = (cExpire != null) ? GeneralUtil.getCalendarString(cExpire) : getUIText("Login_Message_Banned_Permanent");
+
+            labelLoginMessage.setText(String.format(getUIText("Login_Message_Banned"), strStart, strExpire));
+            return;
+        }
+        // Login successful
+        if(message[0].equals("adminloginsuccess")) {
+            strMyIP = message[1];
+            strMyHostname = message[2];
+
+            propConfig.setProperty("login.rememberUsername", chkboxRememberUsername.isSelected());
+            propConfig.setProperty("login.rememberPassword", chkboxRememberPassword.isSelected());
+
+            propConfig.setProperty("login.server", txtfldServer.getText());
+            if(chkboxRememberUsername.isSelected()) {
+                propConfig.setProperty("login.username", txtfldUsername.getText());
+            } else {
+                propConfig.setProperty("login.username", "");
+            }
+            if(chkboxRememberPassword.isSelected()) {
+                propConfig.setProperty("login.password", NetUtil.compressString(new String(passfldPassword.getPassword())));
+            } else {
+                propConfig.setProperty("login.password", "");
+            }
+
+            addConsoleLog(String.format(getUIText("Console_LoginOK"), strServerHost, serverPort));
+
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    changeCurrentScreenCard(SCREENCARD_LOBBY);
+                }
+            });
+        }
+        // Multiplayer Leaderboard
+        if(message[0].equals("mpranking")) {
+            btnRankingLoad.setEnabled(true);
+
+            int style = Integer.parseInt(message[1]);
+
+            tablemodelMPRanking[style].setRowCount(0);
+
+            String strPData = NetUtil.decompressString(message[3]);
+            String[] strPDataA = strPData.split("\t");
+
+            for(int i = 0; i < strPDataA.length; i++) {
+                String[] strRankData = strPDataA[i].split(";");
+
+                if(strRankData.length >= MPRANKING_COLUMNNAMES.length) {
+                    String[] strRowData = new String[MPRANKING_COLUMNNAMES.length];
+                    int rank = Integer.parseInt(strRankData[0]);
+                    if(rank == -1) {
+                        strRowData[0] = "N/A";
+                    } else {
+                        strRowData[0] = Integer.toString(rank + 1);
+                    }
+                    strRowData[1] = NetUtil.urlDecode(strRankData[1]);
+                    strRowData[2] = strRankData[2];
+                    strRowData[3] = strRankData[3];
+                    strRowData[4] = strRankData[4];
+                    tablemodelMPRanking[style].addRow(strRowData);
+                }
+            }
+        }
+        // Room List
+        if(message[0].equals("roomlist")) {
+            int size = Integer.parseInt(message[1]);
+
+            tablemodelRoomList.setRowCount(0);
+            for(int i = 0; i < size; i++) {
+                NetRoomInfo r = new NetRoomInfo(message[2 + i]);
+                tablemodelRoomList.addRow(createRoomListRowData(r));
+            }
+        }
+        // New room appeared
+        if(message[0].equals("roomcreate")) {
+            NetRoomInfo r = new NetRoomInfo(message[1]);
+            tablemodelRoomList.addRow(createRoomListRowData(r));
+        }
+        // Room update
+        if(message[0].equals("roomupdate")) {
+            NetRoomInfo r = new NetRoomInfo(message[1]);
+            int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+
+            for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
+                String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
+                int roomID = Integer.parseInt(strID);
+
+                if(roomID == r.roomID) {
+                    String[] rowData = createRoomListRowData(r);
+                    for(int j = 0; j < rowData.length; j++) {
+                        tablemodelRoomList.setValueAt(rowData[j], i, j);
+                    }
+                    break;
+                }
+            }
+        }
+        // Room delete
+        if(message[0].equals("roomdelete")) {
+            NetRoomInfo r = new NetRoomInfo(message[1]);
+            int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
+
+            for(int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
+                String strID = (String)tablemodelRoomList.getValueAt(i, columnID);
+                int roomID = Integer.parseInt(strID);
+
+                if(roomID == r.roomID) {
+                    tablemodelRoomList.removeRow(i);
+                    break;
+                }
+            }
+        }
+        // Admin command result
+        if(message[0].equals("adminresult")) {
+            if(message.length > 1) {
+                String strAdminResultTemp = NetUtil.decompressString(message[1]);
+                String[] strAdminResultArray = strAdminResultTemp.split("\t");
+                onAdminResultMessage(client, strAdminResultArray);
+            }
+        }
+    }
+
+    /**
+     * Create a row of room list
+     * @param r NetRoomInfo
+     * @return Row data
+     */
+    private String[] createRoomListRowData(NetRoomInfo r) {
+        String[] rowData = new String[7];
+        rowData[0] = Integer.toString(r.roomID);
+        rowData[1] = r.strName;
+        rowData[2] = r.rated ? getUIText("RoomTable_Rated_True") : getUIText("RoomTable_Rated_False");
+        rowData[3] = r.ruleLock ? r.ruleName.toUpperCase() : getUIText("RoomTable_RuleName_Any");
+        rowData[4] = r.playing ? getUIText("RoomTable_Status_Playing") : getUIText("RoomTable_Status_Waiting");
+        rowData[5] = r.playerSeatedCount + "/" + r.maxPlayers;
+        rowData[6] = Integer.toString(r.spectatorCount);
+        return rowData;
+    }
+
+    /**
+     * When received an admin command result
+     * @param client NetBaseClient
+     * @param message Message
+     * @throws IOException When something bad happens
+     */
+    private void onAdminResultMessage(NetBaseClient client, String[] message) throws IOException {
+        // Client list
+        if(message[0].equals("clientlist")) {
+            // Get current selected IP and Type
+            String strSelectedIP = null;
+            String strSelectedType = null;
+            if(tableUsers.getSelectedRow() != -1) {
+                strSelectedIP   = (String)tablemodelUsers.getValueAt(tableUsers.getSelectedRow(), 0);
+                strSelectedType = (String)tablemodelUsers.getValueAt(tableUsers.getSelectedRow(), 2);
+            }
+            tableUsers.getSelectionModel().clearSelection();
+
+            // Set number of rows
+            if(tablemodelUsers.getRowCount() > message.length - 1) {
+                tablemodelUsers.setRowCount(message.length - 1);
+            }
+
+            for(int i = 1; i < message.length; i++) {
+                String[] strClientData = message[i].split("\\|");
+
+                String strIP = strClientData[0];        // IP
+                String strHost = strClientData[1];        // Hostname
+
+                // Type of the client
+                int type = Integer.parseInt(strClientData[2]);
+                String strType = getUIText(USERTABLE_USERTYPES[type]);
+                if(strIP.equals(strMyIP) && strHost.equals(strMyHostname) && (type == 3))
+                    strType = "*" + getUIText(USERTABLE_USERTYPES[type]);
+
+                // Player info
+                NetPlayerInfo pInfo = null;
+                if((type == 1) && (strClientData.length > 3)) {
+                    String strPlayerInfoTemp = strClientData[3];
+                    pInfo = new NetPlayerInfo(strPlayerInfoTemp);
+                }
+
+                // Create a row data
+                String[] strTableData = new String[tablemodelUsers.getColumnCount()];
+                strTableData[0] = strIP;
+                strTableData[1] = strHost;
+                strTableData[2] = strType;
+                strTableData[3] = (pInfo != null) ? pInfo.strName : "";
+
+                // Add the row data
+                int rowNumber = i - 1;
+                int maxRow = tablemodelUsers.getRowCount();
+                if(rowNumber < maxRow) {
+                    // Modify an existing row
+                    for(int j = 0; j < strTableData.length; j++) {
+                        tablemodelUsers.setValueAt(strTableData[j], rowNumber, j);
+                    }
+
+                    // Set selected row
+                    if((strSelectedIP != null) && (strSelectedType != null) &&
+                        strSelectedIP.equals(strIP) && strSelectedType.equals(strType))
+                    {
+                        tableUsers.getSelectionModel().setSelectionInterval(rowNumber, rowNumber);
+                        strSelectedIP = null;
+                        strSelectedType = null;
+                    }
+                } else {
+                    // Add an new row
+                    tablemodelUsers.addRow(strTableData);
+
+                    // Set selected row
+                    if((strSelectedIP != null) && (strSelectedType != null) &&
+                        strSelectedIP.equals(strIP) && strSelectedType.equals(strType))
+                    {
+                        tableUsers.getSelectionModel().setSelectionInterval(maxRow, maxRow);
+                        strSelectedIP = null;
+                        strSelectedType = null;
+                    }
+                }
+            }
+        }
+        // Ban
+        if(message[0].equals("ban")) {
+            if(message.length > 3) {
+                String strBanLength = getUIText("BanType" + message[2]);
+                addConsoleLog(String.format(getUIText("Console_Ban_Result"),message[1],strBanLength,message[3]), new Color(0, 64, 64));
+            }
+        }
+        // Ban List
+        if(message[0].equals("banlist")) {
+            if(message.length < 2) {
+                addConsoleLog(getUIText("Console_BanList_Result_None"), new Color(0, 64, 64));
+            } else {
+                for(int i = 0; i < message.length - 1; i++) {
+                    NetServerBan ban = new NetServerBan();
+                    ban.importString(message[i + 1]);
+
+                    String strBanLength = getUIText("BanType" + ban.banLength);
+                    String strDate = "";
+                    if(ban.startDate != null) {
+                        strDate = GeneralUtil.getCalendarString(ban.startDate);
+                    }
+
+                    addConsoleLog(String.format(getUIText("Console_BanList_Result"), ban.addr, strBanLength, strDate), new Color(0, 64, 64));
+                }
+            }
+        }
+        // Un-Ban
+        if(message[0].equals("unban")) {
+            if(message.length > 2) {
+                addConsoleLog(String.format(getUIText("Console_UnBan_Result"), message[1], message[2]), new Color(0, 64, 64));
+            }
+        }
+        // Player Delete
+        if(message[0].equals("playerdelete")) {
+            if(message.length > 1) {
+                addConsoleLog(String.format(getUIText("Console_PlayerDelete_Result"), message[1]), new Color(0, 64, 64));
+            }
+        }
+        // Room Delete (OK)
+        if(message[0].equals("roomdeletesuccess")) {
+            if(message.length > 2) {
+                addConsoleLog(String.format(getUIText("Console_RoomDelete_OK"), message[1], message[2]), new Color(0, 64, 64));
+            }
+        }
+        // Room Delete (NG)
+        if(message[0].equals("roomdeletefail")) {
+            if(message.length > 1) {
+                addConsoleLog(String.format(getUIText("Console_RoomDelete_NG"), message[1]), new Color(0, 64, 64));
+            }
+        }
+        // Diagnostics
+        if (message[0].equals("diag")) {
+            if(message.length > 1) {
+                addConsoleLog(message[1], new Color(0, 64, 64));
+            }
+        }
+    }
+
+    /*
+     * Disconnected
+     */
+    public void netOnDisconnect(NetBaseClient client, Throwable ex) {
+        if(isShutdownRequested) {
+            log.info("Server shutdown completed");
+            labelLoginMessage.setForeground(Color.black);
+            labelLoginMessage.setText(getUIText("Login_Message_Shutdown"));
+        } else if(isWantedDisconnect) {
+            log.info("Disconnected from the server");
+        } else {
+            labelLoginMessage.setForeground(Color.red);
+            if(ex == null) {
+                log.warn("ERROR Disconnected! (null)");
+                labelLoginMessage.setText(String.format(getUIText("Login_Message_UnwantedDisconnect"), "(null)"));
+            } else {
+                log.error("ERROR Disconnected!", ex);
+                labelLoginMessage.setText(String.format(getUIText("Login_Message_UnwantedDisconnect"), ex.toString()));
+            }
+        }
+        logout();
+    }
+
+    /**
+     * Popup menu for text components
+     */
+    private class TextComponentPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action cutAction;
+        private Action copyAction;
+        @SuppressWarnings("unused")
+        private Action pasteAction;
+        private Action deleteAction;
+        private Action selectAllAction;
+
+        public TextComponentPopupMenu(final JTextComponent field) {
+            super();
+
+            add(cutAction = new AbstractAction(getUIText("Popup_Cut")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.cut();
+                }
+            });
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.copy();
+                }
+            });
+            add(pasteAction = new AbstractAction(getUIText("Popup_Paste")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.paste();
+                }
+            });
+            add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.replaceSelection(null);
+                }
+            });
+            add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.selectAll();
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTextComponent field = (JTextComponent) c;
+            boolean flg = field.getSelectedText() != null;
+            cutAction.setEnabled(flg);
+            copyAction.setEnabled(flg);
+            deleteAction.setEnabled(flg);
+            selectAllAction.setEnabled(field.isFocusOwner());
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * Popup menu for console log
+     */
+    private class LogPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action copyAction;
+        private Action selectAllAction;
+        @SuppressWarnings("unused")
+        private Action clearAction;
+
+        public LogPopupMenu(final JTextComponent field) {
+            super();
+
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.copy();
+                }
+            });
+            add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.selectAll();
+                }
+            });
+            add(clearAction = new AbstractAction(getUIText("Popup_Clear")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    field.setText(null);
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTextComponent field = (JTextComponent) c;
+            boolean flg = field.getSelectedText() != null;
+            copyAction.setEnabled(flg);
+            selectAllAction.setEnabled(field.isFocusOwner());
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * Popup menu for users table
+     */
+    private class UserPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action copyAction;
+        private Action kickAction;
+        private Action banAction;
+
+        public UserPopupMenu(final JTable table) {
+            super();
+
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    copyTableRowToClipboard(table);
+                }
+            });
+            add(kickAction = new AbstractAction(getUIText("Popup_Kick")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    int rowNumber = table.getSelectedRow();
+                    String strIP = (String)table.getValueAt(rowNumber, 0);
+                    requestBanFromGUI(strIP, -1, true);
+                }
+            });
+            add(banAction = new AbstractAction(getUIText("Popup_Ban")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    int rowNumber = table.getSelectedRow();
+                    final String strIP = (String)table.getValueAt(rowNumber, 0);
+                    openBanDialog(strIP);
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTable table = (JTable) c;
+            boolean flg = table.getSelectedRow() != -1;
+            copyAction.setEnabled(flg);
+            kickAction.setEnabled(flg);
+            banAction.setEnabled(flg);
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * Popup menu for leaderboard table
+     */
+    private class MPRankingPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action copyAction;
+        private Action deleteAction;
+
+        public MPRankingPopupMenu(final JTable table) {
+            super();
+
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    copyTableRowToClipboard(table);
+                }
+            });
+            add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    int rowNumber = table.getSelectedRow();
+                    String strName = (String)table.getValueAt(rowNumber, 1);
+                    sendCommand("playerdelete\t" + strName);
+                    client.send("mpranking\t0\n");
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTable table = (JTable) c;
+            boolean flg = table.getSelectedRow() != -1;
+            copyAction.setEnabled(flg);
+            deleteAction.setEnabled(flg);
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * Popup menu for room list table
+     */
+    private class RoomTablePopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        private Action copyAction;
+        private Action deleteAction;
+
+        public RoomTablePopupMenu(final JTable table) {
+            super();
+
+            add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    copyTableRowToClipboard(table);
+                }
+            });
+            add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent evt) {
+                    int rowNumber = table.getSelectedRow();
+                    String strID = (String)table.getValueAt(rowNumber, 0);
+                    sendCommand("roomdelete\t" + strID);
+                }
+            });
+        }
+
+        @Override
+        public void show(Component c, int x, int y) {
+            JTable table = (JTable) c;
+            boolean flg = table.getSelectedRow() != -1;
+            copyAction.setEnabled(flg);
+            deleteAction.setEnabled(flg);
+            super.show(c, x, y);
+        }
+    }
+
+    /**
+     * KeyAdapter for console log
+     */
+    private class LogKeyAdapter extends KeyAdapter {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if( (e.getKeyCode() != KeyEvent.VK_UP) && (e.getKeyCode() != KeyEvent.VK_DOWN) &&
+                (e.getKeyCode() != KeyEvent.VK_LEFT) && (e.getKeyCode() != KeyEvent.VK_RIGHT) &&
+                (e.getKeyCode() != KeyEvent.VK_HOME) && (e.getKeyCode() != KeyEvent.VK_END) &&
+                (e.getKeyCode() != KeyEvent.VK_PAGE_UP) && (e.getKeyCode() != KeyEvent.VK_PAGE_DOWN) &&
+                ((e.getKeyCode() != KeyEvent.VK_A) || (e.isControlDown() == false)) &&
+                ((e.getKeyCode() != KeyEvent.VK_C) || (e.isControlDown() == false)) &&
+                (!e.isAltDown()) )
+            {
+                e.consume();
+            }
+        }
+        @Override
+        public void keyTyped(KeyEvent e) {
+            e.consume();
+        }
+    }
 }

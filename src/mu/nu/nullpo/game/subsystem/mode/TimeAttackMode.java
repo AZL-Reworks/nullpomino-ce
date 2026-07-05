@@ -734,458 +734,458 @@ public class TimeAttackMode extends NetDummyMode {
             if(levelTimer > 0) {
                 levelTimer--;
                 if((levelTimer <= 600) && (levelTimer % 60 == 0)) {
-                	receiver.playSE("countdown");
-				}
-			} else if(!netIsWatch) {
-				engine.gameEnded();
-				engine.resetStatc();
-				engine.stat = GameEngine.STAT_GAMEOVER;
-			}
-		}
+                    receiver.playSE("countdown");
+                }
+            } else if(!netIsWatch) {
+                engine.gameEnded();
+                engine.resetStatc();
+                engine.stat = GameEngine.STAT_GAMEOVER;
+            }
+        }
 
-		// Update meter
-		if((tableGoalLevel[goaltype] >= 20) && (engine.ending == 0) && (levelTimerMax != 0)) {
-			engine.meterValue = (levelTimer * receiver.getMeterMax(engine)) / levelTimerMax;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(levelTimer <= 25*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(levelTimer <= 15*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(levelTimer <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
-		}
+        // Update meter
+        if((tableGoalLevel[goaltype] >= 20) && (engine.ending == 0) && (levelTimerMax != 0)) {
+            engine.meterValue = (levelTimer * receiver.getMeterMax(engine)) / levelTimerMax;
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(levelTimer <= 25*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(levelTimer <= 15*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(levelTimer <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
+        }
 
-		// Section time
-		if((engine.timerActive) && (engine.ending == 0)) {
-			if((engine.statistics.level >= 0) && (engine.statistics.level < sectiontime.length)) {
-				sectiontime[engine.statistics.level]++;
-				setAverageSectionTime();
-			}
-		}
+        // Section time
+        if((engine.timerActive) && (engine.ending == 0)) {
+            if((engine.statistics.level >= 0) && (engine.statistics.level < sectiontime.length)) {
+                sectiontime[engine.statistics.level]++;
+                setAverageSectionTime();
+            }
+        }
 
-		// Hebo Hidden for HELL
-		if((goaltype == GAMETYPE_HELL) && (engine.timerActive) && (engine.ending == 0)) {
-			if((engine.statistics.level >= 5) && (engine.statistics.level <= 6)) {
-				engine.heboHiddenEnable = true;
-				engine.heboHiddenYLimit = 19;
-				engine.heboHiddenTimerMax = engine.heboHiddenYNow * 30 + 45;
-			} else if((engine.statistics.level >= 7) && (engine.statistics.level <= 14)) {
-				engine.heboHiddenEnable = true;
-				engine.heboHiddenYLimit = 19;
-				engine.heboHiddenTimerMax = engine.heboHiddenYNow * 10 + 30;
-			} else {
-				engine.heboHiddenEnable = false;
-			}
-		}
+        // Hebo Hidden for HELL
+        if((goaltype == GAMETYPE_HELL) && (engine.timerActive) && (engine.ending == 0)) {
+            if((engine.statistics.level >= 5) && (engine.statistics.level <= 6)) {
+                engine.heboHiddenEnable = true;
+                engine.heboHiddenYLimit = 19;
+                engine.heboHiddenTimerMax = engine.heboHiddenYNow * 30 + 45;
+            } else if((engine.statistics.level >= 7) && (engine.statistics.level <= 14)) {
+                engine.heboHiddenEnable = true;
+                engine.heboHiddenYLimit = 19;
+                engine.heboHiddenTimerMax = engine.heboHiddenYNow * 10 + 30;
+            } else {
+                engine.heboHiddenEnable = false;
+            }
+        }
 
-		// Ending
-		if((engine.gameActive) && (engine.ending == 2)) {
-			rolltime++;
+        // Ending
+        if((engine.gameActive) && (engine.ending == 2)) {
+            rolltime++;
 
-			// Update meter
-			int remainRollTime = ROLLTIMELIMIT - rolltime;
-			engine.meterValue = (remainRollTime * receiver.getMeterMax(engine)) / ROLLTIMELIMIT;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(remainRollTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(remainRollTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(remainRollTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
+            // Update meter
+            int remainRollTime = ROLLTIMELIMIT - rolltime;
+            engine.meterValue = (remainRollTime * receiver.getMeterMax(engine)) / ROLLTIMELIMIT;
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(remainRollTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(remainRollTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(remainRollTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
 
-			// Completed
-			if((rolltime >= ROLLTIMELIMIT) && (!netIsWatch)) {
-				engine.statistics.rollclear = 2;
-				engine.gameEnded();
-				engine.resetStatc();
-				engine.stat = GameEngine.STAT_EXCELLENT;
-			}
-		}
-	}
+            // Completed
+            if((rolltime >= ROLLTIMELIMIT) && (!netIsWatch)) {
+                engine.statistics.rollclear = 2;
+                engine.gameEnded();
+                engine.resetStatc();
+                engine.stat = GameEngine.STAT_EXCELLENT;
+            }
+        }
+    }
 
-	/**
-	 * Calculates line-clear score
-	 * (This function will be called even if no lines are cleared)
-	 */
-	@Override
-	public void calcScore(GameEngine engine, int playerID, int lines) {
-		// Don't do anything during the ending
-		if(engine.ending != 0) return;
+    /**
+     * Calculates line-clear score
+     * (This function will be called even if no lines are cleared)
+     */
+    @Override
+    public void calcScore(GameEngine engine, int playerID, int lines) {
+        // Don't do anything during the ending
+        if(engine.ending != 0) return;
 
-		// Add lines to norm
-		norm += lines;
+        // Add lines to norm
+        norm += lines;
 
-		// Decrease Hebo Hidden
-		if((engine.heboHiddenEnable) && (lines > 0)) {
-			engine.heboHiddenTimerNow = 0;
-			engine.heboHiddenYNow -= lines;
-			if(engine.heboHiddenYNow < 0) engine.heboHiddenYNow = 0;
-		}
+        // Decrease Hebo Hidden
+        if((engine.heboHiddenEnable) && (lines > 0)) {
+            engine.heboHiddenTimerNow = 0;
+            engine.heboHiddenYNow -= lines;
+            if(engine.heboHiddenYNow < 0) engine.heboHiddenYNow = 0;
+        }
 
-		// Update meter
-		if(tableGoalLevel[goaltype] < 20) {
-			engine.meterValue = ((norm % 10) * receiver.getMeterMax(engine)) / 9;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(norm % 10 >= 4) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(norm % 10 >= 6) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(norm % 10 >= 8) engine.meterColor = GameEngine.METER_COLOR_RED;
-		}
+        // Update meter
+        if(tableGoalLevel[goaltype] < 20) {
+            engine.meterValue = ((norm % 10) * receiver.getMeterMax(engine)) / 9;
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(norm % 10 >= 4) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(norm % 10 >= 6) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(norm % 10 >= 8) engine.meterColor = GameEngine.METER_COLOR_RED;
+        }
 
-		// BGM change
-		if((bgmlv < tableBGMChange[goaltype].length) && (norm >= tableBGMChange[goaltype][bgmlv])) {
-			bgmlv++;
-			owner.bgmStatus.bgm = tableBGMNumber[goaltype][bgmlv];
-			owner.bgmStatus.fadesw = false;
-		}
-		// BGM fadeout
-		else if((bgmlv < tableBGMFadeout[goaltype].length) && (norm >= tableBGMFadeout[goaltype][bgmlv])) {
-			owner.bgmStatus.fadesw = true;
-		}
+        // BGM change
+        if((bgmlv < tableBGMChange[goaltype].length) && (norm >= tableBGMChange[goaltype][bgmlv])) {
+            bgmlv++;
+            owner.bgmStatus.bgm = tableBGMNumber[goaltype][bgmlv];
+            owner.bgmStatus.fadesw = false;
+        }
+        // BGM fadeout
+        else if((bgmlv < tableBGMFadeout[goaltype].length) && (norm >= tableBGMFadeout[goaltype][bgmlv])) {
+            owner.bgmStatus.fadesw = true;
+        }
 
-		// Game completed
-		if(norm >= tableGoalLevel[goaltype] * 10) {
-			receiver.playSE("levelup");
+        // Game completed
+        if(norm >= tableGoalLevel[goaltype] * 10) {
+            receiver.playSE("levelup");
 
-			// Update section time
-			if(engine.timerActive) {
-				sectionscomp++;
-				setAverageSectionTime();
-			}
+            // Update section time
+            if(engine.timerActive) {
+                sectionscomp++;
+                setAverageSectionTime();
+            }
 
-			norm = tableGoalLevel[goaltype] * 10;
-			engine.ending = 1;
-			engine.timerActive = false;
+            norm = tableGoalLevel[goaltype] * 10;
+            engine.ending = 1;
+            engine.timerActive = false;
 
-			if((goaltype == GAMETYPE_HELLX) || (goaltype == GAMETYPE_VOID)) {
-				// HELL-X ending & VOID ending
-				engine.staffrollEnable = true;
-				engine.statistics.rollclear = 1;
-			} else {
-				engine.gameEnded();
-				engine.statistics.rollclear = 2;
-			}
-		}
-		// Level up
-		else if((norm >= (engine.statistics.level + 1) * 10) && (engine.statistics.level < tableGoalLevel[goaltype] - 1)) {
-			receiver.playSE("levelup");
-			engine.statistics.level++;
+            if((goaltype == GAMETYPE_HELLX) || (goaltype == GAMETYPE_VOID)) {
+                // HELL-X ending & VOID ending
+                engine.staffrollEnable = true;
+                engine.statistics.rollclear = 1;
+            } else {
+                engine.gameEnded();
+                engine.statistics.rollclear = 2;
+            }
+        }
+        // Level up
+        else if((norm >= (engine.statistics.level + 1) * 10) && (engine.statistics.level < tableGoalLevel[goaltype] - 1)) {
+            receiver.playSE("levelup");
+            engine.statistics.level++;
 
-			owner.backgroundStatus.fadesw = true;
-			owner.backgroundStatus.fadecount = 0;
-			owner.backgroundStatus.fadebg = engine.statistics.level;
+            owner.backgroundStatus.fadesw = true;
+            owner.backgroundStatus.fadecount = 0;
+            owner.backgroundStatus.fadebg = engine.statistics.level;
 
-			sectionscomp++;
+            sectionscomp++;
 
-			engine.timerActive = false;	// Stop timer until the next piece becomes active
+            engine.timerActive = false;    // Stop timer until the next piece becomes active
 
-			setSpeed(engine);
-		}
-	}
+            setSpeed(engine);
+        }
+    }
 
-	/**
-	 * Renders game result screen
-	 */
-	@Override
-	public void renderResult(GameEngine engine, int playerID) {
-		if(!netIsWatch) {
-			receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", EventReceiver.COLOR_RED);
-		}
+    /**
+     * Renders game result screen
+     */
+    @Override
+    public void renderResult(GameEngine engine, int playerID) {
+        if(!netIsWatch) {
+            receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", EventReceiver.COLOR_RED);
+        }
 
-		if(engine.statc[1] == 0) {
-			int gcolor = EventReceiver.COLOR_WHITE;
-			if(engine.statistics.rollclear == 1) gcolor = EventReceiver.COLOR_GREEN;
-			if(engine.statistics.rollclear == 2) gcolor = EventReceiver.COLOR_ORANGE;
+        if(engine.statc[1] == 0) {
+            int gcolor = EventReceiver.COLOR_WHITE;
+            if(engine.statistics.rollclear == 1) gcolor = EventReceiver.COLOR_GREEN;
+            if(engine.statistics.rollclear == 2) gcolor = EventReceiver.COLOR_ORANGE;
 
-			receiver.drawMenuFont(engine, playerID,  0, 2, "NORM", EventReceiver.COLOR_BLUE);
-			String strLines = String.format("%10d", norm);
-			receiver.drawMenuFont(engine, playerID,  0, 3, strLines, gcolor);
+            receiver.drawMenuFont(engine, playerID,  0, 2, "NORM", EventReceiver.COLOR_BLUE);
+            String strLines = String.format("%10d", norm);
+            receiver.drawMenuFont(engine, playerID,  0, 3, strLines, gcolor);
 
-			drawResultStats(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE,
-					STAT_LEVEL, STAT_TIME, STAT_PIECE, STAT_LPM, STAT_PPS);
-			drawResultRank(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE, rankingRank);
-			drawResultNetRank(engine, playerID, receiver, 16, EventReceiver.COLOR_BLUE, netRankingRank[0]);
-			drawResultNetRankDaily(engine, playerID, receiver, 18, EventReceiver.COLOR_BLUE, netRankingRank[1]);
-		} else if(engine.statc[1] == 1) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
+            drawResultStats(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE,
+                    STAT_LEVEL, STAT_TIME, STAT_PIECE, STAT_LPM, STAT_PPS);
+            drawResultRank(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE, rankingRank);
+            drawResultNetRank(engine, playerID, receiver, 16, EventReceiver.COLOR_BLUE, netRankingRank[0]);
+            drawResultNetRankDaily(engine, playerID, receiver, 18, EventReceiver.COLOR_BLUE, netRankingRank[1]);
+        } else if(engine.statc[1] == 1) {
+            receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
 
-			for(int i = 0; i < 10; i++) {
-				if(sectiontime[i] > 0) {
-					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]));
-				}
-			}
+            for(int i = 0; i < 10; i++) {
+                if(sectiontime[i] > 0) {
+                    receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]));
+                }
+            }
 
-			if(sectionavgtime > 0) {
-				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
-				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
-			}
-		} else if(engine.statc[1] == 2) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
+            if(sectionavgtime > 0) {
+                receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
+                receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
+            }
+        } else if(engine.statc[1] == 2) {
+            receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
 
-			for(int i = 10; i < sectiontime.length; i++) {
-				if(sectiontime[i] > 0) {
-					receiver.drawMenuFont(engine, playerID, 2, i - 7, GeneralUtil.getTime(sectiontime[i]));
-				}
-			}
+            for(int i = 10; i < sectiontime.length; i++) {
+                if(sectiontime[i] > 0) {
+                    receiver.drawMenuFont(engine, playerID, 2, i - 7, GeneralUtil.getTime(sectiontime[i]));
+                }
+            }
 
-			if(sectionavgtime > 0) {
-				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
-				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
-			}
-		}
+            if(sectionavgtime > 0) {
+                receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
+                receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
+            }
+        }
 
-		if(netIsPB) {
-			receiver.drawMenuFont(engine, playerID, 2, 20, "NEW PB", EventReceiver.COLOR_ORANGE);
-		}
-		if(netIsNetPlay && (netReplaySendStatus == 1)) {
-			receiver.drawMenuFont(engine, playerID, 0, 21, "SENDING...", EventReceiver.COLOR_PINK);
-		} else if(netIsNetPlay && !netIsWatch && (netReplaySendStatus == 2)) {
-			receiver.drawMenuFont(engine, playerID, 1, 21, "A: RETRY", EventReceiver.COLOR_RED);
-		}
-	}
+        if(netIsPB) {
+            receiver.drawMenuFont(engine, playerID, 2, 20, "NEW PB", EventReceiver.COLOR_ORANGE);
+        }
+        if(netIsNetPlay && (netReplaySendStatus == 1)) {
+            receiver.drawMenuFont(engine, playerID, 0, 21, "SENDING...", EventReceiver.COLOR_PINK);
+        } else if(netIsNetPlay && !netIsWatch && (netReplaySendStatus == 2)) {
+            receiver.drawMenuFont(engine, playerID, 1, 21, "A: RETRY", EventReceiver.COLOR_RED);
+        }
+    }
 
-	/**
-	 * Additional routine for game result screen
-	 */
-	@Override
-	public boolean onResult(GameEngine engine, int playerID) {
-		if(!netIsWatch) {
-			if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-				engine.statc[1]--;
-				if(engine.statc[1] < 0) engine.statc[1] = 2;
-				receiver.playSE("change");
-			}
-			if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-				engine.statc[1]++;
-				if(engine.statc[1] > 2) engine.statc[1] = 0;
-				receiver.playSE("change");
-			}
-		}
+    /**
+     * Additional routine for game result screen
+     */
+    @Override
+    public boolean onResult(GameEngine engine, int playerID) {
+        if(!netIsWatch) {
+            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+                engine.statc[1]--;
+                if(engine.statc[1] < 0) engine.statc[1] = 2;
+                receiver.playSE("change");
+            }
+            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+                engine.statc[1]++;
+                if(engine.statc[1] > 2) engine.statc[1] = 0;
+                receiver.playSE("change");
+            }
+        }
 
-		return super.onResult(engine, playerID);
-	}
+        return super.onResult(engine, playerID);
+    }
 
-	/**
-	 * This function will be called when the replay data is going to be saved
-	 */
-	@Override
-	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
-		saveSetting(prop);
+    /**
+     * This function will be called when the replay data is going to be saved
+     */
+    @Override
+    public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+        saveSetting(prop);
 
-		// NET: Save name
-		if((netPlayerName != null) && (netPlayerName.length() > 0)) {
-			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
-		}
+        // NET: Save name
+        if((netPlayerName != null) && (netPlayerName.length() > 0)) {
+            prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
+        }
 
-		if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null)) {
-			updateRanking(norm, engine.statistics.time, goaltype, engine.statistics.rollclear);
+        if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null)) {
+            updateRanking(norm, engine.statistics.time, goaltype, engine.statistics.rollclear);
 
-			if(rankingRank != -1) {
-				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
-			}
-		}
-	}
+            if(rankingRank != -1) {
+                saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+                receiver.saveModeConfig(owner.modeConfig);
+            }
+        }
+    }
 
-	/**
-	 * Load the settings
-	 * @param prop CustomProperties
-	 */
-	private void loadSetting(CustomProperties prop) {
-		goaltype = prop.getProperty("timeattack.gametype", 0);
-		startlevel = prop.getProperty("timeattack.startlevel", 0);
-		big = prop.getProperty("timeattack.big", false);
-		showsectiontime = prop.getProperty("timeattack.showsectiontime", true);
-		version = prop.getProperty("timeattack.version", 0);
-	}
+    /**
+     * Load the settings
+     * @param prop CustomProperties
+     */
+    private void loadSetting(CustomProperties prop) {
+        goaltype = prop.getProperty("timeattack.gametype", 0);
+        startlevel = prop.getProperty("timeattack.startlevel", 0);
+        big = prop.getProperty("timeattack.big", false);
+        showsectiontime = prop.getProperty("timeattack.showsectiontime", true);
+        version = prop.getProperty("timeattack.version", 0);
+    }
 
-	/**
-	 * Save the settings
-	 * @param prop CustomProperties
-	 */
-	private void saveSetting(CustomProperties prop) {
-		prop.setProperty("timeattack.gametype", goaltype);
-		prop.setProperty("timeattack.startlevel", startlevel);
-		prop.setProperty("timeattack.big", big);
-		prop.setProperty("timeattack.showsectiontime", showsectiontime);
-		prop.setProperty("timeattack.version", version);
-	}
+    /**
+     * Save the settings
+     * @param prop CustomProperties
+     */
+    private void saveSetting(CustomProperties prop) {
+        prop.setProperty("timeattack.gametype", goaltype);
+        prop.setProperty("timeattack.startlevel", startlevel);
+        prop.setProperty("timeattack.big", big);
+        prop.setProperty("timeattack.showsectiontime", showsectiontime);
+        prop.setProperty("timeattack.version", version);
+    }
 
-	/**
-	 * Load the ranking
-	 * @param prop CustomProperties
-	 * @param ruleName Rule name
-	 */
-	@Override
-	protected void loadRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			for(int type = 0; type < GAMETYPE_MAX; type++) {
-				rankingLines[type][i] = prop.getProperty("timeattack.ranking." + ruleName + "." + type + ".lines." + i, 0);
-				rankingTime[type][i] = prop.getProperty("timeattack.ranking." + ruleName + "." + type + ".time." + i, 0);
-				rankingRollclear[type][i] = prop.getProperty("timeattack.ranking." + ruleName + "." + type + ".rollclear." + i, 0);
-			}
-		}
-	}
+    /**
+     * Load the ranking
+     * @param prop CustomProperties
+     * @param ruleName Rule name
+     */
+    @Override
+    protected void loadRanking(CustomProperties prop, String ruleName) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            for(int type = 0; type < GAMETYPE_MAX; type++) {
+                rankingLines[type][i] = prop.getProperty("timeattack.ranking." + ruleName + "." + type + ".lines." + i, 0);
+                rankingTime[type][i] = prop.getProperty("timeattack.ranking." + ruleName + "." + type + ".time." + i, 0);
+                rankingRollclear[type][i] = prop.getProperty("timeattack.ranking." + ruleName + "." + type + ".rollclear." + i, 0);
+            }
+        }
+    }
 
-	/**
-	 * Save the ranking
-	 * @param prop CustomProperties
-	 * @param ruleName Rule name
-	 */
-	private void saveRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			for(int type = 0; type < GAMETYPE_MAX; type++) {
-				prop.setProperty("timeattack.ranking." + ruleName + "." + type + ".lines." + i, rankingLines[type][i]);
-				prop.setProperty("timeattack.ranking." + ruleName + "." + type + ".time." + i, rankingTime[type][i]);
-				prop.setProperty("timeattack.ranking." + ruleName + "." + type + ".rollclear." + i, rankingRollclear[type][i]);
-			}
-		}
-	}
+    /**
+     * Save the ranking
+     * @param prop CustomProperties
+     * @param ruleName Rule name
+     */
+    private void saveRanking(CustomProperties prop, String ruleName) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            for(int type = 0; type < GAMETYPE_MAX; type++) {
+                prop.setProperty("timeattack.ranking." + ruleName + "." + type + ".lines." + i, rankingLines[type][i]);
+                prop.setProperty("timeattack.ranking." + ruleName + "." + type + ".time." + i, rankingTime[type][i]);
+                prop.setProperty("timeattack.ranking." + ruleName + "." + type + ".rollclear." + i, rankingRollclear[type][i]);
+            }
+        }
+    }
 
-	/**
-	 * Update the ranking
-	 * @param li Lines
-	 * @param time Time
-	 * @param type Game type
-	 * @param clear Game completed flag
-	 */
-	private void updateRanking(int li, int time, int type, int clear) {
-		rankingRank = checkRanking(li, time, type, clear);
+    /**
+     * Update the ranking
+     * @param li Lines
+     * @param time Time
+     * @param type Game type
+     * @param clear Game completed flag
+     */
+    private void updateRanking(int li, int time, int type, int clear) {
+        rankingRank = checkRanking(li, time, type, clear);
 
-		if(rankingRank != -1) {
-			for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
-				rankingLines[type][i] = rankingLines[type][i - 1];
-				rankingTime[type][i] = rankingTime[type][i - 1];
-				rankingRollclear[type][i] = rankingRollclear[type][i - 1];
-			}
+        if(rankingRank != -1) {
+            for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+                rankingLines[type][i] = rankingLines[type][i - 1];
+                rankingTime[type][i] = rankingTime[type][i - 1];
+                rankingRollclear[type][i] = rankingRollclear[type][i - 1];
+            }
 
-			rankingLines[type][rankingRank] = li;
-			rankingTime[type][rankingRank] = time;
-			rankingRollclear[type][rankingRank] = clear;
-		}
-	}
+            rankingLines[type][rankingRank] = li;
+            rankingTime[type][rankingRank] = time;
+            rankingRollclear[type][rankingRank] = clear;
+        }
+    }
 
-	/**
-	 * This function will check the ranking and returns which place you are. (-1: Out of rank)
-	 * @param li Lines
-	 * @param time Time
-	 * @param type Game type
-	 * @param clear Game completed flag
-	 * @return Place (First place is 0. -1 is Out of Rank)
-	 */
-	private int checkRanking(int li, int time, int type, int clear) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			if(clear > rankingRollclear[type][i]) {
-				return i;
-			} else if((clear == rankingRollclear[type][i]) && (li > rankingLines[type][i])) {
-				return i;
-			} else if((clear == rankingRollclear[type][i]) && (li == rankingLines[type][i]) && (time < rankingTime[type][i])) {
-				return i;
-			}
-		}
+    /**
+     * This function will check the ranking and returns which place you are. (-1: Out of rank)
+     * @param li Lines
+     * @param time Time
+     * @param type Game type
+     * @param clear Game completed flag
+     * @return Place (First place is 0. -1 is Out of Rank)
+     */
+    private int checkRanking(int li, int time, int type, int clear) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            if(clear > rankingRollclear[type][i]) {
+                return i;
+            } else if((clear == rankingRollclear[type][i]) && (li > rankingLines[type][i])) {
+                return i;
+            } else if((clear == rankingRollclear[type][i]) && (li == rankingLines[type][i]) && (time < rankingTime[type][i])) {
+                return i;
+            }
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 
-	/**
-	 * NET: Send various in-game stats (as well as goaltype)
-	 * @param engine GameEngine
-	 */
-	@Override
-	protected void netSendStats(GameEngine engine) {
-		int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg : engine.owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t";
-		msg += engine.statistics.pps + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += engine.statistics.level + "\t" + levelTimer + "\t" + levelTimerMax + "\t";
-		msg += rolltime + "\t" + norm + "\t" + bg + "\t" + engine.meterValue + "\t" + engine.meterColor + "\t";
-		msg += engine.heboHiddenEnable + "\t" + engine.heboHiddenTimerNow + "\t" + engine.heboHiddenTimerMax + "\t";
-		msg += engine.heboHiddenYNow + "\t" + engine.heboHiddenYLimit + "\n";
-		netLobby.netPlayerClient.send(msg);
-	}
+    /**
+     * NET: Send various in-game stats (as well as goaltype)
+     * @param engine GameEngine
+     */
+    @Override
+    protected void netSendStats(GameEngine engine) {
+        int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg : engine.owner.backgroundStatus.bg;
+        String msg = "game\tstats\t";
+        msg += engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
+        msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t";
+        msg += engine.statistics.pps + "\t" + goaltype + "\t";
+        msg += engine.gameActive + "\t" + engine.timerActive + "\t";
+        msg += engine.statistics.level + "\t" + levelTimer + "\t" + levelTimerMax + "\t";
+        msg += rolltime + "\t" + norm + "\t" + bg + "\t" + engine.meterValue + "\t" + engine.meterColor + "\t";
+        msg += engine.heboHiddenEnable + "\t" + engine.heboHiddenTimerNow + "\t" + engine.heboHiddenTimerMax + "\t";
+        msg += engine.heboHiddenYNow + "\t" + engine.heboHiddenYLimit + "\n";
+        netLobby.netPlayerClient.send(msg);
+    }
 
-	/**
-	 * NET: Receive various in-game stats (as well as goaltype)
-	 */
-	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.lines = Integer.parseInt(message[4]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[5]);
-		engine.statistics.time = Integer.parseInt(message[6]);
-		engine.statistics.lpm = Float.parseFloat(message[7]);
-		engine.statistics.pps = Float.parseFloat(message[8]);
-		goaltype = Integer.parseInt(message[9]);
-		engine.gameActive = Boolean.parseBoolean(message[10]);
-		engine.timerActive = Boolean.parseBoolean(message[11]);
-		engine.statistics.level = Integer.parseInt(message[12]);
-		levelTimer = Integer.parseInt(message[13]);
-		levelTimerMax = Integer.parseInt(message[14]);
-		rolltime = Integer.parseInt(message[15]);
-		norm = Integer.parseInt(message[16]);
-		engine.owner.backgroundStatus.bg = Integer.parseInt(message[17]);
-		engine.meterValue = Integer.parseInt(message[18]);
-		engine.meterColor = Integer.parseInt(message[19]);
-		engine.heboHiddenEnable = Boolean.parseBoolean(message[20]);
-		engine.heboHiddenTimerNow = Integer.parseInt(message[21]);
-		engine.heboHiddenTimerMax = Integer.parseInt(message[21]);
-		engine.heboHiddenYNow = Integer.parseInt(message[22]);
-		engine.heboHiddenYLimit = Integer.parseInt(message[23]);
-	}
+    /**
+     * NET: Receive various in-game stats (as well as goaltype)
+     */
+    @Override
+    protected void netRecvStats(GameEngine engine, String[] message) {
+        engine.statistics.lines = Integer.parseInt(message[4]);
+        engine.statistics.totalPieceLocked = Integer.parseInt(message[5]);
+        engine.statistics.time = Integer.parseInt(message[6]);
+        engine.statistics.lpm = Float.parseFloat(message[7]);
+        engine.statistics.pps = Float.parseFloat(message[8]);
+        goaltype = Integer.parseInt(message[9]);
+        engine.gameActive = Boolean.parseBoolean(message[10]);
+        engine.timerActive = Boolean.parseBoolean(message[11]);
+        engine.statistics.level = Integer.parseInt(message[12]);
+        levelTimer = Integer.parseInt(message[13]);
+        levelTimerMax = Integer.parseInt(message[14]);
+        rolltime = Integer.parseInt(message[15]);
+        norm = Integer.parseInt(message[16]);
+        engine.owner.backgroundStatus.bg = Integer.parseInt(message[17]);
+        engine.meterValue = Integer.parseInt(message[18]);
+        engine.meterColor = Integer.parseInt(message[19]);
+        engine.heboHiddenEnable = Boolean.parseBoolean(message[20]);
+        engine.heboHiddenTimerNow = Integer.parseInt(message[21]);
+        engine.heboHiddenTimerMax = Integer.parseInt(message[21]);
+        engine.heboHiddenYNow = Integer.parseInt(message[22]);
+        engine.heboHiddenYLimit = Integer.parseInt(message[23]);
+    }
 
-	/**
-	 * NET: Send end-of-game stats
-	 * @param engine GameEngine
-	 */
-	@Override
-	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "NORM;" + norm + "\t";
-		subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
-		subMsg += "SECTION AVERAGE;" + GeneralUtil.getTime(sectionavgtime) + "\t";
-		for(int i = 0; i < sectiontime.length; i++) {
-			if(sectiontime[i] > 0) {
-				subMsg += "SECTION " + (i+1) + ";" + GeneralUtil.getTime(sectiontime[i]) + "\t";
-			}
-		}
+    /**
+     * NET: Send end-of-game stats
+     * @param engine GameEngine
+     */
+    @Override
+    protected void netSendEndGameStats(GameEngine engine) {
+        String subMsg = "";
+        subMsg += "NORM;" + norm + "\t";
+        subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
+        subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+        subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+        subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
+        subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
+        subMsg += "SECTION AVERAGE;" + GeneralUtil.getTime(sectionavgtime) + "\t";
+        for(int i = 0; i < sectiontime.length; i++) {
+            if(sectiontime[i] > 0) {
+                subMsg += "SECTION " + (i+1) + ";" + GeneralUtil.getTime(sectiontime[i]) + "\t";
+            }
+        }
 
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
-	}
+        String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
+        netLobby.netPlayerClient.send(msg);
+    }
 
-	/**
-	 * NET: Send game options to all spectators
-	 * @param engine GameEngine
-	 */
-	@Override
-	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += goaltype + "\t" + startlevel + "\t" + showsectiontime + "\t" + big + "\n";
-		netLobby.netPlayerClient.send(msg);
-	}
+    /**
+     * NET: Send game options to all spectators
+     * @param engine GameEngine
+     */
+    @Override
+    protected void netSendOptions(GameEngine engine) {
+        String msg = "game\toption\t";
+        msg += goaltype + "\t" + startlevel + "\t" + showsectiontime + "\t" + big + "\n";
+        netLobby.netPlayerClient.send(msg);
+    }
 
-	/**
-	 * NET: Receive game options
-	 */
-	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		goaltype = Integer.parseInt(message[4]);
-		startlevel = Integer.parseInt(message[5]);
-		showsectiontime = Boolean.parseBoolean(message[6]);
-		big = Boolean.parseBoolean(message[7]);
-	}
+    /**
+     * NET: Receive game options
+     */
+    @Override
+    protected void netRecvOptions(GameEngine engine, String[] message) {
+        goaltype = Integer.parseInt(message[4]);
+        startlevel = Integer.parseInt(message[5]);
+        showsectiontime = Boolean.parseBoolean(message[6]);
+        big = Boolean.parseBoolean(message[7]);
+    }
 
-	/**
-	 * NET: Get goal type
-	 */
-	@Override
-	protected int netGetGoalType() {
-		return goaltype;
-	}
+    /**
+     * NET: Get goal type
+     */
+    @Override
+    protected int netGetGoalType() {
+        return goaltype;
+    }
 
-	/**
-	 * NET: It returns true when the current settings doesn't prevent leaderboard screen from showing.
-	 */
-	@Override
-	protected boolean netIsNetRankingViewOK(GameEngine engine) {
-		return (startlevel == 0) && (!big) && (engine.ai == null);
-	}
+    /**
+     * NET: It returns true when the current settings doesn't prevent leaderboard screen from showing.
+     */
+    @Override
+    protected boolean netIsNetRankingViewOK(GameEngine engine) {
+        return (startlevel == 0) && (!big) && (engine.ai == null);
+    }
 }

@@ -830,300 +830,300 @@ public class SpeedManiaMode extends DummyMode {
                 }
 
                 // Section Timeを記録
-    			sectionlasttime = sectiontime[levelb / 100];
-				sectionscomp++;
-				setAverageSectionTime();
+                sectionlasttime = sectiontime[levelb / 100];
+                sectionscomp++;
+                setAverageSectionTime();
 
-				// ST medal
-				stMedalCheck(engine, levelb / 100);
-			} else if(engine.statistics.level >= nextseclv) {
-				// Next Section
-				engine.playSE("levelup");
+                // ST medal
+                stMedalCheck(engine, levelb / 100);
+            } else if(engine.statistics.level >= nextseclv) {
+                // Next Section
+                engine.playSE("levelup");
 
-				// Background切り替え
-				owner.backgroundStatus.fadesw = true;
-				owner.backgroundStatus.fadecount = 0;
-				owner.backgroundStatus.fadebg = nextseclv / 100;
+                // Background切り替え
+                owner.backgroundStatus.fadesw = true;
+                owner.backgroundStatus.fadecount = 0;
+                owner.backgroundStatus.fadebg = nextseclv / 100;
 
-				// BGM切り替え
-				if((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) {
-					bgmlv++;
-					owner.bgmStatus.fadesw = false;
-					owner.bgmStatus.bgm = bgmlv + 1;
-				}
+                // BGM切り替え
+                if((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) {
+                    bgmlv++;
+                    owner.bgmStatus.fadesw = false;
+                    owner.bgmStatus.bgm = bgmlv + 1;
+                }
 
-				// Section Timeを記録
-				sectionlasttime = sectiontime[levelb / 100];
-				sectionscomp++;
-				setAverageSectionTime();
+                // Section Timeを記録
+                sectionlasttime = sectiontime[levelb / 100];
+                sectionscomp++;
+                setAverageSectionTime();
 
-				// ST medal
-				stMedalCheck(engine, levelb / 100);
+                // ST medal
+                stMedalCheck(engine, levelb / 100);
 
-				// RO medal
-				if((nextseclv == 300) || (nextseclv == 700)) roMedalCheck(engine);
+                // RO medal
+                if((nextseclv == 300) || (nextseclv == 700)) roMedalCheck(engine);
 
-				// 段位上昇
-				if(nextseclv == 500) {
-					grade = 1;
-					gradeflash = 180;
-				}
+                // 段位上昇
+                if(nextseclv == 500) {
+                    grade = 1;
+                    gradeflash = 180;
+                }
 
-				// Update level for next section
-				nextseclv += 100;
-				if(nextseclv > 999) nextseclv = 999;
-			} else if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) {
-				engine.playSE("levelstop");
-			}
+                // Update level for next section
+                nextseclv += 100;
+                if(nextseclv > 999) nextseclv = 999;
+            } else if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) {
+                engine.playSE("levelstop");
+            }
 
-			// Calculate score
-			int manuallock = 0;
-			if(engine.manualLock == true) manuallock = 1;
+            // Calculate score
+            int manuallock = 0;
+            if(engine.manualLock == true) manuallock = 1;
 
-			int bravo = 1;
-			if(engine.field.isEmpty()) bravo = 4;
+            int bravo = 1;
+            if(engine.field.isEmpty()) bravo = 4;
 
-			int speedBonus = engine.getLockDelay() - engine.statc[0];
-			if(speedBonus < 0) speedBonus = 0;
+            int speedBonus = engine.getLockDelay() - engine.statc[0];
+            if(speedBonus < 0) speedBonus = 0;
 
-			lastscore = ((levelb + lines)/4 + engine.softdropFall + manuallock) * lines * comboValue * bravo +
-						(engine.statistics.level / 2) + (speedBonus * 7);
-			engine.statistics.score += lastscore;
-			scgettime = 120;
-		}
-	}
+            lastscore = ((levelb + lines)/4 + engine.softdropFall + manuallock) * lines * comboValue * bravo +
+                        (engine.statistics.level / 2) + (speedBonus * 7);
+            engine.statistics.score += lastscore;
+            scgettime = 120;
+        }
+    }
 
-	/*
-	 * 各 frame の終わりの処理
-	 */
-	@Override
-	public void onLast(GameEngine engine, int playerID) {
-		// 段位上昇時のフラッシュ
-		if(gradeflash > 0) gradeflash--;
+    /*
+     * 各 frame の終わりの処理
+     */
+    @Override
+    public void onLast(GameEngine engine, int playerID) {
+        // 段位上昇時のフラッシュ
+        if(gradeflash > 0) gradeflash--;
 
-		// 獲得Render score
-		if(scgettime > 0) scgettime--;
+        // 獲得Render score
+        if(scgettime > 0) scgettime--;
 
-		// Section Time増加
-		if((engine.timerActive) && (engine.ending == 0)) {
-			int section = engine.statistics.level / 100;
+        // Section Time増加
+        if((engine.timerActive) && (engine.ending == 0)) {
+            int section = engine.statistics.level / 100;
 
-			if((section >= 0) && (section < sectiontime.length)) {
-				sectiontime[section]++;
-			}
-		}
+            if((section >= 0) && (section < sectiontime.length)) {
+                sectiontime[section]++;
+            }
+        }
 
-		// Ending
-		if((engine.gameActive) && (engine.ending == 2)) {
-			if((version >= 1) && (engine.ctrl.isPress(Controller.BUTTON_F)))
-				rolltime += 5;
-			else
-				rolltime += 1;
+        // Ending
+        if((engine.gameActive) && (engine.ending == 2)) {
+            if((version >= 1) && (engine.ctrl.isPress(Controller.BUTTON_F)))
+                rolltime += 5;
+            else
+                rolltime += 1;
 
-			// Time meter
-			int remainRollTime = ROLLTIMELIMIT - rolltime;
-			engine.meterValue = (remainRollTime * receiver.getMeterMax(engine)) / ROLLTIMELIMIT;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(remainRollTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(remainRollTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(remainRollTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
+            // Time meter
+            int remainRollTime = ROLLTIMELIMIT - rolltime;
+            engine.meterValue = (remainRollTime * receiver.getMeterMax(engine)) / ROLLTIMELIMIT;
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(remainRollTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(remainRollTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(remainRollTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
 
-			// Roll 終了
-			if(rolltime >= ROLLTIMELIMIT) {
-				engine.gameEnded();
-				engine.resetStatc();
-				engine.stat = GameEngine.STAT_EXCELLENT;
-			}
-		}
-	}
+            // Roll 終了
+            if(rolltime >= ROLLTIMELIMIT) {
+                engine.gameEnded();
+                engine.resetStatc();
+                engine.stat = GameEngine.STAT_EXCELLENT;
+            }
+        }
+    }
 
-	/*
-	 * Called at game over
-	 */
-	@Override
-	public boolean onGameOver(GameEngine engine, int playerID) {
-		if(engine.statc[0] == 0) {
-			secretGrade = engine.field.getSecretGrade();
-		}
-		return false;
-	}
+    /*
+     * Called at game over
+     */
+    @Override
+    public boolean onGameOver(GameEngine engine, int playerID) {
+        if(engine.statc[0] == 0) {
+            secretGrade = engine.field.getSecretGrade();
+        }
+        return false;
+    }
 
-	/*
-	 * 結果画面
-	 */
-	@Override
-	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", EventReceiver.COLOR_RED);
+    /*
+     * 結果画面
+     */
+    @Override
+    public void renderResult(GameEngine engine, int playerID) {
+        receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", EventReceiver.COLOR_RED);
 
-		if(engine.statc[1] == 0) {
-			if((grade >= 1) && (grade < tableGradeName.length)) {
-				receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", EventReceiver.COLOR_BLUE);
-				String strGrade = String.format("%10s", tableGradeName[grade]);
-				receiver.drawMenuFont(engine, playerID, 0, 3, strGrade);
-			}
+        if(engine.statc[1] == 0) {
+            if((grade >= 1) && (grade < tableGradeName.length)) {
+                receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", EventReceiver.COLOR_BLUE);
+                String strGrade = String.format("%10s", tableGradeName[grade]);
+                receiver.drawMenuFont(engine, playerID, 0, 3, strGrade);
+            }
 
-			drawResultStats(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE,
-					STAT_SCORE, STAT_LINES, STAT_LEVEL_MANIA, STAT_TIME);
-			drawResultRank(engine, playerID, receiver, 12, EventReceiver.COLOR_BLUE, rankingRank);
-			if(secretGrade > 4) {
-				drawResult(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE,
-						"S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade-1]));
-			}
-		} else if(engine.statc[1] == 1) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
+            drawResultStats(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE,
+                    STAT_SCORE, STAT_LINES, STAT_LEVEL_MANIA, STAT_TIME);
+            drawResultRank(engine, playerID, receiver, 12, EventReceiver.COLOR_BLUE, rankingRank);
+            if(secretGrade > 4) {
+                drawResult(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE,
+                        "S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade-1]));
+            }
+        } else if(engine.statc[1] == 1) {
+            receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
 
-			for(int i = 0; i < sectiontime.length; i++) {
-				if(sectiontime[i] > 0) {
-					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]), sectionIsNewRecord[i]);
-				}
-			}
+            for(int i = 0; i < sectiontime.length; i++) {
+                if(sectiontime[i] > 0) {
+                    receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]), sectionIsNewRecord[i]);
+                }
+            }
 
-			if(sectionavgtime > 0) {
-				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
-				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
-			}
-		} else if(engine.statc[1] == 2) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", EventReceiver.COLOR_BLUE);
-			if(medalAC >= 1) receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
-			if(medalST >= 1) receiver.drawMenuFont(engine, playerID, 8, 3, "ST", getMedalFontColor(medalST));
-			if(medalSK >= 1) receiver.drawMenuFont(engine, playerID, 5, 4, "SK", getMedalFontColor(medalSK));
-			if(medalRE >= 1) receiver.drawMenuFont(engine, playerID, 8, 4, "RE", getMedalFontColor(medalRE));
-			if(medalRO >= 1) receiver.drawMenuFont(engine, playerID, 5, 5, "SK", getMedalFontColor(medalRO));
-			if(medalCO >= 1) receiver.drawMenuFont(engine, playerID, 8, 5, "CO", getMedalFontColor(medalCO));
+            if(sectionavgtime > 0) {
+                receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
+                receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
+            }
+        } else if(engine.statc[1] == 2) {
+            receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", EventReceiver.COLOR_BLUE);
+            if(medalAC >= 1) receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
+            if(medalST >= 1) receiver.drawMenuFont(engine, playerID, 8, 3, "ST", getMedalFontColor(medalST));
+            if(medalSK >= 1) receiver.drawMenuFont(engine, playerID, 5, 4, "SK", getMedalFontColor(medalSK));
+            if(medalRE >= 1) receiver.drawMenuFont(engine, playerID, 8, 4, "RE", getMedalFontColor(medalRE));
+            if(medalRO >= 1) receiver.drawMenuFont(engine, playerID, 5, 5, "SK", getMedalFontColor(medalRO));
+            if(medalCO >= 1) receiver.drawMenuFont(engine, playerID, 8, 5, "CO", getMedalFontColor(medalCO));
 
-			drawResultStats(engine, playerID, receiver, 6, EventReceiver.COLOR_BLUE,
-					STAT_LPM, STAT_SPM, STAT_PIECE, STAT_PPS);
-		}
-	}
+            drawResultStats(engine, playerID, receiver, 6, EventReceiver.COLOR_BLUE,
+                    STAT_LPM, STAT_SPM, STAT_PIECE, STAT_PPS);
+        }
+    }
 
-	/*
-	 * 結果画面の処理
-	 */
-	@Override
-	public boolean onResult(GameEngine engine, int playerID) {
-		// ページ切り替え
-		if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if(engine.statc[1] < 0) engine.statc[1] = 2;
-			engine.playSE("change");
-		}
-		if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if(engine.statc[1] > 2) engine.statc[1] = 0;
-			engine.playSE("change");
-		}
-		//  section time display切替
-		if(engine.ctrl.isPush(Controller.BUTTON_F)) {
-			engine.playSE("change");
-			isShowBestSectionTime = !isShowBestSectionTime;
-		}
+    /*
+     * 結果画面の処理
+     */
+    @Override
+    public boolean onResult(GameEngine engine, int playerID) {
+        // ページ切り替え
+        if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+            engine.statc[1]--;
+            if(engine.statc[1] < 0) engine.statc[1] = 2;
+            engine.playSE("change");
+        }
+        if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+            engine.statc[1]++;
+            if(engine.statc[1] > 2) engine.statc[1] = 0;
+            engine.playSE("change");
+        }
+        //  section time display切替
+        if(engine.ctrl.isPush(Controller.BUTTON_F)) {
+            engine.playSE("change");
+            isShowBestSectionTime = !isShowBestSectionTime;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/*
-	 * リプレイ保存
-	 */
-	@Override
-	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
-		saveSetting(owner.replayProp);
-		owner.replayProp.setProperty("speedmania.version", version);
+    /*
+     * リプレイ保存
+     */
+    @Override
+    public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+        saveSetting(owner.replayProp);
+        owner.replayProp.setProperty("speedmania.version", version);
 
-		// Update rankings
-		if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null)) {
-			updateRanking(grade, engine.statistics.level, engine.statistics.time);
-			if(medalST == 3) updateBestSectionTime();
+        // Update rankings
+        if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null)) {
+            updateRanking(grade, engine.statistics.level, engine.statistics.time);
+            if(medalST == 3) updateBestSectionTime();
 
-			if((rankingRank != -1) || (medalST == 3)) {
-				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
-			}
-		}
-	}
+            if((rankingRank != -1) || (medalST == 3)) {
+                saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+                receiver.saveModeConfig(owner.modeConfig);
+            }
+        }
+    }
 
-	/**
-	 * Read rankings from property file
-	 * @param prop Property file
-	 * @param ruleName Rule name
-	 */
-	private void loadRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			rankingGrade[i] = prop.getProperty("speedmania.ranking." + ruleName + ".grade." + i, 0);
-			rankingLevel[i] = prop.getProperty("speedmania.ranking." + ruleName + ".level." + i, 0);
-			rankingTime[i] = prop.getProperty("speedmania.ranking." + ruleName + ".time." + i, 0);
-		}
-		for(int i = 0; i < SECTION_MAX; i++) {
-			bestSectionTime[i] = prop.getProperty("speedmania.bestSectionTime." + ruleName + "." + i, DEFAULT_SECTION_TIME);
-		}
-	}
+    /**
+     * Read rankings from property file
+     * @param prop Property file
+     * @param ruleName Rule name
+     */
+    private void loadRanking(CustomProperties prop, String ruleName) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            rankingGrade[i] = prop.getProperty("speedmania.ranking." + ruleName + ".grade." + i, 0);
+            rankingLevel[i] = prop.getProperty("speedmania.ranking." + ruleName + ".level." + i, 0);
+            rankingTime[i] = prop.getProperty("speedmania.ranking." + ruleName + ".time." + i, 0);
+        }
+        for(int i = 0; i < SECTION_MAX; i++) {
+            bestSectionTime[i] = prop.getProperty("speedmania.bestSectionTime." + ruleName + "." + i, DEFAULT_SECTION_TIME);
+        }
+    }
 
-	/**
-	 * Save rankings to property file
-	 * @param prop Property file
-	 * @param ruleName Rule name
-	 */
-	private void saveRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			prop.setProperty("speedmania.ranking." + ruleName + ".grade." + i, rankingGrade[i]);
-			prop.setProperty("speedmania.ranking." + ruleName + ".level." + i, rankingLevel[i]);
-			prop.setProperty("speedmania.ranking." + ruleName + ".time." + i, rankingTime[i]);
-		}
-		for(int i = 0; i < SECTION_MAX; i++) {
-			prop.setProperty("speedmania.bestSectionTime." + ruleName + "." + i, bestSectionTime[i]);
-		}
-	}
+    /**
+     * Save rankings to property file
+     * @param prop Property file
+     * @param ruleName Rule name
+     */
+    private void saveRanking(CustomProperties prop, String ruleName) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            prop.setProperty("speedmania.ranking." + ruleName + ".grade." + i, rankingGrade[i]);
+            prop.setProperty("speedmania.ranking." + ruleName + ".level." + i, rankingLevel[i]);
+            prop.setProperty("speedmania.ranking." + ruleName + ".time." + i, rankingTime[i]);
+        }
+        for(int i = 0; i < SECTION_MAX; i++) {
+            prop.setProperty("speedmania.bestSectionTime." + ruleName + "." + i, bestSectionTime[i]);
+        }
+    }
 
-	/**
-	 * Update rankings
-	 * @param gr 段位
-	 * @param lv  level
-	 * @param time Time
-	 */
-	private void updateRanking(int gr, int lv, int time) {
-		rankingRank = checkRanking(gr, lv, time);
+    /**
+     * Update rankings
+     * @param gr 段位
+     * @param lv  level
+     * @param time Time
+     */
+    private void updateRanking(int gr, int lv, int time) {
+        rankingRank = checkRanking(gr, lv, time);
 
-		if(rankingRank != -1) {
-			// Shift down ranking entries
-			for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
-				rankingGrade[i] = rankingGrade[i - 1];
-				rankingLevel[i] = rankingLevel[i - 1];
-				rankingTime[i] = rankingTime[i - 1];
-			}
+        if(rankingRank != -1) {
+            // Shift down ranking entries
+            for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+                rankingGrade[i] = rankingGrade[i - 1];
+                rankingLevel[i] = rankingLevel[i - 1];
+                rankingTime[i] = rankingTime[i - 1];
+            }
 
-			// Add new data
-			rankingGrade[rankingRank] = gr;
-			rankingLevel[rankingRank] = lv;
-			rankingTime[rankingRank] = time;
-		}
-	}
+            // Add new data
+            rankingGrade[rankingRank] = gr;
+            rankingLevel[rankingRank] = lv;
+            rankingTime[rankingRank] = time;
+        }
+    }
 
-	/**
-	 * Calculate ranking position
-	 * @param gr 段位
-	 * @param lv  level
-	 * @param time Time
-	 * @return Position (-1 if unranked)
-	 */
-	private int checkRanking(int gr, int lv, int time) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			if(lv > rankingLevel[i]) {
-				return i;
-			} else if((lv == rankingLevel[i]) && (time < rankingTime[i])) {
-				return i;
-			}
-		}
+    /**
+     * Calculate ranking position
+     * @param gr 段位
+     * @param lv  level
+     * @param time Time
+     * @return Position (-1 if unranked)
+     */
+    private int checkRanking(int gr, int lv, int time) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            if(lv > rankingLevel[i]) {
+                return i;
+            } else if((lv == rankingLevel[i]) && (time < rankingTime[i])) {
+                return i;
+            }
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 
-	/**
-	 * Update best section time records
-	 */
-	private void updateBestSectionTime() {
-		for(int i = 0; i < SECTION_MAX; i++) {
-			if(sectionIsNewRecord[i]) {
-				bestSectionTime[i] = sectiontime[i];
-			}
-		}
-	}
+    /**
+     * Update best section time records
+     */
+    private void updateBestSectionTime() {
+        for(int i = 0; i < SECTION_MAX; i++) {
+            if(sectionIsNewRecord[i]) {
+                bestSectionTime[i] = sectiontime[i];
+            }
+        }
+    }
 }

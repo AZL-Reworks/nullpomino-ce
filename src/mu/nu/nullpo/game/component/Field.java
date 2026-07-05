@@ -2160,1147 +2160,1147 @@ public class Field implements Serializable {
                                     bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL) )
                                 {
                                     bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-            						bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, true);
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT, true);
-									setBlock(l, k + 1, bTemp);
-									setBlock(l, k, new Block());
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
-
-		/*
-		for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
-			setLineFlag(i, false);
-		}
-		*/
-
-		return result;
-	}
-
-	/**
-	 * Routine for cascade gravity which checks from the top down for a slower fall animation.
-	 * @return <code>true</code> if something falls. <code>false</code> if nothing falls.
-	 */
-	public boolean doCascadeSlow() {
-		boolean result = false;
-
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
-
-		for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
-			for(int j = 0; j < width; j++) {
-				Block blk = getBlock(j, i);
-
-				if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
-					boolean fall = true;
-					checkBlockLink(j, i);
-
-					for(int k = (getHeightWithoutHurryupFloor() - 1); k >= (hidden_height * -1); k--) {
-						for(int l = 0; l < width; l++) {
-							Block bTemp = getBlock(l, k);
-
-							if( (bTemp != null) && !bTemp.isEmpty() &&
-								bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL) )
-							{
-								Block bBelow = getBlock(l, k + 1);
-
-								if( (getCoordAttribute(l, k + 1) == COORD_WALL) ||
-									((bBelow != null) && !bBelow.isEmpty() && !bBelow.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) )
-								{
-									fall = false;
-								}
-							}
-						}
-					}
-
-					if(fall) {
-						result = true;
-						for(int k = (getHeightWithoutHurryupFloor() - 1); k >= (hidden_height * -1); k--) {
-							for(int l = 0; l < width; l++) {
-								Block bTemp = getBlock(l, k);
-								Block bBelow = getBlock(l, k + 1);
-
-								if( (getCoordAttribute(l, k + 1) != COORD_WALL) &&
-								    (bTemp != null) && !bTemp.isEmpty() && (bBelow != null) && bBelow.isEmpty() &&
-								    bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL) )
-								{
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, true);
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT, true);
-									setBlock(l, k + 1, bTemp);
-									setBlock(l, k, new Block());
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
-
-		return result;
-	}
-
-	/**
-	 * Checks the connection of blocks and set "mark" to each block.
-	 * @param x X coord
-	 * @param y Y coord
-	 */
-	public void checkBlockLink(int x, int y) {
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-		checkBlockLinkSub(x, y);
-	}
-
-	/**
-	 * Subroutine for checkBlockLink.
-	 * @param x X coord
-	 * @param y Y coord
-	 */
-	protected void checkBlockLinkSub(int x, int y) {
-		Block blk = getBlock(x, y);
-		if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
-			blk.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
-
-			if(!blk.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
-				if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) checkBlockLinkSub(x, y - 1);
-				if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) checkBlockLinkSub(x, y + 1);
-				if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) checkBlockLinkSub(x - 1, y);
-				if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) checkBlockLinkSub(x + 1, y);
-			}
-		}
-	}
-
-	/**
-	 * Checks the connection of blocks and set the "broken" flag to each block.
-	 * It only affects to normal blocks. (ex. not square or gems)
-	 * @param x X coord
-	 * @param y Y coord
-	 */
-	public void setBlockLinkBroken(int x, int y) {
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-		setBlockLinkBrokenSub(x, y);
-	}
-
-	/**
-	 * Subroutine for setBlockLinkBrokenSub.
-	 * @param x X coord
-	 * @param y Y coord
-	 */
-	protected void setBlockLinkBrokenSub(int x, int y) {
-		Block blk = getBlock(x, y);
-		if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && blk.isNormalBlock()) {
-			blk.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
-			blk.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-			if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) setBlockLinkBrokenSub(x, y - 1);
-			if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) setBlockLinkBrokenSub(x, y + 1);
-			if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) setBlockLinkBrokenSub(x - 1, y);
-			if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) setBlockLinkBrokenSub(x + 1, y);
-		}
-	}
-
-	/**
-	 * Checks the color of blocks and set the connection flags to each block.
-	 */
-	public void setBlockLinkByColor() {
-		for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
-			for(int j = 0; j < width; j++) {
-				setBlockLinkByColor(j, i);
-			}
-		}
-	}
-
-	/**
-	 * Checks the color of blocks and set the connection flags to each block.
-	 * @param x X coord
-	 * @param y Y coord
-	 */
-	public void setBlockLinkByColor(int x, int y) {
-		setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-		setBlockLinkByColorSub(x, y);
-	}
-
-	/**
-	 * Subroutine for setBlockLinkByColorSub.
-	 * @param x X coord
-	 * @param y Y coord
-	 */
-	protected void setBlockLinkByColorSub(int x, int y) {
-		Block blk = getBlock(x, y);
-		if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) &&
-		    !blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && blk.isNormalBlock())
-		{
-			blk.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
-			if(getBlockColor(x, y - 1) == blk.color) {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
-				setBlockLinkByColorSub(x, y - 1);
-			} else {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
-			}
-			if(getBlockColor(x, y + 1) == blk.color) {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
-				setBlockLinkByColorSub(x, y + 1);
-			} else {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
-			}
-			if(getBlockColor(x - 1, y) == blk.color) {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
-				setBlockLinkByColorSub(x - 1, y);
-			} else {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
-			}
-			if(getBlockColor(x + 1, y) == blk.color) {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
-				setBlockLinkByColorSub(x + 1, y);
-			} else {
-				blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-			}
-		}
-	}
-
-	/**
-	 * HURRY UPの地面を一番下に追加
-	 * @param lines 上げるLinescount
-	 * @param skin 地面の絵柄
-	 */
-	public void addHurryupFloor(int lines, int skin) {
-		for(int k = 0; k < lines; k++) {
-			pushUp(1);
-
-			for(int j = 0; j < width; j++) {
-				Block blk = new Block();
-				blk.color = Block.BLOCK_COLOR_GRAY;
-				blk.skin = skin;
-				blk.attribute = Block.BLOCK_ATTRIBUTE_WALL | Block.BLOCK_ATTRIBUTE_GARBAGE | Block.BLOCK_ATTRIBUTE_VISIBLE;
-				setBlock(j, getHeightWithoutHurryupFloor() - 1, blk);
-			}
-
-			hurryupFloorLines++;
-		}
-	}
-
-	/**
-	 * HURRY UPの地面が何Linesあるか調べる
-	 * @return HURRY UPの地面Linesのcount
-	 */
-	public int getHurryupFloorLines() {
-		return hurryupFloorLines;
-	}
-
-	/**
-	 * HURRY UPの地面を除いたField heightを返す
-	 * @return HURRY UPの地面を除いたField height
-	 */
-	public int getHeightWithoutHurryupFloor() {
-		return height - hurryupFloorLines;
-	}
-
-	/**
-	 * @param row Row of blocks
-	 * @return a String representing the row
-	 */
-	public String rowToString(Block[] row){
-		String strResult = "";
-
-		for(int x = 0; x < row.length; x++) {
-			strResult += row[x];
-		}
-
-		return strResult;
-	}
-
-	/**
-	 * fieldを文字列に変換
-	 * @return 文字列に変換されたfield
-	 */
-	public String fieldToString() {
-		String strResult = "";
-
-		for(int i = getHeight() - 1; i >= Math.max(-1, getHighestBlockY()); i--) {
-			strResult += rowToString(getRow(i));
-		}
-
-		// 終わりの0を取り除く
-		while(strResult.endsWith("0")) {
-			strResult = strResult.substring(0, strResult.length() - 1);
-		}
-
-		return strResult;
-	}
-
-	public Block[] stringToRow(String str){
-		return stringToRow(str, 0, false, false);
-	}
-
-	/**
-	 * @param str String representing field state
-	 * @param skin Block skin being used in this field
-	 * @param isGarbage Row is a garbage row
-	 * @param isWall Row is a wall (i.e. hurry-up rows)
-	 * @return The row array
-	 */
-	public Block[] stringToRow(String str, int skin, boolean isGarbage, boolean isWall){
-		Block[] row = new Block[getWidth()];
-		for(int j = 0; j < getWidth(); j++) {
-
-			int blkColor = Block.BLOCK_COLOR_NONE;
-
-			/*
-			 * NullNoname's original approach from the old stringToField:
-			 * If a character outside the row string is referenced,
-			 * default to an empty block by ignoring the exception.
-			 */
-			try {
-				char c = str.charAt(j);
-				blkColor = Block.charToBlockColor(c);
-			} catch (Exception e) {}
-
-			row[j] = new Block();
-			row[j].color = blkColor;
-			row[j].skin = skin;
-			row[j].elapsedFrames = -1;
-			row[j].setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-			row[j].setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
-
-			if(isGarbage) { //TODO: This may need extension when garbage does not only sport one hole (i.e. TGM garbage)
-				row[j].setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
-			}
-			if(isWall) {
-				row[j].setAttribute(Block.BLOCK_ATTRIBUTE_WALL, true);
-			}
-		}
-
-		return row;
-	}
-
-
-	/**
-	 * 文字列を元にfieldを変更
-	 * @param str 文字列
-	 */
-	public void stringToField(String str) {
-		stringToField(str, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * 文字列を元にfieldを変更
-	 * @param str 文字列
-	 * @param skin Blockの絵柄
-	 * @param highestGarbageY 最も高いgarbage blockの位置
-	 * @param highestWallY 最も高いHurryupBlockの位置
-	 */
-	public void stringToField(String str, int skin, int highestGarbageY, int highestWallY) {
-		for(int i = -1; i < getHeight(); i++) {
-			int index = (getHeight() - 1 - i) * getWidth();
-			/*
-			 * Much like NullNoname's try/catch from the old stringToField that is now in stringToRow,
-			 * we need to skip over substrings referenced outside the field string -- empty rows.
-			 */
-			try{
-				String substr = str.substring(index, Math.min(str.length(), index+getWidth()));
-				Block[] row = stringToRow(substr, skin, (i >= highestGarbageY), (i >= highestWallY));
-				for(int j = 0; j < getWidth(); j++){
-					setBlock(j, i, row[j]);
-				}
-			}
-			catch(Exception e){
-				for(int j = 0; j < getWidth(); j++){
-					setBlock(j, i, new Block(Block.BLOCK_COLOR_NONE));
-				}
-			}
-		}
-	}
-
-	/**
-	 * @param row Row of blocks
-	 * @return a String representing the row with attributes
-	 */
-	public String attrRowToString(Block[] row){
-		String strResult = "";
-
-		for(int x = 0; x < row.length; x++) {
-			strResult += Integer.toString(row[x].color, 16) + "/";
-			strResult += Integer.toString(row[x].attribute, 16) + ";";
-		}
-
-		return strResult;
-	}
-
-	/**
-	 * Convert this field to a String with attributes
-	 * @return a String representing the field with attributes
-	 */
-	public String attrFieldToString() {
-		String strResult = "";
-
-		for(int i = getHeight() - 1; i >= Math.max(-1, getHighestBlockY()); i--) {
-			strResult += attrRowToString(getRow(i));
-		}
-		while(strResult.endsWith("0/0;")) {
-			strResult = strResult.substring(0, strResult.length() - 4);
-		}
-
-		return strResult;
-	}
-
-	public Block[] attrStringToRow(String str, int skin) {
-		return attrStringToRow(str.split(";"), skin);
-	}
-
-	public Block[] attrStringToRow(String[] strArray, int skin) {
-		Block[] row = new Block[getWidth()];
-
-		for(int j = 0; j < getWidth(); j++) {
-			int blkColor = Block.BLOCK_COLOR_NONE;
-			int attr = 0;
-
-			try {
-				String[] strSubArray = strArray[j].split("/");
-				if(strSubArray.length > 0)
-					blkColor = Integer.parseInt(strSubArray[0], 16);
-				if(strSubArray.length > 1)
-					attr = Integer.parseInt(strSubArray[1], 16);
-			} catch (Exception e) {}
-
-			row[j] = new Block();
-			row[j].color = blkColor;
-			row[j].skin = skin;
-			row[j].elapsedFrames = -1;
-			row[j].attribute = attr;
-			row[j].setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-			row[j].setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
-		}
-
-		return row;
-	}
-
-	public void attrStringToField(String str, int skin) {
-		String[] strArray = str.split(";");
-
-		for(int i = -1; i < getHeight(); i++) {
-			int index = (getHeight() - 1 - i) * getWidth();
-
-			try{
-				String strTemp = "";
-				String[] strArray2 = new String[getWidth()];
-				for(int j = 0; j < getWidth(); j++){
-					if(index + j < strArray.length)
-						strArray2[j] = strArray[index + j];
-					else
-						strArray2[j] = "";
-
-					strTemp += strArray2[j] + "/";
-				}
-
-				Block[] row = attrStringToRow(strArray2, skin);
-				for(int j = 0; j < getWidth(); j++){
-					setBlock(j, i, row[j]);
-				}
-			}
-			catch(Exception e){
-				for(int j = 0; j < getWidth(); j++){
-					setBlock(j, i, new Block(Block.BLOCK_COLOR_NONE));
-				}
-			}
-		}
-	}
-
-	/**
-	 * fieldの文字列表現を取得
-	 */
-	@Override
-	public String toString() {
-		String str = getClass().getName() + "@" + Integer.toHexString(hashCode()) + "\n";
-
-		for(int i = (hidden_height * -1); i < height; i++) {
-			str += String.format("%3d:", i);
-
-			for(int j = 0; j < width; j++) {
-				int color = getBlockColor(j, i);
-
-				if(color < 0) {
-					str += "*";
-				} else if(color >= 10) {
-					str += "+";
-				} else {
-					str += Integer.toString(color);
-				}
-			}
-
-			str += "\n";
-		}
-
-		return str;
-	}
-
-	public int checkColor(int size, boolean flag, boolean garbageClear, boolean gemSame, boolean ignoreHidden) {
-		Field temp = new Field(this);
-		int total = 0;
-		boolean[] colorsClearedArray = new boolean[7];
-		if (flag)
-		{
-			setAllAttribute(Block.BLOCK_ATTRIBUTE_ERASE, false);
-			garbageCleared = 0;
-			colorClearExtraCount = 0;
-			colorsCleared = 0;
-			for (int i = 0; i < 7; i++)
-				colorsClearedArray[i] = false;
-		}
-
-		for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++)
-		{
-			for(int j = 0; j < width; j++)
-			{
-				int clear = temp.clearColor(j, i, false, garbageClear, gemSame, ignoreHidden);
-				if (clear >= size)
-				{
-					total += clear;
-					if (flag)
-					{
-						int blockColor = getBlockColor(j, i, gemSame);
-						clearColor(j, i, true, garbageClear, gemSame, ignoreHidden);
-						colorClearExtraCount += clear - size;
-						if (blockColor >= 2 && blockColor <= 8)
-							colorsClearedArray[blockColor-2] = true;
-					}
-				}
-			}
-		}
-		if (flag)
-			for (int i = 0; i < 7; i++)
-				if (colorsClearedArray[i])
-					colorsCleared++;
-		return total;
-	}
-
-	public void garbageDrop(GameEngine engine, int drop, boolean big) {
-		garbageDrop(engine, drop, big, 0, 0, -1, Block.BLOCK_COLOR_GRAY);
-	}
-	public void garbageDrop(GameEngine engine, int drop, boolean big, int hard) {
-		garbageDrop(engine, drop, big, hard, 0, -1, Block.BLOCK_COLOR_GRAY);
-	}
-	public void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown) {
-		garbageDrop(engine, drop, big, hard, countdown, -1, Block.BLOCK_COLOR_GRAY);
-	}
-	public void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown, int avoidColumn) {
-		garbageDrop(engine, drop, big, hard, countdown, avoidColumn, Block.BLOCK_COLOR_GRAY);
-	}
-	public void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown, int avoidColumn, int color) {
-		int y = -1 * hidden_height;
-		int actualWidth = width;
-		if (big)
-			actualWidth >>= 1;
-		int bigMove = big ? 2 : 1;
-		while (drop >= actualWidth)
-		{
-			drop -= actualWidth;
-			for (int x = 0; x < actualWidth; x+=bigMove)
-				garbageDropPlace(x, y, big, hard, color, countdown);
-			y+=bigMove;
-		}
-		if (drop == 0)
-			return;
-		boolean[] placeBlock = new boolean[actualWidth];
-		int j;
-		if (drop > (actualWidth>>1))
-		{
-			for (int x = 0; x < actualWidth; x++)
-				placeBlock[x] = true;
-			int start = actualWidth;
-			if (avoidColumn >= 0 && avoidColumn < actualWidth)
-			{
-				start--;
-				placeBlock[avoidColumn] = false;
-			}
-			for (int i = start; i > drop; i--)
-			{
-				do {
-					j = engine.random.nextInt(actualWidth);
-				} while (!placeBlock[j]);
-				placeBlock[j] = false;
-			}
-		}
-		else
-		{
-			for (int x = 0; x < actualWidth; x++)
-				placeBlock[x] = false;
-			for (int i = 0; i < drop; i++)
-			{
-				do {
-					j = engine.random.nextInt(actualWidth);
-				} while (placeBlock[j] && j != avoidColumn);
-				placeBlock[j] = true;
-			}
-		}
-
-		for (int x = 0; x < actualWidth; x++)
-			if (placeBlock[x])
-				garbageDropPlace(x*bigMove, y, big, hard, color, countdown);
-	}
-
-	public boolean garbageDropPlace (int x, int y, boolean big, int hard)
-	{
-		return garbageDropPlace(x, y, big, hard, Block.BLOCK_COLOR_GRAY, 0);
-	}
-	public boolean garbageDropPlace (int x, int y, boolean big, int hard, int color)
-	{
-		return garbageDropPlace(x, y, big, hard, color, 0);
-	}
-	public boolean garbageDropPlace (int x, int y, boolean big, int hard, int color, int countdown)
-	{
-		Block b = getBlock(x, y);
-		if (b == null)
-			return false;
-		if (big)
-		{
-			garbageDropPlace(x+1, y, false, hard);
-			garbageDropPlace(x, y+1, false, hard);
-			garbageDropPlace(x+1, y+1, false, hard);
-		}
-		if (getBlockEmptyF(x, y))
-		{
-			setBlockColor(x, y, color);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-			b.hard = hard;
-			b.secondaryColor = 0;
-			b.countdown = countdown;
-			return true;
-		}
-		return false;
-	}
-
-	public boolean canCascade() {
-		for(int i = (getHeightWithoutHurryupFloor() - 1); i >= (hidden_height * -1); i--) {
-			for(int j = 0; j < width; j++) {
-				Block blk = getBlock(j, i);
-
-				if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
-					boolean fall = true;
-					checkBlockLink(j, i);
-
-					for(int k = (getHeightWithoutHurryupFloor() - 1); k >= (hidden_height * -1); k--) {
-						for(int l = 0; l < width; l++) {
-							Block bTemp = getBlock(l, k);
-
-							if( (bTemp != null) && !bTemp.isEmpty() &&
-								bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL) )
-							{
-								Block bBelow = getBlock(l, k + 1);
-
-								if( (getCoordAttribute(l, k + 1) == COORD_WALL) ||
-									((bBelow != null) && !bBelow.isEmpty() && !bBelow.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) )
-								{
-									fall = false;
-								}
-							}
-						}
-					}
-
-					if(fall)
-						return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public void addRandomHoverBlocks(GameEngine engine, int count, int[] colors, int minY,
-			boolean avoidLines)
-	{
-		addRandomHoverBlocks(engine, count, colors, minY, avoidLines, false);
-	}
-
-	public void addRandomHoverBlocks(GameEngine engine, int count, int[] colors, int minY,
-			boolean avoidLines, boolean flashMode)
-	{
-		Random posRand = new Random(engine.random.nextLong());
-		Random colorRand = new Random(engine.random.nextLong());
-		int placeHeight = height-minY;
-		int placeSize = placeHeight * width;
-		boolean[][] placeBlock = new boolean[width][placeHeight];
-		int[] colorCounts = new int[colors.length];
-		for (int i = 0; i < colorCounts.length; i++)
-			colorCounts[i] = 0;
-
-		int blockColor;
-		if (count < (placeSize >> 1))
-		{
-			int colorShift = colorRand.nextInt(colors.length);
-			int x, y;
-			for (y = 0; y < placeHeight; y++)
-				for (x = 0; x < width; x++)
-					placeBlock[x][y] = false;
-			for (int i = 0; i < count; i++)
-			{
-				x = posRand.nextInt(width);
-				y = posRand.nextInt(placeHeight);
-				if (!getBlockEmpty(x, y+minY))
-					i--;
-				else
-				{
-					blockColor = ((i+colorShift)%colors.length);
-					colorCounts[blockColor]++;
-					addHoverBlock(x, y+minY, colors[blockColor]);
-					placeBlock[x][y] = true;
-				}
-			}
-		}
-		else
-		{
-			int x, y;
-			for (y = 0; y < placeHeight; y++)
-				for (x = 0; x < width; x++)
-					placeBlock[x][y] = true;
-			for (int i = placeSize; i > count; i--)
-			{
-				x = posRand.nextInt(width);
-				y = posRand.nextInt(placeHeight);
-				if (placeBlock[x][y])
-					placeBlock[x][y] = false;
-				else
-					i++;
-			}
-			for (y = 0; y < placeHeight; y++)
-				for (x = 0; x < width; x++)
-					if (placeBlock[x][y])
-					{
-						blockColor = colorRand.nextInt(colors.length);
-						colorCounts[blockColor]++;
-						addHoverBlock(x, y+minY, colors[blockColor]);
-					}
-		}
-		if (!avoidLines || colors.length == 1)
-			return;
-		int colorUp, colorLeft, cIndex;
-		for (int y = minY; y < height; y++)
-			for (int x = 0; x < width; x++)
-				if (placeBlock[x][y-minY])
-				{
-					colorUp = getBlockColor(x, y-2);
-					colorLeft = getBlockColor(x-2, y);
-					blockColor = getBlockColor(x, y);
-					if (blockColor != colorUp && blockColor != colorLeft)
-						continue;
-
-					cIndex = -1;
-					for (int i = 0; i < colorCounts.length; i++)
-						if (colors[i] == blockColor)
-						{
-							cIndex = i;
-							break;
-						}
-
-					if (colors.length == 2)
-					{
-						if ((colors[0] == colorUp && colors[1] != colorLeft) ||
-								(colors[0] == colorLeft && colors[1] != colorUp))
-						{
-							colorCounts[1]++;
-							colorCounts[cIndex]--;
-							setBlockColor(x, y, colors[1]);
-						}
-						else if ((colors[1] == colorUp && colors[0] != colorLeft) ||
-								(colors[1] == colorLeft && colors[0] != colorUp))
-						{
-							colorCounts[0]++;
-							colorCounts[cIndex]--;
-							setBlockColor(x, y, colors[0]);
-						}
-					}
-					else
-					{
-						int newColor;
-						do {
-							newColor = colorRand.nextInt(colors.length);
-						} while (colors[newColor] == colorUp || colors[newColor] == colorLeft);
-						colorCounts[cIndex]--;
-						colorCounts[newColor]++;
-						setBlockColor(x, y, colors[newColor]);
-					}
-				}
-		boolean[] canSwitch = new boolean[colors.length];
-		int minCount = count/colors.length;
-		int maxCount = (count+colors.length-1)/colors.length;
-		boolean done = true;
-		for (int i = 0; i < colorCounts.length; i++)
-			if (colorCounts[i] > maxCount)
-			{
-				done = false;
-				break;
-			}
-		int colorSide, bestSwitch, bestSwitchCount;
-		int excess = 0;
-		boolean fill = false;
-		while (!done)
-		{
-			done = true;
-			for (int y = minY; y < height; y++)
-				for (int x = 0; x < width; x++)
-				{
-					blockColor = getBlockColor(x, y);
-					fill = blockColor == Block.BLOCK_COLOR_NONE;
-					cIndex = -1;
-					if (!fill)
-					{
-						if (!placeBlock[x][y-minY])
-							continue;
-						for (int i = 0; i < colorCounts.length; i++)
-							if (colors[i] == blockColor)
-							{
-								cIndex = i;
-								break;
-							}
-						if (cIndex == -1)
-							continue;
-						if (colorCounts[cIndex] <= maxCount)
-							continue;
-					}
-					for (int i = 0; i < colorCounts.length; i++)
-						canSwitch[i] = colorCounts[i] < maxCount;
-
-					colorSide = getBlockColor(x, y-2);
-					for (int i = 0; i < colors.length; i++)
-						if (colors[i] == colorSide)
-						{
-							canSwitch[i] = false;
-							break;
-						}
-					colorSide = getBlockColor(x, y+2);
-					for (int i = 0; i < colors.length; i++)
-						if (colors[i] == colorSide)
-						{
-							canSwitch[i] = false;
-							break;
-						}
-					colorSide = getBlockColor(x-2, y);
-					for (int i = 0; i < colors.length; i++)
-						if (colors[i] == colorSide)
-						{
-							canSwitch[i] = false;
-							break;
-						}
-					colorSide = getBlockColor(x+2, y);
-					for (int i = 0; i < colors.length; i++)
-						if (colors[i] == colorSide)
-						{
-							canSwitch[i] = false;
-							break;
-						}
-					bestSwitch = -1;
-					bestSwitchCount = Integer.MAX_VALUE;
-					for (int i = 0; i < colorCounts.length; i++)
-						if (canSwitch[i] && colorCounts[i] < bestSwitchCount)
-						{
-							bestSwitch = i;
-							bestSwitchCount = colorCounts[i];
-						}
-					if (bestSwitch != -1)
-					{
-						if (fill)
-						{
-							excess++;
-							addHoverBlock(x, y, colors[bestSwitch]);
-							placeBlock[x][y-minY] = true;
-						}
-						else
-						{
-							colorCounts[cIndex]--;
-							setBlockColor(x, y, colors[bestSwitch]);
-						}
-						colorCounts[bestSwitch]++;
-						done = false;
-					}
-				}
-			while (excess > 0)
-			{
-				int x = posRand.nextInt(width);
-				int y = posRand.nextInt(placeHeight)+minY;
-				if (!placeBlock[x][y-minY])
-					continue;
-				blockColor = getBlockColor(x, y);
-				for (int i = 0; i < colors.length; i++)
-					if (colors[i] == blockColor)
-					{
-						if (colorCounts[i] > minCount)
-						{
-							setBlockColor(x, y, Block.BLOCK_COLOR_NONE);
-							colorCounts[i]--;
-							excess--;
-							placeBlock[x][y-minY] = false;
-						}
-						break;
-					}
-			}
-			boolean balanced = true;
-			for (int i = 0; i < colorCounts.length; i++)
-				if (colorCounts[i] > maxCount)
-				{
-					balanced = false;
-					break;
-				}
-			if (balanced)
-				done = true;
-		}
-		if (!flashMode)
-			return;
-		done = true;
-		boolean[] gemNeeded = new boolean[colors.length];
-		for (int i = 0; i < colors.length; i++)
-		{
-			if (colors[i] >= 2 && colors[i] <= 8 && colorCounts[i] > 0)
-			{
-				gemNeeded[i] = true;
-				done = false;
-			}
-			else
-				gemNeeded[i] = false;
-		}
-		while (!done)
-		{
-			int x = posRand.nextInt(width);
-			int y = posRand.nextInt(placeHeight)+minY;
-			if (!placeBlock[x][y-minY])
-				continue;
-			blockColor = getBlockColor(x, y);
-			for (int i = 0; i < colors.length; i++)
-				if (colors[i] == blockColor)
-				{
-					if (gemNeeded[i])
-					{
-						setBlockColor(x, y, blockColor+7);
-						gemNeeded[i] = false;
-					}
-					break;
-				}
-			done = true;
-			for (int i = 0; i < colors.length; i++)
-				if (gemNeeded[i])
-					done = false;
-		}
-	}
-	public boolean addHoverBlock(int x, int y, int color)
-	{
-		Block b = getBlock(x, y);
-		if (b == null)
-			return false;
-		b.color = color;
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-		b.setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, false);
-		return true;
-	}
-
-	public void shuffleColors(int[] blockColors, int numColors, Random rand) {
-		blockColors = blockColors.clone();
-		int maxX = Math.min(blockColors.length, numColors);
-		int temp, j;
-		int i = maxX;
-		while (i > 1)
-		{
-			j = rand.nextInt(i);
-			i--;
-			if (j != i)
-			{
-				temp = blockColors[i];
-				blockColors[i] = blockColors[j];
-				blockColors[j] = temp;
-			}
-		}
-		for (int x = 0; x < width; x++)
-			for (int y = 0; y < height; y++)
-			{
-				temp = getBlockColor(x, y)-1;
-				if (numColors == 3 && temp >= 3)
-					temp--;
-				if (temp >= 0 && temp < maxX)
-					setBlockColor(x, y, blockColors[temp]);
-			}
-	}
-
-	public int gemColorCheck(int size, boolean flag, boolean garbageClear, boolean ignoreHidden) {
-		if (flag)
-			setAllAttribute(Block.BLOCK_ATTRIBUTE_ERASE, false);
-
-		Field temp = new Field(this);
-		int total = 0;
-		Block b;
-
-		for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
-			for(int j = 0; j < width; j++) {
-				b = getBlock(j, i);
-				if (b == null)
-					continue;
-				if (!b.isGemBlock())
-					continue;
-				int clear = temp.clearColor(j, i, false, garbageClear, true, ignoreHidden);
-				if (clear >= size)
-				{
-					total += clear;
-					if (flag)
-						clearColor(j, i, true, garbageClear, true, ignoreHidden);
-				}
-			}
-		}
-		return total;
-	}
-
-	/**
-	 * Instant avalanche, skips intermediate (cascade falling animation) steps.
-	 * @return true if it affected the field at all, false otherwise.
-	 */
-	public boolean freeFall() {
-		int y1, y2;
-		boolean result = false;
-		for (int x = 0; x < width; x++)
-		{
-			y1 = height-1;
-			while (!getBlockEmpty(x, y1) && y1 >= (-1 * hidden_height))
-				y1--;
-			y2 = y1;
-			while (getBlockEmpty(x, y2) && y2 >= (-1 * hidden_height))
-				y2--;
-			while (y2 >= (-1 * hidden_height))
-			{
-				setBlock(x, y1, getBlock(x, y2));
-				setBlock(x, y2, new Block());
-				y1--;
-				y2--;
-				result = true;
-				while (getBlockEmpty(x, y2) && y2 >= (-1 * hidden_height))
-					y2--;
-			}
-		}
-		return result;
-	}
-
-	public void delEven() {
-		for (int y = getHighestBlockY(); y < height; y++)
-			if ((y&1) == 0)
-				delLine(y);
-	}
-
-	public void delLower() {
-		int rows = (height - getHighestBlockY() + 1) >> 1;
-		for (int i = 1; i <= rows; i++)
-			delLine(height-i);
-	}
-
-	public void delUpper() {
-		int maxY = (height - getHighestBlockY()) >> 1;
-		//TODO: Check if this should round up or down.
-		for (int y = getHighestBlockY(); y <= maxY; y++)
-			delLine(y);
-	}
-
-	public void delLine(int y) {
-		for (int x = 0; x < width; x++)
-		{
-			Block b = getBlock(x, y);
-			if (b != null)
-				b.hard = 0;
-		}
-		setLineFlag(y, true);
-	}
-
-	public void moveLeft() {
-		int x1, x2;
-		for (int y = getHighestBlockY(); y < height; y++)
-		{
-			x1 = 0;
-			while (!getBlockEmpty(x1, y))
-				x1++;
-			x2 = x1;
-			while (x2 < width)
-			{
-				while (getBlockEmpty(x2, y) && x2 < width)
-					x2++;
-				setBlock(x1, y, getBlock(x2, y));
-				setBlock(x2, y, new Block());
-				x1++;
-				x2++;
-			}
-		}
-	}
-
-	public void moveRight() {
-		int x1, x2;
-		for (int y = getHighestBlockY(); y < height; y++)
-		{
-			x1 = width-1;
-			while (!getBlockEmpty(x1, y))
-				x1--;
-			x2 = x1;
-			while (x2 >= 0)
-			{
-				while (getBlockEmpty(x2, y) && x2 >= 0)
-					x2--;
-				setBlock(x1, y, getBlock(x2, y));
-				setBlock(x2, y, new Block());
-				x1--;
-				x2--;
-			}
-		}
-	}
-
-	public void negaField() {
-		for (int y = getHighestBlockY(); y < height; y--)
-			for (int x = 0; x < width; x++)
-			{
-				if (getBlockEmpty(x, y))
-					garbageDropPlace(x, y, false, 0); //TODO: Set color
-				else
-					setBlockColor(x, y, Block.BLOCK_COLOR_NONE);
-			}
-	}
-
-	public void flipVertical() {
-		Block[] temp;
-		for (int yMin = getHighestBlockY(), yMax = height-1; yMin < yMax; yMin--, yMax++)
-		{
-			if (yMin < 0)
-			{
-				temp = block_hidden[(yMin * -1) - 1];
-				block_hidden[(yMin * -1) - 1] = block_field[yMax];
-				block_field[yMax] = temp;
-			}
-			else
-			{
-				temp = block_field[yMin];
-				block_field[yMin] = block_field[yMax];
-				block_field[yMax] = temp;
-			}
-		}
-	}
-
-	public void mirror() {
-		Block temp;
-
-		for (int y = getHighestBlockY(); y < height; y--)
-			for (int xMin = 0, xMax = width-1; xMin < xMax; xMin++, xMax--)
-			{
-				temp = getBlock(xMin, y);
-				setBlock(xMin, y, getBlock(xMax, y));
-				setBlock(xMax, y, temp);
-			}
-	}
+                                    bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, true);
+                                    bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT, true);
+                                    setBlock(l, k + 1, bTemp);
+                                    setBlock(l, k, new Block());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
+
+        /*
+        for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
+            setLineFlag(i, false);
+        }
+        */
+
+        return result;
+    }
+
+    /**
+     * Routine for cascade gravity which checks from the top down for a slower fall animation.
+     * @return <code>true</code> if something falls. <code>false</code> if nothing falls.
+     */
+    public boolean doCascadeSlow() {
+        boolean result = false;
+
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
+
+        for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
+            for(int j = 0; j < width; j++) {
+                Block blk = getBlock(j, i);
+
+                if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
+                    boolean fall = true;
+                    checkBlockLink(j, i);
+
+                    for(int k = (getHeightWithoutHurryupFloor() - 1); k >= (hidden_height * -1); k--) {
+                        for(int l = 0; l < width; l++) {
+                            Block bTemp = getBlock(l, k);
+
+                            if( (bTemp != null) && !bTemp.isEmpty() &&
+                                bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL) )
+                            {
+                                Block bBelow = getBlock(l, k + 1);
+
+                                if( (getCoordAttribute(l, k + 1) == COORD_WALL) ||
+                                    ((bBelow != null) && !bBelow.isEmpty() && !bBelow.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) )
+                                {
+                                    fall = false;
+                                }
+                            }
+                        }
+                    }
+
+                    if(fall) {
+                        result = true;
+                        for(int k = (getHeightWithoutHurryupFloor() - 1); k >= (hidden_height * -1); k--) {
+                            for(int l = 0; l < width; l++) {
+                                Block bTemp = getBlock(l, k);
+                                Block bBelow = getBlock(l, k + 1);
+
+                                if( (getCoordAttribute(l, k + 1) != COORD_WALL) &&
+                                    (bTemp != null) && !bTemp.isEmpty() && (bBelow != null) && bBelow.isEmpty() &&
+                                    bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL) )
+                                {
+                                    bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
+                                    bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, true);
+                                    bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT, true);
+                                    setBlock(l, k + 1, bTemp);
+                                    setBlock(l, k, new Block());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
+
+        return result;
+    }
+
+    /**
+     * Checks the connection of blocks and set "mark" to each block.
+     * @param x X coord
+     * @param y Y coord
+     */
+    public void checkBlockLink(int x, int y) {
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
+        checkBlockLinkSub(x, y);
+    }
+
+    /**
+     * Subroutine for checkBlockLink.
+     * @param x X coord
+     * @param y Y coord
+     */
+    protected void checkBlockLinkSub(int x, int y) {
+        Block blk = getBlock(x, y);
+        if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
+            blk.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
+
+            if(!blk.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
+                if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) checkBlockLinkSub(x, y - 1);
+                if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) checkBlockLinkSub(x, y + 1);
+                if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) checkBlockLinkSub(x - 1, y);
+                if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) checkBlockLinkSub(x + 1, y);
+            }
+        }
+    }
+
+    /**
+     * Checks the connection of blocks and set the "broken" flag to each block.
+     * It only affects to normal blocks. (ex. not square or gems)
+     * @param x X coord
+     * @param y Y coord
+     */
+    public void setBlockLinkBroken(int x, int y) {
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
+        setBlockLinkBrokenSub(x, y);
+    }
+
+    /**
+     * Subroutine for setBlockLinkBrokenSub.
+     * @param x X coord
+     * @param y Y coord
+     */
+    protected void setBlockLinkBrokenSub(int x, int y) {
+        Block blk = getBlock(x, y);
+        if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && blk.isNormalBlock()) {
+            blk.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
+            blk.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+            if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) setBlockLinkBrokenSub(x, y - 1);
+            if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) setBlockLinkBrokenSub(x, y + 1);
+            if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) setBlockLinkBrokenSub(x - 1, y);
+            if(blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) setBlockLinkBrokenSub(x + 1, y);
+        }
+    }
+
+    /**
+     * Checks the color of blocks and set the connection flags to each block.
+     */
+    public void setBlockLinkByColor() {
+        for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
+            for(int j = 0; j < width; j++) {
+                setBlockLinkByColor(j, i);
+            }
+        }
+    }
+
+    /**
+     * Checks the color of blocks and set the connection flags to each block.
+     * @param x X coord
+     * @param y Y coord
+     */
+    public void setBlockLinkByColor(int x, int y) {
+        setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
+        setBlockLinkByColorSub(x, y);
+    }
+
+    /**
+     * Subroutine for setBlockLinkByColorSub.
+     * @param x X coord
+     * @param y Y coord
+     */
+    protected void setBlockLinkByColorSub(int x, int y) {
+        Block blk = getBlock(x, y);
+        if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) &&
+            !blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && blk.isNormalBlock())
+        {
+            blk.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
+            if(getBlockColor(x, y - 1) == blk.color) {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
+                setBlockLinkByColorSub(x, y - 1);
+            } else {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+            }
+            if(getBlockColor(x, y + 1) == blk.color) {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
+                setBlockLinkByColorSub(x, y + 1);
+            } else {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+            }
+            if(getBlockColor(x - 1, y) == blk.color) {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+                setBlockLinkByColorSub(x - 1, y);
+            } else {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+            }
+            if(getBlockColor(x + 1, y) == blk.color) {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
+                setBlockLinkByColorSub(x + 1, y);
+            } else {
+                blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+            }
+        }
+    }
+
+    /**
+     * HURRY UPの地面を一番下に追加
+     * @param lines 上げるLinescount
+     * @param skin 地面の絵柄
+     */
+    public void addHurryupFloor(int lines, int skin) {
+        for(int k = 0; k < lines; k++) {
+            pushUp(1);
+
+            for(int j = 0; j < width; j++) {
+                Block blk = new Block();
+                blk.color = Block.BLOCK_COLOR_GRAY;
+                blk.skin = skin;
+                blk.attribute = Block.BLOCK_ATTRIBUTE_WALL | Block.BLOCK_ATTRIBUTE_GARBAGE | Block.BLOCK_ATTRIBUTE_VISIBLE;
+                setBlock(j, getHeightWithoutHurryupFloor() - 1, blk);
+            }
+
+            hurryupFloorLines++;
+        }
+    }
+
+    /**
+     * HURRY UPの地面が何Linesあるか調べる
+     * @return HURRY UPの地面Linesのcount
+     */
+    public int getHurryupFloorLines() {
+        return hurryupFloorLines;
+    }
+
+    /**
+     * HURRY UPの地面を除いたField heightを返す
+     * @return HURRY UPの地面を除いたField height
+     */
+    public int getHeightWithoutHurryupFloor() {
+        return height - hurryupFloorLines;
+    }
+
+    /**
+     * @param row Row of blocks
+     * @return a String representing the row
+     */
+    public String rowToString(Block[] row){
+        String strResult = "";
+
+        for(int x = 0; x < row.length; x++) {
+            strResult += row[x];
+        }
+
+        return strResult;
+    }
+
+    /**
+     * fieldを文字列に変換
+     * @return 文字列に変換されたfield
+     */
+    public String fieldToString() {
+        String strResult = "";
+
+        for(int i = getHeight() - 1; i >= Math.max(-1, getHighestBlockY()); i--) {
+            strResult += rowToString(getRow(i));
+        }
+
+        // 終わりの0を取り除く
+        while(strResult.endsWith("0")) {
+            strResult = strResult.substring(0, strResult.length() - 1);
+        }
+
+        return strResult;
+    }
+
+    public Block[] stringToRow(String str){
+        return stringToRow(str, 0, false, false);
+    }
+
+    /**
+     * @param str String representing field state
+     * @param skin Block skin being used in this field
+     * @param isGarbage Row is a garbage row
+     * @param isWall Row is a wall (i.e. hurry-up rows)
+     * @return The row array
+     */
+    public Block[] stringToRow(String str, int skin, boolean isGarbage, boolean isWall){
+        Block[] row = new Block[getWidth()];
+        for(int j = 0; j < getWidth(); j++) {
+
+            int blkColor = Block.BLOCK_COLOR_NONE;
+
+            /*
+             * NullNoname's original approach from the old stringToField:
+             * If a character outside the row string is referenced,
+             * default to an empty block by ignoring the exception.
+             */
+            try {
+                char c = str.charAt(j);
+                blkColor = Block.charToBlockColor(c);
+            } catch (Exception e) {}
+
+            row[j] = new Block();
+            row[j].color = blkColor;
+            row[j].skin = skin;
+            row[j].elapsedFrames = -1;
+            row[j].setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+            row[j].setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
+
+            if(isGarbage) { //TODO: This may need extension when garbage does not only sport one hole (i.e. TGM garbage)
+                row[j].setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
+            }
+            if(isWall) {
+                row[j].setAttribute(Block.BLOCK_ATTRIBUTE_WALL, true);
+            }
+        }
+
+        return row;
+    }
+
+
+    /**
+     * 文字列を元にfieldを変更
+     * @param str 文字列
+     */
+    public void stringToField(String str) {
+        stringToField(str, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    }
+
+    /**
+     * 文字列を元にfieldを変更
+     * @param str 文字列
+     * @param skin Blockの絵柄
+     * @param highestGarbageY 最も高いgarbage blockの位置
+     * @param highestWallY 最も高いHurryupBlockの位置
+     */
+    public void stringToField(String str, int skin, int highestGarbageY, int highestWallY) {
+        for(int i = -1; i < getHeight(); i++) {
+            int index = (getHeight() - 1 - i) * getWidth();
+            /*
+             * Much like NullNoname's try/catch from the old stringToField that is now in stringToRow,
+             * we need to skip over substrings referenced outside the field string -- empty rows.
+             */
+            try{
+                String substr = str.substring(index, Math.min(str.length(), index+getWidth()));
+                Block[] row = stringToRow(substr, skin, (i >= highestGarbageY), (i >= highestWallY));
+                for(int j = 0; j < getWidth(); j++){
+                    setBlock(j, i, row[j]);
+                }
+            }
+            catch(Exception e){
+                for(int j = 0; j < getWidth(); j++){
+                    setBlock(j, i, new Block(Block.BLOCK_COLOR_NONE));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param row Row of blocks
+     * @return a String representing the row with attributes
+     */
+    public String attrRowToString(Block[] row){
+        String strResult = "";
+
+        for(int x = 0; x < row.length; x++) {
+            strResult += Integer.toString(row[x].color, 16) + "/";
+            strResult += Integer.toString(row[x].attribute, 16) + ";";
+        }
+
+        return strResult;
+    }
+
+    /**
+     * Convert this field to a String with attributes
+     * @return a String representing the field with attributes
+     */
+    public String attrFieldToString() {
+        String strResult = "";
+
+        for(int i = getHeight() - 1; i >= Math.max(-1, getHighestBlockY()); i--) {
+            strResult += attrRowToString(getRow(i));
+        }
+        while(strResult.endsWith("0/0;")) {
+            strResult = strResult.substring(0, strResult.length() - 4);
+        }
+
+        return strResult;
+    }
+
+    public Block[] attrStringToRow(String str, int skin) {
+        return attrStringToRow(str.split(";"), skin);
+    }
+
+    public Block[] attrStringToRow(String[] strArray, int skin) {
+        Block[] row = new Block[getWidth()];
+
+        for(int j = 0; j < getWidth(); j++) {
+            int blkColor = Block.BLOCK_COLOR_NONE;
+            int attr = 0;
+
+            try {
+                String[] strSubArray = strArray[j].split("/");
+                if(strSubArray.length > 0)
+                    blkColor = Integer.parseInt(strSubArray[0], 16);
+                if(strSubArray.length > 1)
+                    attr = Integer.parseInt(strSubArray[1], 16);
+            } catch (Exception e) {}
+
+            row[j] = new Block();
+            row[j].color = blkColor;
+            row[j].skin = skin;
+            row[j].elapsedFrames = -1;
+            row[j].attribute = attr;
+            row[j].setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+            row[j].setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
+        }
+
+        return row;
+    }
+
+    public void attrStringToField(String str, int skin) {
+        String[] strArray = str.split(";");
+
+        for(int i = -1; i < getHeight(); i++) {
+            int index = (getHeight() - 1 - i) * getWidth();
+
+            try{
+                String strTemp = "";
+                String[] strArray2 = new String[getWidth()];
+                for(int j = 0; j < getWidth(); j++){
+                    if(index + j < strArray.length)
+                        strArray2[j] = strArray[index + j];
+                    else
+                        strArray2[j] = "";
+
+                    strTemp += strArray2[j] + "/";
+                }
+
+                Block[] row = attrStringToRow(strArray2, skin);
+                for(int j = 0; j < getWidth(); j++){
+                    setBlock(j, i, row[j]);
+                }
+            }
+            catch(Exception e){
+                for(int j = 0; j < getWidth(); j++){
+                    setBlock(j, i, new Block(Block.BLOCK_COLOR_NONE));
+                }
+            }
+        }
+    }
+
+    /**
+     * fieldの文字列表現を取得
+     */
+    @Override
+    public String toString() {
+        String str = getClass().getName() + "@" + Integer.toHexString(hashCode()) + "\n";
+
+        for(int i = (hidden_height * -1); i < height; i++) {
+            str += String.format("%3d:", i);
+
+            for(int j = 0; j < width; j++) {
+                int color = getBlockColor(j, i);
+
+                if(color < 0) {
+                    str += "*";
+                } else if(color >= 10) {
+                    str += "+";
+                } else {
+                    str += Integer.toString(color);
+                }
+            }
+
+            str += "\n";
+        }
+
+        return str;
+    }
+
+    public int checkColor(int size, boolean flag, boolean garbageClear, boolean gemSame, boolean ignoreHidden) {
+        Field temp = new Field(this);
+        int total = 0;
+        boolean[] colorsClearedArray = new boolean[7];
+        if (flag)
+        {
+            setAllAttribute(Block.BLOCK_ATTRIBUTE_ERASE, false);
+            garbageCleared = 0;
+            colorClearExtraCount = 0;
+            colorsCleared = 0;
+            for (int i = 0; i < 7; i++)
+                colorsClearedArray[i] = false;
+        }
+
+        for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++)
+        {
+            for(int j = 0; j < width; j++)
+            {
+                int clear = temp.clearColor(j, i, false, garbageClear, gemSame, ignoreHidden);
+                if (clear >= size)
+                {
+                    total += clear;
+                    if (flag)
+                    {
+                        int blockColor = getBlockColor(j, i, gemSame);
+                        clearColor(j, i, true, garbageClear, gemSame, ignoreHidden);
+                        colorClearExtraCount += clear - size;
+                        if (blockColor >= 2 && blockColor <= 8)
+                            colorsClearedArray[blockColor-2] = true;
+                    }
+                }
+            }
+        }
+        if (flag)
+            for (int i = 0; i < 7; i++)
+                if (colorsClearedArray[i])
+                    colorsCleared++;
+        return total;
+    }
+
+    public void garbageDrop(GameEngine engine, int drop, boolean big) {
+        garbageDrop(engine, drop, big, 0, 0, -1, Block.BLOCK_COLOR_GRAY);
+    }
+    public void garbageDrop(GameEngine engine, int drop, boolean big, int hard) {
+        garbageDrop(engine, drop, big, hard, 0, -1, Block.BLOCK_COLOR_GRAY);
+    }
+    public void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown) {
+        garbageDrop(engine, drop, big, hard, countdown, -1, Block.BLOCK_COLOR_GRAY);
+    }
+    public void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown, int avoidColumn) {
+        garbageDrop(engine, drop, big, hard, countdown, avoidColumn, Block.BLOCK_COLOR_GRAY);
+    }
+    public void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown, int avoidColumn, int color) {
+        int y = -1 * hidden_height;
+        int actualWidth = width;
+        if (big)
+            actualWidth >>= 1;
+        int bigMove = big ? 2 : 1;
+        while (drop >= actualWidth)
+        {
+            drop -= actualWidth;
+            for (int x = 0; x < actualWidth; x+=bigMove)
+                garbageDropPlace(x, y, big, hard, color, countdown);
+            y+=bigMove;
+        }
+        if (drop == 0)
+            return;
+        boolean[] placeBlock = new boolean[actualWidth];
+        int j;
+        if (drop > (actualWidth>>1))
+        {
+            for (int x = 0; x < actualWidth; x++)
+                placeBlock[x] = true;
+            int start = actualWidth;
+            if (avoidColumn >= 0 && avoidColumn < actualWidth)
+            {
+                start--;
+                placeBlock[avoidColumn] = false;
+            }
+            for (int i = start; i > drop; i--)
+            {
+                do {
+                    j = engine.random.nextInt(actualWidth);
+                } while (!placeBlock[j]);
+                placeBlock[j] = false;
+            }
+        }
+        else
+        {
+            for (int x = 0; x < actualWidth; x++)
+                placeBlock[x] = false;
+            for (int i = 0; i < drop; i++)
+            {
+                do {
+                    j = engine.random.nextInt(actualWidth);
+                } while (placeBlock[j] && j != avoidColumn);
+                placeBlock[j] = true;
+            }
+        }
+
+        for (int x = 0; x < actualWidth; x++)
+            if (placeBlock[x])
+                garbageDropPlace(x*bigMove, y, big, hard, color, countdown);
+    }
+
+    public boolean garbageDropPlace (int x, int y, boolean big, int hard)
+    {
+        return garbageDropPlace(x, y, big, hard, Block.BLOCK_COLOR_GRAY, 0);
+    }
+    public boolean garbageDropPlace (int x, int y, boolean big, int hard, int color)
+    {
+        return garbageDropPlace(x, y, big, hard, color, 0);
+    }
+    public boolean garbageDropPlace (int x, int y, boolean big, int hard, int color, int countdown)
+    {
+        Block b = getBlock(x, y);
+        if (b == null)
+            return false;
+        if (big)
+        {
+            garbageDropPlace(x+1, y, false, hard);
+            garbageDropPlace(x, y+1, false, hard);
+            garbageDropPlace(x+1, y+1, false, hard);
+        }
+        if (getBlockEmptyF(x, y))
+        {
+            setBlockColor(x, y, color);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+            b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+            b.hard = hard;
+            b.secondaryColor = 0;
+            b.countdown = countdown;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean canCascade() {
+        for(int i = (getHeightWithoutHurryupFloor() - 1); i >= (hidden_height * -1); i--) {
+            for(int j = 0; j < width; j++) {
+                Block blk = getBlock(j, i);
+
+                if((blk != null) && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
+                    boolean fall = true;
+                    checkBlockLink(j, i);
+
+                    for(int k = (getHeightWithoutHurryupFloor() - 1); k >= (hidden_height * -1); k--) {
+                        for(int l = 0; l < width; l++) {
+                            Block bTemp = getBlock(l, k);
+
+                            if( (bTemp != null) && !bTemp.isEmpty() &&
+                                bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK) && !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL) )
+                            {
+                                Block bBelow = getBlock(l, k + 1);
+
+                                if( (getCoordAttribute(l, k + 1) == COORD_WALL) ||
+                                    ((bBelow != null) && !bBelow.isEmpty() && !bBelow.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) )
+                                {
+                                    fall = false;
+                                }
+                            }
+                        }
+                    }
+
+                    if(fall)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void addRandomHoverBlocks(GameEngine engine, int count, int[] colors, int minY,
+            boolean avoidLines)
+    {
+        addRandomHoverBlocks(engine, count, colors, minY, avoidLines, false);
+    }
+
+    public void addRandomHoverBlocks(GameEngine engine, int count, int[] colors, int minY,
+            boolean avoidLines, boolean flashMode)
+    {
+        Random posRand = new Random(engine.random.nextLong());
+        Random colorRand = new Random(engine.random.nextLong());
+        int placeHeight = height-minY;
+        int placeSize = placeHeight * width;
+        boolean[][] placeBlock = new boolean[width][placeHeight];
+        int[] colorCounts = new int[colors.length];
+        for (int i = 0; i < colorCounts.length; i++)
+            colorCounts[i] = 0;
+
+        int blockColor;
+        if (count < (placeSize >> 1))
+        {
+            int colorShift = colorRand.nextInt(colors.length);
+            int x, y;
+            for (y = 0; y < placeHeight; y++)
+                for (x = 0; x < width; x++)
+                    placeBlock[x][y] = false;
+            for (int i = 0; i < count; i++)
+            {
+                x = posRand.nextInt(width);
+                y = posRand.nextInt(placeHeight);
+                if (!getBlockEmpty(x, y+minY))
+                    i--;
+                else
+                {
+                    blockColor = ((i+colorShift)%colors.length);
+                    colorCounts[blockColor]++;
+                    addHoverBlock(x, y+minY, colors[blockColor]);
+                    placeBlock[x][y] = true;
+                }
+            }
+        }
+        else
+        {
+            int x, y;
+            for (y = 0; y < placeHeight; y++)
+                for (x = 0; x < width; x++)
+                    placeBlock[x][y] = true;
+            for (int i = placeSize; i > count; i--)
+            {
+                x = posRand.nextInt(width);
+                y = posRand.nextInt(placeHeight);
+                if (placeBlock[x][y])
+                    placeBlock[x][y] = false;
+                else
+                    i++;
+            }
+            for (y = 0; y < placeHeight; y++)
+                for (x = 0; x < width; x++)
+                    if (placeBlock[x][y])
+                    {
+                        blockColor = colorRand.nextInt(colors.length);
+                        colorCounts[blockColor]++;
+                        addHoverBlock(x, y+minY, colors[blockColor]);
+                    }
+        }
+        if (!avoidLines || colors.length == 1)
+            return;
+        int colorUp, colorLeft, cIndex;
+        for (int y = minY; y < height; y++)
+            for (int x = 0; x < width; x++)
+                if (placeBlock[x][y-minY])
+                {
+                    colorUp = getBlockColor(x, y-2);
+                    colorLeft = getBlockColor(x-2, y);
+                    blockColor = getBlockColor(x, y);
+                    if (blockColor != colorUp && blockColor != colorLeft)
+                        continue;
+
+                    cIndex = -1;
+                    for (int i = 0; i < colorCounts.length; i++)
+                        if (colors[i] == blockColor)
+                        {
+                            cIndex = i;
+                            break;
+                        }
+
+                    if (colors.length == 2)
+                    {
+                        if ((colors[0] == colorUp && colors[1] != colorLeft) ||
+                                (colors[0] == colorLeft && colors[1] != colorUp))
+                        {
+                            colorCounts[1]++;
+                            colorCounts[cIndex]--;
+                            setBlockColor(x, y, colors[1]);
+                        }
+                        else if ((colors[1] == colorUp && colors[0] != colorLeft) ||
+                                (colors[1] == colorLeft && colors[0] != colorUp))
+                        {
+                            colorCounts[0]++;
+                            colorCounts[cIndex]--;
+                            setBlockColor(x, y, colors[0]);
+                        }
+                    }
+                    else
+                    {
+                        int newColor;
+                        do {
+                            newColor = colorRand.nextInt(colors.length);
+                        } while (colors[newColor] == colorUp || colors[newColor] == colorLeft);
+                        colorCounts[cIndex]--;
+                        colorCounts[newColor]++;
+                        setBlockColor(x, y, colors[newColor]);
+                    }
+                }
+        boolean[] canSwitch = new boolean[colors.length];
+        int minCount = count/colors.length;
+        int maxCount = (count+colors.length-1)/colors.length;
+        boolean done = true;
+        for (int i = 0; i < colorCounts.length; i++)
+            if (colorCounts[i] > maxCount)
+            {
+                done = false;
+                break;
+            }
+        int colorSide, bestSwitch, bestSwitchCount;
+        int excess = 0;
+        boolean fill = false;
+        while (!done)
+        {
+            done = true;
+            for (int y = minY; y < height; y++)
+                for (int x = 0; x < width; x++)
+                {
+                    blockColor = getBlockColor(x, y);
+                    fill = blockColor == Block.BLOCK_COLOR_NONE;
+                    cIndex = -1;
+                    if (!fill)
+                    {
+                        if (!placeBlock[x][y-minY])
+                            continue;
+                        for (int i = 0; i < colorCounts.length; i++)
+                            if (colors[i] == blockColor)
+                            {
+                                cIndex = i;
+                                break;
+                            }
+                        if (cIndex == -1)
+                            continue;
+                        if (colorCounts[cIndex] <= maxCount)
+                            continue;
+                    }
+                    for (int i = 0; i < colorCounts.length; i++)
+                        canSwitch[i] = colorCounts[i] < maxCount;
+
+                    colorSide = getBlockColor(x, y-2);
+                    for (int i = 0; i < colors.length; i++)
+                        if (colors[i] == colorSide)
+                        {
+                            canSwitch[i] = false;
+                            break;
+                        }
+                    colorSide = getBlockColor(x, y+2);
+                    for (int i = 0; i < colors.length; i++)
+                        if (colors[i] == colorSide)
+                        {
+                            canSwitch[i] = false;
+                            break;
+                        }
+                    colorSide = getBlockColor(x-2, y);
+                    for (int i = 0; i < colors.length; i++)
+                        if (colors[i] == colorSide)
+                        {
+                            canSwitch[i] = false;
+                            break;
+                        }
+                    colorSide = getBlockColor(x+2, y);
+                    for (int i = 0; i < colors.length; i++)
+                        if (colors[i] == colorSide)
+                        {
+                            canSwitch[i] = false;
+                            break;
+                        }
+                    bestSwitch = -1;
+                    bestSwitchCount = Integer.MAX_VALUE;
+                    for (int i = 0; i < colorCounts.length; i++)
+                        if (canSwitch[i] && colorCounts[i] < bestSwitchCount)
+                        {
+                            bestSwitch = i;
+                            bestSwitchCount = colorCounts[i];
+                        }
+                    if (bestSwitch != -1)
+                    {
+                        if (fill)
+                        {
+                            excess++;
+                            addHoverBlock(x, y, colors[bestSwitch]);
+                            placeBlock[x][y-minY] = true;
+                        }
+                        else
+                        {
+                            colorCounts[cIndex]--;
+                            setBlockColor(x, y, colors[bestSwitch]);
+                        }
+                        colorCounts[bestSwitch]++;
+                        done = false;
+                    }
+                }
+            while (excess > 0)
+            {
+                int x = posRand.nextInt(width);
+                int y = posRand.nextInt(placeHeight)+minY;
+                if (!placeBlock[x][y-minY])
+                    continue;
+                blockColor = getBlockColor(x, y);
+                for (int i = 0; i < colors.length; i++)
+                    if (colors[i] == blockColor)
+                    {
+                        if (colorCounts[i] > minCount)
+                        {
+                            setBlockColor(x, y, Block.BLOCK_COLOR_NONE);
+                            colorCounts[i]--;
+                            excess--;
+                            placeBlock[x][y-minY] = false;
+                        }
+                        break;
+                    }
+            }
+            boolean balanced = true;
+            for (int i = 0; i < colorCounts.length; i++)
+                if (colorCounts[i] > maxCount)
+                {
+                    balanced = false;
+                    break;
+                }
+            if (balanced)
+                done = true;
+        }
+        if (!flashMode)
+            return;
+        done = true;
+        boolean[] gemNeeded = new boolean[colors.length];
+        for (int i = 0; i < colors.length; i++)
+        {
+            if (colors[i] >= 2 && colors[i] <= 8 && colorCounts[i] > 0)
+            {
+                gemNeeded[i] = true;
+                done = false;
+            }
+            else
+                gemNeeded[i] = false;
+        }
+        while (!done)
+        {
+            int x = posRand.nextInt(width);
+            int y = posRand.nextInt(placeHeight)+minY;
+            if (!placeBlock[x][y-minY])
+                continue;
+            blockColor = getBlockColor(x, y);
+            for (int i = 0; i < colors.length; i++)
+                if (colors[i] == blockColor)
+                {
+                    if (gemNeeded[i])
+                    {
+                        setBlockColor(x, y, blockColor+7);
+                        gemNeeded[i] = false;
+                    }
+                    break;
+                }
+            done = true;
+            for (int i = 0; i < colors.length; i++)
+                if (gemNeeded[i])
+                    done = false;
+        }
+    }
+    public boolean addHoverBlock(int x, int y, int color)
+    {
+        Block b = getBlock(x, y);
+        if (b == null)
+            return false;
+        b.color = color;
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+        b.setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, false);
+        return true;
+    }
+
+    public void shuffleColors(int[] blockColors, int numColors, Random rand) {
+        blockColors = blockColors.clone();
+        int maxX = Math.min(blockColors.length, numColors);
+        int temp, j;
+        int i = maxX;
+        while (i > 1)
+        {
+            j = rand.nextInt(i);
+            i--;
+            if (j != i)
+            {
+                temp = blockColors[i];
+                blockColors[i] = blockColors[j];
+                blockColors[j] = temp;
+            }
+        }
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
+            {
+                temp = getBlockColor(x, y)-1;
+                if (numColors == 3 && temp >= 3)
+                    temp--;
+                if (temp >= 0 && temp < maxX)
+                    setBlockColor(x, y, blockColors[temp]);
+            }
+    }
+
+    public int gemColorCheck(int size, boolean flag, boolean garbageClear, boolean ignoreHidden) {
+        if (flag)
+            setAllAttribute(Block.BLOCK_ATTRIBUTE_ERASE, false);
+
+        Field temp = new Field(this);
+        int total = 0;
+        Block b;
+
+        for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
+            for(int j = 0; j < width; j++) {
+                b = getBlock(j, i);
+                if (b == null)
+                    continue;
+                if (!b.isGemBlock())
+                    continue;
+                int clear = temp.clearColor(j, i, false, garbageClear, true, ignoreHidden);
+                if (clear >= size)
+                {
+                    total += clear;
+                    if (flag)
+                        clearColor(j, i, true, garbageClear, true, ignoreHidden);
+                }
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Instant avalanche, skips intermediate (cascade falling animation) steps.
+     * @return true if it affected the field at all, false otherwise.
+     */
+    public boolean freeFall() {
+        int y1, y2;
+        boolean result = false;
+        for (int x = 0; x < width; x++)
+        {
+            y1 = height-1;
+            while (!getBlockEmpty(x, y1) && y1 >= (-1 * hidden_height))
+                y1--;
+            y2 = y1;
+            while (getBlockEmpty(x, y2) && y2 >= (-1 * hidden_height))
+                y2--;
+            while (y2 >= (-1 * hidden_height))
+            {
+                setBlock(x, y1, getBlock(x, y2));
+                setBlock(x, y2, new Block());
+                y1--;
+                y2--;
+                result = true;
+                while (getBlockEmpty(x, y2) && y2 >= (-1 * hidden_height))
+                    y2--;
+            }
+        }
+        return result;
+    }
+
+    public void delEven() {
+        for (int y = getHighestBlockY(); y < height; y++)
+            if ((y&1) == 0)
+                delLine(y);
+    }
+
+    public void delLower() {
+        int rows = (height - getHighestBlockY() + 1) >> 1;
+        for (int i = 1; i <= rows; i++)
+            delLine(height-i);
+    }
+
+    public void delUpper() {
+        int maxY = (height - getHighestBlockY()) >> 1;
+        //TODO: Check if this should round up or down.
+        for (int y = getHighestBlockY(); y <= maxY; y++)
+            delLine(y);
+    }
+
+    public void delLine(int y) {
+        for (int x = 0; x < width; x++)
+        {
+            Block b = getBlock(x, y);
+            if (b != null)
+                b.hard = 0;
+        }
+        setLineFlag(y, true);
+    }
+
+    public void moveLeft() {
+        int x1, x2;
+        for (int y = getHighestBlockY(); y < height; y++)
+        {
+            x1 = 0;
+            while (!getBlockEmpty(x1, y))
+                x1++;
+            x2 = x1;
+            while (x2 < width)
+            {
+                while (getBlockEmpty(x2, y) && x2 < width)
+                    x2++;
+                setBlock(x1, y, getBlock(x2, y));
+                setBlock(x2, y, new Block());
+                x1++;
+                x2++;
+            }
+        }
+    }
+
+    public void moveRight() {
+        int x1, x2;
+        for (int y = getHighestBlockY(); y < height; y++)
+        {
+            x1 = width-1;
+            while (!getBlockEmpty(x1, y))
+                x1--;
+            x2 = x1;
+            while (x2 >= 0)
+            {
+                while (getBlockEmpty(x2, y) && x2 >= 0)
+                    x2--;
+                setBlock(x1, y, getBlock(x2, y));
+                setBlock(x2, y, new Block());
+                x1--;
+                x2--;
+            }
+        }
+    }
+
+    public void negaField() {
+        for (int y = getHighestBlockY(); y < height; y--)
+            for (int x = 0; x < width; x++)
+            {
+                if (getBlockEmpty(x, y))
+                    garbageDropPlace(x, y, false, 0); //TODO: Set color
+                else
+                    setBlockColor(x, y, Block.BLOCK_COLOR_NONE);
+            }
+    }
+
+    public void flipVertical() {
+        Block[] temp;
+        for (int yMin = getHighestBlockY(), yMax = height-1; yMin < yMax; yMin--, yMax++)
+        {
+            if (yMin < 0)
+            {
+                temp = block_hidden[(yMin * -1) - 1];
+                block_hidden[(yMin * -1) - 1] = block_field[yMax];
+                block_field[yMax] = temp;
+            }
+            else
+            {
+                temp = block_field[yMin];
+                block_field[yMin] = block_field[yMax];
+                block_field[yMax] = temp;
+            }
+        }
+    }
+
+    public void mirror() {
+        Block temp;
+
+        for (int y = getHighestBlockY(); y < height; y--)
+            for (int xMin = 0, xMax = width-1; xMin < xMax; xMin++, xMax--)
+            {
+                temp = getBlock(xMin, y);
+                setBlock(xMin, y, getBlock(xMax, y));
+                setBlock(xMax, y, temp);
+            }
+    }
 }

@@ -823,108 +823,108 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
                     b.countdown = 0;
                     b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
                 }
-    		}
-		return false;
-	}
+            }
+        return false;
+    }
 
-	@Override
-	public boolean lineClearEnd(GameEngine engine, int playerID) {
-		engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK, true);
-		engine.field.setBlockLinkByColor();
+    @Override
+    public boolean lineClearEnd(GameEngine engine, int playerID) {
+        engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK, true);
+        engine.field.setBlockLinkByColor();
 
-		int enemyID = 0;
-		if(playerID == 0) enemyID = 1;
-		if (ojamaAdd[enemyID] > 0)
-		{
-			ojama[enemyID] += ojamaAdd[enemyID];
-			ojamaAdd[enemyID] = 0;
-		}
-		if (zenKeshi[playerID] && zenKeshiType[playerID] == ZENKESHI_MODE_FEVER)
-		{
-			loadFeverMap(engine, playerID, 4);
-			zenKeshi[playerID] = false;
-			zenKeshiDisplay[playerID] = 120;
-		}
+        int enemyID = 0;
+        if(playerID == 0) enemyID = 1;
+        if (ojamaAdd[enemyID] > 0)
+        {
+            ojama[enemyID] += ojamaAdd[enemyID];
+            ojamaAdd[enemyID] = 0;
+        }
+        if (zenKeshi[playerID] && zenKeshiType[playerID] == ZENKESHI_MODE_FEVER)
+        {
+            loadFeverMap(engine, playerID, 4);
+            zenKeshi[playerID] = false;
+            zenKeshiDisplay[playerID] = 120;
+        }
 
-		if (engine.field == null)
-			return false;
+        if (engine.field == null)
+            return false;
 
-		boolean result = false;
-		//Decrement countdowns
-		if (ojamaCountdown[playerID] != 10 && !countdownDecremented[playerID])
-		{
-			countdownDecremented[playerID] = true;
-			for (int y = (engine.field.getHiddenHeight() * -1); y < engine.field.getHeight(); y++)
-				for (int x = 0; x < engine.field.getWidth(); x++)
-				{
-					Block b = engine.field.getBlock(x, y);
-					if (b == null)
-						continue;
-					if (b.countdown > 1)
-						b.countdown--;
-					else if (b.countdown == 1)
-					{
-						b.countdown = 0;
-						b.hard = 0;
-						b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
-						b.color = b.secondaryColor;
-						result = true;
-					}
-				}
-			if (result)
-				return true;
-		}
-		//Drop garbage if needed.
-		if (ojama[playerID] > 0 && !ojamaDrop[playerID] && (!cleared[playerID] ||
-				(ojamaCounterMode[playerID] != OJAMA_COUNTER_FEVER)))
-		{
-			ojamaDrop[playerID] = true;
-			int width = engine.field.getWidth();
-			int hiddenHeight = engine.field.getHiddenHeight();
-			int drop = Math.min(ojama[playerID], maxAttack[playerID]);
-			ojama[playerID] -= drop;
-			engine.field.garbageDrop(engine, drop, false, 4, ojamaCountdown[playerID]);
-			engine.field.setAllSkin(engine.getSkin());
-			int patternCol = 0;
-			for (int x = 0; x < engine.field.getWidth(); x++)
-			{
-				if (patternCol >= dropPattern[enemyID].length)
-					patternCol = 0;
-				int patternRow = 0;
-				for (int y = ((drop + width - 1) / width) - hiddenHeight; y >= (-1 * hiddenHeight); y--)
-				{
-					Block b = engine.field.getBlock(x, y);
-					if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.secondaryColor == 0)
-					{
-						if (patternRow >= dropPattern[enemyID][patternCol].length)
-							patternRow = 0;
-						b.secondaryColor = dropPattern[enemyID][patternCol][patternRow];
-						patternRow++;
-					}
-				}
-				patternCol++;
-			}
-			return true;
-		}
-		//Check for game over
-		if (!engine.field.getBlockEmpty(2, 0) ||
-				(dangerColumnDouble[playerID] && !engine.field.getBlockEmpty(3, 0)))
-			engine.stat = GameEngine.STAT_GAMEOVER;
-		return false;
-	}
+        boolean result = false;
+        //Decrement countdowns
+        if (ojamaCountdown[playerID] != 10 && !countdownDecremented[playerID])
+        {
+            countdownDecremented[playerID] = true;
+            for (int y = (engine.field.getHiddenHeight() * -1); y < engine.field.getHeight(); y++)
+                for (int x = 0; x < engine.field.getWidth(); x++)
+                {
+                    Block b = engine.field.getBlock(x, y);
+                    if (b == null)
+                        continue;
+                    if (b.countdown > 1)
+                        b.countdown--;
+                    else if (b.countdown == 1)
+                    {
+                        b.countdown = 0;
+                        b.hard = 0;
+                        b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
+                        b.color = b.secondaryColor;
+                        result = true;
+                    }
+                }
+            if (result)
+                return true;
+        }
+        //Drop garbage if needed.
+        if (ojama[playerID] > 0 && !ojamaDrop[playerID] && (!cleared[playerID] ||
+                (ojamaCounterMode[playerID] != OJAMA_COUNTER_FEVER)))
+        {
+            ojamaDrop[playerID] = true;
+            int width = engine.field.getWidth();
+            int hiddenHeight = engine.field.getHiddenHeight();
+            int drop = Math.min(ojama[playerID], maxAttack[playerID]);
+            ojama[playerID] -= drop;
+            engine.field.garbageDrop(engine, drop, false, 4, ojamaCountdown[playerID]);
+            engine.field.setAllSkin(engine.getSkin());
+            int patternCol = 0;
+            for (int x = 0; x < engine.field.getWidth(); x++)
+            {
+                if (patternCol >= dropPattern[enemyID].length)
+                    patternCol = 0;
+                int patternRow = 0;
+                for (int y = ((drop + width - 1) / width) - hiddenHeight; y >= (-1 * hiddenHeight); y--)
+                {
+                    Block b = engine.field.getBlock(x, y);
+                    if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.secondaryColor == 0)
+                    {
+                        if (patternRow >= dropPattern[enemyID][patternCol].length)
+                            patternRow = 0;
+                        b.secondaryColor = dropPattern[enemyID][patternCol][patternRow];
+                        patternRow++;
+                    }
+                }
+                patternCol++;
+            }
+            return true;
+        }
+        //Check for game over
+        if (!engine.field.getBlockEmpty(2, 0) ||
+                (dangerColumnDouble[playerID] && !engine.field.getBlockEmpty(3, 0)))
+            engine.stat = GameEngine.STAT_GAMEOVER;
+        return false;
+    }
 
-	/*
-	 * Called when saving replay
-	 */
-	@Override
-	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
-		saveOtherSetting(engine, owner.replayProp);
-		savePreset(engine, owner.replayProp, -1 - playerID, "spf");
+    /*
+     * Called when saving replay
+     */
+    @Override
+    public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+        saveOtherSetting(engine, owner.replayProp);
+        savePreset(engine, owner.replayProp, -1 - playerID, "spf");
 
-		if(useMap[playerID] && (fldBackup[playerID] != null)) {
-			saveMap(fldBackup[playerID], owner.replayProp, playerID);
-		}
+        if(useMap[playerID] && (fldBackup[playerID] != null)) {
+            saveMap(fldBackup[playerID], owner.replayProp, playerID);
+        }
 
-		owner.replayProp.setProperty("avalanchevs.version", version);
-	}
+        owner.replayProp.setProperty("avalanchevs.version", version);
+    }
 }

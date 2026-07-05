@@ -747,447 +747,447 @@ public class TechnicianMode extends NetDummyMode {
             else if(lines == 1) {
                 if(engine.tspinmini) {
                     if(engine.b2b) {
-                    	pts += 300 * (engine.statistics.level + 1);
-					} else {
-						pts += 200 * (engine.statistics.level + 1);
-					}
-					lastevent = EVENT_TSPIN_SINGLE_MINI;
-				} else {
-					if(engine.b2b) {
-						pts += 1200 * (engine.statistics.level + 1);
-					} else {
-						pts += 800 * (engine.statistics.level + 1);
-					}
-					lastevent = EVENT_TSPIN_SINGLE;
-				}
-			}
-			// T-Spin 2 lines
-			else if(lines == 2) {
-				if(engine.tspinmini && engine.useAllSpinBonus) {
-					if(engine.b2b) {
-						pts += 600 * (engine.statistics.level + 1);
-					} else {
-						pts += 400 * (engine.statistics.level + 1);
-					}
-					lastevent = EVENT_TSPIN_DOUBLE_MINI;
-				} else {
-					if(engine.b2b) {
-						pts += 1800 * (engine.statistics.level + 1);
-					} else {
-						pts += 1200 * (engine.statistics.level + 1);
-					}
-					lastevent = EVENT_TSPIN_DOUBLE;
-				}
-			}
-			// T-Spin 3 lines
-			else if(lines >= 3) {
-				if(engine.b2b) {
-					pts += 2400 * (engine.statistics.level + 1);
-				} else {
-					pts += 1600 * (engine.statistics.level + 1);
-				}
-				lastevent = EVENT_TSPIN_TRIPLE;
-			}
-		} else {
-			if(lines == 1) {
-				pts += 100 * (engine.statistics.level + 1); // 1列
-				lastevent = EVENT_SINGLE;
-			} else if(lines == 2) {
-				pts += 300 * (engine.statistics.level + 1); // 2列
-				lastevent = EVENT_DOUBLE;
-			} else if(lines == 3) {
-				pts += 500 * (engine.statistics.level + 1); // 3列
-				lastevent = EVENT_TRIPLE;
-			} else if(lines >= 4) {
-				// 4 lines
-				if(engine.b2b) {
-					pts += 1200 * (engine.statistics.level + 1);
-				} else {
-					pts += 800 * (engine.statistics.level + 1);
-				}
-				lastevent = EVENT_FOUR;
-			}
-		}
+                        pts += 300 * (engine.statistics.level + 1);
+                    } else {
+                        pts += 200 * (engine.statistics.level + 1);
+                    }
+                    lastevent = EVENT_TSPIN_SINGLE_MINI;
+                } else {
+                    if(engine.b2b) {
+                        pts += 1200 * (engine.statistics.level + 1);
+                    } else {
+                        pts += 800 * (engine.statistics.level + 1);
+                    }
+                    lastevent = EVENT_TSPIN_SINGLE;
+                }
+            }
+            // T-Spin 2 lines
+            else if(lines == 2) {
+                if(engine.tspinmini && engine.useAllSpinBonus) {
+                    if(engine.b2b) {
+                        pts += 600 * (engine.statistics.level + 1);
+                    } else {
+                        pts += 400 * (engine.statistics.level + 1);
+                    }
+                    lastevent = EVENT_TSPIN_DOUBLE_MINI;
+                } else {
+                    if(engine.b2b) {
+                        pts += 1800 * (engine.statistics.level + 1);
+                    } else {
+                        pts += 1200 * (engine.statistics.level + 1);
+                    }
+                    lastevent = EVENT_TSPIN_DOUBLE;
+                }
+            }
+            // T-Spin 3 lines
+            else if(lines >= 3) {
+                if(engine.b2b) {
+                    pts += 2400 * (engine.statistics.level + 1);
+                } else {
+                    pts += 1600 * (engine.statistics.level + 1);
+                }
+                lastevent = EVENT_TSPIN_TRIPLE;
+            }
+        } else {
+            if(lines == 1) {
+                pts += 100 * (engine.statistics.level + 1); // 1列
+                lastevent = EVENT_SINGLE;
+            } else if(lines == 2) {
+                pts += 300 * (engine.statistics.level + 1); // 2列
+                lastevent = EVENT_DOUBLE;
+            } else if(lines == 3) {
+                pts += 500 * (engine.statistics.level + 1); // 3列
+                lastevent = EVENT_TRIPLE;
+            } else if(lines >= 4) {
+                // 4 lines
+                if(engine.b2b) {
+                    pts += 1200 * (engine.statistics.level + 1);
+                } else {
+                    pts += 800 * (engine.statistics.level + 1);
+                }
+                lastevent = EVENT_FOUR;
+            }
+        }
 
-		lastb2b = engine.b2b;
+        lastb2b = engine.b2b;
 
-		// Combo
-		if((enableCombo) && (engine.combo >= 1) && (lines >= 1)) {
-			cmb += ((engine.combo - 1) * 50) * (engine.statistics.level + 1);
-			lastcombo = engine.combo;
-		}
+        // Combo
+        if((enableCombo) && (engine.combo >= 1) && (lines >= 1)) {
+            cmb += ((engine.combo - 1) * 50) * (engine.statistics.level + 1);
+            lastcombo = engine.combo;
+        }
 
-		// All clear
-		if((lines >= 1) && (engine.field.isEmpty())) {
-			engine.playSE("bravo");
-			pts += 1800 * (engine.statistics.level + 1);
-		}
+        // All clear
+        if((lines >= 1) && (engine.field.isEmpty())) {
+            engine.playSE("bravo");
+            pts += 1800 * (engine.statistics.level + 1);
+        }
 
-		// Add to score
-		if((pts > 0) || (cmb > 0)) {
-			lastpiece = engine.nowPieceObject.id;
-			lastscore = pts + cmb;
-			scgettime = 0;
-			if(lines >= 1) engine.statistics.scoreFromLineClear += pts;
-			else engine.statistics.scoreFromOtherBonus += pts;
-			engine.statistics.score += pts;
+        // Add to score
+        if((pts > 0) || (cmb > 0)) {
+            lastpiece = engine.nowPieceObject.id;
+            lastscore = pts + cmb;
+            scgettime = 0;
+            if(lines >= 1) engine.statistics.scoreFromLineClear += pts;
+            else engine.statistics.scoreFromOtherBonus += pts;
+            engine.statistics.score += pts;
 
-			int cmbindex = engine.combo - 1;
-			if(cmbindex < 0) cmbindex = 0;
-			if(cmbindex >= COMBO_GOAL_TABLE.length) cmbindex = COMBO_GOAL_TABLE.length - 1;
-			lastgoal = ((pts / 100) / (engine.statistics.level + 1)) + COMBO_GOAL_TABLE[cmbindex];
-			goal -= lastgoal;
-			if(goal <= 0) goal = 0;
-		}
+            int cmbindex = engine.combo - 1;
+            if(cmbindex < 0) cmbindex = 0;
+            if(cmbindex >= COMBO_GOAL_TABLE.length) cmbindex = COMBO_GOAL_TABLE.length - 1;
+            lastgoal = ((pts / 100) / (engine.statistics.level + 1)) + COMBO_GOAL_TABLE[cmbindex];
+            goal -= lastgoal;
+            if(goal <= 0) goal = 0;
+        }
 
-		if(engine.ending == 0) {
-			// Time bonus
-			if((goal <= 0) && (levelTimeOut == false) && (goaltype != GAMETYPE_SPECIAL)) {
-				lasttimebonus = (TIMELIMIT_LEVEL - levelTimer) * (engine.statistics.level + 1);
-				if(lasttimebonus < 0) lasttimebonus = 0;
-				scgettime = 0;
-				engine.statistics.scoreFromOtherBonus += lasttimebonus;
-				engine.statistics.score += lasttimebonus;
-			} else if((goal <= 0) && (goaltype == GAMETYPE_SPECIAL)) {
-				lasttimebonus = TIMELIMIT_SPECIAL_BONUS;
-				totalTimer += lasttimebonus;
-			} else if(pts > 0) {
-				lasttimebonus = 0;
-			}
+        if(engine.ending == 0) {
+            // Time bonus
+            if((goal <= 0) && (levelTimeOut == false) && (goaltype != GAMETYPE_SPECIAL)) {
+                lasttimebonus = (TIMELIMIT_LEVEL - levelTimer) * (engine.statistics.level + 1);
+                if(lasttimebonus < 0) lasttimebonus = 0;
+                scgettime = 0;
+                engine.statistics.scoreFromOtherBonus += lasttimebonus;
+                engine.statistics.score += lasttimebonus;
+            } else if((goal <= 0) && (goaltype == GAMETYPE_SPECIAL)) {
+                lasttimebonus = TIMELIMIT_SPECIAL_BONUS;
+                totalTimer += lasttimebonus;
+            } else if(pts > 0) {
+                lasttimebonus = 0;
+            }
 
-			// BGM fade-out effects and BGM changes
-			if((tableBGMChange[bgmlv] != -1) && (engine.statistics.level == tableBGMChange[bgmlv] - 1)) {
-				if((goal > 0) && (goal <= 10)) {
-					owner.bgmStatus.fadesw = true;
-				} else if(goal <= 0) {
-					bgmlv++;
-					owner.bgmStatus.bgm = bgmlv;
-					owner.bgmStatus.fadesw = false;
-				}
-			}
+            // BGM fade-out effects and BGM changes
+            if((tableBGMChange[bgmlv] != -1) && (engine.statistics.level == tableBGMChange[bgmlv] - 1)) {
+                if((goal > 0) && (goal <= 10)) {
+                    owner.bgmStatus.fadesw = true;
+                } else if(goal <= 0) {
+                    bgmlv++;
+                    owner.bgmStatus.bgm = bgmlv;
+                    owner.bgmStatus.fadesw = false;
+                }
+            }
 
-			if(goal <= 0) {
-				if((engine.statistics.level >= 14) && ((goaltype == GAMETYPE_LV15_EASY) || (goaltype == GAMETYPE_LV15_HARD))) {
-					// Ending (LV15-EASY/HARD）
-					engine.ending = 1;
-					engine.gameEnded();
-				} else if((engine.statistics.level >= 29) && (goaltype == GAMETYPE_SPECIAL)) {
-					// Ending (SPECIAL）
-					engine.ending = 2;
-					engine.timerActive = false;
-					owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
-					owner.bgmStatus.fadesw = false;
-					engine.playSE("endingstart");
-				} else {
-					// Level up
-					engine.statistics.level++;
-					if(engine.statistics.level > 29) engine.statistics.level = 29;
+            if(goal <= 0) {
+                if((engine.statistics.level >= 14) && ((goaltype == GAMETYPE_LV15_EASY) || (goaltype == GAMETYPE_LV15_HARD))) {
+                    // Ending (LV15-EASY/HARD）
+                    engine.ending = 1;
+                    engine.gameEnded();
+                } else if((engine.statistics.level >= 29) && (goaltype == GAMETYPE_SPECIAL)) {
+                    // Ending (SPECIAL）
+                    engine.ending = 2;
+                    engine.timerActive = false;
+                    owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+                    owner.bgmStatus.fadesw = false;
+                    engine.playSE("endingstart");
+                } else {
+                    // Level up
+                    engine.statistics.level++;
+                    if(engine.statistics.level > 29) engine.statistics.level = 29;
 
-					if(owner.backgroundStatus.bg < 19) {
-						owner.backgroundStatus.fadesw = true;
-						owner.backgroundStatus.fadecount = 0;
-						owner.backgroundStatus.fadebg = engine.statistics.level;
-					}
+                    if(owner.backgroundStatus.bg < 19) {
+                        owner.backgroundStatus.fadesw = true;
+                        owner.backgroundStatus.fadecount = 0;
+                        owner.backgroundStatus.fadebg = engine.statistics.level;
+                    }
 
-					goal = (engine.statistics.level + 1) * 5;
+                    goal = (engine.statistics.level + 1) * 5;
 
-					levelTimer = 0;
-					if(version >= 1) engine.holdUsedCount = 0;
+                    levelTimer = 0;
+                    if(version >= 1) engine.holdUsedCount = 0;
 
-					setSpeed(engine);
-					engine.playSE("levelup");
-				}
-			}
-		}
-	}
+                    setSpeed(engine);
+                    engine.playSE("levelup");
+                }
+            }
+        }
+    }
 
-	/*
-	 * Soft drop
-	 */
-	@Override
-	public void afterSoftDropFall(GameEngine engine, int playerID, int fall) {
-		engine.statistics.scoreFromSoftDrop += fall;
-		engine.statistics.score += fall;
-	}
+    /*
+     * Soft drop
+     */
+    @Override
+    public void afterSoftDropFall(GameEngine engine, int playerID, int fall) {
+        engine.statistics.scoreFromSoftDrop += fall;
+        engine.statistics.score += fall;
+    }
 
-	/*
-	 * Hard drop
-	 */
-	@Override
-	public void afterHardDropFall(GameEngine engine, int playerID, int fall) {
-		engine.statistics.scoreFromHardDrop += fall * 2;
-		engine.statistics.score += fall * 2;
-	}
+    /*
+     * Hard drop
+     */
+    @Override
+    public void afterHardDropFall(GameEngine engine, int playerID, int fall) {
+        engine.statistics.scoreFromHardDrop += fall * 2;
+        engine.statistics.score += fall * 2;
+    }
 
-	/*
-	 * Render results screen
-	 */
-	@Override
-	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE,
-				STAT_SCORE, STAT_LINES, STAT_LEVEL, STAT_TIME, STAT_SPL, STAT_LPM);
-		drawResultRank(engine, playerID, receiver, 12, EventReceiver.COLOR_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, receiver, 16, EventReceiver.COLOR_BLUE, netRankingRank[1]);
+    /*
+     * Render results screen
+     */
+    @Override
+    public void renderResult(GameEngine engine, int playerID) {
+        drawResultStats(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE,
+                STAT_SCORE, STAT_LINES, STAT_LEVEL, STAT_TIME, STAT_SPL, STAT_LPM);
+        drawResultRank(engine, playerID, receiver, 12, EventReceiver.COLOR_BLUE, rankingRank);
+        drawResultNetRank(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE, netRankingRank[0]);
+        drawResultNetRankDaily(engine, playerID, receiver, 16, EventReceiver.COLOR_BLUE, netRankingRank[1]);
 
-		if(netIsPB) {
-			receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", EventReceiver.COLOR_ORANGE);
-		}
+        if(netIsPB) {
+            receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", EventReceiver.COLOR_ORANGE);
+        }
 
-		if(netIsNetPlay && (netReplaySendStatus == 1)) {
-			receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", EventReceiver.COLOR_PINK);
-		} else if(netIsNetPlay && !netIsWatch && (netReplaySendStatus == 2)) {
-			receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", EventReceiver.COLOR_RED);
-		}
-	}
+        if(netIsNetPlay && (netReplaySendStatus == 1)) {
+            receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", EventReceiver.COLOR_PINK);
+        } else if(netIsNetPlay && !netIsWatch && (netReplaySendStatus == 2)) {
+            receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", EventReceiver.COLOR_RED);
+        }
+    }
 
-	/*
-	 * Called when saving replay
-	 */
-	@Override
-	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
-		saveSetting(prop);
+    /*
+     * Called when saving replay
+     */
+    @Override
+    public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+        saveSetting(prop);
 
-		// NET: Save name
-		if((netPlayerName != null) && (netPlayerName.length() > 0)) {
-			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
-		}
+        // NET: Save name
+        if((netPlayerName != null) && (netPlayerName.length() > 0)) {
+            prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
+        }
 
-		// Update rankings
-		if((owner.replayMode == false) && (big == false) && (engine.ai == null) && (startlevel == 0)) {
-			updateRanking(engine.statistics.score, engine.statistics.lines, engine.statistics.time, goaltype);
+        // Update rankings
+        if((owner.replayMode == false) && (big == false) && (engine.ai == null) && (startlevel == 0)) {
+            updateRanking(engine.statistics.score, engine.statistics.lines, engine.statistics.time, goaltype);
 
-			if(rankingRank != -1) {
-				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
-			}
-		}
-	}
+            if(rankingRank != -1) {
+                saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+                receiver.saveModeConfig(owner.modeConfig);
+            }
+        }
+    }
 
-	/**
-	 * Load settings from property file
-	 * @param prop Property file
-	 */
-	private void loadSetting(CustomProperties prop) {
-		goaltype = prop.getProperty("technician.gametype", 0);
-		startlevel = prop.getProperty("technician.startlevel", 0);
-		tspinEnableType = prop.getProperty("technician.tspinEnableType", 1);
-		enableTSpin = prop.getProperty("technician.enableTSpin", true);
-		enableTSpinKick = prop.getProperty("technician.enableTSpinKick", true);
-		spinCheckType = prop.getProperty("technician.spinCheckType", 0);
-		tspinEnableEZ = prop.getProperty("technician.tspinEnableEZ", false);
-		enableB2B = prop.getProperty("technician.enableB2B", true);
-		enableCombo = prop.getProperty("technician.enableCombo", true);
-		big = prop.getProperty("technician.big", false);
-		version = prop.getProperty("technician.version", 0);
-	}
+    /**
+     * Load settings from property file
+     * @param prop Property file
+     */
+    private void loadSetting(CustomProperties prop) {
+        goaltype = prop.getProperty("technician.gametype", 0);
+        startlevel = prop.getProperty("technician.startlevel", 0);
+        tspinEnableType = prop.getProperty("technician.tspinEnableType", 1);
+        enableTSpin = prop.getProperty("technician.enableTSpin", true);
+        enableTSpinKick = prop.getProperty("technician.enableTSpinKick", true);
+        spinCheckType = prop.getProperty("technician.spinCheckType", 0);
+        tspinEnableEZ = prop.getProperty("technician.tspinEnableEZ", false);
+        enableB2B = prop.getProperty("technician.enableB2B", true);
+        enableCombo = prop.getProperty("technician.enableCombo", true);
+        big = prop.getProperty("technician.big", false);
+        version = prop.getProperty("technician.version", 0);
+    }
 
-	/**
-	 * Save settings to property file
-	 * @param prop Property file
-	 */
-	private void saveSetting(CustomProperties prop) {
-		prop.setProperty("technician.gametype", goaltype);
-		prop.setProperty("technician.startlevel", startlevel);
-		prop.setProperty("technician.tspinEnableType", tspinEnableType);
-		prop.setProperty("technician.enableTSpin", enableTSpin);
-		prop.setProperty("technician.enableTSpinKick", enableTSpinKick);
-		prop.setProperty("technician.spinCheckType", spinCheckType);
-		prop.setProperty("technician.tspinEnableEZ", tspinEnableEZ);
-		prop.setProperty("technician.enableB2B", enableB2B);
-		prop.setProperty("technician.enableCombo", enableCombo);
-		prop.setProperty("technician.big", big);
-		prop.setProperty("technician.version", version);
-	}
+    /**
+     * Save settings to property file
+     * @param prop Property file
+     */
+    private void saveSetting(CustomProperties prop) {
+        prop.setProperty("technician.gametype", goaltype);
+        prop.setProperty("technician.startlevel", startlevel);
+        prop.setProperty("technician.tspinEnableType", tspinEnableType);
+        prop.setProperty("technician.enableTSpin", enableTSpin);
+        prop.setProperty("technician.enableTSpinKick", enableTSpinKick);
+        prop.setProperty("technician.spinCheckType", spinCheckType);
+        prop.setProperty("technician.tspinEnableEZ", tspinEnableEZ);
+        prop.setProperty("technician.enableB2B", enableB2B);
+        prop.setProperty("technician.enableCombo", enableCombo);
+        prop.setProperty("technician.big", big);
+        prop.setProperty("technician.version", version);
+    }
 
-	/**
-	 * Read rankings from property file
-	 * @param prop Property file
-	 * @param ruleName Rule name
-	 */
-	@Override
-	protected void loadRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			for(int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++) {
-				rankingScore[gametypeIndex][i] = prop.getProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".score." + i, 0);
-				rankingLines[gametypeIndex][i] = prop.getProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".lines." + i, 0);
-				rankingTime[gametypeIndex][i] = prop.getProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".time." + i, 0);
-			}
-		}
-	}
+    /**
+     * Read rankings from property file
+     * @param prop Property file
+     * @param ruleName Rule name
+     */
+    @Override
+    protected void loadRanking(CustomProperties prop, String ruleName) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            for(int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++) {
+                rankingScore[gametypeIndex][i] = prop.getProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".score." + i, 0);
+                rankingLines[gametypeIndex][i] = prop.getProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".lines." + i, 0);
+                rankingTime[gametypeIndex][i] = prop.getProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".time." + i, 0);
+            }
+        }
+    }
 
-	/**
-	 * Save rankings to property file
-	 * @param prop Property file
-	 * @param ruleName Rule name
-	 */
-	private void saveRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			for(int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++) {
-				prop.setProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".score." + i, rankingScore[gametypeIndex][i]);
-				prop.setProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".lines." + i, rankingLines[gametypeIndex][i]);
-				prop.setProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".time." + i, rankingTime[gametypeIndex][i]);
-			}
-		}
-	}
+    /**
+     * Save rankings to property file
+     * @param prop Property file
+     * @param ruleName Rule name
+     */
+    private void saveRanking(CustomProperties prop, String ruleName) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            for(int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++) {
+                prop.setProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".score." + i, rankingScore[gametypeIndex][i]);
+                prop.setProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".lines." + i, rankingLines[gametypeIndex][i]);
+                prop.setProperty("technician.ranking." + ruleName + "." + gametypeIndex + ".time." + i, rankingTime[gametypeIndex][i]);
+            }
+        }
+    }
 
-	/**
-	 * Update rankings
-	 * @param sc Score
-	 * @param li Lines
-	 * @param time Time
-	 * @param type Game type
-	 */
-	private void updateRanking(int sc, int li, int time, int type) {
-		rankingRank = checkRanking(sc, li, time, type);
+    /**
+     * Update rankings
+     * @param sc Score
+     * @param li Lines
+     * @param time Time
+     * @param type Game type
+     */
+    private void updateRanking(int sc, int li, int time, int type) {
+        rankingRank = checkRanking(sc, li, time, type);
 
-		if(rankingRank != -1) {
-			// Shift down ranking entries
-			for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
-				rankingScore[type][i] = rankingScore[type][i - 1];
-				rankingLines[type][i] = rankingLines[type][i - 1];
-				rankingTime[type][i] = rankingTime[type][i - 1];
-			}
+        if(rankingRank != -1) {
+            // Shift down ranking entries
+            for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+                rankingScore[type][i] = rankingScore[type][i - 1];
+                rankingLines[type][i] = rankingLines[type][i - 1];
+                rankingTime[type][i] = rankingTime[type][i - 1];
+            }
 
-			// Add new data
-			rankingScore[type][rankingRank] = sc;
-			rankingLines[type][rankingRank] = li;
-			rankingTime[type][rankingRank] = time;
-		}
-	}
+            // Add new data
+            rankingScore[type][rankingRank] = sc;
+            rankingLines[type][rankingRank] = li;
+            rankingTime[type][rankingRank] = time;
+        }
+    }
 
-	/**
-	 * Calculate ranking position
-	 * @param sc Score
-	 * @param li Lines
-	 * @param time Time
-	 * @return Position (-1 if unranked)
-	 */
-	private int checkRanking(int sc, int li, int time, int type) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			if(sc > rankingScore[type][i]) {
-				return i;
-			} else if((sc == rankingScore[type][i]) && (li > rankingLines[type][i])) {
-				return i;
-			} else if((sc == rankingScore[type][i]) && (li == rankingLines[type][i]) && (time < rankingTime[type][i])) {
-				return i;
-			}
-		}
+    /**
+     * Calculate ranking position
+     * @param sc Score
+     * @param li Lines
+     * @param time Time
+     * @return Position (-1 if unranked)
+     */
+    private int checkRanking(int sc, int li, int time, int type) {
+        for(int i = 0; i < RANKING_MAX; i++) {
+            if(sc > rankingScore[type][i]) {
+                return i;
+            } else if((sc == rankingScore[type][i]) && (li > rankingLines[type][i])) {
+                return i;
+            } else if((sc == rankingScore[type][i]) && (li == rankingLines[type][i]) && (time < rankingTime[type][i])) {
+                return i;
+            }
+        }
 
-		return -1;
-	}
+        return -1;
+    }
 
-	/**
-	 * NET: Send various in-game stats (as well as goaltype)
-	 * @param engine GameEngine
-	 */
-	@Override
-	protected void netSendStats(GameEngine engine) {
-		int bg = owner.backgroundStatus.fadesw ? owner.backgroundStatus.fadebg : owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t" + engine.statistics.spl + "\t";
-		msg += goaltype + "\t" + engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent + "\t" + lastb2b + "\t" + lastcombo + "\t" + lastpiece + "\t";
-		msg += lastgoal + "\t" + lasttimebonus + "\t" + regretdispframe + "\t";
-		msg += bg + "\t" + engine.meterValue + "\t" + engine.meterColor + "\t";
-		msg += engine.statistics.level + "\t" + levelTimer + "\t" + totalTimer + "\t" + rolltime + "\t" + goal + "\n";
-		netLobby.netPlayerClient.send(msg);
-	}
+    /**
+     * NET: Send various in-game stats (as well as goaltype)
+     * @param engine GameEngine
+     */
+    @Override
+    protected void netSendStats(GameEngine engine) {
+        int bg = owner.backgroundStatus.fadesw ? owner.backgroundStatus.fadebg : owner.backgroundStatus.bg;
+        String msg = "game\tstats\t";
+        msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
+        msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t" + engine.statistics.spl + "\t";
+        msg += goaltype + "\t" + engine.gameActive + "\t" + engine.timerActive + "\t";
+        msg += lastscore + "\t" + scgettime + "\t" + lastevent + "\t" + lastb2b + "\t" + lastcombo + "\t" + lastpiece + "\t";
+        msg += lastgoal + "\t" + lasttimebonus + "\t" + regretdispframe + "\t";
+        msg += bg + "\t" + engine.meterValue + "\t" + engine.meterColor + "\t";
+        msg += engine.statistics.level + "\t" + levelTimer + "\t" + totalTimer + "\t" + rolltime + "\t" + goal + "\n";
+        netLobby.netPlayerClient.send(msg);
+    }
 
-	/**
-	 * NET: Receive various in-game stats (as well as goaltype)
-	 */
-	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.score = Integer.parseInt(message[4]);
-		engine.statistics.lines = Integer.parseInt(message[5]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[6]);
-		engine.statistics.time = Integer.parseInt(message[7]);
-		engine.statistics.lpm = Float.parseFloat(message[8]);
-		engine.statistics.spl = Double.parseDouble(message[9]);
-		goaltype = Integer.parseInt(message[10]);
-		engine.gameActive = Boolean.parseBoolean(message[11]);
-		engine.timerActive = Boolean.parseBoolean(message[12]);
-		lastscore = Integer.parseInt(message[13]);
-		scgettime = Integer.parseInt(message[14]);
-		lastevent = Integer.parseInt(message[15]);
-		lastb2b = Boolean.parseBoolean(message[16]);
-		lastcombo = Integer.parseInt(message[17]);
-		lastpiece = Integer.parseInt(message[18]);
-		lastgoal = Integer.parseInt(message[19]);
-		lasttimebonus = Integer.parseInt(message[20]);
-		regretdispframe = Integer.parseInt(message[21]);
-		owner.backgroundStatus.bg = Integer.parseInt(message[22]);
-		engine.meterValue = Integer.parseInt(message[23]);
-		engine.meterColor = Integer.parseInt(message[24]);
-		engine.statistics.level = Integer.parseInt(message[25]);
-		levelTimer = Integer.parseInt(message[26]);
-		totalTimer = Integer.parseInt(message[27]);
-		rolltime = Integer.parseInt(message[28]);
-		goal = Integer.parseInt(message[29]);
-	}
+    /**
+     * NET: Receive various in-game stats (as well as goaltype)
+     */
+    @Override
+    protected void netRecvStats(GameEngine engine, String[] message) {
+        engine.statistics.score = Integer.parseInt(message[4]);
+        engine.statistics.lines = Integer.parseInt(message[5]);
+        engine.statistics.totalPieceLocked = Integer.parseInt(message[6]);
+        engine.statistics.time = Integer.parseInt(message[7]);
+        engine.statistics.lpm = Float.parseFloat(message[8]);
+        engine.statistics.spl = Double.parseDouble(message[9]);
+        goaltype = Integer.parseInt(message[10]);
+        engine.gameActive = Boolean.parseBoolean(message[11]);
+        engine.timerActive = Boolean.parseBoolean(message[12]);
+        lastscore = Integer.parseInt(message[13]);
+        scgettime = Integer.parseInt(message[14]);
+        lastevent = Integer.parseInt(message[15]);
+        lastb2b = Boolean.parseBoolean(message[16]);
+        lastcombo = Integer.parseInt(message[17]);
+        lastpiece = Integer.parseInt(message[18]);
+        lastgoal = Integer.parseInt(message[19]);
+        lasttimebonus = Integer.parseInt(message[20]);
+        regretdispframe = Integer.parseInt(message[21]);
+        owner.backgroundStatus.bg = Integer.parseInt(message[22]);
+        engine.meterValue = Integer.parseInt(message[23]);
+        engine.meterColor = Integer.parseInt(message[24]);
+        engine.statistics.level = Integer.parseInt(message[25]);
+        levelTimer = Integer.parseInt(message[26]);
+        totalTimer = Integer.parseInt(message[27]);
+        rolltime = Integer.parseInt(message[28]);
+        goal = Integer.parseInt(message[29]);
+    }
 
-	/**
-	 * NET: Send end-of-game stats
-	 * @param engine GameEngine
-	 */
-	@Override
-	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "SCORE;" + engine.statistics.score + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "SCORE/LINE;" + engine.statistics.spl + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
+    /**
+     * NET: Send end-of-game stats
+     * @param engine GameEngine
+     */
+    @Override
+    protected void netSendEndGameStats(GameEngine engine) {
+        String subMsg = "";
+        subMsg += "SCORE;" + engine.statistics.score + "\t";
+        subMsg += "LINE;" + engine.statistics.lines + "\t";
+        subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
+        subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+        subMsg += "SCORE/LINE;" + engine.statistics.spl + "\t";
+        subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
 
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
-	}
+        String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
+        netLobby.netPlayerClient.send(msg);
+    }
 
-	/**
-	 * NET: Send game options to all spectators
-	 * @param engine GameEngine
-	 */
-	@Override
-	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += goaltype + "\t" + startlevel + "\t" + tspinEnableType + "\t";
-		msg += enableTSpinKick + "\t" + enableB2B + "\t" + enableCombo + "\t" + big + "\t";
-		msg += spinCheckType + "\t" + tspinEnableEZ + "\n";
-		netLobby.netPlayerClient.send(msg);
-	}
+    /**
+     * NET: Send game options to all spectators
+     * @param engine GameEngine
+     */
+    @Override
+    protected void netSendOptions(GameEngine engine) {
+        String msg = "game\toption\t";
+        msg += goaltype + "\t" + startlevel + "\t" + tspinEnableType + "\t";
+        msg += enableTSpinKick + "\t" + enableB2B + "\t" + enableCombo + "\t" + big + "\t";
+        msg += spinCheckType + "\t" + tspinEnableEZ + "\n";
+        netLobby.netPlayerClient.send(msg);
+    }
 
-	/**
-	 * NET: Receive game options
-	 */
-	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		goaltype = Integer.parseInt(message[4]);
-		startlevel = Integer.parseInt(message[5]);
-		tspinEnableType = Integer.parseInt(message[6]);
-		enableTSpinKick = Boolean.parseBoolean(message[7]);
-		enableB2B = Boolean.parseBoolean(message[8]);
-		enableCombo = Boolean.parseBoolean(message[9]);
-		big = Boolean.parseBoolean(message[10]);
-		spinCheckType = Integer.parseInt(message[11]);
-		tspinEnableEZ = Boolean.parseBoolean(message[12]);
-	}
+    /**
+     * NET: Receive game options
+     */
+    @Override
+    protected void netRecvOptions(GameEngine engine, String[] message) {
+        goaltype = Integer.parseInt(message[4]);
+        startlevel = Integer.parseInt(message[5]);
+        tspinEnableType = Integer.parseInt(message[6]);
+        enableTSpinKick = Boolean.parseBoolean(message[7]);
+        enableB2B = Boolean.parseBoolean(message[8]);
+        enableCombo = Boolean.parseBoolean(message[9]);
+        big = Boolean.parseBoolean(message[10]);
+        spinCheckType = Integer.parseInt(message[11]);
+        tspinEnableEZ = Boolean.parseBoolean(message[12]);
+    }
 
-	/**
-	 * NET: Get goal type
-	 */
-	@Override
-	protected int netGetGoalType() {
-		return goaltype;
-	}
+    /**
+     * NET: Get goal type
+     */
+    @Override
+    protected int netGetGoalType() {
+        return goaltype;
+    }
 
-	/**
-	 * NET: It returns true when the current settings doesn't prevent leaderboard screen from showing.
-	 */
-	@Override
-	protected boolean netIsNetRankingViewOK(GameEngine engine) {
-		return (!big) && (engine.ai == null) && (startlevel == 0);
-	}
+    /**
+     * NET: It returns true when the current settings doesn't prevent leaderboard screen from showing.
+     */
+    @Override
+    protected boolean netIsNetRankingViewOK(GameEngine engine) {
+        return (!big) && (engine.ai == null) && (startlevel == 0);
+    }
 }

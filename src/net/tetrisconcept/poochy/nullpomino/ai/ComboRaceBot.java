@@ -314,591 +314,591 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                         moveDir = 0;
                         // 目標到達
                         if(bestRtSub == 0) {
-                			if (pieceTouchGround && engine.ruleopt.softdropLock)
-								drop = -1;
-							else if(engine.ruleopt.harddropEnable)
-								drop = 1;
-							else if(engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
-								drop = -1;
-						} else {
-							if(engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock)
-								drop = 1;
-							else if(engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
-								drop = -1;
-						}
-					}
-					else if (nowX > bestX)
-						moveDir = -1;
-					else if(nowX < bestX)
-						moveDir = 1;
-				}
-			}
-			//Convert parameters to input
-			if(moveDir == -1 && !ctrl.isPress(Controller.BUTTON_LEFT))
-				input |= Controller.BUTTON_BIT_LEFT;
-			else if(moveDir == 1 && !ctrl.isPress(Controller.BUTTON_RIGHT))
-				input |= Controller.BUTTON_BIT_RIGHT;
-			if(drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
-				input |= Controller.BUTTON_BIT_UP;
-			else if(drop == -1)
-				input |= Controller.BUTTON_BIT_DOWN;
+                            if (pieceTouchGround && engine.ruleopt.softdropLock)
+                                drop = -1;
+                            else if(engine.ruleopt.harddropEnable)
+                                drop = 1;
+                            else if(engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
+                                drop = -1;
+                        } else {
+                            if(engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock)
+                                drop = 1;
+                            else if(engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
+                                drop = -1;
+                        }
+                    }
+                    else if (nowX > bestX)
+                        moveDir = -1;
+                    else if(nowX < bestX)
+                        moveDir = 1;
+                }
+            }
+            //Convert parameters to input
+            if(moveDir == -1 && !ctrl.isPress(Controller.BUTTON_LEFT))
+                input |= Controller.BUTTON_BIT_LEFT;
+            else if(moveDir == 1 && !ctrl.isPress(Controller.BUTTON_RIGHT))
+                input |= Controller.BUTTON_BIT_RIGHT;
+            if(drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
+                input |= Controller.BUTTON_BIT_UP;
+            else if(drop == -1)
+                input |= Controller.BUTTON_BIT_DOWN;
 
-			if (rotateDir != 0)
-			{
-				boolean defaultRotateRight = (engine.owRotateButtonDefaultRight == 1 ||
-						(engine.owRotateButtonDefaultRight == -1 &&
-								engine.ruleopt.rotateButtonDefaultRight));
+            if (rotateDir != 0)
+            {
+                boolean defaultRotateRight = (engine.owRotateButtonDefaultRight == 1 ||
+                        (engine.owRotateButtonDefaultRight == -1 &&
+                                engine.ruleopt.rotateButtonDefaultRight));
 
-				if(engine.ruleopt.rotateButtonAllowDouble &&
-						rotateDir == 2 && !ctrl.isPress(Controller.BUTTON_E))
-					input |= Controller.BUTTON_BIT_E;
-				else if(engine.ruleopt.rotateButtonAllowReverse &&
-						  !defaultRotateRight && (rotateDir == 1))
-				{
-					if(!ctrl.isPress(Controller.BUTTON_B))
-						input |= Controller.BUTTON_BIT_B;
-				}
-				else if(engine.ruleopt.rotateButtonAllowReverse &&
-						defaultRotateRight && (rotateDir == -1))
-				{
-					if(!ctrl.isPress(Controller.BUTTON_B))
-						input |= Controller.BUTTON_BIT_B;
-				}
-				else if(!ctrl.isPress(Controller.BUTTON_A))
-					input |= Controller.BUTTON_BIT_A;
-			}
+                if(engine.ruleopt.rotateButtonAllowDouble &&
+                        rotateDir == 2 && !ctrl.isPress(Controller.BUTTON_E))
+                    input |= Controller.BUTTON_BIT_E;
+                else if(engine.ruleopt.rotateButtonAllowReverse &&
+                          !defaultRotateRight && (rotateDir == 1))
+                {
+                    if(!ctrl.isPress(Controller.BUTTON_B))
+                        input |= Controller.BUTTON_BIT_B;
+                }
+                else if(engine.ruleopt.rotateButtonAllowReverse &&
+                        defaultRotateRight && (rotateDir == -1))
+                {
+                    if(!ctrl.isPress(Controller.BUTTON_B))
+                        input |= Controller.BUTTON_BIT_B;
+                }
+                else if(!ctrl.isPress(Controller.BUTTON_A))
+                    input |= Controller.BUTTON_BIT_A;
+            }
 
-			if (DEBUG_ALL) log.debug ("Input = " + input + ", moveDir = " + moveDir  + ", rotateDir = " + rotateDir +
-					 ", drop = " + drop);
+            if (DEBUG_ALL) log.debug ("Input = " + input + ", moveDir = " + moveDir  + ", rotateDir = " + rotateDir +
+                     ", drop = " + drop);
 
-			delay = 0;
-			ctrl.setButtonBit(input);
-		}
-		else {
-			delay++;
-			ctrl.setButtonBit(inputARE);
-		}
-	}
+            delay = 0;
+            ctrl.setButtonBit(input);
+        }
+        else {
+            delay++;
+            ctrl.setButtonBit(inputARE);
+        }
+    }
 
-	protected void printPieceAndDirection(int pieceType, int rt)
-	{
-		String result = "Piece ";
-		switch (pieceType)
-		{
-			case Piece.PIECE_I: result = result + "I"; break;
-			case Piece.PIECE_L: result = result + "L"; break;
-			case Piece.PIECE_O: result = result + "O"; break;
-			case Piece.PIECE_Z: result = result + "Z"; break;
-			case Piece.PIECE_T: result = result + "T"; break;
-			case Piece.PIECE_J: result = result + "J"; break;
-			case Piece.PIECE_S: result = result + "S"; break;
-			case Piece.PIECE_I1: result = result + "I1"; break;
-			case Piece.PIECE_I2: result = result + "I2"; break;
-			case Piece.PIECE_I3: result = result + "I3"; break;
-			case Piece.PIECE_L3: result = result + "L3"; break;
-		}
-		result = result + ", direction ";
+    protected void printPieceAndDirection(int pieceType, int rt)
+    {
+        String result = "Piece ";
+        switch (pieceType)
+        {
+            case Piece.PIECE_I: result = result + "I"; break;
+            case Piece.PIECE_L: result = result + "L"; break;
+            case Piece.PIECE_O: result = result + "O"; break;
+            case Piece.PIECE_Z: result = result + "Z"; break;
+            case Piece.PIECE_T: result = result + "T"; break;
+            case Piece.PIECE_J: result = result + "J"; break;
+            case Piece.PIECE_S: result = result + "S"; break;
+            case Piece.PIECE_I1: result = result + "I1"; break;
+            case Piece.PIECE_I2: result = result + "I2"; break;
+            case Piece.PIECE_I3: result = result + "I3"; break;
+            case Piece.PIECE_L3: result = result + "L3"; break;
+        }
+        result = result + ", direction ";
 
-		switch (rt)
-		{
-			case Piece.DIRECTION_LEFT:  result = result + "left";  break;
-			case Piece.DIRECTION_DOWN:  result = result + "down";  break;
-			case Piece.DIRECTION_UP:    result = result + "up";    break;
-			case Piece.DIRECTION_RIGHT: result = result + "right"; break;
-		}
-		if (DEBUG_ALL) log.debug(result);
-	}
+        switch (rt)
+        {
+            case Piece.DIRECTION_LEFT:  result = result + "left";  break;
+            case Piece.DIRECTION_DOWN:  result = result + "down";  break;
+            case Piece.DIRECTION_UP:    result = result + "up";    break;
+            case Piece.DIRECTION_RIGHT: result = result + "right"; break;
+        }
+        if (DEBUG_ALL) log.debug(result);
+    }
 
-	/*
-	public int calcIRS(Piece piece, GameEngine engine)
-	{
-		piece = checkOffset(piece, engine);
-		int nextType = piece.id;
-		Field fld = engine.field;
-		int spawnX = engine.getSpawnPosX(fld, piece);
-		SpeedParam speed = engine.speed;
-		boolean gravityHigh = speed.gravity > speed.denominator;
-		int width = fld.getWidth();
-		int midColumnX = (width/2)-1;
-		if(Math.abs(spawnX - bestX) == 1)
-		{
-			if (bestRt == 1)
-			{
-				if (engine.ruleopt.rotateButtonDefaultRight)
-					return Controller.BUTTON_BIT_A;
-				else
-					return Controller.BUTTON_BIT_B;
-			}
-			else if (bestRt == 3)
-			{
-				if (engine.ruleopt.rotateButtonDefaultRight)
-					return Controller.BUTTON_BIT_B;
-				else
-					return Controller.BUTTON_BIT_A;
-			}
-		}
-		else if (nextType == Piece.PIECE_L)
-		{
-			if (gravityHigh && fld.getHighestBlockY(midColumnX-1) <
-					Math.min(fld.getHighestBlockY(midColumnX), fld.getHighestBlockY(midColumnX+1)))
-				return 0;
-			else if (engine.ruleopt.rotateButtonDefaultRight)
-				return Controller.BUTTON_BIT_B;
-			else
-				return Controller.BUTTON_BIT_A;
-		}
-		else if (nextType == Piece.PIECE_J)
-		{
-			if (gravityHigh && fld.getHighestBlockY(midColumnX+1) <
-					Math.min(fld.getHighestBlockY(midColumnX), fld.getHighestBlockY(midColumnX-1)))
-				return 0;
-			if (engine.ruleopt.rotateButtonDefaultRight)
-				return Controller.BUTTON_BIT_A;
-			else
-				return Controller.BUTTON_BIT_B;
-		}
-		//else if (nextType == Piece.PIECE_I)
-		//	return Controller.BUTTON_BIT_A;
-		return 0;
-	}
-	*/
+    /*
+    public int calcIRS(Piece piece, GameEngine engine)
+    {
+        piece = checkOffset(piece, engine);
+        int nextType = piece.id;
+        Field fld = engine.field;
+        int spawnX = engine.getSpawnPosX(fld, piece);
+        SpeedParam speed = engine.speed;
+        boolean gravityHigh = speed.gravity > speed.denominator;
+        int width = fld.getWidth();
+        int midColumnX = (width/2)-1;
+        if(Math.abs(spawnX - bestX) == 1)
+        {
+            if (bestRt == 1)
+            {
+                if (engine.ruleopt.rotateButtonDefaultRight)
+                    return Controller.BUTTON_BIT_A;
+                else
+                    return Controller.BUTTON_BIT_B;
+            }
+            else if (bestRt == 3)
+            {
+                if (engine.ruleopt.rotateButtonDefaultRight)
+                    return Controller.BUTTON_BIT_B;
+                else
+                    return Controller.BUTTON_BIT_A;
+            }
+        }
+        else if (nextType == Piece.PIECE_L)
+        {
+            if (gravityHigh && fld.getHighestBlockY(midColumnX-1) <
+                    Math.min(fld.getHighestBlockY(midColumnX), fld.getHighestBlockY(midColumnX+1)))
+                return 0;
+            else if (engine.ruleopt.rotateButtonDefaultRight)
+                return Controller.BUTTON_BIT_B;
+            else
+                return Controller.BUTTON_BIT_A;
+        }
+        else if (nextType == Piece.PIECE_J)
+        {
+            if (gravityHigh && fld.getHighestBlockY(midColumnX+1) <
+                    Math.min(fld.getHighestBlockY(midColumnX), fld.getHighestBlockY(midColumnX-1)))
+                return 0;
+            if (engine.ruleopt.rotateButtonDefaultRight)
+                return Controller.BUTTON_BIT_A;
+            else
+                return Controller.BUTTON_BIT_B;
+        }
+        //else if (nextType == Piece.PIECE_I)
+        //    return Controller.BUTTON_BIT_A;
+        return 0;
+    }
+    */
 
-	/**
-	 * Search for the best choice
-	 * @param engine The GameEngine that owns this AI
-	 * @param playerID Player ID
-	 */
-	public void thinkBestPosition(GameEngine engine, int playerID) {
-		if (DEBUG_ALL) log.debug("thinkBestPosition called, inARE = " + inARE + ", piece: ");
-		bestHold = false;
-		bestX = 0;
-		bestY = 0;
-		bestRt = 0;
-		bestRtSub = 0;
-		bestPts = Integer.MIN_VALUE;
-		thinkSuccess = false;
+    /**
+     * Search for the best choice
+     * @param engine The GameEngine that owns this AI
+     * @param playerID Player ID
+     */
+    public void thinkBestPosition(GameEngine engine, int playerID) {
+        if (DEBUG_ALL) log.debug("thinkBestPosition called, inARE = " + inARE + ", piece: ");
+        bestHold = false;
+        bestX = 0;
+        bestY = 0;
+        bestRt = 0;
+        bestRtSub = 0;
+        bestPts = Integer.MIN_VALUE;
+        thinkSuccess = false;
 
-		Field fld;
-		if (engine.field == null)
-			fld = new Field(engine.fieldWidth, engine.fieldHeight,
-					engine.fieldHiddenHeight, engine.ruleopt.fieldCeiling);
-		else
-			fld = new Field(engine.field);
-		Piece pieceNow = engine.nowPieceObject;
-		Piece pieceHold = engine.holdPieceObject;
-		boolean holdBoxEmpty = (pieceHold == null);
-		int nextIndex = engine.nextPieceCount;
-		if (inARE || pieceNow == null)
-		{
-			pieceNow = engine.getNextObjectCopy(nextIndex);
-			nextIndex++;
-		}
-		if(holdBoxEmpty)
-			pieceHold = engine.getNextObjectCopy(nextIndex);
-		else if (holdBoxEmpty)
-			pieceHold = engine.getNextObjectCopy(engine.nextPieceCount);
-		pieceNow = checkOffset(pieceNow, engine);
-		pieceHold = checkOffset(pieceHold, engine);
-		boolean holdOK = engine.isHoldOK();
+        Field fld;
+        if (engine.field == null)
+            fld = new Field(engine.fieldWidth, engine.fieldHeight,
+                    engine.fieldHiddenHeight, engine.ruleopt.fieldCeiling);
+        else
+            fld = new Field(engine.field);
+        Piece pieceNow = engine.nowPieceObject;
+        Piece pieceHold = engine.holdPieceObject;
+        boolean holdBoxEmpty = (pieceHold == null);
+        int nextIndex = engine.nextPieceCount;
+        if (inARE || pieceNow == null)
+        {
+            pieceNow = engine.getNextObjectCopy(nextIndex);
+            nextIndex++;
+        }
+        if(holdBoxEmpty)
+            pieceHold = engine.getNextObjectCopy(nextIndex);
+        else if (holdBoxEmpty)
+            pieceHold = engine.getNextObjectCopy(engine.nextPieceCount);
+        pieceNow = checkOffset(pieceNow, engine);
+        pieceHold = checkOffset(pieceHold, engine);
+        boolean holdOK = engine.isHoldOK();
 
-		nextQueueIDs = new int[MAX_THINK_DEPTH-1];
-		for (int i = 0; i < nextQueueIDs.length; i++)
-			nextQueueIDs[i] = engine.getNextID(nextIndex+i);
+        nextQueueIDs = new int[MAX_THINK_DEPTH-1];
+        for (int i = 0; i < nextQueueIDs.length; i++)
+            nextQueueIDs[i] = engine.getNextID(nextIndex+i);
 
-		int state = fieldToIndex(fld);
-		if (state < 0)
-		{
-			thinkLastPieceNo++;
-			return;
-		}
-		Transition t = moves[state][pieceNow.id];
+        int state = fieldToIndex(fld);
+        if (state < 0)
+        {
+            thinkLastPieceNo++;
+            return;
+        }
+        Transition t = moves[state][pieceNow.id];
 
-		while (t != null)
-		{
-			int holdID = -1;
-			if (engine.holdPieceObject != null)
-				holdID = engine.holdPieceObject.id;
-			int pts = thinkMain(engine, t.newField, holdID, 0);
+        while (t != null)
+        {
+            int holdID = -1;
+            if (engine.holdPieceObject != null)
+                holdID = engine.holdPieceObject.id;
+            int pts = thinkMain(engine, t.newField, holdID, 0);
 
-			if (pts > bestPts)
-			{
-				bestPts = pts;
-				bestX = t.x + 3;
-				bestRt = t.rt;
-				bestY = pieceNow.getBottom(bestX, 0, bestRt, fld);
-				bestRtSub = t.rtSub;
-				bestHold = false;
-				thinkSuccess = true;
-			}
+            if (pts > bestPts)
+            {
+                bestPts = pts;
+                bestX = t.x + 3;
+                bestRt = t.rt;
+                bestY = pieceNow.getBottom(bestX, 0, bestRt, fld);
+                bestRtSub = t.rtSub;
+                bestHold = false;
+                thinkSuccess = true;
+            }
 
-			t = t.next;
-		}
-		if (pieceHold.id != pieceNow.id && holdOK)
-		{
-			t = moves[state][pieceHold.id];
+            t = t.next;
+        }
+        if (pieceHold.id != pieceNow.id && holdOK)
+        {
+            t = moves[state][pieceHold.id];
 
-			while (t != null)
-			{
-				int pts = thinkMain(engine, t.newField, pieceNow.id, holdBoxEmpty ? 1 : 0);
+            while (t != null)
+            {
+                int pts = thinkMain(engine, t.newField, pieceNow.id, holdBoxEmpty ? 1 : 0);
 
-				if (pts > bestPts)
-				{
-					bestPts = pts;
-					bestX = t.x + 3;
-					bestRt = t.rt;
-					bestY = pieceNow.getBottom(bestX, 0, bestRt, fld);
-					bestRtSub = t.rtSub;
-					bestHold = true;
-					thinkSuccess = true;
-				}
+                if (pts > bestPts)
+                {
+                    bestPts = pts;
+                    bestX = t.x + 3;
+                    bestRt = t.rt;
+                    bestY = pieceNow.getBottom(bestX, 0, bestRt, fld);
+                    bestRtSub = t.rtSub;
+                    bestHold = true;
+                    thinkSuccess = true;
+                }
 
-				t = t.next;
-			}
-		}
+                t = t.next;
+            }
+        }
 
-		thinkLastPieceNo++;
+        thinkLastPieceNo++;
 
-		//System.out.println("X:" + bestX + " Y:" + bestY + " R:" + bestRt + " H:" + bestHold + " Pts:" + bestPts);
-	}
+        //System.out.println("X:" + bestX + " Y:" + bestY + " R:" + bestRt + " H:" + bestHold + " Pts:" + bestPts);
+    }
 
-	/**
-	 * Think routine
-	 * @param engine GameEngine
-	 * @param state Think state
-	 * @param holdID Hold piece ID
-	 * @param depth Compromise level (ranges from 0 through getMaxThinkDepth-1)
-	 * @return Evaluation score
-	 */
-	public int thinkMain(GameEngine engine, int state, int holdID, int depth) {
-		if (state == -1)
-			return 0;
-		if (depth == nextQueueIDs.length)
-		{
-			int result = scores[state]*10;
-			if (holdID == Piece.PIECE_I)
-				result += 1000;
-			else if (holdID == Piece.PIECE_T)
-				result += 3;
-			else if (holdID == Piece.PIECE_L || holdID == Piece.PIECE_J)
-				result++;
-			return result;
-		}
+    /**
+     * Think routine
+     * @param engine GameEngine
+     * @param state Think state
+     * @param holdID Hold piece ID
+     * @param depth Compromise level (ranges from 0 through getMaxThinkDepth-1)
+     * @return Evaluation score
+     */
+    public int thinkMain(GameEngine engine, int state, int holdID, int depth) {
+        if (state == -1)
+            return 0;
+        if (depth == nextQueueIDs.length)
+        {
+            int result = scores[state]*10;
+            if (holdID == Piece.PIECE_I)
+                result += 1000;
+            else if (holdID == Piece.PIECE_T)
+                result += 3;
+            else if (holdID == Piece.PIECE_L || holdID == Piece.PIECE_J)
+                result++;
+            return result;
+        }
 
-		int bestPts = 0;
-		Transition t = moves[state][nextQueueIDs[depth]];
+        int bestPts = 0;
+        Transition t = moves[state][nextQueueIDs[depth]];
 
-		while (t != null)
-		{
-			bestPts = Math.max(bestPts,
-					thinkMain(engine, t.newField, holdID, depth+1) + 1000);
-			t = t.next;
-		}
+        while (t != null)
+        {
+            bestPts = Math.max(bestPts,
+                    thinkMain(engine, t.newField, holdID, depth+1) + 1000);
+            t = t.next;
+        }
 
-		if (engine.ruleopt.holdEnable)
-		{
-			if (holdID == -1)
-				bestPts = Math.max(bestPts, thinkMain(engine, state, nextQueueIDs[depth], depth+1));
-			else
-			{
-				t = moves[state][holdID];
-				while (t != null)
-				{
-					bestPts = Math.max(bestPts,
-							thinkMain(engine, t.newField, nextQueueIDs[depth], depth+1) + 1000);
-					t = t.next;
-				}
-			}
-		}
+        if (engine.ruleopt.holdEnable)
+        {
+            if (holdID == -1)
+                bestPts = Math.max(bestPts, thinkMain(engine, state, nextQueueIDs[depth], depth+1));
+            else
+            {
+                t = moves[state][holdID];
+                while (t != null)
+                {
+                    bestPts = Math.max(bestPts,
+                            thinkMain(engine, t.newField, nextQueueIDs[depth], depth+1) + 1000);
+                    t = t.next;
+                }
+            }
+        }
 
-		return bestPts;
-	}
+        return bestPts;
+    }
 
-	public static Piece checkOffset(Piece p, GameEngine engine)
-	{
-		Piece result = new Piece(p);
-		result.big = engine.big;
-		if (!p.offsetApplied)
-			result.applyOffsetArray(engine.ruleopt.pieceOffsetX[p.id], engine.ruleopt.pieceOffsetY[p.id]);
-		return result;
-	}
+    public static Piece checkOffset(Piece p, GameEngine engine)
+    {
+        Piece result = new Piece(p);
+        result.big = engine.big;
+        if (!p.offsetApplied)
+            result.applyOffsetArray(engine.ruleopt.pieceOffsetX[p.id], engine.ruleopt.pieceOffsetY[p.id]);
+        return result;
+    }
 
-	/*
-	 * スレッドの処理
-	 */
-	public void run() {
-		log.info("ComboRaceBot: Thread start");
-		threadRunning = true;
+    /*
+     * スレッドの処理
+     */
+    public void run() {
+        log.info("ComboRaceBot: Thread start");
+        threadRunning = true;
 
-		while(threadRunning) {
-			if(thinkRequest) {
-				thinkRequest = false;
-				thinking = true;
-				try {
-					thinkBestPosition(gEngine, gEngine.playerID);
-					thinkComplete = true;
-					log.debug("ComboRaceBot: thinkBestPosition completed successfully");
-				} catch (Throwable e) {
-					log.debug("ComboRaceBot: thinkBestPosition Failed", e);
-				}
-				thinking = false;
-			}
-			else if (createTablesRequest)
-				createTables(gEngine);
+        while(threadRunning) {
+            if(thinkRequest) {
+                thinkRequest = false;
+                thinking = true;
+                try {
+                    thinkBestPosition(gEngine, gEngine.playerID);
+                    thinkComplete = true;
+                    log.debug("ComboRaceBot: thinkBestPosition completed successfully");
+                } catch (Throwable e) {
+                    log.debug("ComboRaceBot: thinkBestPosition Failed", e);
+                }
+                thinking = false;
+            }
+            else if (createTablesRequest)
+                createTables(gEngine);
 
-			if(thinkDelay > 0) {
-				try {
-					Thread.sleep(thinkDelay);
-				} catch (InterruptedException e) {
-					break;
-				}
-			}
-		}
+            if(thinkDelay > 0) {
+                try {
+                    Thread.sleep(thinkDelay);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
 
-		threadRunning = false;
-		log.info("ComboRaceBot: Thread end");
-	}
+        threadRunning = false;
+        log.info("ComboRaceBot: Thread end");
+    }
 
-	/**
-	 * Constructs the moves table if necessary.
-	 */
-	public void createTables (GameEngine engine)
-	{
-		if (moves != null)
-			return;
+    /**
+     * Constructs the moves table if necessary.
+     */
+    public void createTables (GameEngine engine)
+    {
+        if (moves != null)
+            return;
 
-		moves = new Transition[FIELDS.length][7];
+        moves = new Transition[FIELDS.length][7];
 
-		Field fldEmpty = new Field(4, Field.DEFAULT_HEIGHT, Field.DEFAULT_HIDDEN_HEIGHT);
-		Field fldBackup = new Field(fldEmpty);
-		Field fldTemp = new Field(fldEmpty);
+        Field fldEmpty = new Field(4, Field.DEFAULT_HEIGHT, Field.DEFAULT_HIDDEN_HEIGHT);
+        Field fldBackup = new Field(fldEmpty);
+        Field fldTemp = new Field(fldEmpty);
 
-		Piece[] pieces = new Piece[7];
-		for (int p = 0; p < 7; p++)
-		{
-			pieces[p] = checkOffset(new Piece(p), engine);
-			pieces[p].setColor(1);
-		}
+        Piece[] pieces = new Piece[7];
+        for (int p = 0; p < 7; p++)
+        {
+            pieces[p] = checkOffset(new Piece(p), engine);
+            pieces[p].setColor(1);
+        }
 
-		int count = 0;
+        int count = 0;
 
-		for (int i = 0; i < FIELDS.length; i++)
-		{
-			fldBackup.copy(fldEmpty);
-			int code = FIELDS[i];
+        for (int i = 0; i < FIELDS.length; i++)
+        {
+            fldBackup.copy(fldEmpty);
+            int code = FIELDS[i];
 
-			for (int y = Field.DEFAULT_HEIGHT-1; y > Field.DEFAULT_HEIGHT-4; y--)
-				for (int x = 3; x >= 0; x--)
-				{
-					if ((code & 1) == 1)
-						fldBackup.setBlockColor(x, y, 1);
-					code >>= 1;
-				}
+            for (int y = Field.DEFAULT_HEIGHT-1; y > Field.DEFAULT_HEIGHT-4; y--)
+                for (int x = 3; x >= 0; x--)
+                {
+                    if ((code & 1) == 1)
+                        fldBackup.setBlockColor(x, y, 1);
+                    code >>= 1;
+                }
 
-			for (int p = 0; p < 7; p++)
-			{
-				int tempX = engine.getSpawnPosX(fldBackup, pieces[p]);
-				for (int rt = 0; rt < Piece.DIRECTION_COUNT; rt++)
-				{
-					int minX = pieces[p].getMostMovableLeft(tempX, 0, rt, fldBackup);
-					int maxX = pieces[p].getMostMovableRight(tempX, 0, rt, fldBackup);
+            for (int p = 0; p < 7; p++)
+            {
+                int tempX = engine.getSpawnPosX(fldBackup, pieces[p]);
+                for (int rt = 0; rt < Piece.DIRECTION_COUNT; rt++)
+                {
+                    int minX = pieces[p].getMostMovableLeft(tempX, 0, rt, fldBackup);
+                    int maxX = pieces[p].getMostMovableRight(tempX, 0, rt, fldBackup);
 
-					for (int x = minX; x <= maxX; x++)
-					{
-						int y = pieces[p].getBottom(x, 0, rt, fldBackup);
-						if (p == Piece.PIECE_L || p == Piece.PIECE_T || p == Piece.PIECE_J || rt < 2)
-						{
-							fldTemp.copy(fldBackup);
-							pieces[p].placeToField(x, y, rt, fldTemp);
-							if (fldTemp.checkLine() == 1)
-							{
-								fldTemp.clearLine();
-								fldTemp.downFloatingBlocks();
-								int index = fieldToIndex(fldTemp, 0);
-								if (index >= 0)
-								{
-									moves[i][p] = new Transition(x, rt, index, moves[i][p]);
-									count++;
-								}
-							}
-							if (p == Piece.PIECE_O)
-								continue;
-						}
+                    for (int x = minX; x <= maxX; x++)
+                    {
+                        int y = pieces[p].getBottom(x, 0, rt, fldBackup);
+                        if (p == Piece.PIECE_L || p == Piece.PIECE_T || p == Piece.PIECE_J || rt < 2)
+                        {
+                            fldTemp.copy(fldBackup);
+                            pieces[p].placeToField(x, y, rt, fldTemp);
+                            if (fldTemp.checkLine() == 1)
+                            {
+                                fldTemp.clearLine();
+                                fldTemp.downFloatingBlocks();
+                                int index = fieldToIndex(fldTemp, 0);
+                                if (index >= 0)
+                                {
+                                    moves[i][p] = new Transition(x, rt, index, moves[i][p]);
+                                    count++;
+                                }
+                            }
+                            if (p == Piece.PIECE_O)
+                                continue;
+                        }
 
-						// Left rotation
-						if(!engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-							int rot = pieces[p].getRotateDirection(-1, rt);
-							int newX = x;
-							int newY = y;
-							fldTemp.copy(fldBackup);
+                        // Left rotation
+                        if(!engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
+                            int rot = pieces[p].getRotateDirection(-1, rt);
+                            int newX = x;
+                            int newY = y;
+                            fldTemp.copy(fldBackup);
 
-							if(pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
-									(engine.ruleopt.rotateWallkick)) {
-								WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot,
-										(engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
+                            if(pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
+                                    (engine.ruleopt.rotateWallkick)) {
+                                WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot,
+                                        (engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
 
-								if(kick != null) {
-									newX = x + kick.offsetX;
-									newY = pieces[p].getBottom(newX, y + kick.offsetY, rot, fldTemp);
-								}
-							}
-							if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
-									&& newY > pieces[p].getBottom(newX, 0, rot, fldTemp))
-							{
-								pieces[p].placeToField(newX, newY, rot, fldTemp);
-								if (fldTemp.checkLine() == 1)
-								{
-									fldTemp.clearLine();
-									fldTemp.downFloatingBlocks();
-									int index = fieldToIndex(fldTemp, 0);
-									if (index >= 0)
-									{
-										moves[i][p] = new Transition(x, rt, -1, index, moves[i][p]);
-										count++;
-									}
-								}
-							}
-						}
+                                if(kick != null) {
+                                    newX = x + kick.offsetX;
+                                    newY = pieces[p].getBottom(newX, y + kick.offsetY, rot, fldTemp);
+                                }
+                            }
+                            if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
+                                    && newY > pieces[p].getBottom(newX, 0, rot, fldTemp))
+                            {
+                                pieces[p].placeToField(newX, newY, rot, fldTemp);
+                                if (fldTemp.checkLine() == 1)
+                                {
+                                    fldTemp.clearLine();
+                                    fldTemp.downFloatingBlocks();
+                                    int index = fieldToIndex(fldTemp, 0);
+                                    if (index >= 0)
+                                    {
+                                        moves[i][p] = new Transition(x, rt, -1, index, moves[i][p]);
+                                        count++;
+                                    }
+                                }
+                            }
+                        }
 
-						// Right rotation
-						if(engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-							int rot = pieces[p].getRotateDirection(1, rt);
-							int newX = x;
-							int newY = y;
-							fldTemp.copy(fldBackup);
+                        // Right rotation
+                        if(engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
+                            int rot = pieces[p].getRotateDirection(1, rt);
+                            int newX = x;
+                            int newY = y;
+                            fldTemp.copy(fldBackup);
 
-							if(pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
-									(engine.ruleopt.rotateWallkick)) {
-								WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot,
-										(engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
+                            if(pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
+                                    (engine.ruleopt.rotateWallkick)) {
+                                WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot,
+                                        (engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
 
-								if(kick != null) {
-									newX = x + kick.offsetX;
-									newY = pieces[p].getBottom(newX, y + kick.offsetY, rot, fldTemp);
-								}
-							}
-							if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
-									&& newY > pieces[p].getBottom(newX, 0, rot, fldTemp))
-							{
-								pieces[p].placeToField(newX, newY, rot, fldTemp);
-								if (fldTemp.checkLine() == 1)
-								{
-									fldTemp.clearLine();
-									fldTemp.downFloatingBlocks();
-									int index = fieldToIndex(fldTemp, 0);
-									if (index >= 0)
-									{
-										moves[i][p] = new Transition(x, rt, 1, index, moves[i][p]);
-										count++;
-									}
-								}
-							}
-						}
-					}
+                                if(kick != null) {
+                                    newX = x + kick.offsetX;
+                                    newY = pieces[p].getBottom(newX, y + kick.offsetY, rot, fldTemp);
+                                }
+                            }
+                            if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
+                                    && newY > pieces[p].getBottom(newX, 0, rot, fldTemp))
+                            {
+                                pieces[p].placeToField(newX, newY, rot, fldTemp);
+                                if (fldTemp.checkLine() == 1)
+                                {
+                                    fldTemp.clearLine();
+                                    fldTemp.downFloatingBlocks();
+                                    int index = fieldToIndex(fldTemp, 0);
+                                    if (index >= 0)
+                                    {
+                                        moves[i][p] = new Transition(x, rt, 1, index, moves[i][p]);
+                                        count++;
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-					if (pieces[p].id == Piece.PIECE_O)
-						break;
-				}
-			}
-		}
-		log.debug("Transition table created. Total entries: " + count);
-		//TODO: PageRank scores for each state
-	}
+                    if (pieces[p].id == Piece.PIECE_O)
+                        break;
+                }
+            }
+        }
+        log.debug("Transition table created. Total entries: " + count);
+        //TODO: PageRank scores for each state
+    }
 
-	/**
-	 * Converts field to field state int code
-	 * @param field Field object
-	 * @param valleyX Leftmost x-coordinate of 4-block-wide valley to combo in
-	 * @return Field state int code.
-	 */
-	public static int fieldToCode(Field field, int valleyX)
-	{
-		int height = field.getHeight();
-		int result = 0;
-		for (int y = height-3; y < height; y++)
-			for (int x = 0; x < 4; x++)
-			{
-				result <<= 1;
-				if (!field.getBlockEmptyF(x+valleyX, y))
-					result++;
-			}
-		return result;
-	}
-	public static int fieldToCode(Field field)
-	{
-		return fieldToCode(field, 3);
-	}
+    /**
+     * Converts field to field state int code
+     * @param field Field object
+     * @param valleyX Leftmost x-coordinate of 4-block-wide valley to combo in
+     * @return Field state int code.
+     */
+    public static int fieldToCode(Field field, int valleyX)
+    {
+        int height = field.getHeight();
+        int result = 0;
+        for (int y = height-3; y < height; y++)
+            for (int x = 0; x < 4; x++)
+            {
+                result <<= 1;
+                if (!field.getBlockEmptyF(x+valleyX, y))
+                    result++;
+            }
+        return result;
+    }
+    public static int fieldToCode(Field field)
+    {
+        return fieldToCode(field, 3);
+    }
 
-	/**
-	 * Converts field state int code to FIELDS array index
-	 * @param field Field state int code
-	 * @return State index if found; -1 if not found.
-	 */
-	public static int fieldToIndex(int field)
-	{
-		int min = 0;
-		int max = FIELDS.length-1;
-		int mid;
-		while (min <= max)
-		{
-			mid = (min+max) >> 1;
-			if (FIELDS[mid] > field)
-				max = mid-1;
-			else if (FIELDS[mid] < field)
-				min = mid+1;
-			else
-				return mid;
-		}
-		return -1;
-	}
+    /**
+     * Converts field state int code to FIELDS array index
+     * @param field Field state int code
+     * @return State index if found; -1 if not found.
+     */
+    public static int fieldToIndex(int field)
+    {
+        int min = 0;
+        int max = FIELDS.length-1;
+        int mid;
+        while (min <= max)
+        {
+            mid = (min+max) >> 1;
+            if (FIELDS[mid] > field)
+                max = mid-1;
+            else if (FIELDS[mid] < field)
+                min = mid+1;
+            else
+                return mid;
+        }
+        return -1;
+    }
 
-	/**
-	 * Converts field object to FIELDS array index
-	 * @param field Field object
-	 * @param valleyX Leftmost x-coordinate of 4-block-wide valley to combo in
-	 * @return State index if found; -1 if not found.
-	 */
-	public static int fieldToIndex(Field field, int valleyX)
-	{
-		return fieldToIndex(fieldToCode(field, valleyX));
-	}
-	public static int fieldToIndex(Field field)
-	{
-		return fieldToIndex(fieldToCode(field));
-	}
+    /**
+     * Converts field object to FIELDS array index
+     * @param field Field object
+     * @param valleyX Leftmost x-coordinate of 4-block-wide valley to combo in
+     * @return State index if found; -1 if not found.
+     */
+    public static int fieldToIndex(Field field, int valleyX)
+    {
+        return fieldToIndex(fieldToCode(field, valleyX));
+    }
+    public static int fieldToIndex(Field field)
+    {
+        return fieldToIndex(fieldToCode(field));
+    }
 
-	protected static class Transition
-	{
-		public int x, rt, rtSub, newField;
-		public Transition next;
-		public Transition (int bestX, int bestRt, int bestRtSub, int newFld)
-		{
-			x = bestX;
-			rt = bestRt;
-			rtSub = bestRtSub;
-			newField = newFld;
-		}
-		public Transition (int bestX, int bestRt, int newFld)
-		{
-			x = bestX;
-			rt = bestRt;
-			rtSub = 0;
-			newField = newFld;
-		}
-		public Transition (int bestX, int bestRt, int bestRtSub, int newFld, Transition nxt)
-		{
-			x = bestX;
-			rt = bestRt;
-			rtSub = bestRtSub;
-			newField = newFld;
-			next = nxt;
-		}
-		public Transition (int bestX, int bestRt, int newFld, Transition nxt)
-		{
-			x = bestX;
-			rt = bestRt;
-			rtSub = 0;
-			newField = newFld;
-			next = nxt;
-		}
-	}
+    protected static class Transition
+    {
+        public int x, rt, rtSub, newField;
+        public Transition next;
+        public Transition (int bestX, int bestRt, int bestRtSub, int newFld)
+        {
+            x = bestX;
+            rt = bestRt;
+            rtSub = bestRtSub;
+            newField = newFld;
+        }
+        public Transition (int bestX, int bestRt, int newFld)
+        {
+            x = bestX;
+            rt = bestRt;
+            rtSub = 0;
+            newField = newFld;
+        }
+        public Transition (int bestX, int bestRt, int bestRtSub, int newFld, Transition nxt)
+        {
+            x = bestX;
+            rt = bestRt;
+            rtSub = bestRtSub;
+            newField = newFld;
+            next = nxt;
+        }
+        public Transition (int bestX, int bestRt, int newFld, Transition nxt)
+        {
+            x = bestX;
+            rt = bestRt;
+            rtSub = 0;
+            newField = newFld;
+            next = nxt;
+        }
+    }
 }

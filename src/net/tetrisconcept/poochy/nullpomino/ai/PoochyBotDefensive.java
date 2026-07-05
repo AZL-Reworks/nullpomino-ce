@@ -311,36 +311,36 @@ public class PoochyBotDefensive extends PoochyBot {
             }
             d = depthsAfter[mid-1] - depthsAfter[mid];
             if (d >= 0)
-    			pts += 5;
-			else
-				pts += d;
-			d = depthsAfter[mid+1] - depthsAfter[mid];
-			if (d >= 0)
-				pts += 5;
-			else
-				pts += d;
+                pts += 5;
+            else
+                pts += d;
+            d = depthsAfter[mid+1] - depthsAfter[mid];
+            if (d >= 0)
+                pts += 5;
+            else
+                pts += d;
 
-			// Add points for reducing the height
-			if(heightBefore < heightAfter)
-				pts += (heightAfter - heightBefore) * 20;
-			// Demerits for increase in height
-			else if(heightBefore > heightAfter)
-				pts -= (heightBefore - heightAfter) * 4;
+            // Add points for reducing the height
+            if(heightBefore < heightAfter)
+                pts += (heightAfter - heightBefore) * 20;
+            // Demerits for increase in height
+            else if(heightBefore > heightAfter)
+                pts -= (heightBefore - heightAfter) * 4;
 
-			//Penalty for dangerous placements
-			if (heightAfter < 2)
-			{
-				int spawnMinX = width/2 - 2;
-				int spawnMaxX = width/2 + 1;
-				for (int i = spawnMinX; i <= spawnMaxX; i++)
-					if (depthsAfter[i] < 2 && depthsAfter[i] < depthsBefore[i])
-						pts -= 2000000 * (depthsBefore[i] - depthsAfter[i]);
-				if (heightBefore >= 2 && depth == 0)
-					pts -= 2000000 * (heightBefore - heightAfter);
-			}
-		}
-		if (DEBUG_ALL) log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld +
-				", fld, piece " + piece.id + ", " + depth + "). pts = " + pts);
-		return pts;
-	}
+            //Penalty for dangerous placements
+            if (heightAfter < 2)
+            {
+                int spawnMinX = width/2 - 2;
+                int spawnMaxX = width/2 + 1;
+                for (int i = spawnMinX; i <= spawnMaxX; i++)
+                    if (depthsAfter[i] < 2 && depthsAfter[i] < depthsBefore[i])
+                        pts -= 2000000 * (depthsBefore[i] - depthsAfter[i]);
+                if (heightBefore >= 2 && depth == 0)
+                    pts -= 2000000 * (heightBefore - heightAfter);
+            }
+        }
+        if (DEBUG_ALL) log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld +
+                ", fld, piece " + piece.id + ", " + depth + "). pts = " + pts);
+        return pts;
+    }
 }

@@ -1531,85 +1531,85 @@ public class PracticeMode extends DummyMode {
             int remainTime = timelimitTimer;
             engine.meterValue = (remainTime * receiver.getMeterMax(engine)) / timelimit;
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-        	if(remainTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(remainTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(remainTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
-		} else if(leveltype == LEVELTYPE_10LINES) {
-			engine.meterValue = ((engine.statistics.lines % 10) * receiver.getMeterMax(engine)) / 9;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(engine.statistics.lines % 10 >= 4) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(engine.statistics.lines % 10 >= 6) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(engine.statistics.lines % 10 >= 8) engine.meterColor = GameEngine.METER_COLOR_RED;
-		} else if(leveltype == LEVELTYPE_POINTS) {
-			engine.meterValue = (goal * receiver.getMeterMax(engine)) / (5 * (engine.statistics.level + 1));
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(engine.meterValue <= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(engine.meterValue <= receiver.getMeterMax(engine) / 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(engine.meterValue <= receiver.getMeterMax(engine) / 4) engine.meterColor = GameEngine.METER_COLOR_RED;
-		} else if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
-			engine.meterValue = ((engine.statistics.level % 100) * receiver.getMeterMax(engine)) / 99;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(engine.statistics.level % 100 >= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(engine.statistics.level % 100 >= 80) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(engine.statistics.level == nextseclv - 1) engine.meterColor = GameEngine.METER_COLOR_RED;
-		} else if((leveltype == LEVELTYPE_NONE) && (goallv != -1)) {
-			engine.meterValue = ((engine.statistics.lines) * receiver.getMeterMax(engine)) / (goallv + 1);
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(engine.meterValue >= receiver.getMeterMax(engine) / 10) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(engine.meterValue >= receiver.getMeterMax(engine) / 5) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(engine.meterValue >= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_RED;
-		}
+            if(remainTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(remainTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(remainTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if(leveltype == LEVELTYPE_10LINES) {
+            engine.meterValue = ((engine.statistics.lines % 10) * receiver.getMeterMax(engine)) / 9;
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(engine.statistics.lines % 10 >= 4) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(engine.statistics.lines % 10 >= 6) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(engine.statistics.lines % 10 >= 8) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if(leveltype == LEVELTYPE_POINTS) {
+            engine.meterValue = (goal * receiver.getMeterMax(engine)) / (5 * (engine.statistics.level + 1));
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(engine.meterValue <= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(engine.meterValue <= receiver.getMeterMax(engine) / 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(engine.meterValue <= receiver.getMeterMax(engine) / 4) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+            engine.meterValue = ((engine.statistics.level % 100) * receiver.getMeterMax(engine)) / 99;
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(engine.statistics.level % 100 >= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(engine.statistics.level % 100 >= 80) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(engine.statistics.level == nextseclv - 1) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if((leveltype == LEVELTYPE_NONE) && (goallv != -1)) {
+            engine.meterValue = ((engine.statistics.lines) * receiver.getMeterMax(engine)) / (goallv + 1);
+            engine.meterColor = GameEngine.METER_COLOR_GREEN;
+            if(engine.meterValue >= receiver.getMeterMax(engine) / 10) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if(engine.meterValue >= receiver.getMeterMax(engine) / 5) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if(engine.meterValue >= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_RED;
+        }
 
-		if(engine.meterValue < 0) engine.meterValue = 0;
-		if(engine.meterValue > receiver.getMeterMax(engine)) engine.meterValue = receiver.getMeterMax(engine);
-	}
+        if(engine.meterValue < 0) engine.meterValue = 0;
+        if(engine.meterValue > receiver.getMeterMax(engine)) engine.meterValue = receiver.getMeterMax(engine);
+    }
 
-	/*
-	 * Soft drop
-	 */
-	@Override
-	public void afterSoftDropFall(GameEngine engine, int playerID, int fall) {
-		if((leveltype != LEVELTYPE_MANIA) && (leveltype != LEVELTYPE_MANIAPLUS)) {
-			engine.statistics.scoreFromSoftDrop += fall;
-			engine.statistics.score += fall;
-		}
-	}
+    /*
+     * Soft drop
+     */
+    @Override
+    public void afterSoftDropFall(GameEngine engine, int playerID, int fall) {
+        if((leveltype != LEVELTYPE_MANIA) && (leveltype != LEVELTYPE_MANIAPLUS)) {
+            engine.statistics.scoreFromSoftDrop += fall;
+            engine.statistics.score += fall;
+        }
+    }
 
-	/*
-	 * Hard drop
-	 */
-	@Override
-	public void afterHardDropFall(GameEngine engine, int playerID, int fall) {
-		if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
-			if(fall * 2 > harddropBonus) harddropBonus = fall * 2;
-		} else {
-			engine.statistics.scoreFromHardDrop += fall * 2;
-			engine.statistics.score += fall * 2;
-		}
-	}
+    /*
+     * Hard drop
+     */
+    @Override
+    public void afterHardDropFall(GameEngine engine, int playerID, int fall) {
+        if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+            if(fall * 2 > harddropBonus) harddropBonus = fall * 2;
+        } else {
+            engine.statistics.scoreFromHardDrop += fall * 2;
+            engine.statistics.score += fall * 2;
+        }
+    }
 
-	/*
-	 * Render results screen
-	 */
-	@Override
-	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE,
-				STAT_SCORE, STAT_LINES, STAT_LEVEL_ADD_DISP, STAT_TIME, STAT_SPL, STAT_SPM, STAT_LPM);
-		if(secretGrade > 0) {
-			drawResult(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE,
-					"S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade-1]));
-		}
-	}
+    /*
+     * Render results screen
+     */
+    @Override
+    public void renderResult(GameEngine engine, int playerID) {
+        drawResultStats(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE,
+                STAT_SCORE, STAT_LINES, STAT_LEVEL_ADD_DISP, STAT_TIME, STAT_SPL, STAT_SPM, STAT_LPM);
+        if(secretGrade > 0) {
+            drawResult(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE,
+                    "S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade-1]));
+        }
+    }
 
-	/*
-	 * Called when saving replay
-	 */
-	@Override
-	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
-		engine.owner.replayProp.setProperty("practice.version", version);
-		if(useMap && (fldBackup != null)) {
-			saveMap(fldBackup, prop, 0);
-		}
-		savePreset(engine, engine.owner.replayProp, -1);
-	}
+    /*
+     * Called when saving replay
+     */
+    @Override
+    public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+        engine.owner.replayProp.setProperty("practice.version", version);
+        if(useMap && (fldBackup != null)) {
+            saveMap(fldBackup, prop, 0);
+        }
+        savePreset(engine, engine.owner.replayProp, -1);
+    }
 }
