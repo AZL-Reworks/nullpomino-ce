@@ -30,6 +30,7 @@ package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
 
+import java.util.HashMap;
 import mu.nu.nullpo.game.play.GameEngine;
 
 /**
@@ -181,6 +182,11 @@ public class Block implements Serializable {
     public int bonusValue;
 
     /**
+     * Custom block attributes, only used if needed.
+     */
+    private HashMap<String, Serializable> customAttributes;
+
+    /**
      * Constructor
      */
     public Block() {
@@ -263,6 +269,10 @@ public class Block implements Serializable {
         countdown = b.countdown;
         secondaryColor = b.secondaryColor;
         bonusValue = b.bonusValue;
+
+        if (b.customAttributes != null) {
+            customAttributes = new HashMap<>(b.customAttributes);
+        }
     }
 
     /**
@@ -282,6 +292,34 @@ public class Block implements Serializable {
     public void setAttribute(int attr, boolean status) {
         if(status) attribute |= attr;
         else attribute &= ~attr;
+    }
+
+    // Initialize the map if we haven't.
+    private void initCustomAttributes() {
+        if (customAttributes == null) customAttributes = new HashMap<>();
+    }
+
+    /**
+     * Gets a custom attribute. The user is responsible for correct casting.
+     *
+     * @param attr Attribute key
+     * @return Existing attribute value, or null otherwise
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Serializable> T getCustomAttribute(String attr) {
+        initCustomAttributes();
+        return (T) customAttributes.get(attr);
+    }
+
+    /**
+     * Sets a custom attribute. The user is responsible for correct casting.
+     *
+     * @param attr Attribute key
+     * @param value New attribute value
+     */
+    public <T extends Serializable> void setCustomAttribute(String attr, T value) {
+        initCustomAttributes();
+        customAttributes.put(attr, value);
     }
 
     /**

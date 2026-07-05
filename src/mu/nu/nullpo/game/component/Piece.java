@@ -51,8 +51,11 @@ public class Piece implements Serializable {
                             PIECE_I3 = 9,
                             PIECE_L3 = 10;
 
-    /** BlockピースのName */
+    /** BlockピースのName Default */
     public static final String[] PIECE_NAMES = {"I","L","O","Z","T","J","S","I1","I2","I3","L3"};
+
+    /** Piece name override. */
+    public String name;
 
     /** 通常のBlockピースのIDのMaximumcount */
     public static final int PIECE_STANDARD_COUNT = 7;
@@ -198,7 +201,6 @@ public class Piece implements Serializable {
         return "?";
     }
 
-
     /**
      * Constructor
      */
@@ -250,6 +252,7 @@ public class Piece implements Serializable {
      */
     public void copy(Piece p) {
         id = p.id;
+        name = p.name;
         direction = p.direction;
         big = p.big;
         offsetApplied = p.offsetApplied;
@@ -278,7 +281,7 @@ public class Piece implements Serializable {
      * @return 1つのピースに含まれるBlockのcount
      */
     public int getMaxBlock() {
-        return DEFAULT_PIECE_DATA_X[id][direction].length;
+        return block.length;
     }
 
     /**
@@ -287,6 +290,25 @@ public class Piece implements Serializable {
      */
     public void setBlock(Block b) {
         for(int i = 0; i < block.length; i++) block[i].copy(b);
+    }
+
+    /**
+     * Gets the piece name.
+     *
+     * @return Name of current piece.
+     */
+    public String getName() {
+        if (name != null) return name;
+        else return getPieceName(id);
+    }
+
+    /**
+     * Sets the piece name.
+     *
+     * @param name New name of piecce.
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -413,6 +435,16 @@ public class Piece implements Serializable {
      */
     public void setAttribute(int attr, boolean status) {
         for(int i = 0; i < block.length; i++) block[i].setAttribute(attr, status);
+    }
+
+    /**
+     * Sets all blocks' custom attribute.
+     *
+     * @param attr Attribute key
+     * @param value New attribute value
+     */
+    public <T extends Serializable> void setCustomAttribute(String attr, T value) {
+        for(int i = 0; i < block.length; i++) block[i].setCustomAttribute(attr, value);
     }
 
     /**
