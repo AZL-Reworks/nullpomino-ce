@@ -286,7 +286,7 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
             log.info("Enter new mode:" + newModeTemp.getName());
 
             NetDummyMode newMode = (NetDummyMode) newModeTemp;
-            appContainer.setTitle("NullpoMino - " + newMode.getName());
+            appContainer.setTitle("NullpoMino Community Extension - " + newMode.getName());
 
             if (previousMode != null) previousMode.netplayUnload(netLobby);
             gameManager.mode = newMode;

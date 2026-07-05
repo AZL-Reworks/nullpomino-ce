@@ -161,7 +161,7 @@ public class StateInGame extends BasicGameState {
         if (modeObj == null) {
             log.error("Couldn't find mode:" + modeName);
         } else {
-            appContainer.setTitle("NullpoMino - " + modeName);
+            appContainer.setTitle("NullpoMino Community Extension - " + modeName);
             gameManager.mode = modeObj;
         }
 
@@ -245,7 +245,7 @@ public class StateInGame extends BasicGameState {
         if (modeObj == null) {
             log.error("Couldn't find mode:" + modeName);
         } else {
-            appContainer.setTitle("NullpoMino - " + modeName + " (Replay)");
+            appContainer.setTitle("NullpoMino Community Extension - " + modeName + " (Replay)");
             gameManager.mode = modeObj;
         }
 

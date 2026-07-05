@@ -100,7 +100,7 @@ public class StateTitle extends DummyMenuChooseState {
 
         // Update title bar
         if (container instanceof AppGameContainer) {
-            ((AppGameContainer) container).setTitle("NullpoMino v" + GameManager.getVersionString());
+            ((AppGameContainer) container).setTitle("NullpoMino Community Extension v" + GameManager.getVersionString());
             ((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
         }
     }
