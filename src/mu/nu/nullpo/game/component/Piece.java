@@ -330,6 +330,83 @@ public class Piece implements Serializable {
     }
 
     /**
+     * Add a block to the end of the piece array. Directions are in order of UP, RIGHT, DOWN and LEFT.
+     *
+     * @param b Block to add
+     * @param xs X locations in all four directions
+     * @param ys Y locations in all four directions
+     */
+    public void addBlock(Block b, int[] xs, int[] ys) {
+        final int currentLength = getMaxBlock();
+        final int newLength = currentLength + 1;
+
+        // Add block to end of array:
+        final Block[] existingBlock = block;
+
+        block = new Block[newLength];
+        System.arraycopy(existingBlock, 0, block, 0, currentLength);
+
+        block[currentLength] = new Block(b);
+
+        // Add data X and Y of block:
+        assert xs.length == DIRECTION_COUNT && ys.length == DIRECTION_COUNT;
+
+        for (int d = 0; d < DIRECTION_COUNT; ++d) {
+            final int[] existingX = dataX[d];
+            final int[] existingY = dataY[d];
+
+            dataX[d] = new int[newLength];
+            dataY[d] = new int[newLength];
+
+            System.arraycopy(existingX, 0, dataX[d], 0, currentLength);
+            System.arraycopy(existingY, 0, dataY[d], 0, currentLength);
+
+            dataX[d][currentLength] = xs[d];
+            dataY[d][currentLength] = ys[d];
+        }
+    }
+
+    /**
+     * Remove a block by index from this piece.
+     *
+     * @param index Index of block to remove in [0, getMaxBlock()).
+     * @return Removed block
+     */
+    public Block removeBlock(int index) {
+        final int currentLength = getMaxBlock();
+        final int newLength = currentLength - 1;
+
+        final Block removedBlock = block[index];
+
+        // Add block to end of array:
+        final Block[] existingBlock = block;
+
+        block = new Block[newLength];
+        System.arraycopy(existingBlock, 0, block, 0, index);
+        System.arraycopy(existingBlock, index + 1, block, index, newLength - index);
+
+        // Add data X and Y of block:
+        for (int d = 0; d < DIRECTION_COUNT; ++d) {
+            final int[] existingX = dataX[d];
+            final int[] existingY = dataY[d];
+
+            dataX[d] = new int[newLength];
+            dataY[d] = new int[newLength];
+
+            System.arraycopy(existingX, 0, dataX[d], 0, currentLength);
+            System.arraycopy(existingY, 0, dataY[d], 0, currentLength);
+
+            System.arraycopy(existingX, 0, dataX[d], 0, index);
+            System.arraycopy(existingX, index + 1, dataX[d], index, newLength - index);
+
+            System.arraycopy(existingY, 0, dataY[d], 0, index);
+            System.arraycopy(existingY, index + 1, dataY[d], index, newLength - index);
+        }
+
+        return removedBlock;
+    }
+
+    /**
      * 1つのピースに含まれるBlockのcountを取得
      *
      * @return 1つのピースに含まれるBlockのcount
