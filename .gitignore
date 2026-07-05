@@ -10,5 +10,7 @@
 *.class
 *.exe
 
-# Ignore log files/
+# Ignore log files and other temp files.
 /log/*
+/config/setting/*
+/replay/*
