@@ -39,28 +39,44 @@ import org.newdawn.slick.state.StateBasedGame;
  * Joystick button設定画面のステート
  */
 public class StateConfigJoystickButton extends BasicGameState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 10;
 
-    /** Key input を受付可能になるまでの frame count */
+    /**
+     * Key input を受付可能になるまでの frame count
+     */
     public static final int KEYACCEPTFRAME = 20;
 
-    /** Player number */
+    /**
+     * Player number
+     */
     public int player = 0;
 
-    /** StateBasedGame */
+    /**
+     * StateBasedGame
+     */
     protected StateBasedGame gameObj;
 
-    /** 使用するJoystick の number */
+    /**
+     * 使用するJoystick の number
+     */
     protected int joyNumber;
 
-    /** Number of button currently being configured */
+    /**
+     * Number of button currently being configured
+     */
     protected int keynum;
 
-    /** 経過 frame count */
+    /**
+     * 経過 frame count
+     */
     protected int frame;
 
-    /** Button settings */
+    /**
+     * Button settings
+     */
     protected int buttonmap[];
 
     /*
@@ -82,7 +98,7 @@ public class StateConfigJoystickButton extends BasicGameState {
 
         joyNumber = ControllerManager.controllerID[player];
 
-        for(int i = 0; i < GameKey.MAX_BUTTON; i++) {
+        for (int i = 0; i < GameKey.MAX_BUTTON; i++) {
             buttonmap[i] = GameKey.gamekey[player].buttonmap[i];
         }
     }
@@ -98,8 +114,8 @@ public class StateConfigJoystickButton extends BasicGameState {
      * Draw the screen
      */
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-        if(!container.hasFocus()) {
-            if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+        if (!container.hasFocus()) {
+            if (!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
             return;
         }
 
@@ -107,7 +123,7 @@ public class StateConfigJoystickButton extends BasicGameState {
 
         NormalFont.printFontGrid(1, 1, "JOYSTICK SETTING (" + (player + 1) + "P)", NormalFont.COLOR_ORANGE);
 
-        if(joyNumber < 0)
+        if (joyNumber < 0)
             NormalFont.printFontGrid(1, 3, "NO JOYSTICK", NormalFont.COLOR_RED);
         else
             NormalFont.printFontGrid(1, 3, "JOYSTICK NUMBER:" + joyNumber, NormalFont.COLOR_RED);
@@ -130,9 +146,9 @@ public class StateConfigJoystickButton extends BasicGameState {
         NormalFont.printFontGrid(2, 16, "SCREEN SHOT    : " + String.valueOf(buttonmap[GameKey.BUTTON_SCREENSHOT]), (keynum == 15));
 
         NormalFont.printFontGrid(1, 5 + keynum - 4, "b", NormalFont.COLOR_RED);
-        if(frame >= KEYACCEPTFRAME) {
+        if (frame >= KEYACCEPTFRAME) {
             NormalFont.printFontGrid(1, 20, "UP/DOWN:   MOVE CURSOR", NormalFont.COLOR_GREEN);
-            NormalFont.printFontGrid(1, 21, "ENTER:     OK",     NormalFont.COLOR_GREEN);
+            NormalFont.printFontGrid(1, 21, "ENTER:     OK", NormalFont.COLOR_GREEN);
             NormalFont.printFontGrid(1, 22, "DELETE:    NO SET", NormalFont.COLOR_GREEN);
             NormalFont.printFontGrid(1, 23, "BACKSPACE: CANCEL", NormalFont.COLOR_GREEN);
         }
@@ -141,40 +157,41 @@ public class StateConfigJoystickButton extends BasicGameState {
         NullpoMinoSlick.drawFPS(container);
         // Observer
         NullpoMinoSlick.drawObserverClient();
-        if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+        if (!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
     }
 
     /*
      * Update game state
      */
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-        if(!container.hasFocus()) {
-            if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+        if (!container.hasFocus()) {
+            if (NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
             return;
         }
 
         frame++;
 
         // Joystick button
-        if(frame >= KEYACCEPTFRAME) {
-            for(int i = 0; i < ControllerManager.MAX_BUTTONS; i++) {
+        if (frame >= KEYACCEPTFRAME) {
+            for (int i = 0; i < ControllerManager.MAX_BUTTONS; i++) {
                 try {
-                    if(ControllerManager.isControllerButton(player, container.getInput(), i)) {
+                    if (ControllerManager.isControllerButton(player, container.getInput(), i)) {
                         ResourceHolder.soundManager.play("change");
                         buttonmap[keynum] = i;
                         frame = 0;
                     }
-                } catch (Throwable e) {}
+                } catch (Throwable e) {
+                }
             }
         }
 
         // JInput
-        if(NullpoMinoSlick.useJInputKeyboard) {
+        if (NullpoMinoSlick.useJInputKeyboard) {
             JInputManager.poll();
 
-            if(frame >= KEYACCEPTFRAME) {
-                for(int i = 0; i < JInputManager.MAX_SLICK_KEY; i++) {
-                    if(JInputManager.isKeyDown(i)) {
+            if (frame >= KEYACCEPTFRAME) {
+                for (int i = 0; i < JInputManager.MAX_SLICK_KEY; i++) {
+                    if (JInputManager.isKeyDown(i)) {
                         onKey(i);
                         frame = KEYACCEPTFRAME / 2;
                         break;
@@ -183,7 +200,7 @@ public class StateConfigJoystickButton extends BasicGameState {
             }
         }
 
-        if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+        if (NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
     }
 
     /*
@@ -191,44 +208,45 @@ public class StateConfigJoystickButton extends BasicGameState {
      */
     @Override
     public void keyPressed(int key, char c) {
-        if(!NullpoMinoSlick.useJInputKeyboard) {
+        if (!NullpoMinoSlick.useJInputKeyboard) {
             onKey(key);
         }
     }
 
     /**
      * When a key is pressed
+     *
      * @param key Keycode
      */
     protected void onKey(int key) {
-        if(frame >= KEYACCEPTFRAME) {
+        if (frame >= KEYACCEPTFRAME) {
             // Up
-            if(key == Input.KEY_UP) {
+            if (key == Input.KEY_UP) {
                 ResourceHolder.soundManager.play("cursor");
                 keynum--;
-                if(keynum < 4) keynum = 15;
+                if (keynum < 4) keynum = 15;
             }
             // Down
-            else if(key == Input.KEY_DOWN) {
+            else if (key == Input.KEY_DOWN) {
                 ResourceHolder.soundManager.play("cursor");
                 keynum++;
-                if(keynum > 15) keynum = 4;
+                if (keynum > 15) keynum = 4;
             }
             // Delete
-            else if(key == Input.KEY_DELETE) {
+            else if (key == Input.KEY_DELETE) {
                 ResourceHolder.soundManager.play("change");
                 buttonmap[keynum] = -1;
             }
             // Backspace
-            else if(key == Input.KEY_BACK) {
+            else if (key == Input.KEY_BACK) {
                 gameObj.enterState(StateConfigJoystickMain.ID);
                 return;
             }
             // Enter/Return
-            else if(key == Input.KEY_ENTER) {
+            else if (key == Input.KEY_ENTER) {
                 ResourceHolder.soundManager.play("decide");
 
-                for(int i = 0; i < GameKey.MAX_BUTTON; i++) {
+                for (int i = 0; i < GameKey.MAX_BUTTON; i++) {
                     GameKey.gamekey[player].buttonmap[i] = buttonmap[i];
                 }
                 GameKey.gamekey[player].saveConfig(NullpoMinoSlick.propConfig);

@@ -19,7 +19,7 @@ public class GameBoyRandomizer extends Randomizer {
     }
 
     public int next() {
-        id = (id + (r.nextInt(roll)/5) + 1) % pieces.length;
+        id = (id + (r.nextInt(roll) / 5) + 1) % pieces.length;
         return pieces[id];
     }
 

@@ -47,49 +47,69 @@ import mu.nu.nullpo.util.GeneralUtil;
  * PHYSICIAN VS-BATTLE mode (beta)
  */
 public class PhysicianVSMode extends DummyMode {
-    /** Current version */
+    /**
+     * Current version
+     */
     private static final int CURRENT_VERSION = 0;
 
-    /** Enabled piece types */
-    private static final int[] PIECE_ENABLE = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+    /**
+     * Enabled piece types
+     */
+    private static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
-    /** Block colors */
+    /**
+     * Block colors
+     */
     private static final int[] BLOCK_COLORS =
-    {
-        Block.BLOCK_COLOR_RED,
-        Block.BLOCK_COLOR_BLUE,
-        Block.BLOCK_COLOR_YELLOW
-    };
-    /** Hovering block colors */
+        {
+            Block.BLOCK_COLOR_RED,
+            Block.BLOCK_COLOR_BLUE,
+            Block.BLOCK_COLOR_YELLOW
+        };
+    /**
+     * Hovering block colors
+     */
     private static final int[] HOVER_BLOCK_COLORS =
-    {
-        Block.BLOCK_COLOR_GEM_RED,
-        Block.BLOCK_COLOR_GEM_BLUE,
-        Block.BLOCK_COLOR_GEM_YELLOW
-    };
+        {
+            Block.BLOCK_COLOR_GEM_RED,
+            Block.BLOCK_COLOR_GEM_BLUE,
+            Block.BLOCK_COLOR_GEM_YELLOW
+        };
     //private static final int[] BASE_SPEEDS = {10, 20, 25};
 
-    /** Names of speed settings */
-    private static final String[] SPEED_NAME = {"LOW", "MED", "HI"};
+    /**
+     * Names of speed settings
+     */
+    private static final String[] SPEED_NAME = { "LOW", "MED", "HI" };
 
-    /** Colors for speed settings */
+    /**
+     * Colors for speed settings
+     */
     private static final int[] SPEED_COLOR =
-    {
-        EventReceiver.COLOR_BLUE,
-        EventReceiver.COLOR_YELLOW,
-        EventReceiver.COLOR_RED
-    };
+        {
+            EventReceiver.COLOR_BLUE,
+            EventReceiver.COLOR_YELLOW,
+            EventReceiver.COLOR_RED
+        };
 
-    /** Number of players */
+    /**
+     * Number of players
+     */
     private static final int MAX_PLAYERS = 2;
 
-    /** Each player's frame color */
-    private final int[] PLAYER_COLOR_FRAME = {GameEngine.FRAME_COLOR_RED, GameEngine.FRAME_COLOR_BLUE};
+    /**
+     * Each player's frame color
+     */
+    private final int[] PLAYER_COLOR_FRAME = { GameEngine.FRAME_COLOR_RED, GameEngine.FRAME_COLOR_BLUE };
 
-    /** GameManager that owns this mode */
+    /**
+     * GameManager that owns this mode
+     */
     private GameManager owner;
 
-    /** Drawing and event handling EventReceiver */
+    /**
+     * Drawing and event handling EventReceiver
+     */
     private EventReceiver receiver;
 
     /** 溜まっているojama blockのcount */
@@ -98,73 +118,115 @@ public class PhysicianVSMode extends DummyMode {
     /** 送ったojama blockのcount */
     //private int[] garbageSent;
 
-    /** Time to display the most recent increase in score */
+    /**
+     * Time to display the most recent increase in score
+     */
     private int[] scgettime;
 
-    /** 使用するBGM */
+    /**
+     * 使用するBGM
+     */
     private int bgmno;
 
-    /** Sound effectsON/OFF */
+    /**
+     * Sound effectsON/OFF
+     */
     private boolean[] enableSE;
 
-    /** Map使用 flag */
+    /**
+     * Map使用 flag
+     */
     private boolean[] useMap;
 
-    /** 使用するMapセット number */
+    /**
+     * 使用するMapセット number
+     */
     private int[] mapSet;
 
-    /** Map number(-1でランダム) */
+    /**
+     * Map number(-1でランダム)
+     */
     private int[] mapNumber;
 
-    /** Last preset number used */
+    /**
+     * Last preset number used
+     */
     private int[] presetNumber;
 
-    /** 勝者 */
+    /**
+     * 勝者
+     */
     private int winnerID;
 
-    /** MapセットのProperty file */
+    /**
+     * MapセットのProperty file
+     */
     private CustomProperties[] propMap;
 
-    /** MaximumMap number */
+    /**
+     * MaximumMap number
+     */
     private int[] mapMaxNo;
 
-    /** バックアップ用field (Mapをリプレイに保存するときに使用) */
+    /**
+     * バックアップ用field (Mapをリプレイに保存するときに使用)
+     */
     private Field[] fldBackup;
 
-    /** Map選択用乱count */
+    /**
+     * Map選択用乱count
+     */
     private Random randMap;
 
-    /** Version */
+    /**
+     * Version
+     */
     private int version;
 
     /** Flag for all clear */
     //private boolean[] zenKeshi;
 
-    /** Amount of points earned from most recent clear */
+    /**
+     * Amount of points earned from most recent clear
+     */
     private int[] lastscore;
 
     /** Amount of garbage added in current chain */
     //private int[] garbageAdd;
 
-    /** Score */
+    /**
+     * Score
+     */
     private int[] score;
 
-    /** Number of initial gem blocks */
+    /**
+     * Number of initial gem blocks
+     */
     private int[] hoverBlocks;
 
-    /** Speed mode */
+    /**
+     * Speed mode
+     */
     private int[] speed;
 
-    /** Number gem blocks cleared in current chain */
+    /**
+     * Number gem blocks cleared in current chain
+     */
     private int[] gemsClearedChainTotal;
 
-    /** Each player's remaining gem count */
+    /**
+     * Each player's remaining gem count
+     */
     private int[] rest;
 
-    /** Each player's garbage block colors to be dropped */
+    /**
+     * Each player's garbage block colors to be dropped
+     */
     private ArrayList<Integer>[] garbageColors;
 
-    /** Flash/normal mode settings */
+    /**
+     * Flash/normal mode settings
+     */
     private boolean[] flash;
 
     /*
@@ -229,6 +291,7 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * Read speed presets
+     *
      * @param engine GameEngine
      * @param prop Property file to read from
      * @param preset Preset number
@@ -245,6 +308,7 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * Save speed presets
+     *
      * @param engine GameEngine
      * @param prop Property file to save to
      * @param preset Preset number
@@ -261,6 +325,7 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * Load settings not related to speeds
+     *
      * @param engine GameEngine
      * @param prop Property file to read from
      */
@@ -279,6 +344,7 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * Save settings not related to speeds
+     *
      * @param engine GameEngine
      * @param prop Property file to save to
      */
@@ -297,6 +363,7 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * Map読み込み
+     *
      * @param field field
      * @param prop Property file to read from
      * @param preset 任意のID
@@ -312,6 +379,7 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * Map保存
+     *
      * @param field field
      * @param prop Property file to save to
      * @param id 任意のID
@@ -323,20 +391,21 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * プレビュー用にMapを読み込み
+     *
      * @param engine GameEngine
      * @param playerID Player number
      * @param id MapID
      * @param forceReload trueにするとMapファイルを強制再読み込み
      */
     private void loadMapPreview(GameEngine engine, int playerID, int id, boolean forceReload) {
-        if((propMap[playerID] == null) || (forceReload)) {
+        if ((propMap[playerID] == null) || (forceReload)) {
             mapMaxNo[playerID] = 0;
             propMap[playerID] = receiver.loadProperties("config/map/vsbattle/" + mapSet[playerID] + ".map");
         }
 
-        if((propMap[playerID] == null) && (engine.field != null)) {
+        if ((propMap[playerID] == null) && (engine.field != null)) {
             engine.field.reset();
-        } else if(propMap[playerID] != null) {
+        } else if (propMap[playerID] != null) {
             mapMaxNo[playerID] = propMap[playerID].getProperty("map.maxMapNumber", 0);
             engine.createFieldIfNeeded();
             loadMap(engine.field, propMap[playerID], id);
@@ -349,7 +418,7 @@ public class PhysicianVSMode extends DummyMode {
      */
     @Override
     public void playerInit(GameEngine engine, int playerID) {
-        if(playerID == 1) {
+        if (playerID == 1) {
             engine.randSeed = owner.engine[0].randSeed;
             engine.random = new Random(owner.engine[0].randSeed);
         }
@@ -359,7 +428,7 @@ public class PhysicianVSMode extends DummyMode {
         engine.garbageColorClear = false;
         engine.colorClearSize = 4;
         engine.lineGravityType = GameEngine.LINE_GRAVITY_CASCADE;
-        for(int i = 0; i < Piece.PIECE_COUNT; i++)
+        for (int i = 0; i < Piece.PIECE_COUNT; i++)
             engine.nextPieceEnable[i] = (PIECE_ENABLE[i] == 1);
         engine.randomBlockColor = true;
         engine.blockColors = BLOCK_COLORS;
@@ -374,7 +443,7 @@ public class PhysicianVSMode extends DummyMode {
         gemsClearedChainTotal[playerID] = 0;
         rest[playerID] = 0;
 
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             loadOtherSetting(engine, engine.owner.modeConfig);
             loadPreset(engine, engine.owner.modeConfig, -1 - playerID);
             version = CURRENT_VERSION;
@@ -391,118 +460,118 @@ public class PhysicianVSMode extends DummyMode {
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
         // Menu
-        if((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
+        if ((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
             // Configuration changes
             int change = updateCursor(engine, 16);
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
                 int m = 1;
-                if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
-                if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
+                if (engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
+                if (engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
 
-                switch(engine.statc[2]) {
-                case 0:
-                    engine.speed.gravity += change * m;
-                    if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
-                    if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
-                    break;
-                case 1:
-                    engine.speed.denominator += change * m;
-                    if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
-                    if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
-                    break;
-                case 2:
-                    engine.speed.are += change;
-                    if(engine.speed.are < 0) engine.speed.are = 99;
-                    if(engine.speed.are > 99) engine.speed.are = 0;
-                    break;
-                case 3:
-                    engine.speed.areLine += change;
-                    if(engine.speed.areLine < 0) engine.speed.areLine = 99;
-                    if(engine.speed.areLine > 99) engine.speed.areLine = 0;
-                    break;
-                case 4:
-                    engine.speed.lineDelay += change;
-                    if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
-                    if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
-                    break;
-                case 5:
-                    engine.speed.lockDelay += change;
-                    if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
-                    if(engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
-                    break;
-                case 6:
-                    engine.speed.das += change;
-                    if(engine.speed.das < 0) engine.speed.das = 99;
-                    if(engine.speed.das > 99) engine.speed.das = 0;
-                    break;
-                case 7:
-                case 8:
-                    presetNumber[playerID] += change;
-                    if(presetNumber[playerID] < 0) presetNumber[playerID] = 99;
-                    if(presetNumber[playerID] > 99) presetNumber[playerID] = 0;
-                    break;
-                case 9:
-                    speed[playerID] += change;
-                    if(speed[playerID] < 0) speed[playerID] = 2;
-                    if(speed[playerID] > 2) speed[playerID] = 0;
-                    break;
-                case 10:
-                    if (m >= 10) hoverBlocks[playerID] += change*10;
-                    else hoverBlocks[playerID] += change;
-                    if(hoverBlocks[playerID] < 1) hoverBlocks[playerID] = 99;
-                    if(hoverBlocks[playerID] > 99) hoverBlocks[playerID] = 1;
-                    break;
-                case 11:
-                    flash[playerID] = !flash[playerID];
-                    break;
-                case 12:
-                    enableSE[playerID] = !enableSE[playerID];
-                    break;
-                case 13:
-                    bgmno += change;
-                    if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
-                    if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
-                    break;
-                case 14:
-                    useMap[playerID] = !useMap[playerID];
-                    if(!useMap[playerID]) {
-                        if(engine.field != null) engine.field.reset();
-                    } else {
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    }
-                    break;
-                case 15:
-                    mapSet[playerID] += change;
-                    if(mapSet[playerID] < 0) mapSet[playerID] = 99;
-                    if(mapSet[playerID] > 99) mapSet[playerID] = 0;
-                    if(useMap[playerID]) {
-                        mapNumber[playerID] = -1;
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    }
-                    break;
-                case 16:
-                    if(useMap[playerID]) {
-                        mapNumber[playerID] += change;
-                        if(mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
-                        if(mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    } else {
-                        mapNumber[playerID] = -1;
-                    }
-                    break;
+                switch (engine.statc[2]) {
+                    case 0:
+                        engine.speed.gravity += change * m;
+                        if (engine.speed.gravity < -1) engine.speed.gravity = 99999;
+                        if (engine.speed.gravity > 99999) engine.speed.gravity = -1;
+                        break;
+                    case 1:
+                        engine.speed.denominator += change * m;
+                        if (engine.speed.denominator < -1) engine.speed.denominator = 99999;
+                        if (engine.speed.denominator > 99999) engine.speed.denominator = -1;
+                        break;
+                    case 2:
+                        engine.speed.are += change;
+                        if (engine.speed.are < 0) engine.speed.are = 99;
+                        if (engine.speed.are > 99) engine.speed.are = 0;
+                        break;
+                    case 3:
+                        engine.speed.areLine += change;
+                        if (engine.speed.areLine < 0) engine.speed.areLine = 99;
+                        if (engine.speed.areLine > 99) engine.speed.areLine = 0;
+                        break;
+                    case 4:
+                        engine.speed.lineDelay += change;
+                        if (engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
+                        if (engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
+                        break;
+                    case 5:
+                        engine.speed.lockDelay += change;
+                        if (engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
+                        if (engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
+                        break;
+                    case 6:
+                        engine.speed.das += change;
+                        if (engine.speed.das < 0) engine.speed.das = 99;
+                        if (engine.speed.das > 99) engine.speed.das = 0;
+                        break;
+                    case 7:
+                    case 8:
+                        presetNumber[playerID] += change;
+                        if (presetNumber[playerID] < 0) presetNumber[playerID] = 99;
+                        if (presetNumber[playerID] > 99) presetNumber[playerID] = 0;
+                        break;
+                    case 9:
+                        speed[playerID] += change;
+                        if (speed[playerID] < 0) speed[playerID] = 2;
+                        if (speed[playerID] > 2) speed[playerID] = 0;
+                        break;
+                    case 10:
+                        if (m >= 10) hoverBlocks[playerID] += change * 10;
+                        else hoverBlocks[playerID] += change;
+                        if (hoverBlocks[playerID] < 1) hoverBlocks[playerID] = 99;
+                        if (hoverBlocks[playerID] > 99) hoverBlocks[playerID] = 1;
+                        break;
+                    case 11:
+                        flash[playerID] = !flash[playerID];
+                        break;
+                    case 12:
+                        enableSE[playerID] = !enableSE[playerID];
+                        break;
+                    case 13:
+                        bgmno += change;
+                        if (bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
+                        if (bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
+                        break;
+                    case 14:
+                        useMap[playerID] = !useMap[playerID];
+                        if (!useMap[playerID]) {
+                            if (engine.field != null) engine.field.reset();
+                        } else {
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        }
+                        break;
+                    case 15:
+                        mapSet[playerID] += change;
+                        if (mapSet[playerID] < 0) mapSet[playerID] = 99;
+                        if (mapSet[playerID] > 99) mapSet[playerID] = 0;
+                        if (useMap[playerID]) {
+                            mapNumber[playerID] = -1;
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        }
+                        break;
+                    case 16:
+                        if (useMap[playerID]) {
+                            mapNumber[playerID] += change;
+                            if (mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
+                            if (mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        } else {
+                            mapNumber[playerID] = -1;
+                        }
+                        break;
                 }
             }
 
             // 決定
-            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
                 engine.playSE("decide");
 
-                if(engine.statc[2] == 7) {
+                if (engine.statc[2] == 7) {
                     loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
-                } else if(engine.statc[2] == 8) {
+                } else if (engine.statc[2] == 8) {
                     savePreset(engine, owner.modeConfig, presetNumber[playerID]);
                     receiver.saveModeConfig(owner.modeConfig);
                 } else {
@@ -514,43 +583,43 @@ public class PhysicianVSMode extends DummyMode {
             }
 
             // Cancel
-            if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.quitflag = true;
             }
 
             // プレビュー用Map読み込み
-            if(useMap[playerID] && (engine.statc[3] == 0)) {
+            if (useMap[playerID] && (engine.statc[3] == 0)) {
                 loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
             }
 
             // Random map preview
-            if(useMap[playerID] && (propMap[playerID] != null) && (mapNumber[playerID] < 0)) {
-                if(engine.statc[3] % 30 == 0) {
+            if (useMap[playerID] && (propMap[playerID] != null) && (mapNumber[playerID] < 0)) {
+                if (engine.statc[3] % 30 == 0) {
                     engine.statc[5]++;
-                    if(engine.statc[5] >= mapMaxNo[playerID]) engine.statc[5] = 0;
+                    if (engine.statc[5] >= mapMaxNo[playerID]) engine.statc[5] = 0;
                     loadMapPreview(engine, playerID, engine.statc[5], false);
                 }
             }
 
             engine.statc[3]++;
-        } else if(engine.statc[4] == 0) {
+        } else if (engine.statc[4] == 0) {
             engine.statc[3]++;
             engine.statc[2] = 0;
 
-            if(engine.statc[3] >= 120)
+            if (engine.statc[3] >= 120)
                 engine.statc[4] = 1;
-            else if(engine.statc[3] >= 60)
+            else if (engine.statc[3] >= 60)
                 engine.statc[2] = 9;
         } else {
             // 開始
-            if((owner.engine[0].statc[4] == 1) && (owner.engine[1].statc[4] == 1) && (playerID == 1)) {
+            if ((owner.engine[0].statc[4] == 1) && (owner.engine[1].statc[4] == 1) && (playerID == 1)) {
                 owner.engine[0].stat = GameEngine.STAT_READY;
                 owner.engine[1].stat = GameEngine.STAT_READY;
                 owner.engine[0].resetStatc();
                 owner.engine[1].resetStatc();
             }
             // Cancel
-            else if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.statc[4] = 0;
             }
         }
@@ -563,36 +632,36 @@ public class PhysicianVSMode extends DummyMode {
      */
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
-        if(engine.statc[4] == 0) {
-            if(engine.statc[2] < 9) {
+        if (engine.statc[4] == 0) {
+            if (engine.statc[2] < 9) {
                 initMenu(EventReceiver.COLOR_ORANGE, 0);
                 drawMenu(engine, playerID, receiver,
-                        "GRAVITY", String.valueOf(engine.speed.gravity),
-                        "G-MAX", String.valueOf(engine.speed.denominator),
-                        "ARE", String.valueOf(engine.speed.are),
-                        "ARE LINE", String.valueOf(engine.speed.areLine),
-                        "LINE DELAY", String.valueOf(engine.speed.lineDelay),
-                        "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
-                        "DAS", String.valueOf(engine.speed.das));
+                    "GRAVITY", String.valueOf(engine.speed.gravity),
+                    "G-MAX", String.valueOf(engine.speed.denominator),
+                    "ARE", String.valueOf(engine.speed.are),
+                    "ARE LINE", String.valueOf(engine.speed.areLine),
+                    "LINE DELAY", String.valueOf(engine.speed.lineDelay),
+                    "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+                    "DAS", String.valueOf(engine.speed.das));
                 menuColor = EventReceiver.COLOR_GREEN;
                 drawMenu(engine, playerID, receiver,
-                        "LOAD", String.valueOf(presetNumber[playerID]),
-                        "SAVE", String.valueOf(presetNumber[playerID]));
+                    "LOAD", String.valueOf(presetNumber[playerID]),
+                    "SAVE", String.valueOf(presetNumber[playerID]));
             } else {
                 initMenu(EventReceiver.COLOR_CYAN, 9);
                 drawMenu(engine, playerID, receiver,
-                        "SPEED", SPEED_NAME[speed[playerID]],
-                        "VIRUS", String.valueOf(hoverBlocks[playerID]),
-                        "MODE", (flash[playerID] ? "FLASH" : "NORMAL"));
+                    "SPEED", SPEED_NAME[speed[playerID]],
+                    "VIRUS", String.valueOf(hoverBlocks[playerID]),
+                    "MODE", (flash[playerID] ? "FLASH" : "NORMAL"));
                 menuColor = EventReceiver.COLOR_PINK;
                 drawMenu(engine, playerID, receiver,
-                        "SE", GeneralUtil.getONorOFF(enableSE[playerID]),
-                        "BGM", String.valueOf(bgmno));
+                    "SE", GeneralUtil.getONorOFF(enableSE[playerID]),
+                    "BGM", String.valueOf(bgmno));
                 menuColor = EventReceiver.COLOR_CYAN;
                 drawMenu(engine, playerID, receiver,
-                        "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
-                        "MAP SET", String.valueOf(mapSet[playerID]),
-                        "MAP NO.", (mapNumber[playerID] < 0) ? "RANDOM" : mapNumber[playerID]+"/"+(mapMaxNo[playerID]-1));
+                    "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
+                    "MAP SET", String.valueOf(mapSet[playerID]),
+                    "MAP NO.", (mapNumber[playerID] < 0) ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1));
             }
         } else {
             receiver.drawMenuFont(engine, playerID, 3, 10, "WAIT", EventReceiver.COLOR_YELLOW);
@@ -604,23 +673,23 @@ public class PhysicianVSMode extends DummyMode {
      */
     @Override
     public boolean onReady(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 0) {
+        if (engine.statc[0] == 0) {
             // Map読み込み・リプレイ保存用にバックアップ
-            if(useMap[playerID]) {
-                if(owner.replayMode) {
+            if (useMap[playerID]) {
+                if (owner.replayMode) {
                     engine.createFieldIfNeeded();
                     loadMap(engine.field, owner.replayProp, playerID);
                     engine.field.setAllSkin(engine.getSkin());
                 } else {
-                    if(propMap[playerID] == null) {
+                    if (propMap[playerID] == null) {
                         propMap[playerID] = receiver.loadProperties("config/map/vsbattle/" + mapSet[playerID] + ".map");
                     }
 
-                    if(propMap[playerID] != null) {
+                    if (propMap[playerID] != null) {
                         engine.createFieldIfNeeded();
 
-                        if(mapNumber[playerID] < 0) {
-                            if((playerID == 1) && (useMap[0]) && (mapNumber[0] < 0)) {
+                        if (mapNumber[playerID] < 0) {
+                            if ((playerID == 1) && (useMap[0]) && (mapNumber[0] < 0)) {
                                 engine.field.copy(owner.engine[0].field);
                             } else {
                                 int no = (mapMaxNo[playerID] < 1) ? 0 : randMap.nextInt(mapMaxNo[playerID]);
@@ -634,21 +703,19 @@ public class PhysicianVSMode extends DummyMode {
                         fldBackup[playerID] = new Field(engine.field);
                     }
                 }
-            } else if(engine.field != null) {
+            } else if (engine.field != null) {
                 engine.field.reset();
             }
-            if(hoverBlocks[playerID] > 0) {
+            if (hoverBlocks[playerID] > 0) {
                 engine.createFieldIfNeeded();
                 int minY = 6;
                 if (hoverBlocks[playerID] >= 80) minY = 3;
                 else if (hoverBlocks[playerID] >= 72) minY = 4;
                 else if (hoverBlocks[playerID] >= 64) minY = 5;
-                if (flash[playerID])
-                {
+                if (flash[playerID]) {
                     engine.field.addRandomHoverBlocks(engine, hoverBlocks[playerID], BLOCK_COLORS, minY, true, true);
                     engine.field.setAllSkin(12);
-                }
-                else
+                } else
                     engine.field.addRandomHoverBlocks(engine, hoverBlocks[playerID], HOVER_BLOCK_COLORS, minY, true);
             }
         }
@@ -665,7 +732,7 @@ public class PhysicianVSMode extends DummyMode {
         engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
         engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
         engine.enableSE = enableSE[playerID];
-        if(playerID == 1) owner.bgmStatus.bgm = bgmno;
+        if (playerID == 1) owner.bgmStatus.bgm = bgmno;
 
         engine.tspinAllowKick = false;
         engine.tspinEnable = false;
@@ -683,17 +750,17 @@ public class PhysicianVSMode extends DummyMode {
         int tempX = 0;
 
         // Timer
-        if(playerID == 0) {
+        if (playerID == 0) {
             receiver.drawDirectFont(engine, playerID, 256, 16, GeneralUtil.getTime(engine.statistics.time));
         }
 
-        if(engine.gameStarted) {
+        if (engine.gameStarted) {
             // Rest
             receiver.drawDirectFont(engine, playerID, fldPosX + 160, fldPosY + 241, "REST", playerColor, 0.5f);
             tempX = (rest[playerID] < 10) ? 8 : 0;
             receiver.drawDirectFont(engine, playerID, fldPosX + 160 + tempX, fldPosY + 257,
-                    String.valueOf(rest[playerID]), (rest[playerID] <= (flash[playerID] ? 1 : 3)),
-                    EventReceiver.COLOR_WHITE, EventReceiver.COLOR_RED);
+                String.valueOf(rest[playerID]), (rest[playerID] <= (flash[playerID] ? 1 : 3)),
+                EventReceiver.COLOR_WHITE, EventReceiver.COLOR_RED);
 
             // Speed
             receiver.drawDirectFont(engine, playerID, fldPosX + 156, fldPosY + 280, "SPEED", playerColor, 0.5f);
@@ -736,15 +803,14 @@ public class PhysicianVSMode extends DummyMode {
         int gemsCleared = engine.field.gemsCleared;
         if (gemsCleared > 0 && lines > 0) {
             int pts = 0;
-            while (gemsCleared > 0 && gemsClearedChainTotal[playerID] < 5)
-            {
+            while (gemsCleared > 0 && gemsClearedChainTotal[playerID] < 5) {
                 pts += 1 << gemsClearedChainTotal[playerID];
                 gemsClearedChainTotal[playerID]++;
                 gemsCleared--;
             }
             if (gemsClearedChainTotal[playerID] >= 5)
                 pts += gemsCleared << 5;
-            pts *= (speed[playerID]+1) * 100;
+            pts *= (speed[playerID] + 1) * 100;
             gemsClearedChainTotal[playerID] += gemsCleared;
             lastscore[playerID] = pts;
             scgettime[playerID] = 120;
@@ -753,11 +819,8 @@ public class PhysicianVSMode extends DummyMode {
             score[playerID] += pts;
             engine.playSE("gem");
             setSpeed(engine);
-        }
-        else if (lines == 0 && !engine.field.canCascade() && garbageColors[playerID] != null)
-        {
-            if (garbageCheck(engine, playerID))
-            {
+        } else if (lines == 0 && !engine.field.canCascade() && garbageColors[playerID] != null) {
+            if (garbageCheck(engine, playerID)) {
                 engine.stat = GameEngine.STAT_LINECLEAR;
                 engine.statc[0] = engine.getLineDelay();
             }
@@ -766,6 +829,7 @@ public class PhysicianVSMode extends DummyMode {
 
     /**
      * Set the gravity rate
+     *
      * @param engine GameEngine
      */
     public void setSpeed(GameEngine engine) {
@@ -780,13 +844,12 @@ public class PhysicianVSMode extends DummyMode {
             return false;
 
         int enemyID = 0;
-        if(playerID == 0) enemyID = 1;
+        if (playerID == 0) enemyID = 1;
 
         ArrayList<Integer> cleared = engine.field.lineColorsCleared;
         engine.field.lineColorsCleared = null;
         if (cleared != null)
-            if (cleared.size() > 1)
-            {
+            if (cleared.size() > 1) {
                 if (garbageColors[enemyID] == null)
                     garbageColors[enemyID] = cleared;
                 else
@@ -807,21 +870,17 @@ public class PhysicianVSMode extends DummyMode {
         if (size >= 4)
             for (int x = 0; x < 4; x++)
                 colors[x] = garbageColors[playerID].get(x).intValue();
-        else if (size == 3)
-        {
+        else if (size == 3) {
             int skipSlot = engine.random.nextInt(4);
             colors[skipSlot] = -1;
             int i;
-            for (int x = 0; x < 3; x++)
-            {
+            for (int x = 0; x < 3; x++) {
                 i = x;
                 if (x >= skipSlot)
                     i++;
                 colors[i] = garbageColors[playerID].get(x).intValue();
             }
-        }
-        else
-        {
+        } else {
             int firstSlot = engine.random.nextInt(4);
             colors[firstSlot] = garbageColors[playerID].get(0).intValue();
             int secondSlot = firstSlot + 2;
@@ -832,10 +891,9 @@ public class PhysicianVSMode extends DummyMode {
         int shift = engine.random.nextInt(2);
         int y = (-1 * engine.field.getHiddenHeight());
         for (int x = 0; x < 4; x++)
-            if (colors[x] != -1)
-            {
-                engine.field.garbageDropPlace(2*x+shift, y, false, 0, colors[x]);
-                engine.field.getBlock(2*x+shift, y).skin = engine.getSkin();
+            if (colors[x] != -1) {
+                engine.field.garbageDropPlace(2 * x + shift, y, false, 0, colors[x]);
+                engine.field.getBlock(2 * x + shift, y).skin = engine.getSkin();
             }
         garbageColors[playerID] = null;
         return true;
@@ -848,18 +906,14 @@ public class PhysicianVSMode extends DummyMode {
     public void onLast(GameEngine engine, int playerID) {
         scgettime[playerID]++;
 
-        if (engine.field != null)
-        {
+        if (engine.field != null) {
             int rest = engine.field.getHowManyGems();
-            if (flash[playerID])
-            {
+            if (flash[playerID]) {
                 engine.meterValue = (rest * receiver.getMeterMax(engine)) / 3;
                 if (rest == 1) engine.meterColor = GameEngine.METER_COLOR_GREEN;
                 else if (rest == 2) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
                 else engine.meterColor = GameEngine.METER_COLOR_RED;
-            }
-            else
-            {
+            } else {
                 engine.meterValue = (rest * receiver.getMeterMax(engine)) / hoverBlocks[playerID];
                 if (rest <= 3) engine.meterColor = GameEngine.METER_COLOR_GREEN;
                 else if (rest < (hoverBlocks[playerID] >> 2)) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
@@ -869,30 +923,28 @@ public class PhysicianVSMode extends DummyMode {
         }
 
         // 決着
-        if((playerID == 1) && (owner.engine[0].gameActive)) {
+        if ((playerID == 1) && (owner.engine[0].gameActive)) {
             boolean p1Lose = (owner.engine[0].stat == GameEngine.STAT_GAMEOVER);
-            if (!p1Lose && owner.engine[1].field != null)
-            {
+            if (!p1Lose && owner.engine[1].field != null) {
                 rest[1] = owner.engine[1].field.getHowManyGems();
                 p1Lose = (rest[1] == 0);
             }
             boolean p2Lose = (owner.engine[1].stat == GameEngine.STAT_GAMEOVER);
-            if (!p2Lose && owner.engine[0].field != null)
-            {
+            if (!p2Lose && owner.engine[0].field != null) {
                 rest[0] = owner.engine[0].field.getHowManyGems();
                 p2Lose = (rest[0] == 0);
             }
-            if(p1Lose && p2Lose) {
+            if (p1Lose && p2Lose) {
                 // Draw
                 winnerID = -1;
                 owner.engine[0].stat = GameEngine.STAT_GAMEOVER;
                 owner.engine[1].stat = GameEngine.STAT_GAMEOVER;
-            } else if(p2Lose && !p1Lose) {
+            } else if (p2Lose && !p1Lose) {
                 // 1P win
                 winnerID = 0;
                 owner.engine[0].stat = GameEngine.STAT_EXCELLENT;
                 owner.engine[1].stat = GameEngine.STAT_GAMEOVER;
-            } else if(p1Lose && !p2Lose) {
+            } else if (p1Lose && !p2Lose) {
                 // 2P win
                 winnerID = 1;
                 owner.engine[0].stat = GameEngine.STAT_GAMEOVER;
@@ -916,16 +968,16 @@ public class PhysicianVSMode extends DummyMode {
     @Override
     public void renderResult(GameEngine engine, int playerID) {
         receiver.drawMenuFont(engine, playerID, 0, 1, "RESULT", EventReceiver.COLOR_ORANGE);
-        if(winnerID == -1) {
+        if (winnerID == -1) {
             receiver.drawMenuFont(engine, playerID, 6, 2, "DRAW", EventReceiver.COLOR_GREEN);
-        } else if(winnerID == playerID) {
+        } else if (winnerID == playerID) {
             receiver.drawMenuFont(engine, playerID, 6, 2, "WIN!", EventReceiver.COLOR_YELLOW);
         } else {
             receiver.drawMenuFont(engine, playerID, 6, 2, "LOSE", EventReceiver.COLOR_WHITE);
         }
 
         drawResultStats(engine, playerID, receiver, 3, EventReceiver.COLOR_ORANGE,
-                STAT_LINES, STAT_PIECE, STAT_LPM, STAT_PPS, STAT_TIME);
+            STAT_LINES, STAT_PIECE, STAT_LPM, STAT_PPS, STAT_TIME);
         /*
         float apm = (float)(garbageSent[playerID] * 3600) / (float)(engine.statistics.time);
         drawResult(engine, playerID, receiver, 3, EventReceiver.COLOR_ORANGE,
@@ -942,7 +994,7 @@ public class PhysicianVSMode extends DummyMode {
         saveOtherSetting(engine, owner.replayProp);
         savePreset(engine, owner.replayProp, -1 - playerID);
 
-        if(useMap[playerID] && (fldBackup[playerID] != null)) {
+        if (useMap[playerID] && (fldBackup[playerID] != null)) {
             saveMap(fldBackup[playerID], owner.replayProp, playerID);
         }
 

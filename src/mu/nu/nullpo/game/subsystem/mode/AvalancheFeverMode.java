@@ -39,90 +39,144 @@ import mu.nu.nullpo.util.GeneralUtil;
  * AVALANCHE FEVER MARATHON mode (Release Candidate 2)
  */
 public class AvalancheFeverMode extends Avalanche1PDummyMode {
-    /** Current version */
+    /**
+     * Current version
+     */
     private static final int CURRENT_VERSION = 0;
 
     private static final int[] CHAIN_POWERS =
-    {
-        4, 10, 18, 22, 30, 48, 80, 120, 160, 240, 280, 288, 342, 400, 440, 480, 520, 560, 600, 640, 680, 720, 760, 800 //Amitie
-    };
+        {
+            4, 10, 18, 22, 30, 48, 80, 120, 160, 240, 280, 288, 342, 400, 440, 480, 520, 560, 600, 640, 680, 720, 760, 800 //Amitie
+        };
 
-    /** Names of chain display settings */
-    private static final String[] CHAIN_DISPLAY_NAMES = {"OFF", "YELLOW", "SIZE"};
+    /**
+     * Names of chain display settings
+     */
+    private static final String[] CHAIN_DISPLAY_NAMES = { "OFF", "YELLOW", "SIZE" };
 
-    /** Number of ranking records */
+    /**
+     * Number of ranking records
+     */
     private static final int RANKING_MAX = 10;
 
-    /** Time limit */
+    /**
+     * Time limit
+     */
     private static final int TIME_LIMIT = 3600;
 
-    /** Selected game type */
+    /**
+     * Selected game type
+     */
     private int mapSet;
 
-    /** Version number */
+    /**
+     * Version number
+     */
     private int version;
 
-    /** Current round's ranking rank */
+    /**
+     * Current round's ranking rank
+     */
     private int rankingRank;
 
-    /** Rankings' line counts */
+    /**
+     * Rankings' line counts
+     */
     private int[][][] rankingScore;
 
-    /** Rankings' times */
+    /**
+     * Rankings' times
+     */
     private int[][][] rankingTime;
 
-    /** Flag for all clear */
+    /**
+     * Flag for all clear
+     */
     private int zenKeshiDisplay;
 
-    /** Time limit left */
+    /**
+     * Time limit left
+     */
     private int timeLimit;
 
-    /** Time added to limit */
+    /**
+     * Time added to limit
+     */
     private int timeLimitAdd;
 
-    /** Time to display added time */
+    /**
+     * Time to display added time
+     */
     private int timeLimitAddDisplay;
 
-    /** Fever map CustomProperties */
+    /**
+     * Fever map CustomProperties
+     */
     private CustomProperties propFeverMap;
 
-    /** Chain levels for Fever Mode */
+    /**
+     * Chain levels for Fever Mode
+     */
     private int feverChain;
 
-    /** Chain level boundaries for Fever Mode */
+    /**
+     * Chain level boundaries for Fever Mode
+     */
     private int feverChainMin, feverChainMax;
 
-    /** Flag set to true when last piece caused a clear */
+    /**
+     * Flag set to true when last piece caused a clear
+     */
     private boolean cleared;
 
-    /** List of subsets in selected map */
+    /**
+     * List of subsets in selected map
+     */
     private String[] mapSubsets;
 
-    /** Fever chain count when last chain hit occurred */
+    /**
+     * Fever chain count when last chain hit occurred
+     */
     private int feverChainDisplay;
 
-    /** Type of chain display */
+    /**
+     * Type of chain display
+     */
     private int chainDisplayType;
 
-    /** Number of boards played */
+    /**
+     * Number of boards played
+     */
     private int boardsPlayed;
 
-    /** Level at start of chain */
+    /**
+     * Level at start of chain
+     */
     private int chainLevelMultiplier;
 
-    /** Names of fast-fowards settings */
-    private static final String[] FAST_NAMES = {"OFF", "CLEAR", "ALL"};
+    /**
+     * Names of fast-fowards settings
+     */
+    private static final String[] FAST_NAMES = { "OFF", "CLEAR", "ALL" };
 
-    /** Fast-forward settings for debug use */
+    /**
+     * Fast-forward settings for debug use
+     */
     private int fastenable;
 
-    /** Flag set when fast-forward is enabled */
+    /**
+     * Flag set when fast-forward is enabled
+     */
     private boolean fastinuse;
 
-    /** Indices for map previews */
+    /**
+     * Indices for map previews
+     */
     private int previewChain, previewSubset;
 
-    /** ??? */
+    /**
+     * ???
+     */
     private int xyzzy;
 
     /*
@@ -162,7 +216,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
         previewChain = 5;
         previewSubset = 0;
 
-        if(owner.replayMode == false) {
+        if (owner.replayMode == false) {
             loadSetting(owner.modeConfig);
             loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
             version = CURRENT_VERSION;
@@ -171,7 +225,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
         }
     }
 
-    public boolean readyInit (GameEngine engine, int playerID) {
+    public boolean readyInit(GameEngine engine, int playerID) {
         cascadeSlow = true;
         super.readyInit(engine, playerID);
         loadMapSetFever(engine, playerID, mapSet, true);
@@ -189,54 +243,54 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
         // Menu
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             // Configuration changes
             int change = updateCursor(engine, (xyzzy == 573) ? 7 : 4);
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
-                switch(engine.statc[2]) {
+                switch (engine.statc[2]) {
 
-                case 0:
-                    mapSet += change;
-                    if(mapSet < 0) mapSet = FEVER_MAPS.length - 1;
-                    if(mapSet > FEVER_MAPS.length - 1) mapSet = 0;
-                    if (xyzzy == 573) loadMapSetFever(engine, playerID, mapSet, true);
-                    break;
-                case 1:
-                    outlinetype += change;
-                    if(outlinetype < 0) outlinetype = 2;
-                    if(outlinetype > 2) outlinetype = 0;
-                    break;
-                case 2:
-                    numColors += change;
-                    if(numColors < 3) numColors = 5;
-                    if(numColors > 5) numColors = 3;
-                    break;
-                case 3:
-                    chainDisplayType += change;
-                    if(chainDisplayType < 0) chainDisplayType = 2;
-                    if(chainDisplayType > 2) chainDisplayType = 0;
-                    break;
-                case 4:
-                    bigDisplay = !bigDisplay;
-                    break;
-                case 5:
-                    fastenable += change;
-                    if(fastenable < 0) fastenable = 2;
-                    if(fastenable > 2) fastenable = 0;
-                    break;
-                case 6:
-                    previewSubset += change;
-                    if(previewSubset < 0) previewSubset = mapSubsets.length-1;
-                    if(previewSubset >= mapSubsets.length) previewSubset = 0;
-                    break;
-                case 7:
-                    previewChain += change;
-                    if(previewChain < feverChainMin) previewChain = feverChainMax;
-                    if(previewChain > feverChainMax) previewChain = feverChainMin;
-                    break;
+                    case 0:
+                        mapSet += change;
+                        if (mapSet < 0) mapSet = FEVER_MAPS.length - 1;
+                        if (mapSet > FEVER_MAPS.length - 1) mapSet = 0;
+                        if (xyzzy == 573) loadMapSetFever(engine, playerID, mapSet, true);
+                        break;
+                    case 1:
+                        outlinetype += change;
+                        if (outlinetype < 0) outlinetype = 2;
+                        if (outlinetype > 2) outlinetype = 0;
+                        break;
+                    case 2:
+                        numColors += change;
+                        if (numColors < 3) numColors = 5;
+                        if (numColors > 5) numColors = 3;
+                        break;
+                    case 3:
+                        chainDisplayType += change;
+                        if (chainDisplayType < 0) chainDisplayType = 2;
+                        if (chainDisplayType > 2) chainDisplayType = 0;
+                        break;
+                    case 4:
+                        bigDisplay = !bigDisplay;
+                        break;
+                    case 5:
+                        fastenable += change;
+                        if (fastenable < 0) fastenable = 2;
+                        if (fastenable > 2) fastenable = 0;
+                        break;
+                    case 6:
+                        previewSubset += change;
+                        if (previewSubset < 0) previewSubset = mapSubsets.length - 1;
+                        if (previewSubset >= mapSubsets.length) previewSubset = 0;
+                        break;
+                    case 7:
+                        previewChain += change;
+                        if (previewChain < feverChainMin) previewChain = feverChainMax;
+                        if (previewChain > feverChainMax) previewChain = feverChainMin;
+                        break;
                 }
                 if (mapSet == 4) numColors = 3;
             }
@@ -285,7 +339,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
                 }
             }
 
-            if((engine.ctrl.isPush(Controller.BUTTON_B))) {
+            if ((engine.ctrl.isPush(Controller.BUTTON_B))) {
                 if (xyzzy == 8)
                     xyzzy++;
                 else {
@@ -299,7 +353,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
             engine.statc[3]++;
             engine.statc[2] = -1;
 
-            if(engine.statc[3] >= 60) {
+            if (engine.statc[3] >= 60) {
                 return false;
             }
         }
@@ -312,7 +366,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
      */
     @Override
     public void renderMove(GameEngine engine, int playerID) {
-        if(engine.gameStarted) {
+        if (engine.gameStarted) {
             drawXorTimer(engine, playerID);
         }
     }
@@ -324,25 +378,25 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
     public void renderSetting(GameEngine engine, int playerID) {
         if (engine.statc[2] <= 5) {
             String strOutline = "";
-            if(outlinetype == 0) strOutline = "NORMAL";
-            if(outlinetype == 1) strOutline = "COLOR";
-            if(outlinetype == 2) strOutline = "NONE";
+            if (outlinetype == 0) strOutline = "NORMAL";
+            if (outlinetype == 1) strOutline = "COLOR";
+            if (outlinetype == 2) strOutline = "NONE";
 
             initMenu(0, EventReceiver.COLOR_BLUE, 0);
             drawMenu(engine, playerID, receiver,
-                    "MAP SET", FEVER_MAPS[mapSet].toUpperCase(),
-                    "OUTLINE", strOutline,
-                    "COLORS", String.valueOf(numColors),
-                    "SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType],
-                    "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+                "MAP SET", FEVER_MAPS[mapSet].toUpperCase(),
+                "OUTLINE", strOutline,
+                "COLORS", String.valueOf(numColors),
+                "SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType],
+                "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
             if (xyzzy == 573)
                 drawMenu(engine, playerID, receiver, "FAST", FAST_NAMES[fastenable]);
         } else {
             receiver.drawMenuFont(engine, playerID, 0, 13, "MAP PREVIEW", EventReceiver.COLOR_YELLOW);
             receiver.drawMenuFont(engine, playerID, 0, 14, "A:DISPLAY", EventReceiver.COLOR_GREEN);
             drawMenu(engine, playerID, receiver, 15, EventReceiver.COLOR_BLUE, 6,
-                    "SUBSET", mapSubsets[previewSubset].toUpperCase(),
-                    "CHAIN", String.valueOf(previewChain));
+                "SUBSET", mapSubsets[previewSubset].toUpperCase(),
+                "CHAIN", String.valueOf(previewChain));
         }
     }
 
@@ -353,25 +407,25 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
     public void renderLast(GameEngine engine, int playerID) {
         receiver.drawScoreFont(engine, playerID, 0, 0, "AVALANCHE FEVER MARATHON", EventReceiver.COLOR_DARKBLUE);
         receiver.drawScoreFont(engine, playerID, 0, 1, "(" + FEVER_MAPS[mapSet].toUpperCase() + " " +
-                numColors + " COLORS)", EventReceiver.COLOR_DARKBLUE);
+            numColors + " COLORS)", EventReceiver.COLOR_DARKBLUE);
 
-        if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
-            if((owner.replayMode == false) && (engine.ai == null)) {
+        if ((engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false))) {
+            if ((owner.replayMode == false) && (engine.ai == null)) {
                 float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
                 int topY = (receiver.getNextDisplayType() == 2) ? 6 : 4;
 
-                receiver.drawScoreFont(engine, playerID, 3, topY-1, "SCORE      TIME", EventReceiver.COLOR_BLUE, scale);
+                receiver.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE      TIME", EventReceiver.COLOR_BLUE, scale);
 
-                for(int i = 0; i < RANKING_MAX; i++) {
-                    receiver.drawScoreFont(engine, playerID, 0, topY+i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
-                    receiver.drawScoreFont(engine, playerID, 3, topY+i, String.valueOf(rankingScore[numColors-3][mapSet][i]), (i == rankingRank), scale);
-                    receiver.drawScoreFont(engine, playerID, 14, topY+i, GeneralUtil.getTime(rankingTime[numColors-3][mapSet][i]), (i == rankingRank), scale);
+                for (int i = 0; i < RANKING_MAX; i++) {
+                    receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
+                    receiver.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[numColors - 3][mapSet][i]), (i == rankingRank), scale);
+                    receiver.drawScoreFont(engine, playerID, 14, topY + i, GeneralUtil.getTime(rankingTime[numColors - 3][mapSet][i]), (i == rankingRank), scale);
                 }
             }
         } else {
             receiver.drawScoreFont(engine, playerID, 0, 3, "SCORE", EventReceiver.COLOR_BLUE);
             String strScore;
-            if((lastscore == 0) || (lastmultiplier == 0) || (scgettime <= 0)) {
+            if ((lastscore == 0) || (lastmultiplier == 0) || (scgettime <= 0)) {
                 strScore = String.valueOf(engine.statistics.score);
             } else {
                 strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + "X" +
@@ -388,7 +442,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
             receiver.drawScoreFont(engine, playerID, 0, 12, "LIMIT TIME", EventReceiver.COLOR_BLUE);
             receiver.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(timeLimit));
             if (timeLimitAddDisplay > 0)
-                receiver.drawScoreFont(engine, playerID, 0, 14, "(+" + (timeLimitAdd/60) + " SEC.)");
+                receiver.drawScoreFont(engine, playerID, 0, 14, "(+" + (timeLimitAdd / 60) + " SEC.)");
 
             receiver.drawScoreFont(engine, playerID, 11, 6, "BOARDS", EventReceiver.COLOR_BLUE);
             receiver.drawScoreFont(engine, playerID, 11, 7, String.valueOf(boardsPlayed));
@@ -401,15 +455,15 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
             receiver.drawScoreFont(engine, playerID, 11, 15, "OJAMA SENT", EventReceiver.COLOR_BLUE);
             String strSent = String.valueOf(garbageSent);
-            if(garbageAdd > 0) {
-                strSent = strSent + "(+" + String.valueOf(garbageAdd)+ ")";
+            if (garbageAdd > 0) {
+                strSent = strSent + "(+" + String.valueOf(garbageAdd) + ")";
             }
             receiver.drawScoreFont(engine, playerID, 11, 16, strSent);
 
             receiver.drawScoreFont(engine, playerID, 11, 18, "CLEARED", EventReceiver.COLOR_BLUE);
             receiver.drawScoreFont(engine, playerID, 11, 19, String.valueOf(blocksCleared));
 
-            if(engine.gameStarted && (engine.stat != GameEngine.STAT_MOVE) && (engine.stat != GameEngine.STAT_RESULT)) {
+            if (engine.gameStarted && (engine.stat != GameEngine.STAT_MOVE) && (engine.stat != GameEngine.STAT_RESULT)) {
                 drawXorTimer(engine, playerID);
             }
 
@@ -418,52 +472,51 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
             int textHeight = 13;
             if (engine.field != null)
-                textHeight = engine.field.getHeight()+1;
-            if(engine.displaysize == 1)
+                textHeight = engine.field.getHeight() + 1;
+            if (engine.displaysize == 1)
                 textHeight = 11;
 
             int baseX = (engine.displaysize == 1) ? 1 : 0;
-            if (engine.chain > 0 && chainDisplay > 0 && chainDisplayType != 0)
-            {
+            if (engine.chain > 0 && chainDisplay > 0 && chainDisplayType != 0) {
                 int color = EventReceiver.COLOR_YELLOW;
-                if (chainDisplayType == 2)
-                {
+                if (chainDisplayType == 2) {
                     if (engine.chain >= feverChainDisplay)
                         color = EventReceiver.COLOR_GREEN;
-                    else if (engine.chain == feverChainDisplay-2)
+                    else if (engine.chain == feverChainDisplay - 2)
                         color = EventReceiver.COLOR_ORANGE;
-                    else if (engine.chain < feverChainDisplay-2)
+                    else if (engine.chain < feverChainDisplay - 2)
                         color = EventReceiver.COLOR_RED;
                 }
                 receiver.drawMenuFont(engine, playerID, baseX + (engine.chain > 9 ? 0 : 1), textHeight, engine.chain + " CHAIN!", color);
             }
             if (zenKeshiDisplay > 0)
-                receiver.drawMenuFont(engine, playerID, baseX, textHeight+1, "ZENKESHI!", EventReceiver.COLOR_YELLOW);
+                receiver.drawMenuFont(engine, playerID, baseX, textHeight + 1, "ZENKESHI!", EventReceiver.COLOR_YELLOW);
         }
     }
 
     /**
      * Draw fever timer on death columns
+     *
      * @param engine GameEngine
      * @param playerID Player ID
      */
     protected void drawXorTimer(GameEngine engine, int playerID) {
-        String strFeverTimer = String.format("%02d",(timeLimit+59)/60);
+        String strFeverTimer = String.format("%02d", (timeLimit + 59) / 60);
 
-        for(int i = 0; i < 2; i++) {
-            if((engine.field == null) || (engine.field.getBlockEmpty(2 + i, 0))) {
-                if(engine.displaysize == 1) {
-                    receiver.drawMenuFont(engine, playerID, 4 + (i * 2), 0, ""+strFeverTimer.charAt(i),
-                            timeLimit < 360 ? EventReceiver.COLOR_RED : EventReceiver.COLOR_WHITE, 2.0f);
+        for (int i = 0; i < 2; i++) {
+            if ((engine.field == null) || (engine.field.getBlockEmpty(2 + i, 0))) {
+                if (engine.displaysize == 1) {
+                    receiver.drawMenuFont(engine, playerID, 4 + (i * 2), 0, "" + strFeverTimer.charAt(i),
+                        timeLimit < 360 ? EventReceiver.COLOR_RED : EventReceiver.COLOR_WHITE, 2.0f);
                 } else {
-                    receiver.drawMenuFont(engine, playerID, 2 + i, 0, ""+strFeverTimer.charAt(i),
-                            timeLimit < 360 ? EventReceiver.COLOR_RED : EventReceiver.COLOR_WHITE);
+                    receiver.drawMenuFont(engine, playerID, 2 + i, 0, "" + strFeverTimer.charAt(i),
+                        timeLimit < 360 ? EventReceiver.COLOR_RED : EventReceiver.COLOR_WHITE);
                 }
             }
         }
     }
 
-    public boolean onMove (GameEngine engine, int playerID) {
+    public boolean onMove(GameEngine engine, int playerID) {
         cleared = false;
         zenKeshi = false;
         return false;
@@ -476,16 +529,14 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
     public void onLast(GameEngine engine, int playerID) {
         if (scgettime > 0) scgettime--;
 
-        if (engine.timerActive)
-        {
+        if (engine.timerActive) {
             if (chainDisplay > 0)
                 chainDisplay--;
             if (zenKeshiDisplay > 0)
                 zenKeshiDisplay--;
-            if (timeLimit > 0)
-            {
+            if (timeLimit > 0) {
                 timeLimit--;
-                if((timeLimit > 0) && (timeLimit <= 360) && (timeLimit % 60 == 0))
+                if ((timeLimit > 0) && (timeLimit <= 360) && (timeLimit % 60 == 0))
                     engine.playSE("countdown");
                 else if (timeLimit == 0)
                     engine.playSE("levelstop");
@@ -497,35 +548,34 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
         // Time meter
         engine.meterValue = (timeLimit * receiver.getMeterMax(engine)) / TIME_LIMIT;
         engine.meterColor = GameEngine.METER_COLOR_GREEN;
-        if(timeLimit <= 1800) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-        if(timeLimit <= 900) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-        if(timeLimit <= 300) engine.meterColor = GameEngine.METER_COLOR_RED;
+        if (timeLimit <= 1800) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+        if (timeLimit <= 900) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+        if (timeLimit <= 300) engine.meterColor = GameEngine.METER_COLOR_RED;
 
         if (!fastinuse && engine.ctrl.isPress(Controller.BUTTON_F) &&
-                ((fastenable == 2) || (engine.stat == GameEngine.STAT_LINECLEAR && fastenable == 1))) {
+            ((fastenable == 2) || (engine.stat == GameEngine.STAT_LINECLEAR && fastenable == 1))) {
             fastinuse = true;
             for (int i = 0; i < 4; i++) engine.owner.updateAll();
             fastinuse = false;
         }
     }
 
-    protected int calcOjama(int score, int avalanche, int pts, int multiplier)
-    {
-        return ((avalanche*10*multiplier)+ojamaRate-1)/ojamaRate;
+    protected int calcOjama(int score, int avalanche, int pts, int multiplier) {
+        return ((avalanche * 10 * multiplier) + ojamaRate - 1) / ojamaRate;
     }
 
-    protected int calcPts (int avalanche) {
-        return avalanche*chainLevelMultiplier*10;
+    protected int calcPts(int avalanche) {
+        return avalanche * chainLevelMultiplier * 10;
     }
 
     protected int calcChainMultiplier(int chain) {
         if (chain > CHAIN_POWERS.length)
-            return CHAIN_POWERS[CHAIN_POWERS.length-1];
+            return CHAIN_POWERS[CHAIN_POWERS.length - 1];
         else
-            return CHAIN_POWERS[chain-1];
+            return CHAIN_POWERS[chain - 1];
     }
 
-    protected void onClear (GameEngine engine, int playerID) {
+    protected void onClear(GameEngine engine, int playerID) {
         chainDisplay = 60;
         cleared = true;
         feverChainDisplay = feverChain;
@@ -534,19 +584,16 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
     }
 
     public boolean lineClearEnd(GameEngine engine, int playerID) {
-        if (garbageAdd > 0)
-        {
+        if (garbageAdd > 0) {
             garbageSent += garbageAdd;
             garbageAdd = 0;
         }
 
-        if (cleared)
-        {
+        if (cleared) {
             boardsPlayed++;
             timeLimitAdd = 0;
-            int newFeverChain = Math.max(engine.chain+1, feverChain-2);
-            if (zenKeshi)
-            {
+            int newFeverChain = Math.max(engine.chain + 1, feverChain - 2);
+            if (zenKeshi) {
                 timeLimitAdd += 180;
                 zenKeshiDisplay = 120;
                 newFeverChain += 2;
@@ -560,21 +607,16 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
             else if (newFeverChain < feverChain)
                 engine.playSE("regret");
             feverChain = newFeverChain;
-            if (timeLimit > 0)
-            {
-                timeLimitAdd += Math.max(0, (engine.chain-2)*60);
-                if (timeLimitAdd > 0)
-                {
+            if (timeLimit > 0) {
+                timeLimitAdd += Math.max(0, (engine.chain - 2) * 60);
+                if (timeLimitAdd > 0) {
                     timeLimit += timeLimitAdd;
                     timeLimitAddDisplay = 120;
                 }
                 loadFeverMap(engine, playerID, feverChain);
             }
-        }
-        else if (engine.field != null)
-        {
-            if (!engine.field.getBlockEmpty(2, 0) || !engine.field.getBlockEmpty(3, 0))
-            {
+        } else if (engine.field != null) {
+            if (!engine.field.getBlockEmpty(2, 0) || !engine.field.getBlockEmpty(3, 0)) {
                 engine.stat = GameEngine.STAT_GAMEOVER;
                 engine.gameEnded();
                 engine.resetStatc();
@@ -583,7 +625,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
         }
 
         // Out of time
-        if((timeLimit <= 0) && (engine.timerActive == true)) {
+        if ((timeLimit <= 0) && (engine.timerActive == true)) {
             engine.gameEnded();
             engine.resetStatc();
             engine.stat = GameEngine.STAT_ENDINGSTART;
@@ -596,36 +638,36 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
      */
     @Override
     public void renderResult(GameEngine engine, int playerID) {
-        receiver.drawMenuFont(engine, playerID,  0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
+        receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
 
-        receiver.drawMenuFont(engine, playerID,  0, 3, "SCORE", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 3, "SCORE", EventReceiver.COLOR_BLUE);
         String strScoreBefore = String.format("%10d", scoreBeforeBonus);
-        receiver.drawMenuFont(engine, playerID,  0, 4, strScoreBefore, EventReceiver.COLOR_GREEN);
+        receiver.drawMenuFont(engine, playerID, 0, 4, strScoreBefore, EventReceiver.COLOR_GREEN);
 
-        receiver.drawMenuFont(engine, playerID,  0, 5, "ZENKESHI", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 5, "ZENKESHI", EventReceiver.COLOR_BLUE);
         String strZenKeshi = String.format("%10d", zenKeshiCount);
-        receiver.drawMenuFont(engine, playerID,  0, 6, strZenKeshi);
+        receiver.drawMenuFont(engine, playerID, 0, 6, strZenKeshi);
         String strZenKeshiBonus = "+" + zenKeshiBonus;
-        receiver.drawMenuFont(engine, playerID, 10-strZenKeshiBonus.length(), 7, strZenKeshiBonus, EventReceiver.COLOR_GREEN);
+        receiver.drawMenuFont(engine, playerID, 10 - strZenKeshiBonus.length(), 7, strZenKeshiBonus, EventReceiver.COLOR_GREEN);
 
-        receiver.drawMenuFont(engine, playerID,  0, 8, "MAX CHAIN", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 8, "MAX CHAIN", EventReceiver.COLOR_BLUE);
         String strMaxChain = String.format("%10d", engine.statistics.maxChain);
-        receiver.drawMenuFont(engine, playerID,  0, 9, strMaxChain);
+        receiver.drawMenuFont(engine, playerID, 0, 9, strMaxChain);
         String strMaxChainBonus = "+" + maxChainBonus;
-        receiver.drawMenuFont(engine, playerID, 10-strMaxChainBonus.length(), 10, strMaxChainBonus, EventReceiver.COLOR_GREEN);
+        receiver.drawMenuFont(engine, playerID, 10 - strMaxChainBonus.length(), 10, strMaxChainBonus, EventReceiver.COLOR_GREEN);
 
-        receiver.drawMenuFont(engine, playerID,  0, 11, "TOTAL", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 11, "TOTAL", EventReceiver.COLOR_BLUE);
         String strScore = String.format("%10d", engine.statistics.score);
-        receiver.drawMenuFont(engine, playerID,  0, 12, strScore, EventReceiver.COLOR_RED);
+        receiver.drawMenuFont(engine, playerID, 0, 12, strScore, EventReceiver.COLOR_RED);
 
-        receiver.drawMenuFont(engine, playerID,  0, 13, "TIME", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 13, "TIME", EventReceiver.COLOR_BLUE);
         String strTime = String.format("%10s", GeneralUtil.getTime(engine.statistics.time));
-        receiver.drawMenuFont(engine, playerID,  0, 14, strTime);
+        receiver.drawMenuFont(engine, playerID, 0, 14, strTime);
 
-        if(rankingRank != -1) {
-            receiver.drawMenuFont(engine, playerID,  0, 15, "RANK", EventReceiver.COLOR_BLUE);
+        if (rankingRank != -1) {
+            receiver.drawMenuFont(engine, playerID, 0, 15, "RANK", EventReceiver.COLOR_BLUE);
             String strRank = String.format("%10d", rankingRank + 1);
-            receiver.drawMenuFont(engine, playerID,  0, 16, strRank);
+            receiver.drawMenuFont(engine, playerID, 0, 16, strRank);
         }
     }
 
@@ -637,10 +679,10 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
         saveSetting(prop);
 
         // Update rankings
-        if((owner.replayMode == false) && (engine.ai == null)) {
+        if ((owner.replayMode == false) && (engine.ai == null)) {
             updateRanking(engine.statistics.score, engine.statistics.time, mapSet, numColors);
 
-            if(rankingRank != -1) {
+            if (rankingRank != -1) {
                 saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
                 receiver.saveModeConfig(owner.modeConfig);
             }
@@ -649,6 +691,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
     /**
      * Load settings from property file
+     *
      * @param prop Property file
      */
     private void loadSetting(CustomProperties prop) {
@@ -662,6 +705,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
     /**
      * Save settings to property file
+     *
      * @param prop Property file
      */
     private void saveSetting(CustomProperties prop) {
@@ -674,9 +718,9 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
     }
 
     private void loadMapSetFever(GameEngine engine, int playerID, int id, boolean forceReload) {
-        if((propFeverMap == null) || (forceReload)) {
+        if ((propFeverMap == null) || (forceReload)) {
             propFeverMap = receiver.loadProperties("config/map/avalanche/" +
-                    FEVER_MAPS[id] + "Endless.map");
+                FEVER_MAPS[id] + "Endless.map");
             feverChainMin = propFeverMap.getProperty("minChain", 3);
             feverChainMax = propFeverMap.getProperty("maxChain", 15);
             String subsets = propFeverMap.getProperty("sets");
@@ -692,7 +736,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
         engine.createFieldIfNeeded();
         engine.field.reset();
         engine.field.stringToField(propFeverMap.getProperty(mapSubsets[subset] +
-                "." + numColors + "colors." + chain + "chain"));
+            "." + numColors + "colors." + chain + "chain"));
         engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
         engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
         engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
@@ -705,17 +749,18 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
     /**
      * Read rankings from property file
+     *
      * @param prop Property file
      * @param ruleName Rule name
      */
     private void loadRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            for(int j = 0; j < FEVER_MAPS.length; j++) {
-                for(int colors = 3; colors <= 5; colors++) {
-                    rankingScore[colors-3][j][i] = prop.getProperty("avalanchefever.ranking." + ruleName + "." + colors +
-                            "colors." + FEVER_MAPS[j] + ".score." + i, 0);
-                    rankingTime[colors-3][j][i] = prop.getProperty("avalanchefever.ranking." + ruleName + "." + colors +
-                            "colors." + FEVER_MAPS[j] + ".time." + i, -1);
+        for (int i = 0; i < RANKING_MAX; i++) {
+            for (int j = 0; j < FEVER_MAPS.length; j++) {
+                for (int colors = 3; colors <= 5; colors++) {
+                    rankingScore[colors - 3][j][i] = prop.getProperty("avalanchefever.ranking." + ruleName + "." + colors +
+                        "colors." + FEVER_MAPS[j] + ".score." + i, 0);
+                    rankingTime[colors - 3][j][i] = prop.getProperty("avalanchefever.ranking." + ruleName + "." + colors +
+                        "colors." + FEVER_MAPS[j] + ".time." + i, -1);
                 }
             }
         }
@@ -723,17 +768,18 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
     /**
      * Save rankings to property file
+     *
      * @param prop Property file
      * @param ruleName Rule name
      */
     private void saveRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            for(int j = 0; j < FEVER_MAPS.length; j++) {
-                for(int colors = 3; colors <= 5; colors++) {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            for (int j = 0; j < FEVER_MAPS.length; j++) {
+                for (int colors = 3; colors <= 5; colors++) {
                     prop.setProperty("avalanchefever.ranking." + ruleName + "." + colors +
-                            "colors." + FEVER_MAPS[j] + ".score." + i, rankingScore[colors-3][j][i]);
+                        "colors." + FEVER_MAPS[j] + ".score." + i, rankingScore[colors - 3][j][i]);
                     prop.setProperty("avalanchefever.ranking." + ruleName + "." + colors +
-                            "colors." + FEVER_MAPS[j] + ".time." + i, rankingTime[colors-3][j][i]);
+                        "colors." + FEVER_MAPS[j] + ".time." + i, rankingTime[colors - 3][j][i]);
                 }
             }
         }
@@ -741,6 +787,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
     /**
      * Update rankings
+     *
      * @param sc Score
      * @param li Lines
      * @param time Time
@@ -748,30 +795,31 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
     private void updateRanking(int sc, int time, int type, int colors) {
         rankingRank = checkRanking(sc, time, type, colors);
 
-        if(rankingRank != -1) {
+        if (rankingRank != -1) {
             // Shift down ranking entries
-            for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
-                rankingScore[colors-3][type][i] = rankingScore[colors-3][type][i - 1];
-                rankingTime[colors-3][type][i] = rankingTime[colors-3][type][i - 1];
+            for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
+                rankingScore[colors - 3][type][i] = rankingScore[colors - 3][type][i - 1];
+                rankingTime[colors - 3][type][i] = rankingTime[colors - 3][type][i - 1];
             }
 
             // Add new data
-            rankingScore[colors-3][type][rankingRank] = sc;
-            rankingTime[colors-3][type][rankingRank] = time;
+            rankingScore[colors - 3][type][rankingRank] = sc;
+            rankingTime[colors - 3][type][rankingRank] = time;
         }
     }
 
     /**
      * Calculate ranking position
+     *
      * @param sc Score
      * @param time Time
      * @return Position (-1 if unranked)
      */
     private int checkRanking(int sc, int time, int type, int colors) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            if(sc > rankingScore[colors-3][type][i]) {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            if (sc > rankingScore[colors - 3][type][i]) {
                 return i;
-            } else if((sc == rankingScore[colors-3][type][i]) && (time < rankingTime[colors-3][type][i])) {
+            } else if ((sc == rankingScore[colors - 3][type][i]) && (time < rankingTime[colors - 3][type][i])) {
                 return i;
             }
         }

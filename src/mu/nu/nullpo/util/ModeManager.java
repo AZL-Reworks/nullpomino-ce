@@ -40,10 +40,14 @@ import org.apache.log4j.Logger;
  * Mode 管理クラス
  */
 public class ModeManager {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(ModeManager.class);
 
-    /** Mode の動的配列 */
+    /**
+     * Mode の動的配列
+     */
     public ArrayList<GameMode> modelist = new ArrayList<GameMode>();
 
     /**
@@ -54,6 +58,7 @@ public class ModeManager {
 
     /**
      * Copy constructor
+     *
      * @param m Copy source
      */
     public ModeManager(ModeManager m) {
@@ -62,6 +67,7 @@ public class ModeManager {
 
     /**
      * Mode のcountを取得(通常+ネットプレイ全部)
+     *
      * @return Modeのcount(通常+ネットプレイ全部)
      */
     public int getSize() {
@@ -70,16 +76,17 @@ public class ModeManager {
 
     /**
      * Mode のcountを取得
+     *
      * @param netplay falseなら通常Mode だけ, When true,ネットプレイ用Mode だけcountえる
      * @return Modeのcount
      */
     public int getNumberOfModes(boolean netplay) {
         int count = 0;
 
-        for(int i = 0; i < modelist.size(); i++) {
+        for (int i = 0; i < modelist.size(); i++) {
             GameMode mode = modelist.get(i);
 
-            if((mode != null) && (mode.isNetplayMode() == netplay))
+            if ((mode != null) && (mode.isNetplayMode() == netplay))
                 count++;
         }
 
@@ -88,12 +95,13 @@ public class ModeManager {
 
     /**
      * 読み込まれている全てのMode nameを取得
+     *
      * @return Mode nameの配列
      */
     public String[] getAllModeNames() {
         String[] strings = new String[getSize()];
 
-        for(int i = 0; i < strings.length; i++) {
+        for (int i = 0; i < strings.length; i++) {
             strings[i] = getName(i);
         }
 
@@ -102,6 +110,7 @@ public class ModeManager {
 
     /**
      * 読み込まれているMode nameを取得
+     *
      * @param netplay falseなら通常Mode だけ, When true,ネットプレイ用Mode だけ取得
      * @return Mode nameの配列
      */
@@ -110,10 +119,10 @@ public class ModeManager {
         String[] strings = new String[num];
         int j = 0;
 
-        for(int i = 0; i < modelist.size(); i++) {
+        for (int i = 0; i < modelist.size(); i++) {
             GameMode mode = modelist.get(i);
 
-            if((mode != null) && (mode.isNetplayMode() == netplay)) {
+            if ((mode != null) && (mode.isNetplayMode() == netplay)) {
                 strings[j] = mode.getName();
                 j++;
             }
@@ -124,27 +133,29 @@ public class ModeManager {
 
     /**
      * Mode  nameを取得
+     *
      * @param id ModeID
      * @return Mode name (idが不正なら「*INVALID MODE*」）
      */
     public String getName(int id) {
         try {
             return modelist.get(id).getName();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return "*INVALID MODE*";
         }
     }
 
     /**
      * Mode  nameからIDを取得
+     *
      * @param name Mode name
      * @return ModeID (見つからない場合は-1）
      */
     public int getIDbyName(String name) {
-        if(name == null) return -1;
+        if (name == null) return -1;
 
-        for(int i = 0; i < modelist.size(); i++) {
-            if(name.compareTo(modelist.get(i).getName()) == 0) {
+        for (int i = 0; i < modelist.size(); i++) {
+            if (name.compareTo(modelist.get(i).getName()) == 0) {
                 return i;
             }
         }
@@ -154,41 +165,44 @@ public class ModeManager {
 
     /**
      * Mode オブジェクトを取得
+     *
      * @param id ModeID
      * @return Modeオブジェクト (idが不正ならnull）
      */
     public GameMode getMode(int id) {
         try {
             return modelist.get(id);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
 
     /**
      * Mode オブジェクトを取得
+     *
      * @param name Mode name
      * @return Modeオブジェクト (見つからないならnull）
      */
     public GameMode getMode(String name) {
         try {
             return modelist.get(getIDbyName(name));
-        } catch(Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
 
     /**
      * Property fileに書かれた一覧からゲームMode を読み込み
+     *
      * @param prop Property file
      */
     public void loadGameModes(CustomProperties prop) {
         int count = 0;
 
-        while(true) {
+        while (true) {
             // クラス名を読み込み
             String name = prop.getProperty(String.valueOf(count), null);
-            if(name == null) return;
+            if (name == null) return;
 
             Class<?> modeClass;
             GameMode modeObject;
@@ -197,9 +211,9 @@ public class ModeManager {
                 modeClass = Class.forName(name);
                 modeObject = (GameMode) modeClass.newInstance();
                 modelist.add(modeObject);
-            } catch(ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 log.warn("Mode class " + name + " not found", e);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 log.warn("Mode class " + name + " load failed", e);
             }
 
@@ -209,10 +223,11 @@ public class ModeManager {
 
     /**
      * テキストファイルに書かれた一覧からゲームMode を読み込み
+     *
      * @param bf テキストファイルを読み込んだBufferedReader
      */
     public void loadGameModes(BufferedReader bf) {
-        while(true) {
+        while (true) {
             // クラス名を読み込み
             String name = null;
             try {
@@ -221,10 +236,10 @@ public class ModeManager {
                 log.warn("IOException on readLine()", e);
                 return;
             }
-            if(name == null) return;
-            if(name.length() == 0) return;
+            if (name == null) return;
+            if (name.length() == 0) return;
 
-            if(!name.startsWith("#")) {
+            if (!name.startsWith("#")) {
                 Class<?> modeClass;
                 GameMode modeObject;
 
@@ -232,9 +247,9 @@ public class ModeManager {
                     modeClass = Class.forName(name);
                     modeObject = (GameMode) modeClass.newInstance();
                     modelist.add(modeObject);
-                } catch(ClassNotFoundException e) {
+                } catch (ClassNotFoundException e) {
                     log.warn("Mode class " + name + " not found", e);
-                } catch(Exception e) {
+                } catch (Exception e) {
                     log.warn("Mode class " + name + " load failed", e);
                 }
             }

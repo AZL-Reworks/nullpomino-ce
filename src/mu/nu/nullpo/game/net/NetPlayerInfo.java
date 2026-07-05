@@ -38,79 +38,129 @@ import mu.nu.nullpo.game.play.GameEngine;
  * Player information
  */
 public class NetPlayerInfo implements Serializable {
-    /** Serial version */
+    /**
+     * Serial version
+     */
     private static final long serialVersionUID = 1L;
 
-    /** Default rating for multiplayer games */
+    /**
+     * Default rating for multiplayer games
+     */
     public static final int DEFAULT_MULTIPLAYER_RATING = 1500;
 
-    /** Name */
+    /**
+     * Name
+     */
     public String strName = "";
 
-    /** Country code */
+    /**
+     * Country code
+     */
     public String strCountry = "";
 
-    /** Host */
+    /**
+     * Host
+     */
     public String strHost = "";
 
-    /** Team name */
+    /**
+     * Team name
+     */
     public String strTeam = "";
 
-    /** Rules in use */
+    /**
+     * Rules in use
+     */
     public RuleOptions ruleOpt = null;
 
-    /** Multiplayer rating */
+    /**
+     * Multiplayer rating
+     */
     public int[] rating = new int[GameEngine.MAX_GAMESTYLE];
 
-    /** Rating backup (internal use) */
+    /**
+     * Rating backup (internal use)
+     */
     public int[] ratingBefore = new int[GameEngine.MAX_GAMESTYLE];
 
-    /** Number of rated multiplayer games played */
+    /**
+     * Number of rated multiplayer games played
+     */
     public int[] playCount = new int[GameEngine.MAX_GAMESTYLE];
 
-    /** Number of games played in current room */
+    /**
+     * Number of games played in current room
+     */
     public int playCountNow = 0;
 
-    /** Number of rated multiplayer games win */
+    /**
+     * Number of rated multiplayer games win
+     */
     public int[] winCount = new int[GameEngine.MAX_GAMESTYLE];
 
-    /** Number of wins in current room */
+    /**
+     * Number of wins in current room
+     */
     public int winCountNow = 0;
 
-    /** Single player personal records */
+    /**
+     * Single player personal records
+     */
     public NetSPPersonalBest spPersonalBest = new NetSPPersonalBest();
 
-    /** User ID */
+    /**
+     * User ID
+     */
     public int uid = -1;
 
-    /** Current room ID */
+    /**
+     * Current room ID
+     */
     public int roomID = -1;
 
-    /** Game seat number (-1 if spectator) */
+    /**
+     * Game seat number (-1 if spectator)
+     */
     public int seatID = -1;
 
-    /** Join queue number (-1 if not in queue) */
+    /**
+     * Join queue number (-1 if not in queue)
+     */
     public int queueID = -1;
 
-    /** true if "Ready" sign */
+    /**
+     * true if "Ready" sign
+     */
     public boolean ready = false;
 
-    /** true if playing now */
+    /**
+     * true if playing now
+     */
     public boolean playing = false;
 
-    /** true if connected */
+    /**
+     * true if connected
+     */
     public boolean connected = false;
 
-    /** true if this player is using tripcode */
+    /**
+     * true if this player is using tripcode
+     */
     public boolean isTripUse = false;
 
-    /** Real host name (for internal use) */
+    /**
+     * Real host name (for internal use)
+     */
     public String strRealHost = "";
 
-    /** Real IP (for internal use) */
+    /**
+     * Real IP (for internal use)
+     */
     public String strRealIP = "";
 
-    /** SocketChannel of this player (for internal use) */
+    /**
+     * SocketChannel of this player (for internal use)
+     */
     public SocketChannel channel = null;
 
     /**
@@ -121,6 +171,7 @@ public class NetPlayerInfo implements Serializable {
 
     /**
      * Copy constructor
+     *
      * @param n Copy source
      */
     public NetPlayerInfo(NetPlayerInfo n) {
@@ -129,6 +180,7 @@ public class NetPlayerInfo implements Serializable {
 
     /**
      * String array constructor (Uses importStringArray)
+     *
      * @param pdata String array (String[12])
      */
     public NetPlayerInfo(String[] pdata) {
@@ -137,6 +189,7 @@ public class NetPlayerInfo implements Serializable {
 
     /**
      * String constructor (Uses importString)
+     *
      * @param str String(Divided by ;)
      */
     public NetPlayerInfo(String str) {
@@ -145,6 +198,7 @@ public class NetPlayerInfo implements Serializable {
 
     /**
      * Copy from other NetPlayerInfo
+     *
      * @param n Copy source
      */
     public void copy(NetPlayerInfo n) {
@@ -153,13 +207,13 @@ public class NetPlayerInfo implements Serializable {
         strHost = n.strHost;
         strTeam = n.strTeam;
 
-        if(n.ruleOpt != null) {
+        if (n.ruleOpt != null) {
             ruleOpt = new RuleOptions(n.ruleOpt);
         } else {
             ruleOpt = null;
         }
 
-        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+        for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
             rating[i] = n.rating[i];
             ratingBefore[i] = n.ratingBefore[i];
             playCount[i] = n.playCount[i];
@@ -185,6 +239,7 @@ public class NetPlayerInfo implements Serializable {
 
     /**
      * Import from String array
+     *
      * @param pdata String array (String[27])
      */
     public void importStringArray(String[] pdata) {
@@ -212,15 +267,16 @@ public class NetPlayerInfo implements Serializable {
         winCount[1] = Integer.parseInt(pdata[21]);
         winCount[2] = Integer.parseInt(pdata[22]);
         winCount[3] = Integer.parseInt(pdata[23]);
-        if(pdata.length > 24) {
+        if (pdata.length > 24) {
             spPersonalBest.importString(NetUtil.decompressString(pdata[24]));
         }
-        if(pdata.length > 25) playCountNow = Integer.parseInt(pdata[25]);
-        if(pdata.length > 26) winCountNow = Integer.parseInt(pdata[26]);
+        if (pdata.length > 25) playCountNow = Integer.parseInt(pdata[25]);
+        if (pdata.length > 26) winCountNow = Integer.parseInt(pdata[26]);
     }
 
     /**
      * Import from String (Divided by ;)
+     *
      * @param str String
      */
     public void importString(String str) {
@@ -229,6 +285,7 @@ public class NetPlayerInfo implements Serializable {
 
     /**
      * Export to String array
+     *
      * @return String array (String[27])
      */
     public String[] exportStringArray() {
@@ -265,15 +322,16 @@ public class NetPlayerInfo implements Serializable {
 
     /**
      * Export to String (Divided by ;)
+     *
      * @return String
      */
     public String exportString() {
         String[] data = exportStringArray();
         String strResult = "";
 
-        for(int i = 0; i < data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             strResult += data[i];
-            if(i < data.length - 1) strResult += ";";
+            if (i < data.length - 1) strResult += ";";
         }
 
         return strResult;

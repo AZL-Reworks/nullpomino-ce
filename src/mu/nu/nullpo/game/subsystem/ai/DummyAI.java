@@ -35,25 +35,39 @@ import mu.nu.nullpo.game.play.GameEngine;
  * DummyAI - Base class for AI players
  */
 public class DummyAI implements AIPlayer {
-    /** ホールド使用予定 */
+    /**
+     * ホールド使用予定
+     */
     public boolean bestHold;
 
-    /** 置く予定のX-coordinate */
+    /**
+     * 置く予定のX-coordinate
+     */
     public int bestX;
 
-    /** 置く予定のY-coordinate */
+    /**
+     * 置く予定のY-coordinate
+     */
     public int bestY;
 
-    /** 置く予定のDirection */
+    /**
+     * 置く予定のDirection
+     */
     public int bestRt;
 
-    /** 強制ホールド */
+    /**
+     * 強制ホールド
+     */
     public boolean forceHold;
 
-    /** Current piece number */
+    /**
+     * Current piece number
+     */
     public int thinkCurrentPieceNo;
 
-    /** 思考が終わったピースの number */
+    /**
+     * 思考が終わったピースの number
+     */
     public int thinkLastPieceNo;
 
     public String getName() {

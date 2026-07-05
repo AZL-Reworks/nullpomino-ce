@@ -48,25 +48,37 @@ import org.newdawn.slick.state.StateBasedGame;
  * リプレイ選択画面のステート
  */
 public class StateReplaySelect extends DummyMenuScrollState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 4;
 
-    /** 1画面に表示するMaximumファイルcount */
+    /**
+     * 1画面に表示するMaximumファイルcount
+     */
     public static final int PAGE_HEIGHT = 20;
 
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(StateReplaySelect.class);
 
-    /** Mode  name */
+    /**
+     * Mode  name
+     */
     protected String[] modenameList;
 
-    /** Rule name */
+    /**
+     * Rule name
+     */
     protected String[] rulenameList;
 
-    /** Scoreなどの情報 */
+    /**
+     * Scoreなどの情報
+     */
     protected Statistics[] statsList;
 
-    public StateReplaySelect () {
+    public StateReplaySelect() {
         pageHeight = PAGE_HEIGHT;
         nullError = "REPLAY DIRECTORY NOT FOUND";
         emptyError = "NO REPLAY FILE";
@@ -92,15 +104,16 @@ public class StateReplaySelect extends DummyMenuScrollState {
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
         list = getReplayFileList();
-        
+
         if (list != null)
-            maxCursor = list.length-1;
-        
+            maxCursor = list.length - 1;
+
         setReplayRuleAndModeList();
     }
 
     /**
      * リプレイファイル一覧を取得
+     *
      * @return リプレイファイルのFilenameの配列。ディレクトリがないならnull
      */
     protected String[] getReplayFileList() {
@@ -115,7 +128,7 @@ public class StateReplaySelect extends DummyMenuScrollState {
 
         String[] list = dir.list(filter);
 
-        if(!System.getProperty("os.name").startsWith("Windows")) {
+        if (!System.getProperty("os.name").startsWith("Windows")) {
             // Sort if not windows
             Arrays.sort(list);
         }
@@ -127,13 +140,13 @@ public class StateReplaySelect extends DummyMenuScrollState {
      * リプレイの詳細を設定
      */
     protected void setReplayRuleAndModeList() {
-        if(list == null) return;
+        if (list == null) return;
 
         modenameList = new String[list.length];
         rulenameList = new String[list.length];
         statsList = new Statistics[list.length];
 
-        for(int i = 0; i < list.length; i++) {
+        for (int i = 0; i < list.length; i++) {
             CustomProperties prop = new CustomProperties();
 
             try {
@@ -153,22 +166,22 @@ public class StateReplaySelect extends DummyMenuScrollState {
     }
 
     @Override
-    protected void onRenderSuccess (GameContainer container, StateBasedGame game, Graphics graphics)  {
+    protected void onRenderSuccess(GameContainer container, StateBasedGame game, Graphics graphics) {
         String title = "SELECT REPLAY FILE";
         title += " (" + (cursor + 1) + "/" + (list.length) + ")";
         NormalFont.printFontGrid(1, 1, title, NormalFont.COLOR_ORANGE);
 
         NormalFont.printFontGrid(1, 24, "MODE:" + modenameList[cursor] + " RULE:" + rulenameList[cursor], NormalFont.COLOR_CYAN);
         NormalFont.printFontGrid(1, 25,
-                                    "SCORE:" + statsList[cursor].score + " LINE:" + statsList[cursor].lines
-                                    , NormalFont.COLOR_CYAN);
+            "SCORE:" + statsList[cursor].score + " LINE:" + statsList[cursor].lines
+            , NormalFont.COLOR_CYAN);
         NormalFont.printFontGrid(1, 26,
-                                    "LEVEL:" + (statsList[cursor].level + statsList[cursor].levelDispAdd) +
-                                    " TIME:" + GeneralUtil.getTime(statsList[cursor].time)
-                                    , NormalFont.COLOR_CYAN);
+            "LEVEL:" + (statsList[cursor].level + statsList[cursor].levelDispAdd) +
+                " TIME:" + GeneralUtil.getTime(statsList[cursor].time)
+            , NormalFont.COLOR_CYAN);
         NormalFont.printFontGrid(1, 27,
-                                    "GAME RATE:" + ( (statsList[cursor].gamerate == 0f) ? "UNKNOWN" : ((100*statsList[cursor].gamerate) + "%") )
-                                    , NormalFont.COLOR_CYAN);
+            "GAME RATE:" + ((statsList[cursor].gamerate == 0f) ? "UNKNOWN" : ((100 * statsList[cursor].gamerate) + "%"))
+            , NormalFont.COLOR_CYAN);
     }
 
     @Override

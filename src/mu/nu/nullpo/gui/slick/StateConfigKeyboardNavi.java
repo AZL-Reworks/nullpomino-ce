@@ -37,16 +37,22 @@ import org.newdawn.slick.state.StateBasedGame;
  * キーボード設定画面のステート
  */
 public class StateConfigKeyboardNavi extends DummyMenuChooseState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 16;
 
-    /** Player number */
+    /**
+     * Player number
+     */
     public int player = 0;
 
-    /** StateBasedGame */
+    /**
+     * StateBasedGame
+     */
     protected StateBasedGame gameObj;
 
-    public StateConfigKeyboardNavi () {
+    public StateConfigKeyboardNavi() {
         maxCursor = 1;
         minChoiceY = 1;
     }
@@ -69,6 +75,7 @@ public class StateConfigKeyboardNavi extends DummyMenuChooseState {
 
     /**
      * Get key name
+     *
      * @param key Keycode
      * @return Key name
      */
@@ -95,7 +102,7 @@ public class StateConfigKeyboardNavi extends DummyMenuChooseState {
     @Override
     protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
         if (cursor == 0) {
-            for(int i = 0; i < GameKey.MAX_BUTTON; i++) {
+            for (int i = 0; i < GameKey.MAX_BUTTON; i++) {
                 GameKey.gamekey[player].keymapNav[i] = GameKey.gamekey[player].keymap[i];
             }
         } else if (cursor == 1) {

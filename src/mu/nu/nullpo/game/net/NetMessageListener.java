@@ -36,6 +36,7 @@ import java.io.IOException;
 public interface NetMessageListener {
     /**
      * メッセージ受信時に呼び出される
+     *
      * @param client クライアント(NetBaseClientとその派生クラス)
      * @param message 受信したメッセージ(タブ区切り済み)
      * @throws IOException 何かエラーがあったとき
@@ -44,6 +45,7 @@ public interface NetMessageListener {
 
     /**
      * 切断時に呼び出される
+     *
      * @param client クライアント(NetBaseClientとその派生クラス)
      * @param ex 切断原因となった例外(不明な場合と正常終了の場合はnull)
      */

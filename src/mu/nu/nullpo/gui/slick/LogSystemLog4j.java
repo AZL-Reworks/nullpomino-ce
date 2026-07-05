@@ -35,7 +35,9 @@ import org.newdawn.slick.util.LogSystem;
  * Slickのシステムログをlog4jに渡す
  */
 public class LogSystemLog4j implements LogSystem {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger("Slick");
 
     public void debug(String message) {

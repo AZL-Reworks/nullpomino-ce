@@ -11,31 +11,49 @@ import org.apache.log4j.Logger;
  * Chat message
  */
 public class NetChatMessage implements Serializable {
-    /** Serial version */
+    /**
+     * Serial version
+     */
     private static final long serialVersionUID = 1L;
 
-    /** Log */
+    /**
+     * Log
+     */
     static final Logger log = Logger.getLogger(NetChatMessage.class);
 
-    /** User ID */
+    /**
+     * User ID
+     */
     public int uid;
 
-    /** Username */
+    /**
+     * Username
+     */
     public String strUserName;
 
-    /** Hostname */
+    /**
+     * Hostname
+     */
     public String strHost;
 
-    /** Room ID (-1:Lobby) */
+    /**
+     * Room ID (-1:Lobby)
+     */
     public int roomID;
 
-    /** Room Name */
+    /**
+     * Room Name
+     */
     public String strRoomName;
 
-    /** Timestamp Calendar */
+    /**
+     * Timestamp Calendar
+     */
     public Calendar timestamp;
 
-    /** Message Body */
+    /**
+     * Message Body
+     */
     public String strMessage;
 
     /**
@@ -47,6 +65,7 @@ public class NetChatMessage implements Serializable {
 
     /**
      * Constructor
+     *
      * @param msg Message
      */
     public NetChatMessage(String msg) {
@@ -56,6 +75,7 @@ public class NetChatMessage implements Serializable {
 
     /**
      * Constructor
+     *
      * @param msg Message
      * @param pInfo Player Info
      */
@@ -69,6 +89,7 @@ public class NetChatMessage implements Serializable {
 
     /**
      * Constructor
+     *
      * @param msg Message
      * @param pInfo Player Info
      * @param roomInfo Room Info
@@ -100,7 +121,7 @@ public class NetChatMessage implements Serializable {
      * Output to logger
      */
     public void outputLog() {
-        if(roomID == -1) {
+        if (roomID == -1) {
             log.info("LobbyChat UID:" + uid + " Name:" + strUserName + " Msg:" + strMessage);
         } else {
             log.info("RoomChat Room:" + strRoomName + " UID:" + uid + " Name:" + strUserName + " Msg:" + strMessage);
@@ -109,6 +130,7 @@ public class NetChatMessage implements Serializable {
 
     /**
      * Import from String array
+     *
      * @param s String array (String[7])
      */
     public void importStringArray(String[] s) {
@@ -123,6 +145,7 @@ public class NetChatMessage implements Serializable {
 
     /**
      * Import from String (Divided by ;)
+     *
      * @param str String
      */
     public void importString(String str) {
@@ -131,6 +154,7 @@ public class NetChatMessage implements Serializable {
 
     /**
      * Export to String array
+     *
      * @return String array (String[7])
      */
     public String[] exportStringArray() {
@@ -147,15 +171,16 @@ public class NetChatMessage implements Serializable {
 
     /**
      * Export to String (Divided by ;)
+     *
      * @return String
      */
     public String exportString() {
         String[] data = exportStringArray();
         String strResult = "";
 
-        for(int i = 0; i < data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             strResult += data[i];
-            if(i < data.length - 1) strResult += ";";
+            if (i < data.length - 1) strResult += ";";
         }
 
         return strResult;

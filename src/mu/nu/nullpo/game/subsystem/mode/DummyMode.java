@@ -41,16 +41,20 @@ import mu.nu.nullpo.util.GeneralUtil;
  */
 public class DummyMode implements GameMode {
 
-    /** Total score */
+    /**
+     * Total score
+     */
     protected static final int STAT_SCORE = 1, STAT_LINES = 2, STAT_TIME = 3,
-            STAT_LEVEL = 4, STAT_LEVEL_MANIA = 5, STAT_PIECE = 6,
-            STAT_MAXCOMBO = 7, STAT_SPL = 8, STAT_SPM = 9, STAT_SPS = 10,
-            STAT_LPM = 11, STAT_LPS = 12, STAT_PPM = 13, STAT_PPS = 14,
-            STAT_MAXCHAIN = 15, STAT_LEVEL_ADD_DISP = 16;
-    
-    /** Current state of menu for drawMenu */
+        STAT_LEVEL = 4, STAT_LEVEL_MANIA = 5, STAT_PIECE = 6,
+        STAT_MAXCOMBO = 7, STAT_SPL = 8, STAT_SPM = 9, STAT_SPS = 10,
+        STAT_LPM = 11, STAT_LPS = 12, STAT_PPM = 13, STAT_PPS = 14,
+        STAT_MAXCHAIN = 15, STAT_LEVEL_ADD_DISP = 16;
+
+    /**
+     * Current state of menu for drawMenu
+     */
     protected int statcMenu, menuColor, menuY;
-    
+
     public DummyMode() {
         statcMenu = 0;
         menuColor = EventReceiver.COLOR_WHITE;
@@ -76,7 +80,8 @@ public class DummyMode implements GameMode {
     public void calcScore(GameEngine engine, int playerID, int lines) {
     }
 
-    public void fieldEditExit(GameEngine engine, int playerID) {}
+    public void fieldEditExit(GameEngine engine, int playerID) {
+    }
 
     public String getName() {
         return "DUMMY";
@@ -208,7 +213,7 @@ public class DummyMode implements GameMode {
     public void netplayInit(Object obj) {
     }
 
-    public void netplayUnload(Object obj){
+    public void netplayUnload(Object obj) {
     }
 
     public void netplayOnRetryKey(GameEngine engine, int playerID) {
@@ -216,6 +221,7 @@ public class DummyMode implements GameMode {
 
     /**
      * Update menu cursor
+     *
      * @param engine GameEngine
      * @param maxCursor Max value of cursor position
      * @return -1 if Left key is pressed, 1 if Right key is pressed, 0 otherwise
@@ -226,54 +232,52 @@ public class DummyMode implements GameMode {
 
     /**
      * Update menu cursor
+     *
      * @param engine GameEngine
      * @param maxCursor Max value of cursor position
      * @param playerID Player ID (unused)
      * @return -1 if Left key is pressed, 1 if Right key is pressed, 0 otherwise
      */
-    protected int updateCursor (GameEngine engine, int maxCursor, int playerID) {
+    protected int updateCursor(GameEngine engine, int maxCursor, int playerID) {
         // Up
-        if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+        if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
             engine.statc[2]--;
-            if(engine.statc[2] < 0) engine.statc[2] = maxCursor;
+            if (engine.statc[2] < 0) engine.statc[2] = maxCursor;
             engine.playSE("cursor");
         }
         // Down
-        if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+        if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
             engine.statc[2]++;
-            if(engine.statc[2] > maxCursor) engine.statc[2] = 0;
+            if (engine.statc[2] > maxCursor) engine.statc[2] = 0;
             engine.playSE("cursor");
         }
 
         // Configuration changes
-        if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT)) return -1;
-        if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) return 1;
+        if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT)) return -1;
+        if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) return 1;
         return 0;
     }
 
-    protected void initMenu (int y, int color, int statc) {
+    protected void initMenu(int y, int color, int statc) {
         menuY = y;
         menuColor = color;
         statcMenu = statc;
     }
 
-    protected void initMenu (int color, int statc) {
+    protected void initMenu(int color, int statc) {
         menuY = 0;
         statcMenu = statc;
         menuColor = color;
     }
 
-    protected void drawMenu (GameEngine engine, int playerID, EventReceiver receiver, String... str) {
-        for (int i = 0; i < str.length; i++)
-        {
-            if ((i&1) == 0)
+    protected void drawMenu(GameEngine engine, int playerID, EventReceiver receiver, String... str) {
+        for (int i = 0; i < str.length; i++) {
+            if ((i & 1) == 0)
                 receiver.drawMenuFont(engine, playerID, 0, menuY, str[i], menuColor);
-            else if (engine.statc[2] == statcMenu && !engine.owner.replayMode)
-            {
+            else if (engine.statc[2] == statcMenu && !engine.owner.replayMode) {
                 receiver.drawMenuFont(engine, playerID, 0, menuY, "b" + str[i], true);
                 statcMenu++;
-            }
-            else {
+            } else {
                 receiver.drawMenuFont(engine, playerID, 1, menuY, str[i]);
                 statcMenu++;
             }
@@ -281,113 +285,113 @@ public class DummyMode implements GameMode {
         }
     }
 
-    protected void drawMenu (GameEngine engine, int playerID, EventReceiver receiver,
-            int y, int color, int statc, String... str) {
-        for (int i = 0; i < str.length; i++)
-        {
-            if ((i&1) == 0)
-                receiver.drawMenuFont(engine, playerID, 0, y+i, str[i], color);
-            else if (engine.statc[2] == statc && !engine.owner.replayMode)
-            {
-                receiver.drawMenuFont(engine, playerID, 0, y+i, "b" + str[i], true);
+    protected void drawMenu(GameEngine engine, int playerID, EventReceiver receiver,
+                            int y, int color, int statc, String... str) {
+        for (int i = 0; i < str.length; i++) {
+            if ((i & 1) == 0)
+                receiver.drawMenuFont(engine, playerID, 0, y + i, str[i], color);
+            else if (engine.statc[2] == statc && !engine.owner.replayMode) {
+                receiver.drawMenuFont(engine, playerID, 0, y + i, "b" + str[i], true);
                 statc++;
-            }
-            else {
-                receiver.drawMenuFont(engine, playerID, 1, y+i, str[i]);
+            } else {
+                receiver.drawMenuFont(engine, playerID, 1, y + i, str[i]);
                 statc++;
             }
         }
     }
 
-    protected void drawResult (GameEngine engine, int playerID, EventReceiver receiver, int y, int color, String... str) {
+    protected void drawResult(GameEngine engine, int playerID, EventReceiver receiver, int y, int color, String... str) {
         for (int i = 0; i < str.length; i++)
-            receiver.drawMenuFont(engine, playerID, 0, y+i, str[i], ((i&1) == 0) ? color : EventReceiver.COLOR_WHITE);
+            receiver.drawMenuFont(engine, playerID, 0, y + i, str[i], ((i & 1) == 0) ? color : EventReceiver.COLOR_WHITE);
     }
-    protected void drawResultRank (GameEngine engine, int playerID, EventReceiver receiver, int y, int color, int rank) {
-        if(rank != -1) {
+
+    protected void drawResultRank(GameEngine engine, int playerID, EventReceiver receiver, int y, int color, int rank) {
+        if (rank != -1) {
             receiver.drawMenuFont(engine, playerID, 0, y, "RANK", color);
-            receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", rank + 1));
+            receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1));
         }
     }
-    protected void drawResultNetRank (GameEngine engine, int playerID, EventReceiver receiver, int y, int color, int rank) {
-        if(rank != -1) {
+
+    protected void drawResultNetRank(GameEngine engine, int playerID, EventReceiver receiver, int y, int color, int rank) {
+        if (rank != -1) {
             receiver.drawMenuFont(engine, playerID, 0, y, "NET-RANK", color);
-            receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", rank + 1));
+            receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1));
         }
     }
+
     protected void drawResultNetRankDaily(GameEngine engine, int playerID, EventReceiver receiver, int y, int color, int rank) {
-        if(rank != -1) {
+        if (rank != -1) {
             receiver.drawMenuFont(engine, playerID, 0, y, "DAILY-RANK", color);
-            receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", rank + 1));
+            receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1));
         }
     }
-    protected void drawResultStats (GameEngine engine, int playerID, EventReceiver receiver, int y, int color, int... stats) {
-        for (int i = 0; i < stats.length; i++)
-        {
-            switch(stats[i]) {
+
+    protected void drawResultStats(GameEngine engine, int playerID, EventReceiver receiver, int y, int color, int... stats) {
+        for (int i = 0; i < stats.length; i++) {
+            switch (stats[i]) {
                 case STAT_SCORE:
                     receiver.drawMenuFont(engine, playerID, 0, y, "SCORE", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.score));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.score));
                     break;
                 case STAT_LINES:
                     receiver.drawMenuFont(engine, playerID, 0, y, "LINES", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.lines));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.lines));
                     break;
                 case STAT_TIME:
                     receiver.drawMenuFont(engine, playerID, 0, y, "TIME", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
                     break;
                 case STAT_LEVEL:
                     receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.level + 1));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.level + 1));
                     break;
                 case STAT_LEVEL_MANIA:
                     receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.level));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.level));
                     break;
                 case STAT_PIECE:
                     receiver.drawMenuFont(engine, playerID, 0, y, "PIECE", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.totalPieceLocked));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.totalPieceLocked));
                     break;
                 case STAT_MAXCOMBO:
                     receiver.drawMenuFont(engine, playerID, 0, y, "MAX COMBO", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.maxCombo - 1));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.maxCombo - 1));
                     break;
                 case STAT_SPL:
                     receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/LINE", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10g", engine.statistics.spl));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.spl));
                     break;
                 case STAT_SPM:
                     receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/MIN", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10g", engine.statistics.spm));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.spm));
                     break;
                 case STAT_SPS:
                     receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/SEC", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10g", engine.statistics.sps));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.sps));
                     break;
                 case STAT_LPM:
                     receiver.drawMenuFont(engine, playerID, 0, y, "LINE/MIN", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10g", engine.statistics.lpm));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.lpm));
                     break;
                 case STAT_LPS:
                     receiver.drawMenuFont(engine, playerID, 0, y, "LINE/SEC", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10g", engine.statistics.lps));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.lps));
                     break;
                 case STAT_PPM:
                     receiver.drawMenuFont(engine, playerID, 0, y, "PIECE/MIN", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10g", engine.statistics.ppm));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.ppm));
                     break;
                 case STAT_PPS:
                     receiver.drawMenuFont(engine, playerID, 0, y, "PIECE/SEC", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10g", engine.statistics.pps));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.pps));
                     break;
                 case STAT_MAXCHAIN:
                     receiver.drawMenuFont(engine, playerID, 0, y, "MAX CHAIN", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.maxChain));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.maxChain));
                     break;
                 case STAT_LEVEL_ADD_DISP:
                     receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color);
-                    receiver.drawMenuFont(engine, playerID, 0, y+1, String.format("%10d", engine.statistics.level + engine.statistics.levelDispAdd));
+                    receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.level + engine.statistics.levelDispAdd));
                     break;
             }
             y += 2;

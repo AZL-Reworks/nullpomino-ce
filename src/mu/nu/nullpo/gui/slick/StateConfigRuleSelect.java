@@ -45,34 +45,54 @@ import org.newdawn.slick.state.StateBasedGame;
  * Rule selector state
  */
 public class StateConfigRuleSelect extends DummyMenuScrollState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 7;
 
-    /** Number of rules shown at a time */
+    /**
+     * Number of rules shown at a time
+     */
     public static final int PAGE_HEIGHT = 21;
 
-    /** Player ID */
+    /**
+     * Player ID
+     */
     public int player = 0;
 
-    /** Game style ID */
+    /**
+     * Game style ID
+     */
     public int style = 0;
 
-    /** Rule file list (for loading) */
+    /**
+     * Rule file list (for loading)
+     */
     private String[] strFileList;
 
-    /** Rule name list */
+    /**
+     * Rule name list
+     */
     private String[] strRuleNameList;
 
-    /** Rule file list (for list display) */
+    /**
+     * Rule file list (for list display)
+     */
     private String[] strRuleFileList;
 
-    /** Current Rule File name */
+    /**
+     * Current Rule File name
+     */
     private String strCurrentFileName;
 
-    /** Current Rule name */
+    /**
+     * Current Rule name
+     */
     private String strCurrentRuleName;
 
-    /** Rule entries */
+    /**
+     * Rule entries
+     */
     private LinkedList<RuleEntry> ruleEntries;
 
     /**
@@ -94,6 +114,7 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
 
     /**
      * Get rule file list
+     *
      * @return Rule file list. null if directory doesn't exist.
      */
     private String[] getRuleFileList() {
@@ -107,7 +128,7 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
 
         String[] list = dir.list(filter);
 
-        if(!System.getProperty("os.name").startsWith("Windows")) {
+        if (!System.getProperty("os.name").startsWith("Windows")) {
             // Sort if not windows
             Arrays.sort(list);
         }
@@ -117,13 +138,14 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
 
     /**
      * Create rule entries
+     *
      * @param filelist Rule file list
      * @param currentStyle Current style
      */
     private void createRuleEntries(String[] filelist, int currentStyle) {
         ruleEntries = new LinkedList<RuleEntry>();
 
-        for(int i = 0; i < filelist.length; i++) {
+        for (int i = 0; i < filelist.length; i++) {
             RuleEntry entry = new RuleEntry();
 
             File file = new File("config/rule/" + filelist[i]);
@@ -142,7 +164,7 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
                 entry.style = -1;
             }
 
-            if(entry.style == currentStyle) {
+            if (entry.style == currentStyle) {
                 ruleEntries.add(entry);
             }
         }
@@ -150,12 +172,13 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
 
     /**
      * Get rule name list as String[]
+     *
      * @return Rule name list
      */
     private String[] extractRuleNameListFromRuleEntries() {
         String[] result = new String[ruleEntries.size()];
 
-        for(int i = 0; i < ruleEntries.size(); i++) {
+        for (int i = 0; i < ruleEntries.size(); i++) {
             result[i] = ruleEntries.get(i).rulename;
         }
 
@@ -164,12 +187,13 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
 
     /**
      * Get rule file name list as String[]
+     *
      * @return Rule name list
      */
     private String[] extractFileNameListFromRuleEntries() {
         String[] result = new String[ruleEntries.size()];
 
-        for(int i = 0; i < ruleEntries.size(); i++) {
+        for (int i = 0; i < ruleEntries.size(); i++) {
             result[i] = ruleEntries.get(i).filename;
         }
 
@@ -186,9 +210,9 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
         strRuleNameList = extractRuleNameListFromRuleEntries();
         strRuleFileList = extractFileNameListFromRuleEntries();
         list = strRuleNameList;
-        maxCursor = list.length-1;
+        maxCursor = list.length - 1;
 
-        if(style == 0) {
+        if (style == 0) {
             strCurrentFileName = NullpoMinoSlick.propGlobal.getProperty(player + ".rulefile", "");
             strCurrentRuleName = NullpoMinoSlick.propGlobal.getProperty(player + ".rulename", "");
         } else {
@@ -197,8 +221,8 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
         }
 
         cursor = 0;
-        for(int i = 0; i < ruleEntries.size(); i++) {
-            if(ruleEntries.get(i).filename.equals(strCurrentFileName)) {
+        for (int i = 0; i < ruleEntries.size(); i++) {
+            if (ruleEntries.get(i).filename.equals(strCurrentFileName)) {
                 cursor = i;
             }
         }
@@ -214,7 +238,7 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
      * Draw the screen
      */
     @Override
-    protected void onRenderSuccess (GameContainer container, StateBasedGame game, Graphics graphics)  {
+    protected void onRenderSuccess(GameContainer container, StateBasedGame game, Graphics graphics) {
         String title = "SELECT " + (player + 1) + "P RULE (" + (cursor + 1) + "/" + (list.length) + ")";
         NormalFont.printFontGrid(1, 1, title, NormalFont.COLOR_ORANGE);
 
@@ -232,7 +256,7 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
         ResourceHolder.soundManager.play("decide");
 
         RuleEntry entry = ruleEntries.get(cursor);
-        if(style == 0) {
+        if (style == 0) {
             NullpoMinoSlick.propGlobal.setProperty(player + ".rule", entry.filepath);
             NullpoMinoSlick.propGlobal.setProperty(player + ".rulefile", entry.filename);
             NullpoMinoSlick.propGlobal.setProperty(player + ".rulename", entry.rulename);
@@ -263,7 +287,7 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
     @Override
     protected boolean onPushButtonD(GameContainer container, StateBasedGame game, int delta) {
         ResourceHolder.soundManager.play("change");
-        if(list == strRuleNameList) {
+        if (list == strRuleNameList) {
             list = strRuleFileList;
         } else {
             list = strRuleNameList;
@@ -275,13 +299,21 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
      * Rule entry
      */
     private class RuleEntry {
-        /** File name */
+        /**
+         * File name
+         */
         public String filename;
-        /** File path */
+        /**
+         * File path
+         */
         public String filepath;
-        /** Rule name */
+        /**
+         * Rule name
+         */
         public String rulename;
-        /** Game style */
+        /**
+         * Game style
+         */
         public int style;
     }
 }

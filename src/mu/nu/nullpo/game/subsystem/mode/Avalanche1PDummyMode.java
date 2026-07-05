@@ -39,108 +39,157 @@ import mu.nu.nullpo.util.GeneralUtil;
  * AVALANCHE DUMMY Mode
  */
 public abstract class Avalanche1PDummyMode extends DummyMode {
-    /** Enabled piece types */
-    public static final int[] PIECE_ENABLE = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+    /**
+     * Enabled piece types
+     */
+    public static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
-    /** Enabled piece types */
+    /**
+     * Enabled piece types
+     */
     public static final int[] CHAIN_POWERS_FEVERTYPE =
-    {
-        4, 12, 24, 32, 48, 96, 160, 240, 320, 400, 500, 600, 700, 800, 900, 999
-    };
+        {
+            4, 12, 24, 32, 48, 96, 160, 240, 320, 400, 500, 600, 700, 800, 900, 999
+        };
 
     public int[] tableSpeedChangeLevel =
-    {
-        80, 90, 96, 97, Integer.MAX_VALUE
-    };
+        {
+            80, 90, 96, 97, Integer.MAX_VALUE
+        };
 
     public int[] tableSpeedValue =
-    {
-        30, 45, 120, 480, -1
-    };
+        {
+            30, 45, 120, 480, -1
+        };
 
-    /** Block colors */
+    /**
+     * Block colors
+     */
     public static final int[] BLOCK_COLORS =
-    {
-        Block.BLOCK_COLOR_RED,
-        Block.BLOCK_COLOR_GREEN,
-        Block.BLOCK_COLOR_BLUE,
-        Block.BLOCK_COLOR_YELLOW,
-        Block.BLOCK_COLOR_PURPLE
-    };
+        {
+            Block.BLOCK_COLOR_RED,
+            Block.BLOCK_COLOR_GREEN,
+            Block.BLOCK_COLOR_BLUE,
+            Block.BLOCK_COLOR_YELLOW,
+            Block.BLOCK_COLOR_PURPLE
+        };
 
-    /** Fever map files list */
+    /**
+     * Fever map files list
+     */
     public static final String[] FEVER_MAPS =
-    {
-        "Fever", "15th", "15thDS", "7", "Poochy7"
-    };
+        {
+            "Fever", "15th", "15thDS", "7", "Poochy7"
+        };
 
     public static final int DAS = 10;
 
-    /** GameManager object (Manages entire game status) */
+    /**
+     * GameManager object (Manages entire game status)
+     */
     protected GameManager owner;
 
-    /** EventReceiver object (This receives many game events, can also be used for drawing the fonts.) */
+    /**
+     * EventReceiver object (This receives many game events, can also be used for drawing the fonts.)
+     */
     protected EventReceiver receiver;
 
-    /** Amount of points earned from most recent clear */
+    /**
+     * Amount of points earned from most recent clear
+     */
     protected int lastscore, lastmultiplier;
 
-    /** Elapsed time from last line clear (lastscore is displayed to screen until this reaches to 120) */
+    /**
+     * Elapsed time from last line clear (lastscore is displayed to screen until this reaches to 120)
+     */
     protected int scgettime;
 
-    /** Outline type */
+    /**
+     * Outline type
+     */
     protected int outlinetype;
 
-    /** Flag for all clear */
+    /**
+     * Flag for all clear
+     */
     protected boolean zenKeshi;
 
-    /** Amount of garbage sent */
+    /**
+     * Amount of garbage sent
+     */
     protected int garbageSent, garbageAdd;
 
-    /** Number of colors to use */
+    /**
+     * Number of colors to use
+     */
     protected int numColors;
 
-    /** Time to display last chain */
+    /**
+     * Time to display last chain
+     */
     protected int chainDisplay;
 
-    /** Number of all clears */
+    /**
+     * Number of all clears
+     */
     protected int zenKeshiCount;
 
-    /** Score before adding zenkeshi bonus and max chain bonus */
+    /**
+     * Score before adding zenkeshi bonus and max chain bonus
+     */
     protected int scoreBeforeBonus;
 
-    /** Zenkeshi bonus and max chain bonus amounts */
+    /**
+     * Zenkeshi bonus and max chain bonus amounts
+     */
     protected int zenKeshiBonus, maxChainBonus;
 
-    /** Blocks cleared */
+    /**
+     * Blocks cleared
+     */
     protected int blocksCleared;
 
-    /** Current level */
+    /**
+     * Current level
+     */
     protected int level;
 
-    /** Maximum level */
+    /**
+     * Maximum level
+     */
     protected int maxLevel;
 
-    /** Blocks cleared needed to reach next level */
+    /**
+     * Blocks cleared needed to reach next level
+     */
     protected int toNextLevel;
 
-    /** Blocks cleared needed to reach next level */
+    /**
+     * Blocks cleared needed to reach next level
+     */
     protected int blocksPerLevel;
 
-    /** True to use slower falling animations, false to use faster */
+    /**
+     * True to use slower falling animations, false to use faster
+     */
     protected boolean cascadeSlow;
 
-    /** True to use big field display */
+    /**
+     * True to use big field display
+     */
     protected boolean bigDisplay;
 
-    /** 1 ojama is generated per this many points. */
+    /**
+     * 1 ojama is generated per this many points.
+     */
     protected int ojamaRate;
 
-    /** Index of current speed value in table */
+    /**
+     * Index of current speed value in table
+     */
     protected int speedIndex;
 
-    public Avalanche1PDummyMode()
-    {
+    public Avalanche1PDummyMode() {
         blocksPerLevel = 15;
         maxLevel = 99;
         ojamaRate = 120;
@@ -197,7 +246,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
         engine.garbageColorClear = true;
         engine.colorClearSize = 4;
         engine.ignoreHidden = true;
-        for(int i = 0; i < Piece.PIECE_COUNT; i++)
+        for (int i = 0; i < Piece.PIECE_COUNT; i++)
             engine.nextPieceEnable[i] = (PIECE_ENABLE[i] == 1);
         engine.randomBlockColor = true;
         engine.blockColors = BLOCK_COLORS;
@@ -214,6 +263,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
 
     /**
      * Set the gravity rate
+     *
      * @param engine GameEngine
      */
     public void setSpeed(GameEngine engine) {
@@ -230,7 +280,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
 
     @Override
     public boolean onReady(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 0)
+        if (engine.statc[0] == 0)
             return readyInit(engine, playerID);
         return false;
     }
@@ -240,9 +290,9 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
         engine.lineGravityType = cascadeSlow ? GameEngine.LINE_GRAVITY_CASCADE_SLOW : GameEngine.LINE_GRAVITY_CASCADE;
         engine.displaysize = bigDisplay ? 1 : 0;
 
-        if(outlinetype == 0) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
-        else if(outlinetype == 1) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_SAMECOLOR;
-        else if(outlinetype == 2) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
+        if (outlinetype == 0) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
+        else if (outlinetype == 1) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_SAMECOLOR;
+        else if (outlinetype == 2) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
 
         if (numColors == 3) level = 1;
         else if (numColors == 4) level = 5;
@@ -301,20 +351,20 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
      */
     @Override
     public boolean onGameOver(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 0)
+        if (engine.statc[0] == 0)
             addBonus(engine, playerID);
         return false;
     }
 
-    protected void addBonus (GameEngine engine, int playerID) {
+    protected void addBonus(GameEngine engine, int playerID) {
         scoreBeforeBonus = engine.statistics.score;
         if (numColors >= 5)
-            zenKeshiBonus = zenKeshiCount*zenKeshiCount*1000;
+            zenKeshiBonus = zenKeshiCount * zenKeshiCount * 1000;
         else if (numColors == 4)
-            zenKeshiBonus = zenKeshiCount*(zenKeshiCount+1)*500;
+            zenKeshiBonus = zenKeshiCount * (zenKeshiCount + 1) * 500;
         else
-            zenKeshiBonus = zenKeshiCount*(zenKeshiCount+3)*250;
-        maxChainBonus = engine.statistics.maxChain*engine.statistics.maxChain*2000;
+            zenKeshiBonus = zenKeshiCount * (zenKeshiCount + 3) * 250;
+        maxChainBonus = engine.statistics.maxChain * engine.statistics.maxChain * 2000;
         engine.statistics.score += zenKeshiBonus + maxChainBonus;
     }
 
@@ -350,8 +400,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
                 zenKeshi = true;
                 zenKeshiCount++;
                 //engine.statistics.score += 2100;
-            }
-            else
+            } else
                 zenKeshi = false;
 
             onClear(engine, playerID);
@@ -361,7 +410,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
 
             int multiplier = engine.field.colorClearExtraCount;
             if (engine.field.colorsCleared > 1)
-                multiplier += (engine.field.colorsCleared-1)*2;
+                multiplier += (engine.field.colorsCleared - 1) * 2;
 
             multiplier += calcChainMultiplier(engine.chain);
 
@@ -372,8 +421,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
 
             blocksCleared += avalanche;
             toNextLevel -= avalanche;
-            if (toNextLevel <= 0 && level < maxLevel)
-            {
+            if (toNextLevel <= 0 && level < maxLevel) {
                 toNextLevel = blocksPerLevel;
                 level++;
             }
@@ -381,7 +429,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
             lastscore = pts;
             lastmultiplier = multiplier;
             scgettime = 120;
-            int score = pts*multiplier;
+            int score = pts * multiplier;
             engine.statistics.scoreFromLineClear += score;
             engine.statistics.score += score;
 
@@ -391,13 +439,12 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
         }
     }
 
-    protected int calcOjama(int score, int avalanche, int pts, int multiplier)
-    {
-        return (score+ojamaRate-1)/ojamaRate;
+    protected int calcOjama(int score, int avalanche, int pts, int multiplier) {
+        return (score + ojamaRate - 1) / ojamaRate;
     }
 
-    protected int calcPts (int avalanche) {
-        return avalanche*10;
+    protected int calcPts(int avalanche) {
+        return avalanche * 10;
     }
 
     protected int calcChainMultiplier(int chain) {
@@ -406,12 +453,12 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
         else if (chain == 3)
             return 16;
         else if (chain >= 4)
-            return 32*(chain-3);
+            return 32 * (chain - 3);
         else
             return 0;
     }
 
-    protected void onClear (GameEngine engine, int playerID) {
+    protected void onClear(GameEngine engine, int playerID) {
         chainDisplay = 60;
     }
 
@@ -420,8 +467,7 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
         engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK, true);
         engine.field.setBlockLinkByColor();
 
-        if (garbageAdd > 0)
-        {
+        if (garbageAdd > 0) {
             garbageSent += garbageAdd;
             garbageAdd = 0;
         }
@@ -433,28 +479,28 @@ public abstract class Avalanche1PDummyMode extends DummyMode {
      */
     @Override
     public void renderResult(GameEngine engine, int playerID) {
-        receiver.drawMenuFont(engine, playerID,  0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
+        receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
 
-        receiver.drawMenuFont(engine, playerID,  0, 3, "SCORE", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 3, "SCORE", EventReceiver.COLOR_BLUE);
         String strScoreBefore = String.format("%10d", scoreBeforeBonus);
-        receiver.drawMenuFont(engine, playerID,  0, 4, strScoreBefore, EventReceiver.COLOR_GREEN);
+        receiver.drawMenuFont(engine, playerID, 0, 4, strScoreBefore, EventReceiver.COLOR_GREEN);
 
-        receiver.drawMenuFont(engine, playerID,  0, 5, "ZENKESHI", EventReceiver.COLOR_BLUE);
-        receiver.drawMenuFont(engine, playerID,  0, 6, String.format("%10d", zenKeshiCount));
+        receiver.drawMenuFont(engine, playerID, 0, 5, "ZENKESHI", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 6, String.format("%10d", zenKeshiCount));
         String strZenKeshiBonus = "+" + zenKeshiBonus;
-        receiver.drawMenuFont(engine, playerID, 10-strZenKeshiBonus.length(), 7, strZenKeshiBonus, EventReceiver.COLOR_GREEN);
+        receiver.drawMenuFont(engine, playerID, 10 - strZenKeshiBonus.length(), 7, strZenKeshiBonus, EventReceiver.COLOR_GREEN);
 
-        receiver.drawMenuFont(engine, playerID,  0, 8, "MAX CHAIN", EventReceiver.COLOR_BLUE);
-        receiver.drawMenuFont(engine, playerID,  0, 9, String.format("%10d", engine.statistics.maxChain));
+        receiver.drawMenuFont(engine, playerID, 0, 8, "MAX CHAIN", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 9, String.format("%10d", engine.statistics.maxChain));
         String strMaxChainBonus = "+" + maxChainBonus;
-        receiver.drawMenuFont(engine, playerID, 10-strMaxChainBonus.length(), 10, strMaxChainBonus, EventReceiver.COLOR_GREEN);
+        receiver.drawMenuFont(engine, playerID, 10 - strMaxChainBonus.length(), 10, strMaxChainBonus, EventReceiver.COLOR_GREEN);
 
-        receiver.drawMenuFont(engine, playerID,  0, 11, "TOTAL", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 11, "TOTAL", EventReceiver.COLOR_BLUE);
         String strScore = String.format("%10d", engine.statistics.score);
-        receiver.drawMenuFont(engine, playerID,  0, 12, strScore, EventReceiver.COLOR_RED);
+        receiver.drawMenuFont(engine, playerID, 0, 12, strScore, EventReceiver.COLOR_RED);
 
-        receiver.drawMenuFont(engine, playerID,  0, 13, "TIME", EventReceiver.COLOR_BLUE);
+        receiver.drawMenuFont(engine, playerID, 0, 13, "TIME", EventReceiver.COLOR_BLUE);
         String strTime = String.format("%10s", GeneralUtil.getTime(engine.statistics.time));
-        receiver.drawMenuFont(engine, playerID,  0, 14, strTime);
+        receiver.drawMenuFont(engine, playerID, 0, 14, strTime);
     }
 }

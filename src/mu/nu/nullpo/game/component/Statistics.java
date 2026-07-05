@@ -36,121 +36,199 @@ import mu.nu.nullpo.util.CustomProperties;
  * Scoreなどの情報
  */
 public class Statistics implements Serializable {
-    /** Serial version ID */
+    /**
+     * Serial version ID
+     */
     private static final long serialVersionUID = -499640168205398295L;
 
-    /** Total score */
+    /**
+     * Total score
+     */
     public int score;
 
-    /** Line clear score */
+    /**
+     * Line clear score
+     */
     public int scoreFromLineClear;
 
-    /** Soft drop score */
+    /**
+     * Soft drop score
+     */
     public int scoreFromSoftDrop;
 
-    /** Hard drop score */
+    /**
+     * Hard drop score
+     */
     public int scoreFromHardDrop;
 
-    /** その他の方法で手に入れたScore */
+    /**
+     * その他の方法で手に入れたScore
+     */
     public int scoreFromOtherBonus;
 
-    /** Total line count */
+    /**
+     * Total line count
+     */
     public int lines;
 
-    /** 経過 time */
+    /**
+     * 経過 time
+     */
     public int time;
 
-    /** Level */
+    /**
+     * Level
+     */
     public int level;
 
-    /** Levelの表示に加算するcount (表示 levelが内部の値と異なる場合に使用) */
+    /**
+     * Levelの表示に加算するcount (表示 levelが内部の値と異なる場合に使用)
+     */
     public int levelDispAdd;
 
-    /** 置いたピースのcount */
+    /**
+     * 置いたピースのcount
+     */
     public int totalPieceLocked;
 
-    /** ピースを操作していた合計 time */
+    /**
+     * ピースを操作していた合計 time
+     */
     public int totalPieceActiveTime;
 
-    /** ピースを移動させた合計 count */
+    /**
+     * ピースを移動させた合計 count
+     */
     public int totalPieceMove;
 
-    /** ピースをrotationさせた合計 count */
+    /**
+     * ピースをrotationさせた合計 count
+     */
     public int totalPieceRotate;
 
-    /** 1-line clear count */
+    /**
+     * 1-line clear count
+     */
     public int totalSingle;
 
-    /** 2-line clear count */
+    /**
+     * 2-line clear count
+     */
     public int totalDouble;
 
-    /** 3-line clear count */
+    /**
+     * 3-line clear count
+     */
     public int totalTriple;
 
-    /** 4-line clear count */
+    /**
+     * 4-line clear count
+     */
     public int totalFour;
 
-    /** T-Spin 0 lines (with wallkick) count */
+    /**
+     * T-Spin 0 lines (with wallkick) count
+     */
     public int totalTSpinZeroMini;
 
-    /** T-Spin 0 lines (without wallkick) count */
+    /**
+     * T-Spin 0 lines (without wallkick) count
+     */
     public int totalTSpinZero;
 
-    /** T-Spin 1 line (with wallkick) count */
+    /**
+     * T-Spin 1 line (with wallkick) count
+     */
     public int totalTSpinSingleMini;
 
-    /** T-Spin 1 line (without wallkick) count */
+    /**
+     * T-Spin 1 line (without wallkick) count
+     */
     public int totalTSpinSingle;
 
-    /** T-Spin 2 line (with wallkick) count */
+    /**
+     * T-Spin 2 line (with wallkick) count
+     */
     public int totalTSpinDoubleMini;
 
-    /** T-Spin 2 line (without wallkick) count */
+    /**
+     * T-Spin 2 line (without wallkick) count
+     */
     public int totalTSpinDouble;
 
-    /** T-Spin 3 line count */
+    /**
+     * T-Spin 3 line count
+     */
     public int totalTSpinTriple;
 
-    /** Back to Back 4-line clear count */
+    /**
+     * Back to Back 4-line clear count
+     */
     public int totalB2BFour;
 
-    /** Back to Back T-Spin clear count */
+    /**
+     * Back to Back T-Spin clear count
+     */
     public int totalB2BTSpin;
 
-    /** Hold use count */
+    /**
+     * Hold use count
+     */
     public int totalHoldUsed;
 
-    /** Largest combo */
+    /**
+     * Largest combo
+     */
     public int maxCombo;
 
-    /** 1Linesあたりの得点 (Score Per Line) */
+    /**
+     * 1Linesあたりの得点 (Score Per Line)
+     */
     public double spl;
 
-    /** 1分間あたりの得点 (Score Per Minute) */
+    /**
+     * 1分間あたりの得点 (Score Per Minute)
+     */
     public double spm;
 
-    /** 1秒間あたりの得点 (Score Per Second) */
+    /**
+     * 1秒間あたりの得点 (Score Per Second)
+     */
     public double sps;
 
-    /** 1分間あたりのLinescount (Lines Per Minute) */
+    /**
+     * 1分間あたりのLinescount (Lines Per Minute)
+     */
     public float lpm;
 
-    /** 1秒間あたりのLinescount (Lines Per Second) */
+    /**
+     * 1秒間あたりのLinescount (Lines Per Second)
+     */
     public float lps;
 
-    /** 1分間あたりのピースcount (Pieces Per Minute) */
+    /**
+     * 1分間あたりのピースcount (Pieces Per Minute)
+     */
     public float ppm;
 
-    /** 1秒間あたりのピースcount (Pieces Per Second) */
+    /**
+     * 1秒間あたりのピースcount (Pieces Per Second)
+     */
     public float pps;
 
-    /** TAS detection: slowdown rate */
+    /**
+     * TAS detection: slowdown rate
+     */
     public float gamerate;
 
-    /** Max chain */
+    /**
+     * Max chain
+     */
     public int maxChain;
 
-    /** Roll cleared flag (0=Died 1=Reached 2=Fully Survived) */
+    /**
+     * Roll cleared flag (0=Died 1=Reached 2=Fully Survived)
+     */
     public int rollclear;
 
     /**
@@ -162,6 +240,7 @@ public class Statistics implements Serializable {
 
     /**
      * Copy constructor
+     *
      * @param s Copy source
      */
     public Statistics(Statistics s) {
@@ -170,6 +249,7 @@ public class Statistics implements Serializable {
 
     /**
      * Constructor that imports data from a String Array
+     *
      * @param s String Array (String[37])
      */
     public Statistics(String[] s) {
@@ -178,6 +258,7 @@ public class Statistics implements Serializable {
 
     /**
      * Constructor that imports data from a String
+     *
      * @param s String (Split by ;)
      */
     public Statistics(String s) {
@@ -230,6 +311,7 @@ public class Statistics implements Serializable {
 
     /**
      * 他のStatisticsの値をコピー
+     *
      * @param s Copy source
      */
     public void copy(Statistics s) {
@@ -276,21 +358,22 @@ public class Statistics implements Serializable {
      * SPMやLPMの更新
      */
     public void update() {
-        if(lines > 0) {
-            spl = (double)(score) / (double)(lines);
+        if (lines > 0) {
+            spl = (double) (score) / (double) (lines);
         }
-        if(time > 0) {
-            spm = (double)(score * 3600.0) / (double)(time);
-            sps = (double)(score * 60.0) / (double)(time);
-            lpm = (float)(lines * 3600f) / (float)(time);
-            lps = (float)(lines * 60f) / (float)(time);
-            ppm = (float)(totalPieceLocked * 3600f) / (float)(time);
-            pps = (float)(totalPieceLocked * 60f) / (float)(time);
+        if (time > 0) {
+            spm = (double) (score * 3600.0) / (double) (time);
+            sps = (double) (score * 60.0) / (double) (time);
+            lpm = (float) (lines * 3600f) / (float) (time);
+            lps = (float) (lines * 60f) / (float) (time);
+            ppm = (float) (totalPieceLocked * 3600f) / (float) (time);
+            pps = (float) (totalPieceLocked * 60f) / (float) (time);
         }
     }
 
     /**
      * プロパティセットに保存
+     *
      * @param p プロパティセット
      * @param id 任意のID (Player IDなど）
      */
@@ -335,7 +418,7 @@ public class Statistics implements Serializable {
         p.setProperty(id + ".statistics.rollclear", rollclear);
 
         // 旧Versionとの互換用
-        if(id == 0) {
+        if (id == 0) {
             p.setProperty("result.score", score);
             p.setProperty("result.totallines", lines);
             p.setProperty("result.level", level);
@@ -345,6 +428,7 @@ public class Statistics implements Serializable {
 
     /**
      * プロパティセットから読み込み
+     *
      * @param p プロパティセット
      * @param id 任意のID (Player IDなど）
      */
@@ -391,6 +475,7 @@ public class Statistics implements Serializable {
 
     /**
      * Import from String Array
+     *
      * @param s String Array (String[38])
      */
     public void importStringArray(String[] s) {
@@ -431,11 +516,12 @@ public class Statistics implements Serializable {
         pps = Float.parseFloat(s[34]);
         gamerate = Float.parseFloat(s[35]);
         maxChain = Integer.parseInt(s[36]);
-        if(s.length > 37) rollclear = Integer.parseInt(s[37]);
+        if (s.length > 37) rollclear = Integer.parseInt(s[37]);
     }
 
     /**
      * Import from String
+     *
      * @param s String (Split by ;)
      */
     public void importString(String s) {
@@ -444,6 +530,7 @@ public class Statistics implements Serializable {
 
     /**
      * Export to String Array
+     *
      * @return String Array (String[38])
      */
     public String[] exportStringArray() {
@@ -491,13 +578,14 @@ public class Statistics implements Serializable {
 
     /**
      * Export to String
+     *
      * @return String (Split by ;)
      */
     public String exportString() {
         String[] array = exportStringArray();
         String result = "";
-        for(int i = 0; i < array.length; i++) {
-            if(i > 0) result += ";";
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) result += ";";
             result += array[i];
         }
         return result;

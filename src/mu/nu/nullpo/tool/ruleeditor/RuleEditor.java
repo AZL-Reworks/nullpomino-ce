@@ -87,366 +87,580 @@ import org.apache.log4j.PropertyConfigurator;
  * ルールエディター
  */
 public class RuleEditor extends JFrame implements ActionListener {
-    /** Serial version */
+    /**
+     * Serial version
+     */
     private static final long serialVersionUID = 1L;
 
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(RuleEditor.class);
 
-    /** Swing版のSave settings用Property file */
+    /**
+     * Swing版のSave settings用Property file
+     */
     public CustomProperties propConfig;
 
-    /** Default language file */
+    /**
+     * Default language file
+     */
     public CustomProperties propLangDefault;
 
-    /** UI翻訳用Property file */
+    /**
+     * UI翻訳用Property file
+     */
     public CustomProperties propLang;
 
     //----------------------------------------------------------------------
-    /** 今開いているFilename (null:なし) */
+    /**
+     * 今開いているFilename (null:なし)
+     */
     private String strNowFile;
 
-    /** タブ */
+    /**
+     * タブ
+     */
     private JTabbedPane tabPane;
 
     //----------------------------------------------------------------------
     /* 基本設定パネル */
 
-    /** Rule name */
+    /**
+     * Rule name
+     */
     private JTextField txtfldRuleName;
 
-    /** NEXT表示countのテキストfield */
+    /**
+     * NEXT表示countのテキストfield
+     */
     private JTextField txtfldNextDisplay;
 
-    /** Game style combobox */
+    /**
+     * Game style combobox
+     */
     private JComboBox comboboxStyle;
 
-    /** 絵柄のComboボックス */
+    /**
+     * 絵柄のComboボックス
+     */
     private JComboBox comboboxSkin;
 
-    /** ghost  is enabled */
+    /**
+     * ghost  is enabled
+     */
     private JCheckBox chkboxGhost;
 
-    /** Blockピースがfield枠外から出現 */
+    /**
+     * Blockピースがfield枠外から出現
+     */
     private JCheckBox chkboxEnterAboveField;
 
-    /** 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count */
+    /**
+     * 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count
+     */
     private JTextField txtfldEnterMaxDistanceY;
 
-    /** NEXT順生成アルゴリズム */
+    /**
+     * NEXT順生成アルゴリズム
+     */
     private JComboBox comboboxRandomizer;
 
-    /** NEXT順生成アルゴリズムのリスト */
+    /**
+     * NEXT順生成アルゴリズムのリスト
+     */
     private Vector<String> vectorRandomizer;
 
-    /** NEXT順生成アルゴリズムのリセット button */
+    /**
+     * NEXT順生成アルゴリズムのリセット button
+     */
     private JButton btnResetRandomizer;
 
     //----------------------------------------------------------------------
     /* field設定パネル */
 
-    /** fieldの幅 */
+    /**
+     * fieldの幅
+     */
     private JTextField txtfldFieldWidth;
 
-    /** Field height */
+    /**
+     * Field height
+     */
     private JTextField txtfldFieldHeight;
 
-    /** fieldの見えない部分の高さ */
+    /**
+     * fieldの見えない部分の高さ
+     */
     private JTextField txtfldFieldHiddenHeight;
 
-    /** fieldの天井 */
+    /**
+     * fieldの天井
+     */
     private JCheckBox chkboxFieldCeiling;
 
-    /** field枠内に置けないと死亡 */
+    /**
+     * field枠内に置けないと死亡
+     */
     private JCheckBox chkboxFieldLockoutDeath;
 
-    /** field枠外にはみ出しただけで死亡 */
+    /**
+     * field枠外にはみ出しただけで死亡
+     */
     private JCheckBox chkboxFieldPartialLockoutDeath;
 
     //----------------------------------------------------------------------
     /* ホールド設定パネル */
 
-    /** ホールド is enabled */
+    /**
+     * ホールド is enabled
+     */
     private JCheckBox chkboxHoldEnable;
 
-    /** 先行ホールド */
+    /**
+     * 先行ホールド
+     */
     private JCheckBox chkboxHoldInitial;
 
-    /** 先行ホールド連続使用不可 */
+    /**
+     * 先行ホールド連続使用不可
+     */
     private JCheckBox chkboxHoldInitialLimit;
 
-    /** ホールドを使ったときにBlockピースの向きを初期状態に戻す */
+    /**
+     * ホールドを使ったときにBlockピースの向きを初期状態に戻す
+     */
     private JCheckBox chkboxHoldResetDirection;
 
-    /** ホールドできる count (-1:無制限) */
+    /**
+     * ホールドできる count (-1:無制限)
+     */
     private JTextField txtfldHoldLimit;
 
     //----------------------------------------------------------------------
     /* ドロップ設定パネル */
 
-    /** Hard drop使用可否 */
+    /**
+     * Hard drop使用可否
+     */
     private JCheckBox chkboxDropHardDropEnable;
 
-    /** Hard dropで即固定 */
+    /**
+     * Hard dropで即固定
+     */
     private JCheckBox chkboxDropHardDropLock;
 
-    /** Hard drop連続使用不可 */
+    /**
+     * Hard drop連続使用不可
+     */
     private JCheckBox chkboxDropHardDropLimit;
 
-    /** Soft drop使用可否 */
+    /**
+     * Soft drop使用可否
+     */
     private JCheckBox chkboxDropSoftDropEnable;
 
-    /** Soft dropで即固定 */
+    /**
+     * Soft dropで即固定
+     */
     private JCheckBox chkboxDropSoftDropLock;
 
-    /** Soft drop連続使用不可 */
+    /**
+     * Soft drop連続使用不可
+     */
     private JCheckBox chkboxDropSoftDropLimit;
 
-    /** 接地状態でSoft dropすると即固定 */
+    /**
+     * 接地状態でSoft dropすると即固定
+     */
     private JCheckBox chkboxDropSoftDropSurfaceLock;
 
-    /** Soft drop速度 */
+    /**
+     * Soft drop速度
+     */
     private JTextField txtfldDropSoftDropSpeed;
 
-    /** Soft drop速度をCurrent 通常速度×n倍にする */
+    /**
+     * Soft drop速度をCurrent 通常速度×n倍にする
+     */
     private JCheckBox chkboxDropSoftDropMultiplyNativeSpeed;
 
-    /** Use new soft drop codes */
+    /**
+     * Use new soft drop codes
+     */
     private JCheckBox chkboxDropSoftDropGravitySpeedLimit;
 
     //----------------------------------------------------------------------
     /* rotation設定パネル */
 
-    /** 先行rotation */
+    /**
+     * 先行rotation
+     */
     private JCheckBox chkboxRotateInitial;
 
-    /** 先行rotation連続使用不可 */
+    /**
+     * 先行rotation連続使用不可
+     */
     private JCheckBox chkboxRotateInitialLimit;
 
-    /** Wallkick */
+    /**
+     * Wallkick
+     */
     private JCheckBox chkboxRotateWallkick;
 
-    /** 先行rotationでもWallkickする */
+    /**
+     * 先行rotationでもWallkickする
+     */
     private JCheckBox chkboxRotateInitialWallkick;
 
-    /** 上DirectionへのWallkickができる count (-1:無限) */
+    /**
+     * 上DirectionへのWallkickができる count (-1:無限)
+     */
     private JTextField txtfldRotateMaxUpwardWallkick;
 
-    /** falseなら左が正rotation, When true,右が正rotation */
+    /**
+     * falseなら左が正rotation, When true,右が正rotation
+     */
     private JCheckBox chkboxRotateButtonDefaultRight;
 
-    /** 逆rotationを許可 (falseなら正rotationと同じ) */
+    /**
+     * 逆rotationを許可 (falseなら正rotationと同じ)
+     */
     private JCheckBox chkboxRotateButtonAllowReverse;
 
-    /** 2rotationを許可 (falseなら正rotationと同じ) */
+    /**
+     * 2rotationを許可 (falseなら正rotationと同じ)
+     */
     private JCheckBox chkboxRotateButtonAllowDouble;
 
-    /** Wallkickアルゴリズム */
+    /**
+     * Wallkickアルゴリズム
+     */
     private JComboBox comboboxWallkickSystem;
 
-    /** Wallkickアルゴリズムのリスト */
+    /**
+     * Wallkickアルゴリズムのリスト
+     */
     private Vector<String> vectorWallkickSystem;
 
-    /** Wallkickアルゴリズムのリセット button */
+    /**
+     * Wallkickアルゴリズムのリセット button
+     */
     private JButton btnResetWallkickSystem;
 
     //----------------------------------------------------------------------
     /* 固定 time設定パネル */
 
-    /** 最低固定 time */
+    /**
+     * 最低固定 time
+     */
     private JTextField txtfldLockDelayMin;
 
-    /** 最高固定 time */
+    /**
+     * 最高固定 time
+     */
     private JTextField txtfldLockDelayMax;
 
-    /** 落下で固定 timeリセット */
+    /**
+     * 落下で固定 timeリセット
+     */
     private JCheckBox chkboxLockDelayLockResetFall;
 
-    /** 移動で固定 timeリセット */
+    /**
+     * 移動で固定 timeリセット
+     */
     private JCheckBox chkboxLockDelayLockResetMove;
 
-    /** rotationで固定 timeリセット */
+    /**
+     * rotationで固定 timeリセット
+     */
     private JCheckBox chkboxLockDelayLockResetRotate;
 
-    /** Lock delay reset by wallkick */
+    /**
+     * Lock delay reset by wallkick
+     */
     private JCheckBox chkboxLockDelayLockResetWallkick;
 
-    /** 横移動 counterとrotation counterを共有 (横移動 counterだけ使う) */
+    /**
+     * 横移動 counterとrotation counterを共有 (横移動 counterだけ使う)
+     */
     private JCheckBox chkboxLockDelayLockResetLimitShareCount;
 
-    /** 横移動 count制限 */
+    /**
+     * 横移動 count制限
+     */
     private JTextField txtfldLockDelayLockResetLimitMove;
 
-    /** rotation count制限 */
+    /**
+     * rotation count制限
+     */
     private JTextField txtfldLockDelayLockResetLimitRotate;
 
-    /** 横移動 counterかrotation counterが超過したら固定 timeリセットを無効にする */
+    /**
+     * 横移動 counterかrotation counterが超過したら固定 timeリセットを無効にする
+     */
     private JRadioButton radioLockDelayLockResetLimitOverNoReset;
 
-    /** 横移動 counterかrotation counterが超過したら即座に固定する */
+    /**
+     * 横移動 counterかrotation counterが超過したら即座に固定する
+     */
     private JRadioButton radioLockDelayLockResetLimitOverInstant;
 
-    /** 横移動 counterかrotation counterが超過したらWallkick無効にする */
+    /**
+     * 横移動 counterかrotation counterが超過したらWallkick無効にする
+     */
     private JRadioButton radioLockDelayLockResetLimitOverNoWallkick;
 
     //----------------------------------------------------------------------
     /* ARE設定パネル */
 
-    /** 最低ARE */
+    /**
+     * 最低ARE
+     */
     private JTextField txtfldAREMin;
 
-    /** 最高ARE */
+    /**
+     * 最高ARE
+     */
     private JTextField txtfldAREMax;
 
-    /** 最低ARE after line clear */
+    /**
+     * 最低ARE after line clear
+     */
     private JTextField txtfldARELineMin;
 
-    /** 最高ARE after line clear */
+    /**
+     * 最高ARE after line clear
+     */
     private JTextField txtfldARELineMax;
 
-    /** 固定した瞬間に光る frame count */
+    /**
+     * 固定した瞬間に光る frame count
+     */
     private JTextField txtfldARELockFlash;
 
-    /** Blockが光る専用 frame を入れる */
+    /**
+     * Blockが光る専用 frame を入れる
+     */
     private JCheckBox chkboxARELockFlashOnlyFrame;
 
-    /** Line clear前にBlockが光る frame を入れる */
+    /**
+     * Line clear前にBlockが光る frame を入れる
+     */
     private JCheckBox chkboxARELockFlashBeforeLineClear;
 
-    /** ARE cancel on move checkbox */
+    /**
+     * ARE cancel on move checkbox
+     */
     private JCheckBox chkboxARECancelMove;
 
-    /** ARE cancel on rotate checkbox */
+    /**
+     * ARE cancel on rotate checkbox
+     */
     private JCheckBox chkboxARECancelRotate;
 
-    /** ARE cancel on hold checkbox */
+    /**
+     * ARE cancel on hold checkbox
+     */
     private JCheckBox chkboxARECancelHold;
 
     //----------------------------------------------------------------------
     /* Line clear設定パネル */
 
-    /** 最低Line clear time */
+    /**
+     * 最低Line clear time
+     */
     private JTextField txtfldLineDelayMin;
 
-    /** 最高Line clear time */
+    /**
+     * 最高Line clear time
+     */
     private JTextField txtfldLineDelayMax;
 
-    /** 落下アニメ */
+    /**
+     * 落下アニメ
+     */
     private JCheckBox chkboxLineFallAnim;
 
-    /** Line delay cancel on move checkbox */
+    /**
+     * Line delay cancel on move checkbox
+     */
     private JCheckBox chkboxLineCancelMove;
 
-    /** Line delay cancel on rotate checkbox */
+    /**
+     * Line delay cancel on rotate checkbox
+     */
     private JCheckBox chkboxLineCancelRotate;
 
-    /** Line delay cancel on hold checkbox */
+    /**
+     * Line delay cancel on hold checkbox
+     */
     private JCheckBox chkboxLineCancelHold;
 
     //----------------------------------------------------------------------
     /* 移動設定パネル */
 
-    /** 最低横溜め time */
+    /**
+     * 最低横溜め time
+     */
     private JTextField txtfldMoveDASMin;
 
-    /** 最高横溜め time */
+    /**
+     * 最高横溜め time
+     */
     private JTextField txtfldMoveDASMax;
 
-    /** 横移動間隔 */
+    /**
+     * 横移動間隔
+     */
     private JTextField txtfldMoveDASDelay;
 
-    /** Ready画面で横溜め可能 */
+    /**
+     * Ready画面で横溜め可能
+     */
     private JCheckBox chkboxMoveDASInReady;
 
-    /** 最初の frame で横溜め可能 */
+    /**
+     * 最初の frame で横溜め可能
+     */
     private JCheckBox chkboxMoveDASInMoveFirstFrame;
 
-    /** Blockが光った瞬間に横溜め可能 */
+    /**
+     * Blockが光った瞬間に横溜め可能
+     */
     private JCheckBox chkboxMoveDASInLockFlash;
 
-    /** Line clear中に横溜め可能 */
+    /**
+     * Line clear中に横溜め可能
+     */
     private JCheckBox chkboxMoveDASInLineClear;
 
-    /** ARE中に横溜め可能 */
+    /**
+     * ARE中に横溜め可能
+     */
     private JCheckBox chkboxMoveDASInARE;
 
-    /** AREの最後の frame で横溜め可能 */
+    /**
+     * AREの最後の frame で横溜め可能
+     */
     private JCheckBox chkboxMoveDASInARELastFrame;
 
-    /** Ending突入画面で横溜め可能 */
+    /**
+     * Ending突入画面で横溜め可能
+     */
     private JCheckBox chkboxMoveDASInEndingStart;
 
-    /** DAS charge on blocked move checkbox*/
+    /**
+     * DAS charge on blocked move checkbox
+     */
     private JCheckBox chkboxMoveDASChargeOnBlockedMove;
 
-    /** Store DAS Charge on neutral checkbox **/
+    /**
+     * Store DAS Charge on neutral checkbox
+     **/
     private JCheckBox chkboxMoveDASStoreChargeOnNeutral;
 
-    /** Redirect in delay checkbox **/
+    /**
+     * Redirect in delay checkbox
+     **/
     private JCheckBox chkboxMoveDASRedirectInDelay;
 
-    /** 最初の frame に移動可能 */
+    /**
+     * 最初の frame に移動可能
+     */
     private JCheckBox chkboxMoveFirstFrame;
 
-    /** 斜め移動 */
+    /**
+     * 斜め移動
+     */
     private JCheckBox chkboxMoveDiagonal;
 
-    /** 上下同時押し可能 */
+    /**
+     * 上下同時押し可能
+     */
     private JCheckBox chkboxMoveUpAndDown;
 
-    /** 左右同時押し可能 */
+    /**
+     * 左右同時押し可能
+     */
     private JCheckBox chkboxMoveLeftAndRightAllow;
 
-    /** 左右同時押ししたときに前の frame の input Directionを優先する */
+    /**
+     * 左右同時押ししたときに前の frame の input Directionを優先する
+     */
     private JCheckBox chkboxMoveLeftAndRightUsePreviousInput;
 
-    /** Shift lock checkbox */
+    /**
+     * Shift lock checkbox
+     */
     private JCheckBox chkboxMoveShiftLockEnable;
 
     //----------------------------------------------------------------------
     /* rotationパターン補正パネル */
 
-    /** rotationパターン補正タブ */
+    /**
+     * rotationパターン補正タブ
+     */
     private JTabbedPane tabPieceOffset;
 
-    /** rotationパターン補正(X) input 欄 */
+    /**
+     * rotationパターン補正(X) input 欄
+     */
     private JTextField[][] txtfldPieceOffsetX;
 
-    /** rotationパターン補正(Y) input 欄 */
+    /**
+     * rotationパターン補正(Y) input 欄
+     */
     private JTextField[][] txtfldPieceOffsetY;
 
     //----------------------------------------------------------------------
     /* rotationパターン補正パネル */
 
-    /** rotationパターン補正タブ */
+    /**
+     * rotationパターン補正タブ
+     */
     private JTabbedPane tabPieceSpawn;
 
-    /** 出現位置補正(X) input 欄 */
+    /**
+     * 出現位置補正(X) input 欄
+     */
     private JTextField[][] txtfldPieceSpawnX;
 
-    /** 出現位置補正(Y) input 欄 */
+    /**
+     * 出現位置補正(Y) input 欄
+     */
     private JTextField[][] txtfldPieceSpawnY;
 
-    /** Big時出現位置補正(X) input 欄 */
+    /**
+     * Big時出現位置補正(X) input 欄
+     */
     private JTextField[][] txtfldPieceSpawnBigX;
 
-    /** Big時出現位置補正(Y) input 欄 */
+    /**
+     * Big時出現位置補正(Y) input 欄
+     */
     private JTextField[][] txtfldPieceSpawnBigY;
 
     //----------------------------------------------------------------------
     /* 色設定パネル */
 
-    /** 色選択Comboボックス */
+    /**
+     * 色選択Comboボックス
+     */
     private JComboBox[] comboboxPieceColor;
 
     //----------------------------------------------------------------------
     /* 初期Direction設定パネル */
 
-    /** 初期Direction選択Comboボックス */
+    /**
+     * 初期Direction選択Comboボックス
+     */
     private JComboBox[] comboboxPieceDirection;
 
     //----------------------------------------------------------------------
-    /** Block画像 */
+    /**
+     * Block画像
+     */
     private BufferedImage[] imgBlockSkins;
 
     /**
@@ -463,6 +677,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * 特定のファイルを読み込むConstructor
+     *
      * @param filename Filename (空文字列かnullにするとパラメータなしConstructorと同じ動作）
      */
     public RuleEditor(String filename) {
@@ -472,15 +687,15 @@ public class RuleEditor extends JFrame implements ActionListener {
 
         RuleOptions ruleopt = new RuleOptions();
 
-        if((filename != null) && (filename.length() > 0)) {
+        if ((filename != null) && (filename.length() > 0)) {
             try {
                 ruleopt = load(filename);
                 strNowFile = filename;
                 setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
             } catch (IOException e) {
                 log.error("Failed to load rule data from " + filename, e);
-                JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e, getUIText("Title_FileLoadFailed"),
-                                              JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed") + "\n" + e, getUIText("Title_FileLoadFailed"),
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -499,7 +714,8 @@ public class RuleEditor extends JFrame implements ActionListener {
             FileInputStream in = new FileInputStream("config/setting/swing.cfg");
             propConfig.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
 
         // 言語ファイル読み込み
         propLangDefault = new CustomProperties();
@@ -516,14 +732,15 @@ public class RuleEditor extends JFrame implements ActionListener {
             FileInputStream in = new FileInputStream("config/lang/ruleeditor_" + Locale.getDefault().getCountry() + ".properties");
             propLang.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
 
         // Look&Feel設定
-        if(propConfig.getProperty("option.usenativelookandfeel", true) == true) {
+        if (propConfig.getProperty("option.usenativelookandfeel", true) == true) {
             try {
                 UIManager.getInstalledLookAndFeels();
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch(Exception e) {
+            } catch (Exception e) {
                 log.warn("Failed to set native look&feel", e);
             }
         }
@@ -641,7 +858,7 @@ public class RuleEditor extends JFrame implements ActionListener {
         pSkin.add(lSkin);
 
         DefaultComboBoxModel model = new DefaultComboBoxModel();
-        for(int i = 0; i < imgBlockSkins.length; i++) {
+        for (int i = 0; i < imgBlockSkins.length; i++) {
             model.addElement(new ComboLabel("" + i, new ImageIcon(imgBlockSkins[i])));
         }
         comboboxSkin = new JComboBox(model);
@@ -1090,9 +1307,9 @@ public class RuleEditor extends JFrame implements ActionListener {
         chkboxMoveDASChargeOnBlockedMove = new JCheckBox(getUIText("Move_DASChargeOnBlockedMove"));
         panelMove.add(chkboxMoveDASChargeOnBlockedMove);
         chkboxMoveDASStoreChargeOnNeutral = new JCheckBox(getUIText("Move_DASStoreChargeOnNeutral"));
-      panelMove.add(chkboxMoveDASStoreChargeOnNeutral);
-      chkboxMoveDASRedirectInDelay = new JCheckBox(getUIText("Move_DASRedirectInDelay"));
-      panelMove.add(chkboxMoveDASRedirectInDelay);
+        panelMove.add(chkboxMoveDASStoreChargeOnNeutral);
+        chkboxMoveDASRedirectInDelay = new JCheckBox(getUIText("Move_DASRedirectInDelay"));
+        panelMove.add(chkboxMoveDASRedirectInDelay);
 
         // 最初の frame に移動可能
         chkboxMoveFirstFrame = new JCheckBox(getUIText("Move_FirstFrame"));
@@ -1134,14 +1351,14 @@ public class RuleEditor extends JFrame implements ActionListener {
         JPanel[] pPieceOffsetX = new JPanel[Piece.PIECE_COUNT];
 
         txtfldPieceOffsetX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceOffsetX[i] = new JPanel();
             panelPieceOffsetX.add(pPieceOffsetX[i]);
 
             JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
             pPieceOffsetX[i].add(lPieceName);
 
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 txtfldPieceOffsetX[i][j] = new JTextField("", 5);
                 pPieceOffsetX[i].add(txtfldPieceOffsetX[i][j]);
             }
@@ -1155,14 +1372,14 @@ public class RuleEditor extends JFrame implements ActionListener {
         JPanel[] pPieceOffsetY = new JPanel[Piece.PIECE_COUNT];
 
         txtfldPieceOffsetY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceOffsetY[i] = new JPanel();
             panelPieceOffsetY.add(pPieceOffsetY[i]);
 
             JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
             pPieceOffsetY[i].add(lPieceName);
 
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 txtfldPieceOffsetY[i][j] = new JTextField("", 5);
                 pPieceOffsetY[i].add(txtfldPieceOffsetY[i][j]);
             }
@@ -1184,14 +1401,14 @@ public class RuleEditor extends JFrame implements ActionListener {
         JPanel[] pPieceSpawnX = new JPanel[Piece.PIECE_COUNT];
 
         txtfldPieceSpawnX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceSpawnX[i] = new JPanel();
             panelPieceSpawnX.add(pPieceSpawnX[i]);
 
             JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
             pPieceSpawnX[i].add(lPieceName);
 
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 txtfldPieceSpawnX[i][j] = new JTextField("", 5);
                 pPieceSpawnX[i].add(txtfldPieceSpawnX[i][j]);
             }
@@ -1205,14 +1422,14 @@ public class RuleEditor extends JFrame implements ActionListener {
         JPanel[] pPieceSpawnY = new JPanel[Piece.PIECE_COUNT];
 
         txtfldPieceSpawnY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceSpawnY[i] = new JPanel();
             panelPieceSpawnY.add(pPieceSpawnY[i]);
 
             JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
             pPieceSpawnY[i].add(lPieceName);
 
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 txtfldPieceSpawnY[i][j] = new JTextField("", 5);
                 pPieceSpawnY[i].add(txtfldPieceSpawnY[i][j]);
             }
@@ -1226,14 +1443,14 @@ public class RuleEditor extends JFrame implements ActionListener {
         JPanel[] pPieceSpawnBigX = new JPanel[Piece.PIECE_COUNT];
 
         txtfldPieceSpawnBigX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceSpawnBigX[i] = new JPanel();
             panelPieceSpawnBigX.add(pPieceSpawnBigX[i]);
 
             JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
             pPieceSpawnBigX[i].add(lPieceName);
 
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 txtfldPieceSpawnBigX[i][j] = new JTextField("", 5);
                 pPieceSpawnBigX[i].add(txtfldPieceSpawnBigX[i][j]);
             }
@@ -1247,14 +1464,14 @@ public class RuleEditor extends JFrame implements ActionListener {
         JPanel[] pPieceSpawnBigY = new JPanel[Piece.PIECE_COUNT];
 
         txtfldPieceSpawnBigY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceSpawnBigY[i] = new JPanel();
             panelPieceSpawnBigY.add(pPieceSpawnBigY[i]);
 
             JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
             pPieceSpawnBigY[i].add(lPieceName);
 
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 txtfldPieceSpawnBigY[i][j] = new JTextField("", 5);
                 pPieceSpawnBigY[i].add(txtfldPieceSpawnBigY[i][j]);
             }
@@ -1266,12 +1483,12 @@ public class RuleEditor extends JFrame implements ActionListener {
         tabPane.addTab(getUIText("TabName_PieceColor"), panelPieceColor);
 
         String[] strColorNames = new String[Block.BLOCK_COLOR_COUNT - 1];
-        for(int i = 0; i < strColorNames.length; i++) strColorNames[i] = getUIText("ColorName" + i);
+        for (int i = 0; i < strColorNames.length; i++) strColorNames[i] = getUIText("ColorName" + i);
 
         JPanel[] pPieceColor = new JPanel[Piece.PIECE_COUNT];
 
         comboboxPieceColor = new JComboBox[Piece.PIECE_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceColor[i] = new JPanel();
             panelPieceColor.add(pPieceColor[i]);
 
@@ -1290,12 +1507,12 @@ public class RuleEditor extends JFrame implements ActionListener {
         tabPane.addTab(getUIText("TabName_PieceDirection"), panelPieceDirection);
 
         String[] strDirectionNames = new String[Piece.DIRECTION_COUNT + 1];
-        for(int i = 0; i < strDirectionNames.length; i++) strDirectionNames[i] = getUIText("DirectionName" + i);
+        for (int i = 0; i < strDirectionNames.length; i++) strDirectionNames[i] = getUIText("DirectionName" + i);
 
         JPanel[] pPieceDirection = new JPanel[Piece.PIECE_COUNT];
 
         comboboxPieceDirection = new JComboBox[Piece.PIECE_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pPieceDirection[i] = new JPanel();
             panelPieceDirection.add(pPieceDirection[i]);
 
@@ -1317,9 +1534,9 @@ public class RuleEditor extends JFrame implements ActionListener {
 
         int numBlocks = 0;
         File file = null;
-        while(true) {
+        while (true) {
             file = new File(skindir + "/graphics/blockskin/normal/n" + numBlocks + ".png");
-            if(file.canRead()) {
+            if (file.canRead()) {
                 numBlocks++;
             } else {
                 break;
@@ -1329,14 +1546,14 @@ public class RuleEditor extends JFrame implements ActionListener {
 
         imgBlockSkins = new BufferedImage[numBlocks];
 
-        for(int i = 0; i < numBlocks; i++) {
+        for (int i = 0; i < numBlocks; i++) {
             BufferedImage imgBlock = (BufferedImage) loadImage(getURL(skindir + "/graphics/blockskin/normal/n" + i + ".png"));
             boolean isSticky = ((imgBlock != null) && (imgBlock.getWidth() >= 400) && (imgBlock.getHeight() >= 304));
 
             imgBlockSkins[i] = new BufferedImage(144, 16, BufferedImage.TYPE_INT_RGB);
 
-            if(isSticky) {
-                for(int j = 0; j < 9; j++) {
+            if (isSticky) {
+                for (int j = 0; j < 9; j++) {
                     imgBlockSkins[i].getGraphics().drawImage(imgBlock, j * 16, 0, (j * 16) + 16, 16, 0, j * 16, 16, (j * 16) + 16, null);
                 }
             } else {
@@ -1347,6 +1564,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * 画像を読み込み
+     *
      * @param url 画像ファイルのURL
      * @return 画像ファイル (失敗するとnull）
      */
@@ -1363,6 +1581,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * リソースファイルのURLを返す
+     *
      * @param str Filename
      * @return リソースファイルのURL
      */
@@ -1374,16 +1593,16 @@ public class RuleEditor extends JFrame implements ActionListener {
             String file = str.replace(sep, '/');
 
             // 参考：http://www.asahi-net.or.jp/~DP8T-ASM/java/tips/HowToMakeURL.html
-            if(file.charAt(0) != '/') {
+            if (file.charAt(0) != '/') {
                 String dir = System.getProperty("user.dir");
                 dir = dir.replace(sep, '/') + '/';
-                if(dir.charAt(0) != '/') {
+                if (dir.charAt(0) != '/') {
                     dir = "/" + dir;
                 }
                 file = dir + file;
             }
             url = new URL("file", "", file);
-        } catch(MalformedURLException e) {
+        } catch (MalformedURLException e) {
             log.warn("Invalid URL:" + str, e);
             return null;
         }
@@ -1393,6 +1612,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * テキストファイルを読み込んでVector&lt;String&gt;に入れる
+     *
      * @param filename Filename
      * @return テキストファイルを読み込んだVector&lt;String&gt;
      */
@@ -1402,30 +1622,32 @@ public class RuleEditor extends JFrame implements ActionListener {
         try {
             BufferedReader in = new BufferedReader(new FileReader(filename));
 
-            while(true) {
+            while (true) {
                 String str = in.readLine();
-                if((str == null) || (str.length() <= 0)) break;
+                if ((str == null) || (str.length() <= 0)) break;
                 vec.add(str);
             }
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
 
         return vec;
     }
 
     /**
      * 特定のVector&lt;String&gt;の最後のドット記号から先だけを取り出したVector&lt;String&gt;を作成
+     *
      * @param vecSrc 元のVector&lt;String&gt;
      * @return 加工したVector&lt;String&gt;
      */
     public Vector<String> createShortStringVector(Vector<String> vecSrc) {
         Vector<String> vec = new Vector<String>();
 
-        for(int i = 0; i < vecSrc.size(); i++) {
+        for (int i = 0; i < vecSrc.size(); i++) {
             String str = vecSrc.get(i);
             int last = str.lastIndexOf('.');
 
             String newStr = "";
-            if(last != -1) {
+            if (last != -1) {
                 newStr = str.substring(last + 1);
             } else {
                 newStr = str;
@@ -1439,6 +1661,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * ルール設定をUIに反映させる
+     *
      * @param r ルール設定
      */
     public void readRuleToUI(RuleOptions r) {
@@ -1496,11 +1719,11 @@ public class RuleEditor extends JFrame implements ActionListener {
         chkboxLockDelayLockResetLimitShareCount.setSelected(r.lockresetLimitShareCount);
         txtfldLockDelayLockResetLimitMove.setText(String.valueOf(r.lockresetLimitMove));
         txtfldLockDelayLockResetLimitRotate.setText(String.valueOf(r.lockresetLimitRotate));
-        if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NORESET)
+        if (r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NORESET)
             radioLockDelayLockResetLimitOverNoReset.setSelected(true);
-        else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT)
+        else if (r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT)
             radioLockDelayLockResetLimitOverInstant.setSelected(true);
-        else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK)
+        else if (r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK)
             radioLockDelayLockResetLimitOverNoWallkick.setSelected(true);
 
         txtfldAREMin.setText(String.valueOf(r.minARE));
@@ -1541,8 +1764,8 @@ public class RuleEditor extends JFrame implements ActionListener {
         chkboxMoveLeftAndRightUsePreviousInput.setSelected(r.moveLeftAndRightUsePreviousInput);
         chkboxMoveShiftLockEnable.setSelected(r.shiftLockEnable);
 
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 txtfldPieceOffsetX[i][j].setText(String.valueOf(r.pieceOffsetX[i][j]));
                 txtfldPieceOffsetY[i][j].setText(String.valueOf(r.pieceOffsetY[i][j]));
                 txtfldPieceSpawnX[i][j].setText(String.valueOf(r.pieceSpawnX[i][j]));
@@ -1557,6 +1780,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * ルール設定をUIから書き込む
+     *
      * @param r ルール設定
      */
     public void writeRuleFromUI(RuleOptions r) {
@@ -1568,7 +1792,7 @@ public class RuleEditor extends JFrame implements ActionListener {
         r.pieceEnterAboveField = chkboxEnterAboveField.isSelected();
         r.pieceEnterMaxDistanceY = getIntTextField(txtfldEnterMaxDistanceY);
         int indexRandomizer = comboboxRandomizer.getSelectedIndex();
-        if(indexRandomizer >= 0) r.strRandomizer = vectorRandomizer.get(indexRandomizer);
+        if (indexRandomizer >= 0) r.strRandomizer = vectorRandomizer.get(indexRandomizer);
         else r.strRandomizer = "";
 
         r.fieldWidth = getIntTextField(txtfldFieldWidth);
@@ -1604,7 +1828,7 @@ public class RuleEditor extends JFrame implements ActionListener {
         r.rotateButtonAllowReverse = chkboxRotateButtonAllowReverse.isSelected();
         r.rotateButtonAllowDouble = chkboxRotateButtonAllowDouble.isSelected();
         int indexWallkick = comboboxWallkickSystem.getSelectedIndex();
-        if(indexWallkick >= 0) r.strWallkick = vectorWallkickSystem.get(indexWallkick);
+        if (indexWallkick >= 0) r.strWallkick = vectorWallkickSystem.get(indexWallkick);
         else r.strWallkick = "";
 
         r.minLockDelay = getIntTextField(txtfldLockDelayMin);
@@ -1616,9 +1840,9 @@ public class RuleEditor extends JFrame implements ActionListener {
         r.lockresetLimitShareCount = chkboxLockDelayLockResetLimitShareCount.isSelected();
         r.lockresetLimitMove = getIntTextField(txtfldLockDelayLockResetLimitMove);
         r.lockresetLimitRotate = getIntTextField(txtfldLockDelayLockResetLimitRotate);
-        if(radioLockDelayLockResetLimitOverNoReset.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NORESET;
-        if(radioLockDelayLockResetLimitOverInstant.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT;
-        if(radioLockDelayLockResetLimitOverNoWallkick.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK;
+        if (radioLockDelayLockResetLimitOverNoReset.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NORESET;
+        if (radioLockDelayLockResetLimitOverInstant.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT;
+        if (radioLockDelayLockResetLimitOverNoWallkick.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK;
 
         r.minARE = getIntTextField(txtfldAREMin);
         r.maxARE = getIntTextField(txtfldAREMax);
@@ -1658,8 +1882,8 @@ public class RuleEditor extends JFrame implements ActionListener {
         r.moveLeftAndRightUsePreviousInput = chkboxMoveLeftAndRightUsePreviousInput.isSelected();
         r.shiftLockEnable = chkboxMoveShiftLockEnable.isSelected();
 
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 r.pieceOffsetX[i][j] = getIntTextField(txtfldPieceOffsetX[i][j]);
                 r.pieceOffsetY[i][j] = getIntTextField(txtfldPieceOffsetY[i][j]);
                 r.pieceSpawnX[i][j] = getIntTextField(txtfldPieceSpawnX[i][j]);
@@ -1674,6 +1898,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * ルールをファイルに保存
+     *
      * @param filename Filename
      * @throws IOException 保存に失敗したとき
      */
@@ -1693,6 +1918,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * ルールをファイルから読み込み
+     *
      * @param filename Filename
      * @return ルール data
      * @throws IOException Failed to loadしたとき
@@ -1714,12 +1940,13 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * 翻訳後のUIの文字列を取得
+     *
      * @param str 文字列
      * @return 翻訳後のUIの文字列 (無いならそのままstrを返す）
      */
     public String getUIText(String str) {
         String result = propLang.getProperty(str);
-        if(result == null) {
+        if (result == null) {
             result = propLangDefault.getProperty(str, str);
         }
         return result;
@@ -1727,6 +1954,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * テキストfieldからint型の値を取得
+     *
      * @param txtfld テキストfield
      * @return テキストfieldから値を取得できた場合はその値, 失敗したら0
      */
@@ -1735,13 +1963,15 @@ public class RuleEditor extends JFrame implements ActionListener {
 
         try {
             v = Integer.parseInt(txtfld.getText());
-        } catch(Exception e) {}
+        } catch (Exception e) {
+        }
 
         return v;
     }
 
     /**
      * テキストfieldからfloat型の値を取得
+     *
      * @param txtfld テキストfield
      * @return テキストfieldから値を取得できた場合はその値, 失敗したら0f
      */
@@ -1750,7 +1980,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 
         try {
             v = Float.parseFloat(txtfld.getText());
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         return v;
     }
@@ -1759,17 +1990,17 @@ public class RuleEditor extends JFrame implements ActionListener {
      * アクション発生時の処理
      */
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand() == "New") {
+        if (e.getActionCommand() == "New") {
             // 新規作成
             strNowFile = null;
             setTitle(getUIText("Title_RuleEditor"));
             readRuleToUI(new RuleOptions());
-        } else if(e.getActionCommand() == "Open") {
+        } else if (e.getActionCommand() == "Open") {
             // 開く
             JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
             c.setFileFilter(new FileFilterRUL());
 
-            if(c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            if (c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 File file = c.getSelectedFile();
                 RuleOptions ruleopt = new RuleOptions();
 
@@ -1780,48 +2011,48 @@ public class RuleEditor extends JFrame implements ActionListener {
                     ruleopt = load(file.getPath());
                 } catch (IOException e2) {
                     log.error("Failed to load rule data from " + strNowFile, e2);
-                    JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e2, getUIText("Title_FileLoadFailed"),
-                                                  JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed") + "\n" + e2, getUIText("Title_FileLoadFailed"),
+                        JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 readRuleToUI(ruleopt);
             }
-        } else if((e.getActionCommand() == "Save") && (strNowFile != null)) {
+        } else if ((e.getActionCommand() == "Save") && (strNowFile != null)) {
             // Up書き保存
             try {
                 save(strNowFile);
             } catch (IOException e2) {
                 log.error("Failed to save rule data to " + strNowFile, e2);
-                JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
-                                              JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2, getUIText("Title_FileSaveFailed"),
+                    JOptionPane.ERROR_MESSAGE);
             }
-        } else if((e.getActionCommand() == "Save") || (e.getActionCommand() == "SaveAs")) {
+        } else if ((e.getActionCommand() == "Save") || (e.getActionCommand() == "SaveAs")) {
             // Nameを付けて保存
             JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
             c.setFileFilter(new FileFilterRUL());
 
-            if(c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            if (c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 File file = c.getSelectedFile();
                 String filename = file.getPath();
-                if(!filename.endsWith(".rul")) filename = filename + ".rul";
+                if (!filename.endsWith(".rul")) filename = filename + ".rul";
 
                 try {
                     save(filename);
                 } catch (Exception e2) {
                     log.error("Failed to save rule data to " + filename, e2);
-                    JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
-                                                  JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2, getUIText("Title_FileSaveFailed"),
+                        JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 strNowFile = filename;
                 setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
             }
-        } else if(e.getActionCommand() == "ResetRandomizer") {
+        } else if (e.getActionCommand() == "ResetRandomizer") {
             // NEXT順生成アルゴリズムの選択リセット
             comboboxRandomizer.setSelectedItem(null);
-        } else if(e.getActionCommand() == "Exit") {
+        } else if (e.getActionCommand() == "Exit") {
             // 終了
             dispose();
         }
@@ -1829,13 +2060,14 @@ public class RuleEditor extends JFrame implements ActionListener {
 
     /**
      * メイン関count
+     *
      * @param args コマンドLines引count
      */
     public static void main(String[] args) {
         PropertyConfigurator.configure("config/etc/log.cfg");
         log.debug("RuleEditor start");
 
-        if(args.length > 0) {
+        if (args.length > 0) {
             new RuleEditor(args[0]);
         } else {
             new RuleEditor();
@@ -1848,8 +2080,8 @@ public class RuleEditor extends JFrame implements ActionListener {
     protected class FileFilterRUL extends FileFilter {
         @Override
         public boolean accept(File f) {
-            if(f.isDirectory()) return true;
-            if(f.getName().endsWith(".rul")) return true;
+            if (f.isDirectory()) return true;
+            if (f.getName().endsWith(".rul")) return true;
             return false;
         }
 
@@ -1912,11 +2144,11 @@ public class RuleEditor extends JFrame implements ActionListener {
         }
 
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            ComboLabel data = (ComboLabel)value;
+            ComboLabel data = (ComboLabel) value;
             setText(data.getText());
             setIcon(data.getIcon());
 
-            if(isSelected) {
+            if (isSelected) {
                 setForeground(Color.white);
                 setBackground(Color.black);
             } else {

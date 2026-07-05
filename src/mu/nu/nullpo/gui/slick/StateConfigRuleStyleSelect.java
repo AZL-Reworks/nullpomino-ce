@@ -11,10 +11,14 @@ import org.newdawn.slick.state.StateBasedGame;
  * Style select menu
  */
 public class StateConfigRuleStyleSelect extends DummyMenuChooseState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 15;
 
-    /** Player number */
+    /**
+     * Player number
+     */
     protected int player = 0;
 
     public StateConfigRuleStyleSelect() {
@@ -47,11 +51,11 @@ public class StateConfigRuleStyleSelect extends DummyMenuChooseState {
         g.drawImage(ResourceHolder.imgMenu, 0, 0);
 
         // Menu
-        NormalFont.printFontGrid(1, 1, "SELECT " + (player+1) + "P STYLE", NormalFont.COLOR_ORANGE);
+        NormalFont.printFontGrid(1, 1, "SELECT " + (player + 1) + "P STYLE", NormalFont.COLOR_ORANGE);
 
         NormalFont.printFontGrid(1, 3 + cursor, "b", NormalFont.COLOR_RED);
 
-        for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+        for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
             NormalFont.printFontGrid(2, 3 + i, GameEngine.GAMESTYLE_NAMES[i], (cursor == i));
         }
     }

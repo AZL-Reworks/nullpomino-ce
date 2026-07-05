@@ -14,22 +14,34 @@ import net.java.games.input.Keyboard;
  * JInput keyboard input manager
  */
 public class JInputManager {
-    /** Logger */
+    /**
+     * Logger
+     */
     static Logger log = Logger.getLogger(JInputManager.class);
 
-    /** Number of keycodes found in Slick */
+    /**
+     * Number of keycodes found in Slick
+     */
     public static final int MAX_SLICK_KEY = 224;
 
-    /** ControllerEnvironment: Main object of JInput */
+    /**
+     * ControllerEnvironment: Main object of JInput
+     */
     public static ControllerEnvironment controllerEnvironment;
 
-    /** All available controllers */
+    /**
+     * All available controllers
+     */
     public static Controller[] controllers;
 
-    /** JInput keyboard */
+    /**
+     * JInput keyboard
+     */
     public static Keyboard keyboard;
 
-    /** Keysym map */
+    /**
+     * Keysym map
+     */
     public static HashMap<Integer, Component.Identifier.Key> keyMap;
 
     /**
@@ -165,6 +177,7 @@ public class JInputManager {
 
     /**
      * Convert Slick's keycode to JInput's key identifier.
+     *
      * @param key Slick's keycode
      * @return JInput's key identifier
      */
@@ -179,22 +192,22 @@ public class JInputManager {
         controllerEnvironment = ControllerEnvironment.getDefaultEnvironment();
         controllers = controllerEnvironment.getControllers();
 
-        for(int i = 0; i < controllers.length; i++) {
+        for (int i = 0; i < controllers.length; i++) {
             Controller c = controllers[i];
 
-            if((c.getType() == Controller.Type.KEYBOARD) && (c instanceof Keyboard)) {
-                if(NullpoMinoSlick.useJInputKeyboard) {
+            if ((c.getType() == Controller.Type.KEYBOARD) && (c instanceof Keyboard)) {
+                if (NullpoMinoSlick.useJInputKeyboard) {
                     log.debug("initKeyboard: Keyboard found");
                 }
-                keyboard = (Keyboard)c;
+                keyboard = (Keyboard) c;
             }
         }
 
-        if((keyboard == null) && (NullpoMinoSlick.useJInputKeyboard)) {
+        if ((keyboard == null) && (NullpoMinoSlick.useJInputKeyboard)) {
             log.error("initKeyboard: Keyboard NOT FOUND");
 
             // Linux
-            if(System.getProperty("os.name").startsWith("Linux")) {
+            if (System.getProperty("os.name").startsWith("Linux")) {
                 log.error("If you can use sudo, try the following command and start NullpoMino again:");
                 log.error("sudo chmod go+r /dev/input/*");
             }
@@ -205,18 +218,19 @@ public class JInputManager {
      * Polls keyboard input.
      */
     public static void poll() {
-        if(keyboard != null) {
+        if (keyboard != null) {
             keyboard.poll();
         }
     }
 
     /**
      * Check if specific key is down or not.
+     *
      * @param key SLICK keycode
      * @return true if the key is down
      */
     public static boolean isKeyDown(int key) {
-        if(keyboard != null) {
+        if (keyboard != null) {
             Component.Identifier.Key jinputKey = keyMap.get(key);
             return keyboard.isKeyDown(jinputKey);
         }

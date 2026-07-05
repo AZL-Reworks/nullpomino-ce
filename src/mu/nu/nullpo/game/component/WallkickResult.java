@@ -34,16 +34,24 @@ import java.io.Serializable;
  * Wallkick結果のクラス
  */
 public class WallkickResult implements Serializable {
-    /** Serial version ID */
+    /**
+     * Serial version ID
+     */
     private static final long serialVersionUID = -7985029240622355609L;
 
-    /** X-coordinate補正量 */
+    /**
+     * X-coordinate補正量
+     */
     public int offsetX;
 
-    /** Y-coordinate補正量 */
+    /**
+     * Y-coordinate補正量
+     */
     public int offsetY;
 
-    /** rotation後のピースのDirection */
+    /**
+     * rotation後のピースのDirection
+     */
     public int direction;
 
     /**
@@ -55,6 +63,7 @@ public class WallkickResult implements Serializable {
 
     /**
      * パラメータ付きConstructor
+     *
      * @param offsetX X-coordinate補正量
      * @param offsetY Y-coordinate補正量
      * @param direction rotation後のテトラミノのDirection
@@ -67,6 +76,7 @@ public class WallkickResult implements Serializable {
 
     /**
      * Copy constructor
+     *
      * @param w Copy source
      */
     public WallkickResult(WallkickResult w) {
@@ -84,6 +94,7 @@ public class WallkickResult implements Serializable {
 
     /**
      * 別のWallkickResultからコピー
+     *
      * @param w Copy source
      */
     public void copy(WallkickResult w) {
@@ -94,6 +105,7 @@ public class WallkickResult implements Serializable {
 
     /**
      * 上DirectionへのWallkickかどうか判定
+     *
      * @return 上DirectionへのWallkickのとき (offsetY < 0のとき）にtrue
      */
     public boolean isUpward() {

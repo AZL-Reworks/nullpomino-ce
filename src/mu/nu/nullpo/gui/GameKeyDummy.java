@@ -5,33 +5,51 @@ import mu.nu.nullpo.util.CustomProperties;
 
 public class GameKeyDummy {
 
-    /** Button number constants */
+    /**
+     * Button number constants
+     */
     public static final int BUTTON_UP = 0, BUTTON_DOWN = 1, BUTTON_LEFT = 2, BUTTON_RIGHT = 3, BUTTON_A = 4, BUTTON_B = 5, BUTTON_C = 6,
-            BUTTON_D = 7, BUTTON_E = 8, BUTTON_F = 9, BUTTON_QUIT = 10, BUTTON_PAUSE = 11, BUTTON_GIVEUP = 12, BUTTON_RETRY = 13,
-            BUTTON_FRAMESTEP = 14, BUTTON_SCREENSHOT = 15;
+        BUTTON_D = 7, BUTTON_E = 8, BUTTON_F = 9, BUTTON_QUIT = 10, BUTTON_PAUSE = 11, BUTTON_GIVEUP = 12, BUTTON_RETRY = 13,
+        BUTTON_FRAMESTEP = 14, BUTTON_SCREENSHOT = 15;
 
-    /** Max button number */
+    /**
+     * Max button number
+     */
     public static final int MAX_BUTTON = 16;
 
-    /** Key code (ingame) */
+    /**
+     * Key code (ingame)
+     */
     public int[] keymap;
 
-    /** Key code (menu) */
+    /**
+     * Key code (menu)
+     */
     public int[] keymapNav;
 
-    /** Joystick button number */
+    /**
+     * Joystick button number
+     */
     public int[] buttonmap;
 
-    /** Joystick direction key border */
+    /**
+     * Joystick direction key border
+     */
     public int joyBorder;
 
-    /** Player ID */
+    /**
+     * Player ID
+     */
     public int player;
 
-    /** Button input flag and length */
+    /**
+     * Button input flag and length
+     */
     protected int inputstate[];
 
-    /** Button input flag */
+    /**
+     * Button input flag
+     */
     protected boolean[] pressstate;
 
     /**
@@ -43,6 +61,7 @@ public class GameKeyDummy {
 
     /**
      * Player numberを指定できるConstructor
+     *
      * @param pl Player number
      */
     protected GameKeyDummy(int pl) {
@@ -50,7 +69,7 @@ public class GameKeyDummy {
         keymapNav = new int[MAX_BUTTON];
         buttonmap = new int[MAX_BUTTON];
         joyBorder = 0;
-        for(int i = 0; i < buttonmap.length; i++) buttonmap[i] = -1;
+        for (int i = 0; i < buttonmap.length; i++) buttonmap[i] = -1;
         player = pl;
         inputstate = new int[MAX_BUTTON];
         pressstate = new boolean[MAX_BUTTON];
@@ -60,13 +79,14 @@ public class GameKeyDummy {
      * Clear button input state
      */
     public void clear() {
-        for(int i = 0; i < MAX_BUTTON; i++) {
+        for (int i = 0; i < MAX_BUTTON; i++) {
             inputstate[i] = 0;
         }
     }
 
     /**
-     *  buttonが1 frame だけ押されているか判定
+     * buttonが1 frame だけ押されているか判定
+     *
      * @param key Button number
      * @return 押されていたらtrue
      */
@@ -75,7 +95,8 @@ public class GameKeyDummy {
     }
 
     /**
-     *  buttonが押されているか判定
+     * buttonが押されているか判定
+     *
      * @param key Button number
      * @return 押されていたらtrue
      */
@@ -85,29 +106,32 @@ public class GameKeyDummy {
 
     /**
      * Menu でカーソルが動くかどうか判定
+     *
      * @param key Button number
      * @return カーソルが動くならtrue
      */
     public boolean isMenuRepeatKey(int key) {
-        if((inputstate[key] == 1) || ((inputstate[key] >= 25) && (inputstate[key] % 3 == 0)) || ((inputstate[key] >= 1) && isPressKey(BUTTON_C)))
+        if ((inputstate[key] == 1) || ((inputstate[key] >= 25) && (inputstate[key] % 3 == 0)) || ((inputstate[key] >= 1) && isPressKey(BUTTON_C)))
             return true;
 
         return false;
     }
 
     /**
-     *  buttonを押している timeを取得
+     * buttonを押している timeを取得
+     *
      * @param key Button number
-     * @return  buttonを押している time (0なら押してない）
+     * @return buttonを押している time (0なら押してない）
      */
     public int getInputState(int key) {
         return inputstate[key];
     }
 
     /**
-     *  buttonを押している timeを強制変更
+     * buttonを押している timeを強制変更
+     *
      * @param key Button number
-     * @param state  buttonを押している time
+     * @param state buttonを押している time
      */
     public void setInputState(int key, int state) {
         inputstate[key] = state;
@@ -115,6 +139,7 @@ public class GameKeyDummy {
 
     /**
      * Load settings
+     *
      * @param prop Property file to read from
      */
     public void loadConfig(CustomProperties prop) {
@@ -177,6 +202,7 @@ public class GameKeyDummy {
 
     /**
      * Save settings
+     *
      * @param prop Property file to save to
      */
     public void saveConfig(CustomProperties prop) {
@@ -240,10 +266,11 @@ public class GameKeyDummy {
 
     /**
      * Controllerに input 状況を伝える
-     * @param ctrl  input 状況を伝えるControllerのインスタンス
+     *
+     * @param ctrl input 状況を伝えるControllerのインスタンス
      */
     public void inputStatusUpdate(Controller ctrl) {
-        for(int i = 0; i < Controller.BUTTON_COUNT; i++) {
+        for (int i = 0; i < Controller.BUTTON_COUNT; i++) {
             ctrl.buttonPress[i] = isPressKey(i);
         }
     }

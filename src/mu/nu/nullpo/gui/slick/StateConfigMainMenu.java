@@ -37,10 +37,14 @@ import org.newdawn.slick.state.StateBasedGame;
  * Options screen
  */
 public class StateConfigMainMenu extends DummyMenuChooseState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 5;
 
-    /** UI Text identifier Strings */
+    /**
+     * UI Text identifier Strings
+     */
     private static final String[] UI_TEXT = {
         "ConfigMainMenu_General",
         "ConfigMainMenu_Rule",
@@ -52,10 +56,12 @@ public class StateConfigMainMenu extends DummyMenuChooseState {
         "ConfigMainMenu_Joystick"
     };
 
-    /** Player number */
+    /**
+     * Player number
+     */
     protected int player = 0;
 
-    public StateConfigMainMenu () {
+    public StateConfigMainMenu() {
         maxCursor = 7;
         minChoiceY = 3;
     }
@@ -103,8 +109,8 @@ public class StateConfigMainMenu extends DummyMenuChooseState {
     @Override
     protected void onChange(GameContainer container, StateBasedGame game, int delta, int change) {
         player += change;
-        if(player < 0) player = 1;
-        if(player > 1) player = 0;
+        if (player < 0) player = 1;
+        if (player > 1) player = 0;
         ResourceHolder.soundManager.play("change");
     }
 
@@ -113,38 +119,38 @@ public class StateConfigMainMenu extends DummyMenuChooseState {
         ResourceHolder.soundManager.play("decide");
 
         switch (cursor) {
-        case 0:
-            game.enterState(StateConfigGeneral.ID);
-            break;
-        case 1:
-            NullpoMinoSlick.stateConfigRuleStyleSelect.player = player;
-            game.enterState(StateConfigRuleStyleSelect.ID);
-            break;
-        case 2:
-            NullpoMinoSlick.stateConfigGameTuning.player = player;
-            game.enterState(StateConfigGameTuning.ID);
-            break;
-        case 3:
-            NullpoMinoSlick.stateConfigAISelect.player = player;
-            game.enterState(StateConfigAISelect.ID);
-            break;
-        case 4:
-            NullpoMinoSlick.stateConfigKeyboard.player = player;
-            NullpoMinoSlick.stateConfigKeyboard.isNavSetting = false;
-            game.enterState(StateConfigKeyboard.ID);
-            break;
-        case 5:
-            NullpoMinoSlick.stateConfigKeyboardNavi.player = player;
-            game.enterState(StateConfigKeyboardNavi.ID);
-            break;
-        case 6:
-            NullpoMinoSlick.stateConfigKeyboardReset.player = player;
-            game.enterState(StateConfigKeyboardReset.ID);
-            break;
-        case 7:
-            NullpoMinoSlick.stateConfigJoystickMain.player = player;
-            game.enterState(StateConfigJoystickMain.ID);
-            break;
+            case 0:
+                game.enterState(StateConfigGeneral.ID);
+                break;
+            case 1:
+                NullpoMinoSlick.stateConfigRuleStyleSelect.player = player;
+                game.enterState(StateConfigRuleStyleSelect.ID);
+                break;
+            case 2:
+                NullpoMinoSlick.stateConfigGameTuning.player = player;
+                game.enterState(StateConfigGameTuning.ID);
+                break;
+            case 3:
+                NullpoMinoSlick.stateConfigAISelect.player = player;
+                game.enterState(StateConfigAISelect.ID);
+                break;
+            case 4:
+                NullpoMinoSlick.stateConfigKeyboard.player = player;
+                NullpoMinoSlick.stateConfigKeyboard.isNavSetting = false;
+                game.enterState(StateConfigKeyboard.ID);
+                break;
+            case 5:
+                NullpoMinoSlick.stateConfigKeyboardNavi.player = player;
+                game.enterState(StateConfigKeyboardNavi.ID);
+                break;
+            case 6:
+                NullpoMinoSlick.stateConfigKeyboardReset.player = player;
+                game.enterState(StateConfigKeyboardReset.ID);
+                break;
+            case 7:
+                NullpoMinoSlick.stateConfigJoystickMain.player = player;
+                game.enterState(StateConfigJoystickMain.ID);
+                break;
         }
 
         return false;

@@ -10,7 +10,9 @@ import org.newdawn.slick.state.StateBasedGame;
  * Base state
  */
 public abstract class BaseGameState extends BasicGameState {
-    /** Screen Shot flag (Declared in BaseGameState; Don't override it!) */
+    /**
+     * Screen Shot flag (Declared in BaseGameState; Don't override it!)
+     */
     protected boolean screenShotFlag = false;
 
     /*
@@ -33,8 +35,8 @@ public abstract class BaseGameState extends BasicGameState {
      */
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         // Lost the focus
-        if(!container.hasFocus()) {
-            if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+        if (!container.hasFocus()) {
+            if (!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
             return;
         }
 
@@ -44,14 +46,14 @@ public abstract class BaseGameState extends BasicGameState {
         // Do common things
         NullpoMinoSlick.drawFPS(container);        // FPS counter
         NullpoMinoSlick.drawObserverClient();    // Observer
-        if(screenShotFlag) {
+        if (screenShotFlag) {
             // Create a screenshot
             NullpoMinoSlick.saveScreenShot(container, g);
             screenShotFlag = false;
         }
 
         // Framerate Cap
-        if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+        if (!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
     }
 
     /**
@@ -60,10 +62,10 @@ public abstract class BaseGameState extends BasicGameState {
      */
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         // Lost the focus
-        if(!container.hasFocus()) {
+        if (!container.hasFocus()) {
             GameKey.gamekey[0].clear();
             GameKey.gamekey[1].clear();
-            if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+            if (NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
             return;
         }
 
@@ -71,16 +73,17 @@ public abstract class BaseGameState extends BasicGameState {
         updateImpl(container, game, delta);
 
         // Screenshot button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_SCREENSHOT)) screenShotFlag = true;
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_SCREENSHOT)) screenShotFlag = true;
         // Exit button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_QUIT)) container.exit();
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_QUIT)) container.exit();
 
         // Framerate Cap
-        if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+        if (NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
     }
 
     /**
      * Draw the screen. Your code will be here, unless if you want do something special.
+     *
      * @param container GameContainer
      * @param game StateBasedGame
      * @param g Graphics
@@ -91,6 +94,7 @@ public abstract class BaseGameState extends BasicGameState {
 
     /**
      * Update the game. Your code will be here, unless if you want do something special.
+     *
      * @param container GameContainer
      * @param game StateBasedGame
      * @param delta Time passed since the last execution

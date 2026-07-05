@@ -48,69 +48,108 @@ import org.newdawn.slick.openal.SoundStore;
  * 画像や音声の管理をするクラス
  */
 public class ResourceHolder {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(ResourceHolder.class);
 
-    /** Backgroundのcount */
+    /**
+     * Backgroundのcount
+     */
     public static final int BACKGROUND_MAX = 20;
 
-    /** Number of images for block spatter animation during line clears */
+    /**
+     * Number of images for block spatter animation during line clears
+     */
     public static final int BLOCK_BREAK_MAX = 8;
 
-    /** Number of image splits for block spatter animation during line clears */
+    /**
+     * Number of image splits for block spatter animation during line clears
+     */
     public static final int BLOCK_BREAK_SEGMENTS = 2;
 
-    /** Number of gem block clear effects */
+    /**
+     * Number of gem block clear effects
+     */
     public static final int PERASE_MAX = 7;
 
-    /** Block images */
+    /**
+     * Block images
+     */
     public static LinkedList<Image> imgNormalBlockList, imgSmallBlockList, imgBigBlockList;
 
-    /** Block sticky flag */
+    /**
+     * Block sticky flag
+     */
     public static LinkedList<Boolean> blockStickyFlagList;
 
-    /** Regular font */
+    /**
+     * Regular font
+     */
     public static Image imgFont, imgFontSmall;
 
     /** 小物画像 */
     //public static Image imgSprite;
 
-    /** Title */
+    /**
+     * Title
+     */
     public static Image imgTitle;
 
-    /** Menu Background */
+    /**
+     * Menu Background
+     */
     public static Image imgMenu;
 
-    /** Field frame */
+    /**
+     * Field frame
+     */
     public static Image imgFrame;
 
-    /** Field background */
+    /**
+     * Field background
+     */
     public static Image imgFieldbg2, imgFieldbg2Small, imgFieldbg2Big;
     //public static Image imgFieldbg;
 
-    /** Block spatter animation during line clears */
+    /**
+     * Block spatter animation during line clears
+     */
     public static Image[][] imgBreak;
 
-    /** Effects for clearing gem blocks */
+    /**
+     * Effects for clearing gem blocks
+     */
     public static Image[] imgPErase;
 
-    /** プレイ中のBackground */
+    /**
+     * プレイ中のBackground
+     */
     public static Image[] imgPlayBG;
 
-    /** TTF font */
+    /**
+     * TTF font
+     */
     public static UnicodeFont ttfFont;
 
-    /** Sound effects */
+    /**
+     * Sound effects
+     */
     public static SoundManager soundManager;
 
-    /** BGM */
+    /**
+     * BGM
+     */
     public static Music[] bgm;
 
-    /** Current BGM number */
+    /**
+     * Current BGM number
+     */
     public static int bgmPlaying;
 
     /**
      * 画像や音声を読み込み
+     *
      * @throws SlickException Failed to load
      */
     public static void load() throws SlickException {
@@ -121,9 +160,9 @@ public class ResourceHolder {
         // Blocks
         int numBlocks = 0;
         File file = null;
-        while(true) {
+        while (true) {
             file = new File(skindir + "/graphics/blockskin/normal/n" + numBlocks + ".png");
-            if(file.canRead()) {
+            if (file.canRead()) {
                 numBlocks++;
             } else {
                 break;
@@ -136,13 +175,13 @@ public class ResourceHolder {
         imgBigBlockList = new LinkedList<Image>();
         blockStickyFlagList = new LinkedList<Boolean>();
 
-        for(int i = 0; i < numBlocks; i++) {
+        for (int i = 0; i < numBlocks; i++) {
             Image imgNormal = loadImage(skindir + "/graphics/blockskin/normal/n" + i + ".png");
             imgNormalBlockList.add(imgNormal);
             imgSmallBlockList.add(loadImage(skindir + "/graphics/blockskin/small/s" + i + ".png"));
             imgBigBlockList.add(loadImage(skindir + "/graphics/blockskin/big/b" + i + ".png"));
 
-            if((imgNormal.getWidth() >= 400) && (imgNormal.getHeight() >= 304)) {
+            if ((imgNormal.getWidth() >= 400) && (imgNormal.getHeight() >= 304)) {
                 blockStickyFlagList.add(Boolean.TRUE);
             } else {
                 blockStickyFlagList.add(Boolean.FALSE);
@@ -159,10 +198,10 @@ public class ResourceHolder {
         imgFieldbg2Small = loadImage(skindir + "/graphics/fieldbg2_small.png");
         imgFieldbg2Big = loadImage(skindir + "/graphics/fieldbg2_big.png");
 
-        if(NullpoMinoSlick.propConfig.getProperty("option.showlineeffect", true) == true) {
+        if (NullpoMinoSlick.propConfig.getProperty("option.showlineeffect", true) == true) {
             loadLineClearEffectImages();
         }
-        if(NullpoMinoSlick.propConfig.getProperty("option.showbg", true) == true) {
+        if (NullpoMinoSlick.propConfig.getProperty("option.showbg", true) == true) {
             loadBackgroundImages();
         }
 
@@ -178,7 +217,7 @@ public class ResourceHolder {
 
         // Sound effects
         soundManager = new SoundManager();
-        if(NullpoMinoSlick.propConfig.getProperty("option.se", true) == true) {
+        if (NullpoMinoSlick.propConfig.getProperty("option.se", true) == true) {
             try {
                 SoundStore.get().init();
             } catch (Throwable e) {
@@ -249,7 +288,7 @@ public class ResourceHolder {
             soundManager.load("square_s", skindir + "/se/square_s.wav");
             soundManager.load("square_g", skindir + "/se/square_g.wav");
 
-            for(int i = 0; i < 20; i++) {
+            for (int i = 0; i < 20; i++) {
                 soundManager.load("combo" + (i + 1), skindir + "/se/combo" + (i + 1) + ".wav");
             }
         }
@@ -258,8 +297,8 @@ public class ResourceHolder {
         bgm = new Music[BGMStatus.BGM_COUNT];
         bgmPlaying = -1;
 
-        if(NullpoMinoSlick.propConfig.getProperty("option.bgmpreload", false) == true) {
-            for(int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+        if (NullpoMinoSlick.propConfig.getProperty("option.bgmpreload", false) == true) {
+            for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
                 bgmLoad(i, false);
             }
         }
@@ -269,11 +308,11 @@ public class ResourceHolder {
      * Load background images.
      */
     public static void loadBackgroundImages() {
-        if(imgPlayBG == null) {
+        if (imgPlayBG == null) {
             imgPlayBG = new Image[BACKGROUND_MAX];
 
             String skindir = NullpoMinoSlick.propConfig.getProperty("custom.skin.directory", "res");
-            for(int i = 0; i < imgPlayBG.length; i++)
+            for (int i = 0; i < imgPlayBG.length; i++)
                 imgPlayBG[i] = loadImage(skindir + "/graphics/back" + i + ".png");
         }
     }
@@ -284,19 +323,19 @@ public class ResourceHolder {
     public static void loadLineClearEffectImages() {
         String skindir = NullpoMinoSlick.propConfig.getProperty("custom.skin.directory", "res");
 
-        if(imgBreak == null) {
+        if (imgBreak == null) {
             imgBreak = new Image[BLOCK_BREAK_MAX][BLOCK_BREAK_SEGMENTS];
 
-            for(int i = 0; i < BLOCK_BREAK_MAX; i++) {
-                for(int j = 0; j < BLOCK_BREAK_SEGMENTS; j++) {
+            for (int i = 0; i < BLOCK_BREAK_MAX; i++) {
+                for (int j = 0; j < BLOCK_BREAK_SEGMENTS; j++) {
                     imgBreak[i][j] = loadImage(skindir + "/graphics/break" + i + "_" + j + ".png");
                 }
             }
         }
-        if(imgPErase == null) {
+        if (imgPErase == null) {
             imgPErase = new Image[PERASE_MAX];
 
-            for(int i = 0; i < imgPErase.length; i++) {
+            for (int i = 0; i < imgPErase.length; i++) {
                 imgPErase[i] = loadImage(skindir + "/graphics/perase" + i + ".png");
             }
         }
@@ -304,6 +343,7 @@ public class ResourceHolder {
 
     /**
      * 画像読み込み
+     *
      * @param filename Filename
      * @return 画像 data
      */
@@ -318,7 +358,8 @@ public class ResourceHolder {
             log.error("Failed to load image from " + filename, e);
             try {
                 img = new Image(256, 256);
-            } catch (Throwable e2) {}
+            } catch (Throwable e2) {
+            }
         }
 
         return img;
@@ -326,6 +367,7 @@ public class ResourceHolder {
 
     /**
      * 巨大画像を読み込み
+     *
      * @param filename Filename
      * @return 画像 data
      */
@@ -345,19 +387,20 @@ public class ResourceHolder {
 
     /**
      * 指定した numberのBGMをメモリ上に読み込み
+     *
      * @param no BGM number
      * @param showerr 例外が発生したときにコンソールに表示する
      */
     public static void bgmLoad(int no, boolean showerr) {
-        if(NullpoMinoSlick.propConfig.getProperty("option.bgm", false) == false) return;
+        if (NullpoMinoSlick.propConfig.getProperty("option.bgm", false) == false) return;
 
-        if(bgm[no] == null) {
-            if(showerr) log.info("Loading BGM" + no);
+        if (bgm[no] == null) {
+            if (showerr) log.info("Loading BGM" + no);
 
             try {
                 String filename = NullpoMinoSlick.propMusic.getProperty("music.filename." + no, null);
-                if((filename == null) || (filename.length() < 1)) {
-                    if(showerr) log.info("BGM" + no + " not available");
+                if ((filename == null) || (filename.length() < 1)) {
+                    if (showerr) log.info("BGM" + no + " not available");
                     return;
                 }
 
@@ -365,9 +408,9 @@ public class ResourceHolder {
 
                 bgm[no] = new Music(filename, streaming);
 
-                if(!showerr) log.info("Loaded BGM" + no);
-            } catch(Throwable e) {
-                if(showerr)
+                if (!showerr) log.info("Loaded BGM" + no);
+            } catch (Throwable e) {
+                if (showerr)
                     log.error("BGM " + no + " load failed", e);
                 else
                     log.warn("BGM " + no + " load failed");
@@ -377,28 +420,29 @@ public class ResourceHolder {
 
     /**
      * 指定した numberのBGMを再生
+     *
      * @param no BGM number
      */
     public static void bgmStart(int no) {
-        if(NullpoMinoSlick.propConfig.getProperty("option.bgm", false) == false) return;
+        if (NullpoMinoSlick.propConfig.getProperty("option.bgm", false) == false) return;
 
         bgmStop();
 
         int bgmvolume = NullpoMinoSlick.propConfig.getProperty("option.bgmvolume", 128);
-        NullpoMinoSlick.appGameContainer.setMusicVolume(bgmvolume / (float)128);
+        NullpoMinoSlick.appGameContainer.setMusicVolume(bgmvolume / (float) 128);
 
-        if(no >= 0) {
-            if(bgm[no] == null) {
+        if (no >= 0) {
+            if (bgm[no] == null) {
                 bgmLoad(no, true);
             }
 
-            if(bgm[no] != null) {
+            if (bgm[no] != null) {
                 try {
-                    if(NullpoMinoSlick.propMusic.getProperty("music.noloop." + no, false) == true)
+                    if (NullpoMinoSlick.propMusic.getProperty("music.noloop." + no, false) == true)
                         bgm[no].play();
                     else
                         bgm[no].loop();
-                } catch(Throwable e) {
+                } catch (Throwable e) {
                     log.error("Failed to play music " + no, e);
                 }
             }
@@ -413,8 +457,8 @@ public class ResourceHolder {
      * Current BGMを一時停止
      */
     public static void bgmPause() {
-        if(bgmPlaying >= 0) {
-            if(bgm[bgmPlaying] != null) {
+        if (bgmPlaying >= 0) {
+            if (bgm[bgmPlaying] != null) {
                 bgm[bgmPlaying].pause();
             }
         }
@@ -424,8 +468,8 @@ public class ResourceHolder {
      * 一時停止中のBGMを再開
      */
     public static void bgmResume() {
-        if(bgmPlaying >= 0) {
-            if(bgm[bgmPlaying] != null) {
+        if (bgmPlaying >= 0) {
+            if (bgm[bgmPlaying] != null) {
                 bgm[bgmPlaying].resume();
             }
         }
@@ -433,11 +477,12 @@ public class ResourceHolder {
 
     /**
      * BGM再生中かどうか
+     *
      * @return 再生中ならtrue
      */
     public static boolean bgmIsPlaying() {
-        if(bgmPlaying >= 0) {
-            if(bgm[bgmPlaying] != null) {
+        if (bgmPlaying >= 0) {
+            if (bgm[bgmPlaying] != null) {
                 return bgm[bgmPlaying].playing();
             }
         }
@@ -449,8 +494,8 @@ public class ResourceHolder {
      * BGMを停止
      */
     public static void bgmStop() {
-        for(int i = 0; i < BGMStatus.BGM_COUNT; i++) {
-            if(bgm[i] != null) {
+        for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+            if (bgm[i] != null) {
                 bgm[i].pause();
                 bgm[i].stop();
             }
@@ -461,10 +506,10 @@ public class ResourceHolder {
      * 全てのBGMをメモリから解放
      */
     public static void bgmUnloadAll() {
-        for(int i = 0; i < BGMStatus.BGM_COUNT; i++) {
-            if(bgm[i] != null) {
+        for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+            if (bgm[i] != null) {
                 bgm[i].stop();
-                if(NullpoMinoSlick.propConfig.getProperty("option.bgmpreload", false) == false)
+                if (NullpoMinoSlick.propConfig.getProperty("option.bgmpreload", false) == false)
                     bgm[i] = null;
             }
         }

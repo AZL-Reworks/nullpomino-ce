@@ -15,7 +15,7 @@ public class NintendoRandomizer extends Randomizer {
 
     public void init() {
         prev = pieces.length;
-        roll = pieces.length+1;
+        roll = pieces.length + 1;
     }
 
     public int next() {

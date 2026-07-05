@@ -37,13 +37,19 @@ import mu.nu.nullpo.util.CustomProperties;
  * リプレイで使用する button input dataのクラス
  */
 public class ReplayData implements Serializable {
-    /** Serial version ID */
+    /**
+     * Serial version ID
+     */
     private static final long serialVersionUID = 737226985994393117L;
 
-    /** Button input dataの default の長さ */
+    /**
+     * Button input dataの default の長さ
+     */
     public static final int DEFAULT_ARRAYLIST_SIZE = 60 * 60 * 10;
 
-    /** Button input data */
+    /**
+     * Button input data
+     */
     public ArrayList<Integer> inputDataArray;
 
     /**
@@ -55,6 +61,7 @@ public class ReplayData implements Serializable {
 
     /**
      * Copy constructor
+     *
      * @param r Copy source
      */
     public ReplayData(ReplayData r) {
@@ -65,7 +72,7 @@ public class ReplayData implements Serializable {
      * Reset to defaults
      */
     public void reset() {
-        if(inputDataArray == null)
+        if (inputDataArray == null)
             inputDataArray = new ArrayList<Integer>(DEFAULT_ARRAYLIST_SIZE);
         else
             inputDataArray.clear();
@@ -73,23 +80,25 @@ public class ReplayData implements Serializable {
 
     /**
      * 他のReplayDataからコピー
+     *
      * @param r Copy source
      */
     public void copy(ReplayData r) {
         reset();
 
-        for(int i = 0; i < r.inputDataArray.size(); i++) {
+        for (int i = 0; i < r.inputDataArray.size(); i++) {
             inputDataArray.add(i, r.inputDataArray.get(i));
         }
     }
 
     /**
-     *  button input状況を設定
-     * @param input  button input状況のビット flag
-     * @param frame  frame  (経過 time）
+     * button input状況を設定
+     *
+     * @param input button input状況のビット flag
+     * @param frame frame  (経過 time）
      */
     public void setInputData(int input, int frame) {
-        if((frame < 0) || (frame >= inputDataArray.size())) {
+        if ((frame < 0) || (frame >= inputDataArray.size())) {
             inputDataArray.add(input);
         } else {
             inputDataArray.set(frame, input);
@@ -97,12 +106,13 @@ public class ReplayData implements Serializable {
     }
 
     /**
-     *  button input状況を取得
-     * @param frame  frame  (経過 time）
-     * @return  button input状況のビット flag
+     * button input状況を取得
+     *
+     * @param frame frame  (経過 time）
+     * @return button input状況のビット flag
      */
     public int getInputData(int frame) {
-        if((frame < 0) || (frame >= inputDataArray.size())) {
+        if ((frame < 0) || (frame >= inputDataArray.size())) {
             return 0;
         }
         return inputDataArray.get(frame);
@@ -110,24 +120,26 @@ public class ReplayData implements Serializable {
 
     /**
      * プロパティセットに保存
+     *
      * @param p プロパティセット
      * @param id 任意のID (Player IDなど）
      * @param maxFrame 保存する frame count (-1で全部保存）
      */
     public void writeProperty(CustomProperties p, int id, int maxFrame) {
         int max = maxFrame;
-        if((maxFrame < 0) || (maxFrame > inputDataArray.size())) max = inputDataArray.size();
+        if ((maxFrame < 0) || (maxFrame > inputDataArray.size())) max = inputDataArray.size();
 
-        for(int i = 0; i < max; i++) {
+        for (int i = 0; i < max; i++) {
             int input = getInputData(i);
             int previous = getInputData(i - 1);
-            if(input != previous) p.setProperty(id + ".r." + i, input);
+            if (input != previous) p.setProperty(id + ".r." + i, input);
         }
         p.setProperty(id + ".r.max", max);
     }
 
     /**
      * プロパティセットから読み込み
+     *
      * @param p プロパティセット
      * @param id 任意のID (Player IDなど）
      */
@@ -136,9 +148,9 @@ public class ReplayData implements Serializable {
         int max = p.getProperty(id + ".r.max", 0);
         int input = 0;
 
-        for(int i = 0; i < max; i++) {
+        for (int i = 0; i < max; i++) {
             int data = p.getProperty(id + ".r." + i, -1);
-            if(data != -1) input = data;
+            if (data != -1) input = data;
             setInputData(input, i);
         }
     }

@@ -49,40 +49,64 @@ import org.newdawn.slick.state.StateBasedGame;
  * ゲーム画面のステート
  */
 public class StateInGame extends BasicGameState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 2;
 
-    /** ゲームのメインクラス */
+    /**
+     * ゲームのメインクラス
+     */
     public GameManager gameManager = null;
 
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(StateInGame.class);
 
-    /** ポーズ flag */
+    /**
+     * ポーズ flag
+     */
     protected boolean pause = false;
 
-    /** ポーズメッセージ非表示 */
+    /**
+     * ポーズメッセージ非表示
+     */
     protected boolean pauseMessageHide = false;
 
-    /**  frame ステップ is enabled flag */
+    /**
+     * frame ステップ is enabled flag
+     */
     protected boolean enableframestep = false;
 
-    /** Show background flag */
+    /**
+     * Show background flag
+     */
     protected boolean showbg = true;
 
-    /** 倍速Mode */
+    /**
+     * 倍速Mode
+     */
     protected int fastforward = 0;
 
-    /** Pause menuのCursor position */
+    /**
+     * Pause menuのCursor position
+     */
     protected int cursor = 0;
 
-    /** Number of frames remaining until pause key can be used */
+    /**
+     * Number of frames remaining until pause key can be used
+     */
     protected int pauseFrame = 0;
 
-    /** Screenshot撮影 flag */
+    /**
+     * Screenshot撮影 flag
+     */
     protected boolean ssflag = false;
 
-    /** AppGameContainer (これを使ってタイトルバーを変える) */
+    /**
+     * AppGameContainer (これを使ってタイトルバーを変える)
+     */
     protected AppGameContainer appContainer = null;
 
     /*
@@ -97,7 +121,7 @@ public class StateInGame extends BasicGameState {
      * State initialization
      */
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
-        appContainer = (AppGameContainer)container;
+        appContainer = (AppGameContainer) container;
     }
 
     /*
@@ -122,6 +146,7 @@ public class StateInGame extends BasicGameState {
 
     /**
      * Start a new game
+     *
      * @param strRulePath Rule file path (null if you want to use user-selected one)
      */
     public void startNewGame(String strRulePath) {
@@ -133,7 +158,7 @@ public class StateInGame extends BasicGameState {
         // Mode
         String modeName = NullpoMinoSlick.propGlobal.getProperty("name.mode", "");
         GameMode modeObj = NullpoMinoSlick.modeManager.getMode(modeName);
-        if(modeObj == null) {
+        if (modeObj == null) {
             log.error("Couldn't find mode:" + modeName);
         } else {
             appContainer.setTitle("NullpoMino - " + modeName);
@@ -143,7 +168,7 @@ public class StateInGame extends BasicGameState {
         gameManager.init();
 
         // Initialization for each player
-        for(int i = 0; i < gameManager.getPlayers(); i++) {
+        for (int i = 0; i < gameManager.getPlayers(); i++) {
             // チューニング設定
             gameManager.engine[i].owRotateButtonDefaultRight = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owRotateButtonDefaultRight", -1);
             gameManager.engine[i].owSkin = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owSkin", -1);
@@ -156,13 +181,13 @@ public class StateInGame extends BasicGameState {
             // ルール
             RuleOptions ruleopt = null;
             String rulename = strRulePath;
-            if(rulename == null) {
+            if (rulename == null) {
                 rulename = NullpoMinoSlick.propGlobal.getProperty(i + ".rule", "");
-                if(gameManager.mode.getGameStyle() > 0) {
+                if (gameManager.mode.getGameStyle() > 0) {
                     rulename = NullpoMinoSlick.propGlobal.getProperty(i + ".rule." + gameManager.mode.getGameStyle(), "");
                 }
             }
-            if((rulename != null) && (rulename.length() > 0)) {
+            if ((rulename != null) && (rulename.length() > 0)) {
                 log.info("Load rule options from " + rulename);
                 ruleopt = GeneralUtil.loadRule(rulename);
             } else {
@@ -173,20 +198,20 @@ public class StateInGame extends BasicGameState {
             gameManager.engine[i].ruleopt = ruleopt;
 
             // NEXT順生成アルゴリズム
-            if((ruleopt.strRandomizer != null) && (ruleopt.strRandomizer.length() > 0)) {
+            if ((ruleopt.strRandomizer != null) && (ruleopt.strRandomizer.length() > 0)) {
                 Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
                 gameManager.engine[i].randomizer = randomizerObject;
             }
 
             // Wallkick
-            if((ruleopt.strWallkick != null) && (ruleopt.strWallkick.length() > 0)) {
+            if ((ruleopt.strWallkick != null) && (ruleopt.strWallkick.length() > 0)) {
                 Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
                 gameManager.engine[i].wallkick = wallkickObject;
             }
 
             // AI
             String aiName = NullpoMinoSlick.propGlobal.getProperty(i + ".ai", "");
-            if(aiName.length() > 0) {
+            if (aiName.length() > 0) {
                 DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
                 gameManager.engine[i].ai = aiObj;
                 gameManager.engine[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
@@ -203,6 +228,7 @@ public class StateInGame extends BasicGameState {
 
     /**
      * リプレイを読み込んで再生
+     *
      * @param prop リプレイ dataの入ったプロパティセット
      */
     public void startReplayGame(CustomProperties prop) {
@@ -216,7 +242,7 @@ public class StateInGame extends BasicGameState {
         // Mode
         String modeName = prop.getProperty("name.mode", "");
         GameMode modeObj = NullpoMinoSlick.modeManager.getMode(modeName);
-        if(modeObj == null) {
+        if (modeObj == null) {
             log.error("Couldn't find mode:" + modeName);
         } else {
             appContainer.setTitle("NullpoMino - " + modeName + " (Replay)");
@@ -226,27 +252,27 @@ public class StateInGame extends BasicGameState {
         gameManager.init();
 
         // Initialization for each player
-        for(int i = 0; i < gameManager.getPlayers(); i++) {
+        for (int i = 0; i < gameManager.getPlayers(); i++) {
             // ルール
             RuleOptions ruleopt = new RuleOptions();
             ruleopt.readProperty(prop, i);
             gameManager.engine[i].ruleopt = ruleopt;
 
             // NEXT順生成アルゴリズム
-            if((ruleopt.strRandomizer != null) && (ruleopt.strRandomizer.length() > 0)) {
+            if ((ruleopt.strRandomizer != null) && (ruleopt.strRandomizer.length() > 0)) {
                 Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
                 gameManager.engine[i].randomizer = randomizerObject;
             }
 
             // Wallkick
-            if((ruleopt.strWallkick != null) && (ruleopt.strWallkick.length() > 0)) {
+            if ((ruleopt.strWallkick != null) && (ruleopt.strWallkick.length() > 0)) {
                 Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
                 gameManager.engine[i].wallkick = wallkickObject;
             }
 
             // AI (リプレイ追記用）
             String aiName = NullpoMinoSlick.propGlobal.getProperty(i + ".ai", "");
-            if(aiName.length() > 0) {
+            if (aiName.length() > 0) {
                 DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
                 gameManager.engine[i].ai = aiObj;
                 gameManager.engine[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
@@ -281,34 +307,34 @@ public class StateInGame extends BasicGameState {
      * Draw the screen
      */
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-        if(!container.hasFocus()) {
-            if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep(true);
+        if (!container.hasFocus()) {
+            if (!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep(true);
             return;
         }
 
         // ゲーム画面
-        if(gameManager != null) {
+        if (gameManager != null) {
             gameManager.renderAll();
 
-            if((gameManager.engine.length > 0) && (gameManager.engine[0] != null)) {
+            if ((gameManager.engine.length > 0) && (gameManager.engine[0] != null)) {
                 int offsetX = gameManager.receiver.getFieldDisplayPositionX(gameManager.engine[0], 0);
                 int offsetY = gameManager.receiver.getFieldDisplayPositionY(gameManager.engine[0], 0);
 
                 // Pause menu
-                if(pause && !enableframestep && !pauseMessageHide) {
+                if (pause && !enableframestep && !pauseMessageHide) {
                     NormalFont.printFont(offsetX + 12, offsetY + 188 + (cursor * 16), "b", NormalFont.COLOR_RED);
 
                     NormalFont.printFont(offsetX + 28, offsetY + 188, "CONTINUE", (cursor == 0));
                     NormalFont.printFont(offsetX + 28, offsetY + 204, "RETRY", (cursor == 1));
                     NormalFont.printFont(offsetX + 28, offsetY + 220, "END", (cursor == 2));
-                    if(gameManager.replayMode && !gameManager.replayRerecord)
+                    if (gameManager.replayMode && !gameManager.replayRerecord)
                         NormalFont.printFont(offsetX + 28, offsetY + 236, "RERECORD", (cursor == 3));
                 }
 
                 // Fast forward
-                if(fastforward != 0)
+                if (fastforward != 0)
                     NormalFont.printFont(offsetX, offsetY + 376, "e" + (fastforward + 1), NormalFont.COLOR_ORANGE);
-                if(gameManager.replayShowInvisible)
+                if (gameManager.replayShowInvisible)
                     NormalFont.printFont(offsetX, offsetY + 392, "SHOW INVIS", NormalFont.COLOR_ORANGE);
             }
         }
@@ -318,32 +344,32 @@ public class StateInGame extends BasicGameState {
         // Observer
         NullpoMinoSlick.drawObserverClient();
         // Screenshot
-        if(ssflag) {
+        if (ssflag) {
             NullpoMinoSlick.saveScreenShot(container, g);
             ssflag = false;
         }
 
-        if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep(true);
+        if (!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep(true);
     }
 
     /*
      * ゲーム stateを更新
      */
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-        if(!container.hasFocus()) {
+        if (!container.hasFocus()) {
             GameKey.gamekey[0].clear();
             GameKey.gamekey[1].clear();
-            if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+            if (NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
             return;
         }
 
         // TTF font 描画
-        if(ResourceHolder.ttfFont != null) ResourceHolder.ttfFont.loadGlyphs();
+        if (ResourceHolder.ttfFont != null) ResourceHolder.ttfFont.loadGlyphs();
 
         // Update key input states
-        for(int i = 0; i < 2; i++) {
-            if((gameManager != null) && (gameManager.engine.length > i) &&
-               (gameManager.engine[i] != null) && (gameManager.engine[i].isInGame) && (!pause || enableframestep)) {
+        for (int i = 0; i < 2; i++) {
+            if ((gameManager != null) && (gameManager.engine.length > i) &&
+                (gameManager.engine[i] != null) && (gameManager.engine[i].isInGame) && (!pause || enableframestep)) {
                 GameKey.gamekey[i].update(container.getInput(), true);
             } else {
                 GameKey.gamekey[i].update(container.getInput(), false);
@@ -351,30 +377,30 @@ public class StateInGame extends BasicGameState {
         }
 
         // Pause
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_PAUSE) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_PAUSE)) {
-            if(!pause) {
-                if((gameManager != null) && (gameManager.isGameActive()) && (pauseFrame <= 0)) {
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_PAUSE) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_PAUSE)) {
+            if (!pause) {
+                if ((gameManager != null) && (gameManager.isGameActive()) && (pauseFrame <= 0)) {
                     ResourceHolder.soundManager.play("pause");
                     pause = true;
                     cursor = 0;
-                    if(!enableframestep) pauseFrame = 5;
-                    if(!enableframestep) ResourceHolder.bgmPause();
+                    if (!enableframestep) pauseFrame = 5;
+                    if (!enableframestep) ResourceHolder.bgmPause();
                 }
             } else {
                 ResourceHolder.soundManager.play("pause");
                 pause = false;
                 pauseFrame = 0;
-                if(!enableframestep) ResourceHolder.bgmResume();
+                if (!enableframestep) ResourceHolder.bgmResume();
             }
         }
         // Pause menu
-        else if(pause && !enableframestep && !pauseMessageHide) {
+        else if (pause && !enableframestep && !pauseMessageHide) {
             // Cursor movement
-            if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_UP)) {
+            if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_UP)) {
                 cursor--;
 
-                if(cursor < 0) {
-                    if(gameManager.replayMode && !gameManager.replayRerecord)
+                if (cursor < 0) {
+                    if (gameManager.replayMode && !gameManager.replayRerecord)
                         cursor = 3;
                     else
                         cursor = 2;
@@ -382,36 +408,36 @@ public class StateInGame extends BasicGameState {
 
                 ResourceHolder.soundManager.play("cursor");
             }
-            if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_DOWN)) {
+            if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_DOWN)) {
                 cursor++;
-                if(cursor > 3) cursor = 0;
+                if (cursor > 3) cursor = 0;
 
-                if((!gameManager.replayMode || gameManager.replayRerecord) && (cursor > 2))
+                if ((!gameManager.replayMode || gameManager.replayRerecord) && (cursor > 2))
                     cursor = 0;
 
                 ResourceHolder.soundManager.play("cursor");
             }
 
             // Confirm
-            if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_A)) {
+            if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_A)) {
                 ResourceHolder.soundManager.play("decide");
-                if(cursor == 0) {
+                if (cursor == 0) {
                     // Continue
                     pause = false;
                     pauseFrame = 0;
                     GameKey.gamekey[0].clear();
                     ResourceHolder.bgmResume();
-                } else if(cursor == 1) {
+                } else if (cursor == 1) {
                     // Retry
                     ResourceHolder.bgmStop();
                     pause = false;
                     gameManager.reset();
-                } else if(cursor == 2) {
+                } else if (cursor == 2) {
                     // End
                     ResourceHolder.bgmStop();
                     game.enterState(StateTitle.ID);
                     return;
-                } else if(cursor == 3) {
+                } else if (cursor == 3) {
                     // Replay re-record
                     gameManager.replayRerecord = true;
                     ResourceHolder.soundManager.play("tspin1");
@@ -419,7 +445,7 @@ public class StateInGame extends BasicGameState {
                 }
             }
             // Unpause by cancel key
-            else if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_B) && (pauseFrame <= 0)) {
+            else if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_B) && (pauseFrame <= 0)) {
                 ResourceHolder.soundManager.play("pause");
                 pause = false;
                 pauseFrame = 5;
@@ -427,32 +453,32 @@ public class StateInGame extends BasicGameState {
                 ResourceHolder.bgmResume();
             }
         }
-        if(pauseFrame > 0) pauseFrame--;
+        if (pauseFrame > 0) pauseFrame--;
 
         // Hide pause menu
         pauseMessageHide = GameKey.gamekey[0].isPressKey(GameKey.BUTTON_C);
 
-        if(gameManager.replayMode && !gameManager.replayRerecord && gameManager.engine[0].gameActive) {
+        if (gameManager.replayMode && !gameManager.replayRerecord && gameManager.engine[0].gameActive) {
             // Replay speed
-            if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_LEFT)) {
-                if(fastforward > 0) {
+            if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_LEFT)) {
+                if (fastforward > 0) {
                     fastforward--;
                 }
             }
-            if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_RIGHT)) {
-                if(fastforward < 98) {
+            if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_RIGHT)) {
+                if (fastforward < 98) {
                     fastforward++;
                 }
             }
 
             // Replay re-record
-            if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_D)) {
+            if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_D)) {
                 gameManager.replayRerecord = true;
                 ResourceHolder.soundManager.play("tspin1");
                 cursor = 0;
             }
             // Show invisible blocks during replays
-            if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_E)) {
+            if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_E)) {
                 gameManager.replayShowInvisible = !gameManager.replayShowInvisible;
                 ResourceHolder.soundManager.play("tspin1");
                 cursor = 0;
@@ -461,48 +487,47 @@ public class StateInGame extends BasicGameState {
             fastforward = 0;
         }
 
-        if(gameManager != null) {
+        if (gameManager != null) {
             // BGM
-            if(ResourceHolder.bgmPlaying != gameManager.bgmStatus.bgm) {
+            if (ResourceHolder.bgmPlaying != gameManager.bgmStatus.bgm) {
                 ResourceHolder.bgmStart(gameManager.bgmStatus.bgm);
             }
-            if(ResourceHolder.bgmIsPlaying()) {
+            if (ResourceHolder.bgmIsPlaying()) {
                 int basevolume = NullpoMinoSlick.propConfig.getProperty("option.bgmvolume", 128);
-                float basevolume2 = basevolume / (float)128;
+                float basevolume2 = basevolume / (float) 128;
                 float newvolume = gameManager.bgmStatus.volume * basevolume2;
-                if(newvolume < 0f) newvolume = 0f;
-                if(newvolume > 1f) newvolume = 1f;
+                if (newvolume < 0f) newvolume = 0f;
+                if (newvolume > 1f) newvolume = 1f;
                 container.setMusicVolume(newvolume);
-                if(newvolume <= 0f) ResourceHolder.bgmStop();
+                if (newvolume <= 0f) ResourceHolder.bgmStop();
             }
         }
 
         // ゲームの処理を実行
-        if(!pause || (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_FRAMESTEP) && enableframestep)) {
-            if(gameManager != null) {
-                for(int i = 0; i < Math.min(gameManager.getPlayers(), 2); i++) {
-                    if(!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engine[i].gameActive) {
+        if (!pause || (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_FRAMESTEP) && enableframestep)) {
+            if (gameManager != null) {
+                for (int i = 0; i < Math.min(gameManager.getPlayers(), 2); i++) {
+                    if (!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engine[i].gameActive) {
                         GameKey.gamekey[i].inputStatusUpdate(gameManager.engine[i].ctrl);
                     }
                 }
 
-                for(int i = 0; i <= fastforward; i++) gameManager.updateAll();
+                for (int i = 0; i <= fastforward; i++) gameManager.updateAll();
             }
         }
 
-        if(gameManager != null) {
+        if (gameManager != null) {
             // Retry button
-            if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_RETRY) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_RETRY)) {
+            if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_RETRY) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_RETRY)) {
                 ResourceHolder.bgmStop();
                 pause = false;
                 gameManager.reset();
             }
 
             // Return to title
-            if(gameManager.getQuitFlag() ||
-               GameKey.gamekey[0].isPushKey(GameKey.BUTTON_GIVEUP) ||
-               GameKey.gamekey[1].isPushKey(GameKey.BUTTON_GIVEUP))
-            {
+            if (gameManager.getQuitFlag() ||
+                GameKey.gamekey[0].isPushKey(GameKey.BUTTON_GIVEUP) ||
+                GameKey.gamekey[1].isPushKey(GameKey.BUTTON_GIVEUP)) {
                 ResourceHolder.bgmStop();
                 game.enterState(StateTitle.ID);
                 return;
@@ -510,15 +535,15 @@ public class StateInGame extends BasicGameState {
         }
 
         // Screenshot button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_SCREENSHOT) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_SCREENSHOT))
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_SCREENSHOT) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_SCREENSHOT))
             ssflag = true;
 
         // Exit button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_QUIT) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_QUIT)) {
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_QUIT) || GameKey.gamekey[1].isPushKey(GameKey.BUTTON_QUIT)) {
             shutdown();
             container.exit();
         }
 
-        if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep(true);
+        if (NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep(true);
     }
 }

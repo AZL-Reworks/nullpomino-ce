@@ -35,6 +35,7 @@ import mu.nu.nullpo.util.GeneralUtil;
 
 /**
  * History randomizer (4 rolls)
+ *
  * @deprecated No longer used. The current one is net.omegaboshi.nullpomino.game.subsystem.randomizer.History4RollsRandomizer.
  */
 public class History4RollsRandomizer implements Randomizer {
@@ -56,13 +57,13 @@ public class History4RollsRandomizer implements Randomizer {
         // 初手生成
         do {
             id = random.nextInt(Piece.PIECE_COUNT);
-        } while( (!pieceEnable[id]) || ((!szoOnly) && ((id == Piece.PIECE_Z) || (id == Piece.PIECE_O) || (id == Piece.PIECE_S))) );
+        } while ((!pieceEnable[id]) || ((!szoOnly) && ((id == Piece.PIECE_Z) || (id == Piece.PIECE_O) || (id == Piece.PIECE_S))));
 
         // Add to NEXT list
         pieceArray[0] = id;
 
         // 履歴をずらす
-        for(int j = 0; j < 3; j++) {
+        for (int j = 0; j < 3; j++) {
             history[3 - j] = history[3 - (j + 1)];
         }
 
@@ -70,26 +71,26 @@ public class History4RollsRandomizer implements Randomizer {
         history[0] = id;
 
         // Create draws
-        for(int i = 1; i < arrayMax; i++) {
+        for (int i = 1; i < arrayMax; i++) {
             // Draw
             do {
                 id = random.nextInt(Piece.PIECE_COUNT);
-            } while(!pieceEnable[id]);
+            } while (!pieceEnable[id]);
 
             // 引いたツモが履歴にあったらMaximum4回引き直し
-            if((id == history[0]) || (id == history[1]) || (id == history[2]) || (id == history[3])) {
-                for(int j = 0; j < 4; j++) {
+            if ((id == history[0]) || (id == history[1]) || (id == history[2]) || (id == history[3])) {
+                for (int j = 0; j < 4; j++) {
                     do {
                         id = random.nextInt(Piece.PIECE_COUNT);
-                    } while(!pieceEnable[id]);
+                    } while (!pieceEnable[id]);
 
                     // 4つの履歴に無かったらその場で抜ける
-                    if((id != history[0]) && (id != history[1]) && (id != history[2]) && (id != history[3])) break;
+                    if ((id != history[0]) && (id != history[1]) && (id != history[2]) && (id != history[3])) break;
                 }
             }
 
             // 履歴をずらす
-            for(int j = 0; j < 3; j++) {
+            for (int j = 0; j < 3; j++) {
                 history[3 - j] = history[3 - (j + 1)];
             }
 

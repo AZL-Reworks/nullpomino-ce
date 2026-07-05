@@ -65,161 +65,264 @@ import org.newdawn.slick.util.Log;
  * NullpoMino SlickVersion
  */
 public class NullpoMinoSlick extends StateBasedGame {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(NullpoMinoSlick.class);
 
-    /** プログラムに渡されたコマンドLines引count */
+    /**
+     * プログラムに渡されたコマンドLines引count
+     */
     public static String[] programArgs;
 
-    /** Save settings用Property file */
+    /**
+     * Save settings用Property file
+     */
     public static CustomProperties propConfig;
 
-    /** Save settings用Property file (全Version共通) */
+    /**
+     * Save settings用Property file (全Version共通)
+     */
     public static CustomProperties propGlobal;
 
-    /** 音楽リストProperty file */
+    /**
+     * 音楽リストProperty file
+     */
     public static CustomProperties propMusic;
 
-    /** Observer機能用Property file */
+    /**
+     * Observer機能用Property file
+     */
     public static CustomProperties propObserver;
 
-    /** Default language file */
+    /**
+     * Default language file
+     */
     public static CustomProperties propLangDefault;
 
-    /** 言語ファイル */
+    /**
+     * 言語ファイル
+     */
     public static CustomProperties propLang;
 
-    /** Default game mode description file */
+    /**
+     * Default game mode description file
+     */
     public static CustomProperties propDefaultModeDesc;
 
-    /** Game mode description file */
+    /**
+     * Game mode description file
+     */
     public static CustomProperties propModeDesc;
 
-    /** Screenshot用 */
+    /**
+     * Screenshot用
+     */
     public static BufferedImage ssImage;
 
-    /** Mode 管理 */
+    /**
+     * Mode 管理
+     */
     public static ModeManager modeManager;
 
-    /** AppGameContainer */
+    /**
+     * AppGameContainer
+     */
     public static AppGameContainer appGameContainer;
 
-    /** ロード画面のステート */
+    /**
+     * ロード画面のステート
+     */
     public static StateLoading stateLoading;
 
-    /** タイトル画面のステート */
+    /**
+     * タイトル画面のステート
+     */
     public static StateTitle stateTitle;
 
-    /** ゲーム画面のステート */
+    /**
+     * ゲーム画面のステート
+     */
     public static StateInGame stateInGame;
 
-    /** Mode 選択画面のステート */
+    /**
+     * Mode 選択画面のステート
+     */
     public static StateSelectMode stateSelectMode;
 
-    /** リプレイ選択画面のステート */
+    /**
+     * リプレイ選択画面のステート
+     */
     public static StateReplaySelect stateReplaySelect;
 
-    /** 設定画面のステート */
+    /**
+     * 設定画面のステート
+     */
     public static StateConfigMainMenu stateConfigMainMenu;
 
-    /** 全般の設定画面のステート */
+    /**
+     * 全般の設定画面のステート
+     */
     public static StateConfigGeneral stateConfigGeneral;
 
-    /** ルール選択画面のステート */
+    /**
+     * ルール選択画面のステート
+     */
     public static StateConfigRuleSelect stateConfigRuleSelect;
 
-    /** AI選択画面のステート */
+    /**
+     * AI選択画面のステート
+     */
     public static StateConfigAISelect stateConfigAISelect;
 
-    /** キーボード設定画面のステート */
+    /**
+     * キーボード設定画面のステート
+     */
     public static StateConfigKeyboard stateConfigKeyboard;
 
-    /** Joystick button設定画面のステート */
+    /**
+     * Joystick button設定画面のステート
+     */
     public static StateConfigJoystickButton stateConfigJoystickButton;
 
-    /** ネットプレイ画面のステート */
+    /**
+     * ネットプレイ画面のステート
+     */
     public static StateNetGame stateNetGame;
 
-    /** Joystick 設定メインMenu のステート */
+    /**
+     * Joystick 設定メインMenu のステート
+     */
     public static StateConfigJoystickMain stateConfigJoystickMain;
 
-    /** Joystick テスト画面のステート */
+    /**
+     * Joystick テスト画面のステート
+     */
     public static StateConfigJoystickTest stateConfigJoystickTest;
 
-    /** チューニング設定画面のステート */
+    /**
+     * チューニング設定画面のステート
+     */
     public static StateConfigGameTuning stateConfigGameTuning;
 
-    /** Style select state */
+    /**
+     * Style select state
+     */
     public static StateConfigRuleStyleSelect stateConfigRuleStyleSelect;
 
-    /** Keyboard menu navigation settings state */
+    /**
+     * Keyboard menu navigation settings state
+     */
     public static StateConfigKeyboardNavi stateConfigKeyboardNavi;
 
-    /** Keyboard Reset menu state */
+    /**
+     * Keyboard Reset menu state
+     */
     public static StateConfigKeyboardReset stateConfigKeyboardReset;
 
-    /** Rule select (after mode selection) */
+    /**
+     * Rule select (after mode selection)
+     */
     public static StateSelectRuleFromList stateSelectRuleFromList;
 
-    /** Mode folder select */
+    /**
+     * Mode folder select
+     */
     public static StateSelectModeFolder stateSelectModeFolder;
 
-    /** Timing of alternate FPS sleep (false=render true=update) */
+    /**
+     * Timing of alternate FPS sleep (false=render true=update)
+     */
     public static boolean alternateFPSTiming;
 
-    /** Allow dynamic adjust of target FPS (as seen in Swing version) */
+    /**
+     * Allow dynamic adjust of target FPS (as seen in Swing version)
+     */
     public static boolean alternateFPSDynamicAdjust;
 
-    /** Perfect FPS mode (more accurate, eats more CPU) */
+    /**
+     * Perfect FPS mode (more accurate, eats more CPU)
+     */
     public static boolean alternateFPSPerfectMode;
 
-    /** Execute Thread.yield() during Perfect FPS mode */
+    /**
+     * Execute Thread.yield() during Perfect FPS mode
+     */
     public static boolean alternateFPSPerfectYield;
 
-    /** Target FPS */
+    /**
+     * Target FPS
+     */
     public static int altMaxFPS;
 
-    /** Current max FPS */
+    /**
+     * Current max FPS
+     */
     public static int altMaxFPSCurrent;
 
-    /** Used for FPS calculation */
+    /**
+     * Used for FPS calculation
+     */
     protected static long periodCurrent;
 
-    /** FPS維持用 */
+    /**
+     * FPS維持用
+     */
     protected static long beforeTime;
 
-    /** FPS維持用 */
+    /**
+     * FPS維持用
+     */
     protected static long overSleepTime;
 
-    /** FPS維持用 */
+    /**
+     * FPS維持用
+     */
     protected static int noDelays;
 
-    /** FPS計算用 */
+    /**
+     * FPS計算用
+     */
     protected static long calcInterval = 0;
 
-    /** FPS計算用 */
+    /**
+     * FPS計算用
+     */
     protected static long prevCalcTime = 0;
 
-    /**  frame count */
+    /**
+     * frame count
+     */
     protected static long frameCount = 0;
 
-    /** 実際のFPS */
+    /**
+     * 実際のFPS
+     */
     public static double actualFPS = 0.0;
 
-    /** FPS表示用DecimalFormat */
+    /**
+     * FPS表示用DecimalFormat
+     */
     public static DecimalFormat df = new DecimalFormat("0.0");
 
-    /** Used by perfect fps mode */
+    /**
+     * Used by perfect fps mode
+     */
     public static long perfectFPSDelay = 0;
 
-    /** Observerクライアント */
+    /**
+     * Observerクライアント
+     */
     public static NetObserverClient netObserverClient;
 
-    /** true if read keyboard input from JInput */
+    /**
+     * true if read keyboard input from JInput
+     */
     public static boolean useJInputKeyboard;
 
     /**
      * メイン関count
+     *
      * @param args プログラムに渡されたコマンドLines引count
      */
     public static void main(String[] args) {
@@ -244,13 +347,15 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileInputStream in = new FileInputStream("config/setting/slick.cfg");
             propConfig.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
         loadGlobalConfig();
         try {
             FileInputStream in = new FileInputStream("config/setting/music.cfg");
             propMusic.load(in);
             in.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
 
         // 言語ファイル読み込み
         propLangDefault = new CustomProperties();
@@ -258,7 +363,7 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileInputStream in = new FileInputStream("config/lang/slick_default.properties");
             propLangDefault.load(in);
             in.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Couldn't load default UI language file", e);
         }
 
@@ -267,7 +372,8 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileInputStream in = new FileInputStream("config/lang/slick_" + Locale.getDefault().getCountry() + ".properties");
             propLang.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
 
         // Game mode description
         propDefaultModeDesc = new CustomProperties();
@@ -275,7 +381,7 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileInputStream in = new FileInputStream("config/lang/modedesc_default.properties");
             propDefaultModeDesc.load(in);
             in.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Couldn't load default mode description file", e);
         }
 
@@ -284,7 +390,8 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileInputStream in = new FileInputStream("config/lang/modedesc_" + Locale.getDefault().getCountry() + ".properties");
             propModeDesc.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
 
         // Mode読み込み
         modeManager = new ModeManager();
@@ -303,11 +410,11 @@ public class NullpoMinoSlick extends StateBasedGame {
             propDefaultRule.load(in);
             in.close();
 
-            for(int pl = 0; pl < 2; pl++)
-                for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+            for (int pl = 0; pl < 2; pl++)
+                for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
                     // TETROMINO
-                    if(i == 0) {
-                        if(propGlobal.getProperty(pl + ".rule") == null) {
+                    if (i == 0) {
+                        if (propGlobal.getProperty(pl + ".rule") == null) {
                             propGlobal.setProperty(pl + ".rule", propDefaultRule.getProperty("default.rule", ""));
                             propGlobal.setProperty(pl + ".rulefile", propDefaultRule.getProperty("default.rulefile", ""));
                             propGlobal.setProperty(pl + ".rulename", propDefaultRule.getProperty("default.rulename", ""));
@@ -315,19 +422,20 @@ public class NullpoMinoSlick extends StateBasedGame {
                     }
                     // etc
                     else {
-                        if(propGlobal.getProperty(pl + ".rule." + i) == null) {
+                        if (propGlobal.getProperty(pl + ".rule." + i) == null) {
                             propGlobal.setProperty(pl + ".rule." + i, propDefaultRule.getProperty("default.rule." + i, ""));
                             propGlobal.setProperty(pl + ".rulefile." + i, propDefaultRule.getProperty("default.rulefile." + i, ""));
                             propGlobal.setProperty(pl + ".rulename." + i, propDefaultRule.getProperty("default.rulename." + i, ""));
                         }
                     }
                 }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         // Use JInput option
         useJInputKeyboard = false;
         //log.debug("args.length:" + args.length);
-        if( (args.length > 0) && (args[0].equals("-j") || args[0].equals("/j")) ) {
+        if ((args.length > 0) && (args[0].equals("-j") || args[0].equals("/j"))) {
             useJInputKeyboard = true;
             log.info("-j option is used. Use JInput to read keyboard input.");
         }
@@ -341,7 +449,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 
             NullpoMinoSlick obj = new NullpoMinoSlick();
 
-            if((sWidth != 640) || (sHeight != 480)) {
+            if ((sWidth != 640) || (sHeight != 480)) {
                 ScalableGame sObj = new ScalableGame(obj, 640, 480, true);
                 appGameContainer = new AppGameContainer(sObj);
             } else {
@@ -367,8 +475,8 @@ public class NullpoMinoSlick extends StateBasedGame {
             } catch (Throwable e2) {
                 log.warn("Cannot get driver informations", e2);
             }
-            if(strDriverName == null) strDriverName = "(Unknown)";
-            if(strDriverVersion == null) strDriverVersion = "(Unknown)";
+            if (strDriverName == null) strDriverName = "(Unknown)";
+            if (strDriverVersion == null) strDriverVersion = "(Unknown)";
 
             // Display an error dialog
             String strErrorTitle = getUIText("InitFailedMessage_Title");
@@ -384,7 +492,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 
         stopObserverClient();
 
-        if(stateNetGame.netLobby != null) {
+        if (stateNetGame.netLobby != null) {
             log.debug("Calling netLobby shutdown routine");
             stateNetGame.netLobby.shutdown();
         }
@@ -400,7 +508,7 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileOutputStream out = new FileOutputStream("config/setting/slick.cfg");
             propConfig.store(out, "NullpoMino Slick-frontend Config");
             out.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Failed to save Slick-specific config", e);
         }
 
@@ -408,7 +516,7 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileOutputStream out = new FileOutputStream("config/setting/global.cfg");
             propGlobal.store(out, "NullpoMino Global Config");
             out.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Failed to save global config", e);
         }
     }
@@ -421,7 +529,8 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileInputStream in = new FileInputStream("config/setting/global.cfg");
             propGlobal.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
     }
 
     /**
@@ -445,15 +554,15 @@ public class NullpoMinoSlick extends StateBasedGame {
         appGameContainer.setAlwaysRender(!alternateFPSTiming);
 
         int sevolume = propConfig.getProperty("option.sevolume", 128);
-        appGameContainer.setSoundVolume(sevolume / (float)128);
+        appGameContainer.setSoundVolume(sevolume / (float) 128);
 
         ControllerManager.method = propConfig.getProperty("option.joymethod", ControllerManager.CONTROLLER_METHOD_SLICK_DEFAULT);
         ControllerManager.controllerID[0] = propConfig.getProperty("joyUseNumber.p0", -1);
         ControllerManager.controllerID[1] = propConfig.getProperty("joyUseNumber.p1", -1);
         int joyBorder = propConfig.getProperty("joyBorder.p0", 0);
-        ControllerManager.border[0] = joyBorder / (float)32768;
+        ControllerManager.border[0] = joyBorder / (float) 32768;
         joyBorder = propConfig.getProperty("joyBorder.p1", 0);
-        ControllerManager.border[1] = joyBorder / (float)32768;
+        ControllerManager.border[1] = joyBorder / (float) 32768;
         ControllerManager.ignoreAxis[0] = propConfig.getProperty("joyIgnoreAxis.p0", false);
         ControllerManager.ignoreAxis[1] = propConfig.getProperty("joyIgnoreAxis.p1", false);
         ControllerManager.ignorePOV[0] = propConfig.getProperty("joyIgnorePOV.p0", false);
@@ -464,6 +573,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 
     /**
      * Screenshot保存
+     *
      * @param container GameContainer
      * @param g Graphics
      */
@@ -482,7 +592,7 @@ public class NullpoMinoSlick extends StateBasedGame {
                 if (ssfolder.mkdir()) {
                     log.info("Created screenshot folder: " + dir);
                 } else {
-                    log.info("Couldn't create screenshot folder at "+ dir);
+                    log.info("Couldn't create screenshot folder at " + dir);
                 }
             }
 
@@ -496,18 +606,18 @@ public class NullpoMinoSlick extends StateBasedGame {
             //ImageOut.write(screenImage, filename);
 
             // なので自前で画面をコピーする
-            if(ssImage == null) {
+            if (ssImage == null) {
                 ssImage = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
             }
 
-            for(int i = 0; i < screenWidth; i++)
-                for(int j = 0; j < screenHeight; j++) {
+            for (int i = 0; i < screenWidth; i++)
+                for (int j = 0; j < screenHeight; j++) {
                     Color color = screenImage.getColor(i, j + 1);    // どうもY-coordinateは+1しないとズレるらしい
 
                     int rgb =
-                        ((color.getRed()   & 0x000000FF) << 16) |
-                        ((color.getGreen() & 0x000000FF) <<  8) |
-                        ((color.getBlue()  & 0x000000FF) <<  0);
+                        ((color.getRed() & 0x000000FF) << 16) |
+                            ((color.getGreen() & 0x000000FF) << 8) |
+                            ((color.getBlue() & 0x000000FF) << 0);
 
                     ssImage.setRGB(i, j, rgb);
                 }
@@ -521,12 +631,13 @@ public class NullpoMinoSlick extends StateBasedGame {
 
     /**
      * 翻訳後のUIの文字列を取得
+     *
      * @param str 文字列
      * @return 翻訳後のUIの文字列 (無いならそのままstrを返す）
      */
     public static String getUIText(String str) {
         String result = propLang.getProperty(str);
-        if(result == null) {
+        if (result == null) {
             result = propLangDefault.getProperty(str, str);
         }
         return result;
@@ -541,12 +652,13 @@ public class NullpoMinoSlick extends StateBasedGame {
 
     /**
      * FPS cap routine
+     *
      * @param ingame <code>true</code> if during the gameplay
      */
     public static void alternateFPSSleep(boolean ingame) {
         int maxfps = altMaxFPSCurrent;
 
-        if(maxfps > 0) {
+        if (maxfps > 0) {
             boolean sleepFlag = false;
             long afterTime, timeDiff, sleepTime, sleepTimeInMillis;
 
@@ -556,34 +668,38 @@ public class NullpoMinoSlick extends StateBasedGame {
             sleepTime = (periodCurrent - timeDiff) - overSleepTime;
             sleepTimeInMillis = sleepTime / 1000000L;
 
-            if((sleepTimeInMillis >= 10) && (!alternateFPSPerfectMode || !ingame)) {
+            if ((sleepTimeInMillis >= 10) && (!alternateFPSPerfectMode || !ingame)) {
                 // If it is possible to use sleep
-                if(maxfps > 0) {
+                if (maxfps > 0) {
                     try {
                         Thread.sleep(sleepTimeInMillis);
-                    } catch(InterruptedException e) {}
+                    } catch (InterruptedException e) {
+                    }
                 }
                 // sleep() oversleep
                 overSleepTime = (System.nanoTime() - afterTime) - sleepTime;
                 perfectFPSDelay = System.nanoTime();
                 sleepFlag = true;
-            } else if((alternateFPSPerfectMode && ingame) || (sleepTime > 0)) {
+            } else if ((alternateFPSPerfectMode && ingame) || (sleepTime > 0)) {
                 // Perfect FPS
                 overSleepTime = 0L;
-                if(altMaxFPSCurrent > altMaxFPS + 5) altMaxFPSCurrent = altMaxFPS + 5;
-                if(alternateFPSPerfectYield) {
-                    while(System.nanoTime() < perfectFPSDelay + 1000000000 / altMaxFPS) {Thread.yield();}
+                if (altMaxFPSCurrent > altMaxFPS + 5) altMaxFPSCurrent = altMaxFPS + 5;
+                if (alternateFPSPerfectYield) {
+                    while (System.nanoTime() < perfectFPSDelay + 1000000000 / altMaxFPS) {
+                        Thread.yield();
+                    }
                 } else {
-                    while(System.nanoTime() < perfectFPSDelay + 1000000000 / altMaxFPS) {}
+                    while (System.nanoTime() < perfectFPSDelay + 1000000000 / altMaxFPS) {
+                    }
                 }
                 perfectFPSDelay += 1000000000 / altMaxFPS;
                 sleepFlag = true;
             }
 
-            if(!sleepFlag) {
+            if (!sleepFlag) {
                 // Impossible to sleep!
                 overSleepTime = 0L;
-                if(++noDelays >= 16) {
+                if (++noDelays >= 16) {
                     Thread.yield();
                     noDelays = 0;
                 }
@@ -600,6 +716,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 
     /**
      * FPSの計算
+     *
      * @param period FPSを計算する間隔
      */
     protected static void calcFPS(boolean ingame, long period) {
@@ -607,7 +724,7 @@ public class NullpoMinoSlick extends StateBasedGame {
         calcInterval += period;
 
         // 1秒おきにFPSを再計算する
-        if(calcInterval >= 1000000000L) {
+        if (calcInterval >= 1000000000L) {
             long timeNow = System.nanoTime();
 
             // 実際の経過 timeを測定
@@ -622,21 +739,21 @@ public class NullpoMinoSlick extends StateBasedGame {
             prevCalcTime = timeNow;
 
             // Set new target fps
-            if((altMaxFPS > 0) && (alternateFPSDynamicAdjust) && (!alternateFPSPerfectMode)) {
-                if(ingame) {
-                    if(actualFPS < altMaxFPS - 1) {
+            if ((altMaxFPS > 0) && (alternateFPSDynamicAdjust) && (!alternateFPSPerfectMode)) {
+                if (ingame) {
+                    if (actualFPS < altMaxFPS - 1) {
                         // Too Slow
                         altMaxFPSCurrent++;
-                        if(altMaxFPSCurrent > altMaxFPS + 20) altMaxFPSCurrent = altMaxFPS + 20;
+                        if (altMaxFPSCurrent > altMaxFPS + 20) altMaxFPSCurrent = altMaxFPS + 20;
                         periodCurrent = (long) (1.0 / altMaxFPSCurrent * 1000000000);
-                    } else if(actualFPS > altMaxFPS + 1) {
+                    } else if (actualFPS > altMaxFPS + 1) {
                         // Too Fast
                         altMaxFPSCurrent--;
-                        if(altMaxFPSCurrent < altMaxFPS - 0) altMaxFPSCurrent = altMaxFPS - 0;
-                        if(altMaxFPSCurrent < 1) altMaxFPSCurrent = 1;
+                        if (altMaxFPSCurrent < altMaxFPS - 0) altMaxFPSCurrent = altMaxFPS - 0;
+                        if (altMaxFPSCurrent < 1) altMaxFPSCurrent = 1;
                         periodCurrent = (long) (1.0 / altMaxFPSCurrent * 1000000000);
                     }
-                } else if((!ingame) && (altMaxFPSCurrent != altMaxFPS)) {
+                } else if ((!ingame) && (altMaxFPSCurrent != altMaxFPS)) {
                     altMaxFPSCurrent = altMaxFPS;
                     periodCurrent = (long) (1.0 / altMaxFPSCurrent * 1000000000);
                 }
@@ -701,6 +818,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 
     /**
      * FPS display
+     *
      * @param container GameContainer
      */
     public static void drawFPS(GameContainer container) {
@@ -709,11 +827,12 @@ public class NullpoMinoSlick extends StateBasedGame {
 
     /**
      * FPS display
+     *
      * @param container GameContainer
      */
     public static void drawFPS(GameContainer container, boolean ingame) {
-        if(propConfig.getProperty("option.showfps", true) == true) {
-            if(!alternateFPSDynamicAdjust || alternateFPSPerfectMode || !ingame)
+        if (propConfig.getProperty("option.showfps", true) == true) {
+            if (!alternateFPSDynamicAdjust || alternateFPSPerfectMode || !ingame)
                 NormalFont.printFont(0, 480 - 16, df.format(actualFPS), NormalFont.COLOR_BLUE);
             else
                 NormalFont.printFont(0, 480 - 16, df.format(actualFPS) + "/" + altMaxFPSCurrent, NormalFont.COLOR_BLUE);
@@ -731,15 +850,16 @@ public class NullpoMinoSlick extends StateBasedGame {
             FileInputStream in = new FileInputStream("config/setting/netobserver.cfg");
             propObserver.load(in);
             in.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
 
-        if(propObserver.getProperty("observer.enable", false) == false) return;
-        if((netObserverClient != null) && netObserverClient.isConnected()) return;
+        if (propObserver.getProperty("observer.enable", false) == false) return;
+        if ((netObserverClient != null) && netObserverClient.isConnected()) return;
 
         String host = propObserver.getProperty("observer.host", "");
         int port = propObserver.getProperty("observer.port", NetObserverClient.DEFAULT_PORT);
 
-        if((host.length() > 0) && (port > 0)) {
+        if ((host.length() > 0) && (port > 0)) {
             netObserverClient = new NetObserverClient(host, port);
             netObserverClient.start();
         }
@@ -751,8 +871,8 @@ public class NullpoMinoSlick extends StateBasedGame {
     public static void stopObserverClient() {
         log.debug("stopObserverClient called");
 
-        if(netObserverClient != null) {
-            if(netObserverClient.isConnected()) {
+        if (netObserverClient != null) {
+            if (netObserverClient.isConnected()) {
                 netObserverClient.send("disconnect\n");
             }
             netObserverClient.threadRunning = false;
@@ -766,10 +886,10 @@ public class NullpoMinoSlick extends StateBasedGame {
      * Observerクライアントからの情報を描画
      */
     public static void drawObserverClient() {
-        if((netObserverClient != null) && netObserverClient.isConnected()) {
+        if ((netObserverClient != null) && netObserverClient.isConnected()) {
             int fontcolor = NormalFont.COLOR_BLUE;
-            if(netObserverClient.getObserverCount() > 1) fontcolor = NormalFont.COLOR_GREEN;
-            if(netObserverClient.getObserverCount() > 0 && netObserverClient.getPlayerCount() > 0) fontcolor = NormalFont.COLOR_RED;
+            if (netObserverClient.getObserverCount() > 1) fontcolor = NormalFont.COLOR_GREEN;
+            if (netObserverClient.getObserverCount() > 0 && netObserverClient.getPlayerCount() > 0) fontcolor = NormalFont.COLOR_RED;
             String strObserverInfo = String.format("%d/%d", netObserverClient.getObserverCount(), netObserverClient.getPlayerCount());
             String strObserverString = String.format("%40s", strObserverInfo);
             NormalFont.printFont(0, 480 - 16, strObserverString, fontcolor);

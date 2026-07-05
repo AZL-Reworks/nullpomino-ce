@@ -9,10 +9,14 @@ import org.newdawn.slick.state.StateBasedGame;
  * Keyboard Reset menu
  */
 public class StateConfigKeyboardReset extends DummyMenuChooseState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 17;
 
-    /** Player number */
+    /**
+     * Player number
+     */
     public int player = 0;
 
     /**
@@ -48,7 +52,7 @@ public class StateConfigKeyboardReset extends DummyMenuChooseState {
         g.drawImage(ResourceHolder.imgMenu, 0, 0);
 
         // Menu
-        NormalFont.printFontGrid(1, 1, "KEYBOARD RESET (" + (player+1) + "P)", NormalFont.COLOR_ORANGE);
+        NormalFont.printFontGrid(1, 1, "KEYBOARD RESET (" + (player + 1) + "P)", NormalFont.COLOR_ORANGE);
 
         NormalFont.printFontGrid(1, 3, "RESET SETTINGS TO...", NormalFont.COLOR_GREEN);
 

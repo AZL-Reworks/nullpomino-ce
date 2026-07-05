@@ -36,273 +36,451 @@ import mu.nu.nullpo.util.CustomProperties;
  * ゲームルールの設定 data
  */
 public class RuleOptions implements Serializable {
-    /** Serial version ID */
+    /**
+     * Serial version ID
+     */
     private static final long serialVersionUID = 5781310758989780350L;
 
-    /** 横移動 counterかrotation counterが超過したら固定 timeリセットを無効にする */
+    /**
+     * 横移動 counterかrotation counterが超過したら固定 timeリセットを無効にする
+     */
     public static final int LOCKRESET_LIMIT_OVER_NORESET = 0;
 
-    /** 横移動 counterかrotation counterが超過したら即座に固定する */
+    /**
+     * 横移動 counterかrotation counterが超過したら即座に固定する
+     */
     public static final int LOCKRESET_LIMIT_OVER_INSTANT = 1;
 
-    /** 横移動 counterかrotation counterが超過したらWallkick無効にする */
+    /**
+     * 横移動 counterかrotation counterが超過したらWallkick無効にする
+     */
     public static final int LOCKRESET_LIMIT_OVER_NOWALLKICK = 2;
 
-    /** このルールのName */
+    /**
+     * このルールのName
+     */
     public String strRuleName;
 
-    /** 使用するWallkickアルゴリズムのクラス名 (空文字列ならWallkickしない) */
+    /**
+     * 使用するWallkickアルゴリズムのクラス名 (空文字列ならWallkickしない)
+     */
     public String strWallkick;
 
-    /** 使用する出現順補正アルゴリズムのクラス名 (空文字列なら完全ランダム) */
+    /**
+     * 使用する出現順補正アルゴリズムのクラス名 (空文字列なら完全ランダム)
+     */
     public String strRandomizer;
 
-    /** Game Style */
+    /**
+     * Game Style
+     */
     public int style;
 
-    /** BlockピースのrotationパターンのX-coordinate補正 (11ピース×4Direction) */
+    /**
+     * BlockピースのrotationパターンのX-coordinate補正 (11ピース×4Direction)
+     */
     public int[][] pieceOffsetX;
 
-    /** BlockピースのrotationパターンのY-coordinate補正 (11ピース×4Direction) */
+    /**
+     * BlockピースのrotationパターンのY-coordinate補正 (11ピース×4Direction)
+     */
     public int[][] pieceOffsetY;
 
-    /** Blockピースの出現X-coordinate補正 (11ピース×4Direction) */
+    /**
+     * Blockピースの出現X-coordinate補正 (11ピース×4Direction)
+     */
     public int[][] pieceSpawnX;
 
-    /** Blockピースの出現Y-coordinate補正 (11ピース×4Direction) */
+    /**
+     * Blockピースの出現Y-coordinate補正 (11ピース×4Direction)
+     */
     public int[][] pieceSpawnY;
 
-    /** BlockピースのBig時の出現X-coordinate補正 (11ピース×4Direction) */
+    /**
+     * BlockピースのBig時の出現X-coordinate補正 (11ピース×4Direction)
+     */
     public int[][] pieceSpawnXBig;
 
-    /** BlockピースのBig時の出現Y-coordinate補正 (11ピース×4Direction) */
+    /**
+     * BlockピースのBig時の出現Y-coordinate補正 (11ピース×4Direction)
+     */
     public int[][] pieceSpawnYBig;
 
-    /** Blockピース color */
+    /**
+     * Blockピース color
+     */
     public int[] pieceColor;
 
-    /** Blockピースの初期Direction */
+    /**
+     * Blockピースの初期Direction
+     */
     public int[] pieceDefaultDirection;
 
-    /** fieldより上から出現 */
+    /**
+     * fieldより上から出現
+     */
     public boolean pieceEnterAboveField;
 
-    /** 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count */
+    /**
+     * 出現予定地が埋まっているときにY-coordinateを上にずらすMaximum count
+     */
     public int pieceEnterMaxDistanceY;
 
-    /** fieldの幅 */
+    /**
+     * fieldの幅
+     */
     public int fieldWidth;
 
-    /** Field height */
+    /**
+     * Field height
+     */
     public int fieldHeight;
 
-    /** fieldより上の見えない部分の高さ */
+    /**
+     * fieldより上の見えない部分の高さ
+     */
     public int fieldHiddenHeight;
 
-    /** fieldの天井の有無 */
+    /**
+     * fieldの天井の有無
+     */
     public boolean fieldCeiling;
 
-    /** field枠内に置けなかったら死ぬかどうか */
+    /**
+     * field枠内に置けなかったら死ぬかどうか
+     */
     public boolean fieldLockoutDeath;
 
-    /** field枠外にはみ出しただけで死ぬかどうか */
+    /**
+     * field枠外にはみ出しただけで死ぬかどうか
+     */
     public boolean fieldPartialLockoutDeath;
 
-    /** NEXTのcount */
+    /**
+     * NEXTのcount
+     */
     public int nextDisplay;
 
-    /** ホールド使用可否 */
+    /**
+     * ホールド使用可否
+     */
     public boolean holdEnable;
 
-    /** 先行ホールド */
+    /**
+     * 先行ホールド
+     */
     public boolean holdInitial;
 
-    /** 先行ホールド連続使用不可 */
+    /**
+     * 先行ホールド連続使用不可
+     */
     public boolean holdInitialLimit;
 
-    /** ホールドを使ったときにBlockピースの向きを初期状態に戻す */
+    /**
+     * ホールドを使ったときにBlockピースの向きを初期状態に戻す
+     */
     public boolean holdResetDirection;
 
-    /** ホールドできる count (-1:無制限) */
+    /**
+     * ホールドできる count (-1:無制限)
+     */
     public int holdLimit;
 
-    /** Hard drop使用可否 */
+    /**
+     * Hard drop使用可否
+     */
     public boolean harddropEnable;
 
-    /** Hard drop即固定 */
+    /**
+     * Hard drop即固定
+     */
     public boolean harddropLock;
 
-    /** Hard drop連続使用不可 */
+    /**
+     * Hard drop連続使用不可
+     */
     public boolean harddropLimit;
 
-    /** Soft drop使用可否 */
+    /**
+     * Soft drop使用可否
+     */
     public boolean softdropEnable;
 
-    /** Soft drop即固定 */
+    /**
+     * Soft drop即固定
+     */
     public boolean softdropLock;
 
-    /** Soft drop連続使用不可 */
+    /**
+     * Soft drop連続使用不可
+     */
     public boolean softdropLimit;
 
-    /** 接地状態でSoft dropすると即固定 */
+    /**
+     * 接地状態でSoft dropすると即固定
+     */
     public boolean softdropSurfaceLock;
 
-    /** Soft drop速度 (1.0f=1G, 0.5f=0.5G) */
+    /**
+     * Soft drop速度 (1.0f=1G, 0.5f=0.5G)
+     */
     public float softdropSpeed;
 
-    /** Soft drop速度をCurrent 通常速度×n倍にする */
+    /**
+     * Soft drop速度をCurrent 通常速度×n倍にする
+     */
     public boolean softdropMultiplyNativeSpeed;
 
-    /** Use new soft drop codes */
+    /**
+     * Use new soft drop codes
+     */
     public boolean softdropGravitySpeedLimit;
 
-    /** 先行rotation */
+    /**
+     * 先行rotation
+     */
     public boolean rotateInitial;
 
-    /** 先行rotation連続使用不可 */
+    /**
+     * 先行rotation連続使用不可
+     */
     public boolean rotateInitialLimit;
 
-    /** Wallkick */
+    /**
+     * Wallkick
+     */
     public boolean rotateWallkick;
 
-    /** 先行rotationでもWallkickする */
+    /**
+     * 先行rotationでもWallkickする
+     */
     public boolean rotateInitialWallkick;
 
-    /** 上DirectionへのWallkickができる count (-1:無限) */
+    /**
+     * 上DirectionへのWallkickができる count (-1:無限)
+     */
     public int rotateMaxUpwardWallkick;
 
-    /** falseなら左が正rotation, When true,右が正rotation */
+    /**
+     * falseなら左が正rotation, When true,右が正rotation
+     */
     public boolean rotateButtonDefaultRight;
 
-    /** 逆rotationを許可 (falseなら正rotationと同じ) */
+    /**
+     * 逆rotationを許可 (falseなら正rotationと同じ)
+     */
     public boolean rotateButtonAllowReverse;
 
-    /** 180-degree rotationを許可 (falseなら正rotationと同じ) */
+    /**
+     * 180-degree rotationを許可 (falseなら正rotationと同じ)
+     */
     public boolean rotateButtonAllowDouble;
 
-    /** 落下で固定 timeリセット */
+    /**
+     * 落下で固定 timeリセット
+     */
     public boolean lockresetFall;
 
-    /** 移動で固定 timeリセット */
+    /**
+     * 移動で固定 timeリセット
+     */
     public boolean lockresetMove;
 
-    /** rotationで固定 timeリセット */
+    /**
+     * rotationで固定 timeリセット
+     */
     public boolean lockresetRotate;
 
-    /** Lock delay reset on wallkick */
+    /**
+     * Lock delay reset on wallkick
+     */
     public boolean lockresetWallkick;
 
-    /** 横移動 count制限 (-1:無限) */
+    /**
+     * 横移動 count制限 (-1:無限)
+     */
     public int lockresetLimitMove;
 
-    /** rotation count制限 (-1:無限) */
+    /**
+     * rotation count制限 (-1:無限)
+     */
     public int lockresetLimitRotate;
 
-    /** 横移動 counterとrotation counterを共有 (横移動 counterだけ使う) */
+    /**
+     * 横移動 counterとrotation counterを共有 (横移動 counterだけ使う)
+     */
     public boolean lockresetLimitShareCount;
 
-    /** 横移動 counterかrotation counterが超過したときの処理 (LOCKRESET_LIMIT_OVER_で始まる定countを使う) */
+    /**
+     * 横移動 counterかrotation counterが超過したときの処理 (LOCKRESET_LIMIT_OVER_で始まる定countを使う)
+     */
     public int lockresetLimitOver;
 
-    /** 固定した瞬間光る frame count */
+    /**
+     * 固定した瞬間光る frame count
+     */
     public int lockflash;
 
-    /** Blockが光る専用 frame を入れる */
+    /**
+     * Blockが光る専用 frame を入れる
+     */
     public boolean lockflashOnlyFrame;
 
-    /** Line clear前にBlockが光る frame を入れる */
+    /**
+     * Line clear前にBlockが光る frame を入れる
+     */
     public boolean lockflashBeforeLineClear;
 
-    /** ARE cancel on move */
+    /**
+     * ARE cancel on move
+     */
     public boolean areCancelMove;
 
-    /** ARE cancel on rotate*/
+    /**
+     * ARE cancel on rotate
+     */
     public boolean areCancelRotate;
 
-    /** ARE cancel on hold*/
+    /**
+     * ARE cancel on hold
+     */
     public boolean areCancelHold;
 
-    /** 最小/MaximumARE (-1:指定なし) */
+    /**
+     * 最小/MaximumARE (-1:指定なし)
+     */
     public int minARE, maxARE;
 
-    /** 最小/MaximumARE after line clear (-1:指定なし) */
+    /**
+     * 最小/MaximumARE after line clear (-1:指定なし)
+     */
     public int minARELine, maxARELine;
 
-    /** 最小/MaximumLine clear time (-1:指定なし) */
+    /**
+     * 最小/MaximumLine clear time (-1:指定なし)
+     */
     public int minLineDelay, maxLineDelay;
 
-    /** 最小/Maximum固定 time (-1:指定なし) */
+    /**
+     * 最小/Maximum固定 time (-1:指定なし)
+     */
     public int minLockDelay, maxLockDelay;
 
-    /** 最小/Maximum横溜め time (-1:指定なし) */
+    /**
+     * 最小/Maximum横溜め time (-1:指定なし)
+     */
     public int minDAS, maxDAS;
 
-    /** 横移動間隔 */
+    /**
+     * 横移動間隔
+     */
     public int dasDelay;
 
     public boolean shiftLockEnable;
 
-    /** Ready画面で横溜め可能 */
+    /**
+     * Ready画面で横溜め可能
+     */
     public boolean dasInReady;
 
-    /** 最初の frame で横溜め可能 */
+    /**
+     * 最初の frame で横溜め可能
+     */
     public boolean dasInMoveFirstFrame;
 
-    /** Blockが光った瞬間に横溜め可能 */
+    /**
+     * Blockが光った瞬間に横溜め可能
+     */
     public boolean dasInLockFlash;
 
-    /** Line clear中に横溜め可能 */
+    /**
+     * Line clear中に横溜め可能
+     */
     public boolean dasInLineClear;
 
-    /** ARE中に横溜め可能 */
+    /**
+     * ARE中に横溜め可能
+     */
     public boolean dasInARE;
 
-    /** AREの最後の frame で横溜め可能 */
+    /**
+     * AREの最後の frame で横溜め可能
+     */
     public boolean dasInARELastFrame;
 
-    /** Ending突入画面で横溜め可能 */
+    /**
+     * Ending突入画面で横溜め可能
+     */
     public boolean dasInEndingStart;
 
-    /** Charge DAS on blocked move */
+    /**
+     * Charge DAS on blocked move
+     */
     public boolean dasChargeOnBlockedMove;
 
-    /** Leave DAS charge alone when left/right are not held -- useful with dasRedirectInDelay **/
-   public boolean dasStoreChargeOnNeutral;
+    /**
+     * Leave DAS charge alone when left/right are not held -- useful with dasRedirectInDelay
+     **/
+    public boolean dasStoreChargeOnNeutral;
 
-   /** Allow direction changes during delays without zeroing DAS charge **/
-   public boolean dasRedirectInDelay;
+    /**
+     * Allow direction changes during delays without zeroing DAS charge
+     **/
+    public boolean dasRedirectInDelay;
 
-    /** 最初の frame で移動可能 */
+    /**
+     * 最初の frame で移動可能
+     */
     public boolean moveFirstFrame;
 
-    /** 斜め移動 */
+    /**
+     * 斜め移動
+     */
     public boolean moveDiagonal;
 
-    /** 上下同時押し許可 */
+    /**
+     * 上下同時押し許可
+     */
     public boolean moveUpAndDown;
 
-    /** 左右同時押し許可 */
+    /**
+     * 左右同時押し許可
+     */
     public boolean moveLeftAndRightAllow;
 
-    /** 左右同時押ししたときに前の frame の input Directionを優先する (左を押しながら右を押すと右を無視して左を優先) */
+    /**
+     * 左右同時押ししたときに前の frame の input Directionを優先する (左を押しながら右を押すと右を無視して左を優先)
+     */
     public boolean moveLeftAndRightUsePreviousInput;
 
-    /** Line clear後に上のBlockが1段ずつ落ちるアニメーションを表示 */
+    /**
+     * Line clear後に上のBlockが1段ずつ落ちるアニメーションを表示
+     */
     public boolean lineFallAnim;
 
-    /** Line delay cancel on move */
+    /**
+     * Line delay cancel on move
+     */
     public boolean lineCancelMove;
 
-    /** Line delay cancel on rotate */
+    /**
+     * Line delay cancel on rotate
+     */
     public boolean lineCancelRotate;
 
-    /** Line delay cancel on hold */
+    /**
+     * Line delay cancel on hold
+     */
     public boolean lineCancelHold;
 
-    /** Blockの絵柄 */
+    /**
+     * Blockの絵柄
+     */
     public int skin;
 
-    /** ghost の有無 (falseならMode 側でghost を is enabledにしていても非表示) */
+    /**
+     * ghost の有無 (falseならMode 側でghost を is enabledにしていても非表示)
+     */
     public boolean ghost;
 
     /**
@@ -314,6 +492,7 @@ public class RuleOptions implements Serializable {
 
     /**
      * Copy constructor
+     *
      * @param r Copy source
      */
     public RuleOptions(RuleOptions r) {
@@ -429,8 +608,8 @@ public class RuleOptions implements Serializable {
         dasInARELastFrame = true;
         dasInEndingStart = true;
         dasChargeOnBlockedMove = false;
-       dasStoreChargeOnNeutral = false;
-       dasRedirectInDelay = false;
+        dasStoreChargeOnNeutral = false;
+        dasRedirectInDelay = false;
 
         moveFirstFrame = true;
         moveDiagonal = true;
@@ -449,6 +628,7 @@ public class RuleOptions implements Serializable {
 
     /**
      * 他のRuleParamの内容をコピー
+     *
      * @param r Copy sourceのRuleParam
      */
     public void copy(RuleOptions r) {
@@ -466,8 +646,8 @@ public class RuleOptions implements Serializable {
         pieceSpawnYBig = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
         pieceColor = new int[Piece.PIECE_COUNT];
         pieceDefaultDirection = new int[Piece.PIECE_COUNT];
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 pieceOffsetX[i][j] = r.pieceOffsetX[i][j];
                 pieceOffsetY[i][j] = r.pieceOffsetY[i][j];
                 pieceSpawnX[i][j] = r.pieceSpawnX[i][j];
@@ -557,7 +737,7 @@ public class RuleOptions implements Serializable {
         dasInEndingStart = r.dasInEndingStart;
         dasChargeOnBlockedMove = r.dasChargeOnBlockedMove;
         dasStoreChargeOnNeutral = r.dasStoreChargeOnNeutral;
-      dasRedirectInDelay = r.dasRedirectInDelay;
+        dasRedirectInDelay = r.dasRedirectInDelay;
 
         moveFirstFrame = r.moveFirstFrame;
         moveDiagonal = r.moveDiagonal;
@@ -576,129 +756,131 @@ public class RuleOptions implements Serializable {
 
     /**
      * 他のルールと比較し, 同じならtrueを返す
+     *
      * @param r 比較するルール
      * @param ignoreGraphicsSetting trueにするとゲーム自体に影響しない設定を無視
      * @return 比較したルールと同じならtrue
      */
     public boolean compare(RuleOptions r, boolean ignoreGraphicsSetting) {
-        if((!ignoreGraphicsSetting) && (strRuleName != r.strRuleName)) return false;
-        if(strWallkick != r.strWallkick) return false;
-        if(strRandomizer != r.strRandomizer) return false;
+        if ((!ignoreGraphicsSetting) && (strRuleName != r.strRuleName)) return false;
+        if (strWallkick != r.strWallkick) return false;
+        if (strRandomizer != r.strRandomizer) return false;
 
-        if(style != r.style) return false;
+        if (style != r.style) return false;
 
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-                if(pieceOffsetX[i][j] != r.pieceOffsetX[i][j]) return false;
-                if(pieceOffsetY[i][j] != r.pieceOffsetY[i][j]) return false;
-                if(pieceSpawnX[i][j] != r.pieceSpawnX[i][j]) return false;
-                if(pieceSpawnY[i][j] != r.pieceSpawnY[i][j]) return false;
-                if(pieceSpawnXBig[i][j] != r.pieceSpawnXBig[i][j]) return false;
-                if(pieceSpawnYBig[i][j] != r.pieceSpawnYBig[i][j]) return false;
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+                if (pieceOffsetX[i][j] != r.pieceOffsetX[i][j]) return false;
+                if (pieceOffsetY[i][j] != r.pieceOffsetY[i][j]) return false;
+                if (pieceSpawnX[i][j] != r.pieceSpawnX[i][j]) return false;
+                if (pieceSpawnY[i][j] != r.pieceSpawnY[i][j]) return false;
+                if (pieceSpawnXBig[i][j] != r.pieceSpawnXBig[i][j]) return false;
+                if (pieceSpawnYBig[i][j] != r.pieceSpawnYBig[i][j]) return false;
             }
-            if((!ignoreGraphicsSetting) && (pieceColor[i] != r.pieceColor[i])) return false;
-            if(pieceDefaultDirection[i] != r.pieceDefaultDirection[i]) return false;
+            if ((!ignoreGraphicsSetting) && (pieceColor[i] != r.pieceColor[i])) return false;
+            if (pieceDefaultDirection[i] != r.pieceDefaultDirection[i]) return false;
         }
-        if(pieceEnterAboveField != r.pieceEnterAboveField) return false;
-        if(pieceEnterMaxDistanceY != r.pieceEnterMaxDistanceY) return false;
+        if (pieceEnterAboveField != r.pieceEnterAboveField) return false;
+        if (pieceEnterMaxDistanceY != r.pieceEnterMaxDistanceY) return false;
 
-        if(fieldWidth != r.fieldWidth) return false;
-        if(fieldHeight != r.fieldHeight) return false;
-        if(fieldHiddenHeight != r.fieldHiddenHeight) return false;
-        if(fieldCeiling != r.fieldCeiling) return false;
-        if(fieldLockoutDeath != r.fieldLockoutDeath) return false;
-        if(fieldPartialLockoutDeath != r.fieldPartialLockoutDeath) return false;
+        if (fieldWidth != r.fieldWidth) return false;
+        if (fieldHeight != r.fieldHeight) return false;
+        if (fieldHiddenHeight != r.fieldHiddenHeight) return false;
+        if (fieldCeiling != r.fieldCeiling) return false;
+        if (fieldLockoutDeath != r.fieldLockoutDeath) return false;
+        if (fieldPartialLockoutDeath != r.fieldPartialLockoutDeath) return false;
 
-        if(nextDisplay != r.nextDisplay) return false;
+        if (nextDisplay != r.nextDisplay) return false;
 
-        if(holdEnable != r.holdEnable) return false;
-        if(holdInitial != r.holdInitial) return false;
-        if(holdInitialLimit != r.holdInitialLimit) return false;
-        if(holdResetDirection != r.holdResetDirection) return false;
-        if(holdLimit != r.holdLimit) return false;
+        if (holdEnable != r.holdEnable) return false;
+        if (holdInitial != r.holdInitial) return false;
+        if (holdInitialLimit != r.holdInitialLimit) return false;
+        if (holdResetDirection != r.holdResetDirection) return false;
+        if (holdLimit != r.holdLimit) return false;
 
-        if(harddropEnable != r.harddropEnable) return false;
-        if(harddropLock != r.harddropLock) return false;
-        if(harddropLimit != r.harddropLimit) return false;
+        if (harddropEnable != r.harddropEnable) return false;
+        if (harddropLock != r.harddropLock) return false;
+        if (harddropLimit != r.harddropLimit) return false;
 
-        if(softdropEnable != r.softdropEnable) return false;
-        if(softdropLock != r.softdropLock) return false;
-        if(softdropLimit != r.softdropLimit) return false;
-        if(softdropSurfaceLock != r.softdropSurfaceLock) return false;
-        if(softdropSpeed != r.softdropSpeed) return false;
-        if(softdropMultiplyNativeSpeed != r.softdropMultiplyNativeSpeed) return false;
-        if(softdropGravitySpeedLimit != r.softdropGravitySpeedLimit) return false;
+        if (softdropEnable != r.softdropEnable) return false;
+        if (softdropLock != r.softdropLock) return false;
+        if (softdropLimit != r.softdropLimit) return false;
+        if (softdropSurfaceLock != r.softdropSurfaceLock) return false;
+        if (softdropSpeed != r.softdropSpeed) return false;
+        if (softdropMultiplyNativeSpeed != r.softdropMultiplyNativeSpeed) return false;
+        if (softdropGravitySpeedLimit != r.softdropGravitySpeedLimit) return false;
 
-        if(rotateInitial != r.rotateInitial) return false;
-        if(rotateInitialLimit != r.rotateInitialLimit) return false;
-        if(rotateWallkick != r.rotateWallkick) return false;
-        if(rotateInitialWallkick != r.rotateInitialWallkick) return false;
-        if(rotateMaxUpwardWallkick != r.rotateMaxUpwardWallkick) return false;
-        if(rotateButtonDefaultRight != r.rotateButtonDefaultRight) return false;
-        if(rotateButtonAllowReverse != r.rotateButtonAllowReverse) return false;
-        if(rotateButtonAllowDouble != r.rotateButtonAllowDouble) return false;
+        if (rotateInitial != r.rotateInitial) return false;
+        if (rotateInitialLimit != r.rotateInitialLimit) return false;
+        if (rotateWallkick != r.rotateWallkick) return false;
+        if (rotateInitialWallkick != r.rotateInitialWallkick) return false;
+        if (rotateMaxUpwardWallkick != r.rotateMaxUpwardWallkick) return false;
+        if (rotateButtonDefaultRight != r.rotateButtonDefaultRight) return false;
+        if (rotateButtonAllowReverse != r.rotateButtonAllowReverse) return false;
+        if (rotateButtonAllowDouble != r.rotateButtonAllowDouble) return false;
 
-        if(lockresetFall != r.lockresetFall) return false;
-        if(lockresetMove != r.lockresetMove) return false;
-        if(lockresetRotate != r.lockresetRotate) return false;
-        if(lockresetWallkick != r.lockresetWallkick) return false;
-        if(lockresetLimitMove != r.lockresetLimitMove) return false;
-        if(lockresetLimitRotate != r.lockresetLimitRotate) return false;
-        if(lockresetLimitShareCount != r.lockresetLimitShareCount) return false;
-        if(lockresetLimitOver != r.lockresetLimitOver) return false;
+        if (lockresetFall != r.lockresetFall) return false;
+        if (lockresetMove != r.lockresetMove) return false;
+        if (lockresetRotate != r.lockresetRotate) return false;
+        if (lockresetWallkick != r.lockresetWallkick) return false;
+        if (lockresetLimitMove != r.lockresetLimitMove) return false;
+        if (lockresetLimitRotate != r.lockresetLimitRotate) return false;
+        if (lockresetLimitShareCount != r.lockresetLimitShareCount) return false;
+        if (lockresetLimitOver != r.lockresetLimitOver) return false;
 
-        if(lockflash != r.lockflash) return false;
-        if(lockflashOnlyFrame != r.lockflashOnlyFrame) return false;
-        if(lockflashBeforeLineClear != r.lockflashBeforeLineClear) return false;
-        if(areCancelMove != r.areCancelMove) return false;
-        if(areCancelRotate != r.areCancelRotate) return false;
-        if(areCancelHold != r.areCancelHold) return false;
+        if (lockflash != r.lockflash) return false;
+        if (lockflashOnlyFrame != r.lockflashOnlyFrame) return false;
+        if (lockflashBeforeLineClear != r.lockflashBeforeLineClear) return false;
+        if (areCancelMove != r.areCancelMove) return false;
+        if (areCancelRotate != r.areCancelRotate) return false;
+        if (areCancelHold != r.areCancelHold) return false;
 
-        if(minARE != r.minARE) return false;
-        if(maxARE != r.maxARE) return false;
-        if(minARELine != r.minARELine) return false;
-        if(maxARELine != r.maxARELine) return false;
-        if(minLineDelay != r.minLineDelay) return false;
-        if(maxLineDelay != r.maxLineDelay) return false;
-        if(minLockDelay != r.minLockDelay) return false;
-        if(maxLockDelay != r.maxLockDelay) return false;
-        if(minDAS != r.minDAS) return false;
-        if(maxDAS != r.maxDAS) return false;
+        if (minARE != r.minARE) return false;
+        if (maxARE != r.maxARE) return false;
+        if (minARELine != r.minARELine) return false;
+        if (maxARELine != r.maxARELine) return false;
+        if (minLineDelay != r.minLineDelay) return false;
+        if (maxLineDelay != r.maxLineDelay) return false;
+        if (minLockDelay != r.minLockDelay) return false;
+        if (maxLockDelay != r.maxLockDelay) return false;
+        if (minDAS != r.minDAS) return false;
+        if (maxDAS != r.maxDAS) return false;
 
-        if(dasDelay != r.dasDelay) return false;
+        if (dasDelay != r.dasDelay) return false;
 
-        if(shiftLockEnable != r.shiftLockEnable) return false;
+        if (shiftLockEnable != r.shiftLockEnable) return false;
 
-        if(dasInReady != r.dasInReady) return false;
-        if(dasInMoveFirstFrame != r.dasInMoveFirstFrame) return false;
-        if(dasInLockFlash != r.dasInLockFlash) return false;
-        if(dasInLineClear != r.dasInLineClear) return false;
-        if(dasInARE != r.dasInARE) return false;
-        if(dasInARELastFrame != r.dasInARELastFrame) return false;
-        if(dasInEndingStart != r.dasInEndingStart) return false;
-        if(dasChargeOnBlockedMove != r.dasChargeOnBlockedMove) return false;
-        if(dasStoreChargeOnNeutral != r.dasStoreChargeOnNeutral) return false;
-        if(dasRedirectInDelay != r.dasRedirectInDelay) return false;
+        if (dasInReady != r.dasInReady) return false;
+        if (dasInMoveFirstFrame != r.dasInMoveFirstFrame) return false;
+        if (dasInLockFlash != r.dasInLockFlash) return false;
+        if (dasInLineClear != r.dasInLineClear) return false;
+        if (dasInARE != r.dasInARE) return false;
+        if (dasInARELastFrame != r.dasInARELastFrame) return false;
+        if (dasInEndingStart != r.dasInEndingStart) return false;
+        if (dasChargeOnBlockedMove != r.dasChargeOnBlockedMove) return false;
+        if (dasStoreChargeOnNeutral != r.dasStoreChargeOnNeutral) return false;
+        if (dasRedirectInDelay != r.dasRedirectInDelay) return false;
 
-        if(moveFirstFrame != r.moveFirstFrame) return false;
-        if(moveDiagonal != r.moveDiagonal) return false;
-        if(moveUpAndDown != r.moveUpAndDown) return false;
-        if(moveLeftAndRightAllow != r.moveLeftAndRightAllow) return false;
-        if(moveLeftAndRightUsePreviousInput != r.moveLeftAndRightUsePreviousInput) return false;
+        if (moveFirstFrame != r.moveFirstFrame) return false;
+        if (moveDiagonal != r.moveDiagonal) return false;
+        if (moveUpAndDown != r.moveUpAndDown) return false;
+        if (moveLeftAndRightAllow != r.moveLeftAndRightAllow) return false;
+        if (moveLeftAndRightUsePreviousInput != r.moveLeftAndRightUsePreviousInput) return false;
 
-        if((ignoreGraphicsSetting) && (lineFallAnim != r.lineFallAnim)) return false;
-        if(lineCancelMove != r.lineCancelMove) return false;
-        if(lineCancelRotate != r.lineCancelRotate) return false;
-        if(lineCancelHold != r.lineCancelHold) return false;
+        if ((ignoreGraphicsSetting) && (lineFallAnim != r.lineFallAnim)) return false;
+        if (lineCancelMove != r.lineCancelMove) return false;
+        if (lineCancelRotate != r.lineCancelRotate) return false;
+        if (lineCancelHold != r.lineCancelHold) return false;
 
-        if((ignoreGraphicsSetting) && (skin != r.skin)) return false;
-        if(ghost != r.ghost) return false;
+        if ((ignoreGraphicsSetting) && (skin != r.skin)) return false;
+        if (ghost != r.ghost) return false;
 
         return true;
     }
 
     /**
      * プロパティセットに保存
+     *
      * @param p プロパティセット
      * @param id Player IDまたはPresetID
      */
@@ -709,8 +891,8 @@ public class RuleOptions implements Serializable {
 
         p.setProperty(id + ".ruleopt.style", style);
 
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 p.setProperty(id + ".ruleopt.pieceOffsetX." + i + "." + j, pieceOffsetX[i][j]);
                 p.setProperty(id + ".ruleopt.pieceOffsetY." + i + "." + j, pieceOffsetY[i][j]);
                 p.setProperty(id + ".ruleopt.pieceSpawnX." + i + "." + j, pieceSpawnX[i][j]);
@@ -819,6 +1001,7 @@ public class RuleOptions implements Serializable {
 
     /**
      * プロパティセットから読み込み
+     *
      * @param p プロパティセット
      * @param id Player IDまたはPresetID
      */
@@ -829,8 +1012,8 @@ public class RuleOptions implements Serializable {
 
         style = p.getProperty(id + ".ruleopt.style", 0);
 
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-            for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+            for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
                 pieceOffsetX[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetX." + i + "." + j, pieceOffsetX[i][j]);
                 pieceOffsetY[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetY." + i + "." + j, pieceOffsetY[i][j]);
                 pieceSpawnX[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnX." + i + "." + j, pieceSpawnX[i][j]);

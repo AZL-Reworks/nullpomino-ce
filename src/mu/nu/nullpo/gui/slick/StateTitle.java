@@ -42,24 +42,34 @@ import org.newdawn.slick.state.StateBasedGame;
  * Title screen state
  */
 public class StateTitle extends DummyMenuChooseState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 1;
 
-    /** Strings for menu choices */
-    private static final String[] CHOICES = {"START", "REPLAY", "NETPLAY", "OPTIONS", "EXIT"};
+    /**
+     * Strings for menu choices
+     */
+    private static final String[] CHOICES = { "START", "REPLAY", "NETPLAY", "OPTIONS", "EXIT" };
 
-    /** UI Text identifier Strings */
+    /**
+     * UI Text identifier Strings
+     */
     private static final String[] UI_TEXT = {
         "Title_Start", "Title_Replay", "Title_NetPlay", "Title_Config", "Title_Exit"
     };
 
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(StateTitle.class);
 
-    /** true when new version is already checked */
+    /**
+     * true when new version is already checked
+     */
     protected boolean isNewVersionChecked = false;
 
-    public StateTitle () {
+    public StateTitle() {
         maxCursor = 4;
         minChoiceY = 4;
     }
@@ -90,30 +100,9 @@ public class StateTitle extends DummyMenuChooseState {
         System.gc();
 
         // Update title bar
-        if(container instanceof AppGameContainer) {
+        if (container instanceof AppGameContainer) {
             ((AppGameContainer) container).setTitle("NullpoMino version" + GameManager.getVersionString());
             ((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
-        }
-
-        // New Version check
-        if(!isNewVersionChecked && NullpoMinoSlick.propGlobal.getProperty("updatechecker.enable", true)) {
-            isNewVersionChecked = true;
-
-            int startupCount = NullpoMinoSlick.propGlobal.getProperty("updatechecker.startupCount", 0);
-            int startupMax = NullpoMinoSlick.propGlobal.getProperty("updatechecker.startupMax", 20);
-
-            if(startupCount >= startupMax) {
-                String strURL = NullpoMinoSlick.propGlobal.getProperty("updatechecker.url", "");
-                UpdateChecker.startCheckForUpdates(strURL);
-                startupCount = 0;
-            } else {
-                startupCount++;
-            }
-
-            if(startupMax >= 1) {
-                NullpoMinoSlick.propGlobal.setProperty("updatechecker.startupCount", startupCount);
-                NullpoMinoSlick.saveConfig();
-            }
         }
     }
 
@@ -126,16 +115,16 @@ public class StateTitle extends DummyMenuChooseState {
         g.drawImage(ResourceHolder.imgTitle, 0, 0);
 
         // Menu
-        NormalFont.printFontGrid(1, 1, "NULLPOMINO", NormalFont.COLOR_ORANGE);
+        NormalFont.printFontGrid(1, 1, "NULLPOMINO CE", NormalFont.COLOR_ORANGE);
         NormalFont.printFontGrid(1, 2, "VERSION " + GameManager.getVersionString(), NormalFont.COLOR_ORANGE);
 
         renderChoices(2, 4, CHOICES);
 
         NormalFont.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
 
-        if(UpdateChecker.isNewVersionAvailable(GameManager.getVersionMajor(), GameManager.getVersionMinor())) {
+        if (UpdateChecker.isNewVersionAvailable(GameManager.getVersionMajor(), GameManager.getVersionMinor())) {
             String strTemp = String.format(NullpoMinoSlick.getUIText("Title_NewVersion"),
-                    UpdateChecker.getLatestVersionFullString(), UpdateChecker.getStrReleaseDate());
+                UpdateChecker.getLatestVersionFullString(), UpdateChecker.getStrReleaseDate());
             NormalFont.printTTFFont(16, 416, strTemp);
         }
     }
@@ -144,23 +133,23 @@ public class StateTitle extends DummyMenuChooseState {
     protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
         ResourceHolder.soundManager.play("decide");
 
-        switch(cursor) {
-        case 0:
-            StateSelectMode.isTopLevel = true;
-            game.enterState(StateSelectMode.ID);
-            break;
-        case 1:
-            game.enterState(StateReplaySelect.ID);
-            break;
-        case 2:
-            game.enterState(StateNetGame.ID);
-            break;
-        case 3:
-            game.enterState(StateConfigMainMenu.ID);
-            break;
-        case 4:
-            container.exit();
-            break;
+        switch (cursor) {
+            case 0:
+                StateSelectMode.isTopLevel = true;
+                game.enterState(StateSelectMode.ID);
+                break;
+            case 1:
+                game.enterState(StateReplaySelect.ID);
+                break;
+            case 2:
+                game.enterState(StateNetGame.ID);
+                break;
+            case 3:
+                game.enterState(StateConfigMainMenu.ID);
+                break;
+            case 4:
+                container.exit();
+                break;
         }
 
         return false;

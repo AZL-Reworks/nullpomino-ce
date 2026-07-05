@@ -46,6 +46,7 @@ public class CustomProperties extends Properties {
 
     /**
      * byte型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -56,6 +57,7 @@ public class CustomProperties extends Properties {
 
     /**
      * short型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -66,6 +68,7 @@ public class CustomProperties extends Properties {
 
     /**
      * int型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -76,6 +79,7 @@ public class CustomProperties extends Properties {
 
     /**
      * long型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -86,6 +90,7 @@ public class CustomProperties extends Properties {
 
     /**
      * float型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -96,6 +101,7 @@ public class CustomProperties extends Properties {
 
     /**
      * double型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -106,6 +112,7 @@ public class CustomProperties extends Properties {
 
     /**
      * char型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -116,6 +123,7 @@ public class CustomProperties extends Properties {
 
     /**
      * boolean型のプロパティを設定
+     *
      * @param key キー
      * @param value keyに対応する変count
      * @return プロパティリストの指定されたキーの前の値。それがない場合は null
@@ -126,6 +134,7 @@ public class CustomProperties extends Properties {
 
     /**
      * byte型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応する整count (見つからなかったらdefaultValue）
@@ -136,7 +145,7 @@ public class CustomProperties extends Properties {
         byte result;
         try {
             result = Byte.parseByte(str);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             result = defaultValue;
         }
 
@@ -145,6 +154,7 @@ public class CustomProperties extends Properties {
 
     /**
      * short型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応する整count (見つからなかったらdefaultValue）
@@ -155,7 +165,7 @@ public class CustomProperties extends Properties {
         short result;
         try {
             result = Short.parseShort(str);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             result = defaultValue;
         }
 
@@ -164,6 +174,7 @@ public class CustomProperties extends Properties {
 
     /**
      * int型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応する整count (見つからなかったらdefaultValue）
@@ -174,7 +185,7 @@ public class CustomProperties extends Properties {
         int result;
         try {
             result = Integer.parseInt(str);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             result = defaultValue;
         }
 
@@ -183,6 +194,7 @@ public class CustomProperties extends Properties {
 
     /**
      * long型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応する整count (見つからなかったらdefaultValue）
@@ -193,7 +205,7 @@ public class CustomProperties extends Properties {
         long result;
         try {
             result = Long.parseLong(str);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             result = defaultValue;
         }
 
@@ -202,6 +214,7 @@ public class CustomProperties extends Properties {
 
     /**
      * float型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応する整count (見つからなかったらdefaultValue）
@@ -212,7 +225,7 @@ public class CustomProperties extends Properties {
         float result;
         try {
             result = Float.parseFloat(str);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             result = defaultValue;
         }
 
@@ -221,6 +234,7 @@ public class CustomProperties extends Properties {
 
     /**
      * double型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応する整count (見つからなかったらdefaultValue）
@@ -231,7 +245,7 @@ public class CustomProperties extends Properties {
         double result;
         try {
             result = Double.parseDouble(str);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             result = defaultValue;
         }
 
@@ -240,6 +254,7 @@ public class CustomProperties extends Properties {
 
     /**
      * char型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応する整count (見つからなかったらdefaultValue）
@@ -250,7 +265,7 @@ public class CustomProperties extends Properties {
         char result;
         try {
             result = str.charAt(0);
-        } catch(Exception e) {
+        } catch (Exception e) {
             result = defaultValue;
         }
 
@@ -259,6 +274,7 @@ public class CustomProperties extends Properties {
 
     /**
      * boolean型のプロパティを取得
+     *
      * @param key キー
      * @param defaultValue keyが見つからない場合に返す変count
      * @return 指定されたキーに対応するboolean型変count (見つからなかったらdefaultValue）
@@ -270,6 +286,7 @@ public class CustomProperties extends Properties {
 
     /**
      * このプロパティセットを文字列に変換する(URLEncoderでエンコード)
+     *
      * @param comments 識別コメント
      * @return URLEncoderでエンコードされたプロパティセット文字列
      */
@@ -291,6 +308,7 @@ public class CustomProperties extends Properties {
 
     /**
      * encode(String)でエンコードしたStringからプロパティセットを復元
+     *
      * @param source encode(String)でエンコードしたString
      * @return 成功するとtrue
      */

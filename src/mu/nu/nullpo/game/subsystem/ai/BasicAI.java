@@ -41,43 +41,69 @@ import org.apache.log4j.Logger;
  * 普通のAI
  */
 public class BasicAI extends DummyAI implements Runnable {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(BasicAI.class);
 
-    /** 接地したあとのX-coordinate */
+    /**
+     * 接地したあとのX-coordinate
+     */
     public int bestXSub;
 
-    /** 接地したあとのY-coordinate */
+    /**
+     * 接地したあとのY-coordinate
+     */
     public int bestYSub;
 
-    /** 接地したあとのDirection(-1: None) */
+    /**
+     * 接地したあとのDirection(-1: None)
+     */
     public int bestRtSub;
 
-    /** 最善手のEvaluation score */
+    /**
+     * 最善手のEvaluation score
+     */
     public int bestPts;
 
-    /** 移動を遅らせる用の変count */
+    /**
+     * 移動を遅らせる用の変count
+     */
     public int delay;
 
-    /** The GameEngine that owns this AI */
+    /**
+     * The GameEngine that owns this AI
+     */
     public GameEngine gEngine;
 
-    /** The GameManager that owns this AI */
+    /**
+     * The GameManager that owns this AI
+     */
     public GameManager gManager;
 
-    /** When true,スレッドにThink routineの実行を指示 */
+    /**
+     * When true,スレッドにThink routineの実行を指示
+     */
     public boolean thinkRequest;
 
-    /** true when thread is executing the think routine. */
+    /**
+     * true when thread is executing the think routine.
+     */
     public boolean thinking;
 
-    /** スレッドを停止させる time */
+    /**
+     * スレッドを停止させる time
+     */
     public int thinkDelay;
 
-    /** When true,スレッド動作中 */
+    /**
+     * When true,スレッド動作中
+     */
     public volatile boolean threadRunning;
 
-    /** Thread for executing the think routine */
+    /**
+     * Thread for executing the think routine
+     */
     public Thread thread;
 
     /*
@@ -100,7 +126,7 @@ public class BasicAI extends DummyAI implements Runnable {
         thinking = false;
         threadRunning = false;
 
-        if( ((thread == null) || !thread.isAlive()) && (engine.aiUseThread) ) {
+        if (((thread == null) || !thread.isAlive()) && (engine.aiUseThread)) {
             thread = new Thread(this, "AI_" + playerID);
             thread.setDaemon(true);
             thread.start();
@@ -115,7 +141,7 @@ public class BasicAI extends DummyAI implements Runnable {
      */
     @Override
     public void shutdown(GameEngine engine, int playerID) {
-        if((thread != null) && (thread.isAlive())) {
+        if ((thread != null) && (thread.isAlive())) {
             thread.interrupt();
             threadRunning = false;
             thread = null;
@@ -127,7 +153,7 @@ public class BasicAI extends DummyAI implements Runnable {
      */
     @Override
     public void newPiece(GameEngine engine, int playerID) {
-        if(!engine.aiUseThread) {
+        if (!engine.aiUseThread) {
             thinkBestPosition(engine, playerID);
         } else {
             thinkRequest = true;
@@ -154,9 +180,8 @@ public class BasicAI extends DummyAI implements Runnable {
      */
     @Override
     public void setControl(GameEngine engine, int playerID, Controller ctrl) {
-        if( (engine.nowPieceObject != null) && (engine.stat == GameEngine.STAT_MOVE) && (delay >= engine.aiMoveDelay) && (engine.statc[0] > 0) &&
-            (!engine.aiUseThread || (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo))) )
-        {
+        if ((engine.nowPieceObject != null) && (engine.stat == GameEngine.STAT_MOVE) && (delay >= engine.aiMoveDelay) && (engine.statc[0] > 0) &&
+            (!engine.aiUseThread || (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo)))) {
             int input = 0;    //  button input data
             Piece pieceNow = engine.nowPieceObject;
             int nowX = engine.nowPieceX;
@@ -165,24 +190,24 @@ public class BasicAI extends DummyAI implements Runnable {
             Field fld = engine.field;
             boolean pieceTouchGround = pieceNow.checkCollision(nowX, nowY + 1, fld);
 
-            if((bestHold || forceHold) && engine.isHoldOK()) {
+            if ((bestHold || forceHold) && engine.isHoldOK()) {
                 // ホールド
                 input |= Controller.BUTTON_BIT_D;
             } else {
                 // rotation
-                if(rt != bestRt) {
+                if (rt != bestRt) {
                     int lrot = engine.getRotateDirection(-1);
                     int rrot = engine.getRotateDirection(1);
 
-                    if((Math.abs(rt - bestRt) == 2) && (engine.ruleopt.rotateButtonAllowDouble) && !ctrl.isPress(Controller.BUTTON_E)) {
+                    if ((Math.abs(rt - bestRt) == 2) && (engine.ruleopt.rotateButtonAllowDouble) && !ctrl.isPress(Controller.BUTTON_E)) {
                         input |= Controller.BUTTON_BIT_E;
-                    } else if(!ctrl.isPress(Controller.BUTTON_B) && engine.ruleopt.rotateButtonAllowReverse &&
-                              !engine.isRotateButtonDefaultRight() && (bestRt == rrot)) {
+                    } else if (!ctrl.isPress(Controller.BUTTON_B) && engine.ruleopt.rotateButtonAllowReverse &&
+                        !engine.isRotateButtonDefaultRight() && (bestRt == rrot)) {
                         input |= Controller.BUTTON_BIT_B;
-                    } else if(!ctrl.isPress(Controller.BUTTON_B) && engine.ruleopt.rotateButtonAllowReverse &&
-                              engine.isRotateButtonDefaultRight() && (bestRt == lrot)) {
+                    } else if (!ctrl.isPress(Controller.BUTTON_B) && engine.ruleopt.rotateButtonAllowReverse &&
+                        engine.isRotateButtonDefaultRight() && (bestRt == lrot)) {
                         input |= Controller.BUTTON_BIT_B;
-                    } else if(!ctrl.isPress(Controller.BUTTON_A)) {
+                    } else if (!ctrl.isPress(Controller.BUTTON_A)) {
                         input |= Controller.BUTTON_BIT_A;
                     }
                 }
@@ -191,7 +216,7 @@ public class BasicAI extends DummyAI implements Runnable {
                 int minX = pieceNow.getMostMovableLeft(nowX, nowY, rt, fld);
                 int maxX = pieceNow.getMostMovableRight(nowX, nowY, rt, fld);
 
-                if( ((bestX < minX - 1) || (bestX > maxX + 1) || (bestY < nowY)) && (rt == bestRt) ) {
+                if (((bestX < minX - 1) || (bestX > maxX + 1) || (bestY < nowY)) && (rt == bestRt)) {
                     // 到達不能なので再度思考する
                     //thinkBestPosition(engine, playerID);
                     thinkRequest = true;
@@ -199,38 +224,38 @@ public class BasicAI extends DummyAI implements Runnable {
                     //System.out.println("rethink c:" + thinkCurrentPieceNo + " l:" + thinkLastPieceNo);
                 } else {
                     // 到達できる場合
-                    if((nowX == bestX) && (pieceTouchGround) && (rt == bestRt)) {
+                    if ((nowX == bestX) && (pieceTouchGround) && (rt == bestRt)) {
                         // 接地rotation
-                        if(bestRtSub != -1) {
+                        if (bestRtSub != -1) {
                             bestRt = bestRtSub;
                             bestRtSub = -1;
                         }
                         // ずらし移動
-                        if(bestX != bestXSub) {
+                        if (bestX != bestXSub) {
                             bestX = bestXSub;
                             bestY = bestYSub;
                         }
                     }
 
-                    if(nowX > bestX) {
+                    if (nowX > bestX) {
                         // 左
-                        if(!ctrl.isPress(Controller.BUTTON_LEFT) || (engine.aiMoveDelay >= 0))
+                        if (!ctrl.isPress(Controller.BUTTON_LEFT) || (engine.aiMoveDelay >= 0))
                             input |= Controller.BUTTON_BIT_LEFT;
-                    } else if(nowX < bestX) {
+                    } else if (nowX < bestX) {
                         // 右
-                        if(!ctrl.isPress(Controller.BUTTON_RIGHT) || (engine.aiMoveDelay >= 0))
+                        if (!ctrl.isPress(Controller.BUTTON_RIGHT) || (engine.aiMoveDelay >= 0))
                             input |= Controller.BUTTON_BIT_RIGHT;
-                    } else if((nowX == bestX) && (rt == bestRt)) {
+                    } else if ((nowX == bestX) && (rt == bestRt)) {
                         // 目標到達
-                        if((bestRtSub == -1) && (bestX == bestXSub)) {
-                            if(engine.ruleopt.harddropEnable && !ctrl.isPress(Controller.BUTTON_UP))
+                        if ((bestRtSub == -1) && (bestX == bestXSub)) {
+                            if (engine.ruleopt.harddropEnable && !ctrl.isPress(Controller.BUTTON_UP))
                                 input |= Controller.BUTTON_BIT_UP;
-                            else if(engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
+                            else if (engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
                                 input |= Controller.BUTTON_BIT_DOWN;
                         } else {
-                            if(engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock && !ctrl.isPress(Controller.BUTTON_UP))
+                            if (engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock && !ctrl.isPress(Controller.BUTTON_UP))
                                 input |= Controller.BUTTON_BIT_UP;
-                            else if(engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
+                            else if (engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
                                 input |= Controller.BUTTON_BIT_DOWN;
                         }
                     }
@@ -247,6 +272,7 @@ public class BasicAI extends DummyAI implements Runnable {
 
     /**
      * Search for the best choice
+     *
      * @param engine The GameEngine that owns this AI
      * @param playerID Player ID
      */
@@ -268,26 +294,26 @@ public class BasicAI extends DummyAI implements Runnable {
         boolean holdEmpty = false;
         Piece pieceHold = engine.holdPieceObject;
         Piece pieceNext = engine.getNextObject(engine.nextPieceCount);
-        if(pieceHold == null) {
+        if (pieceHold == null) {
             holdEmpty = true;
         }
         Field fld = new Field(engine.field);
 
-        for(int depth = 0; depth < getMaxThinkDepth(); depth++) {
-            for(int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
+        for (int depth = 0; depth < getMaxThinkDepth(); depth++) {
+            for (int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
                 // 今のピース
                 int minX = pieceNow.getMostMovableLeft(nowX, nowY, rt, engine.field);
                 int maxX = pieceNow.getMostMovableRight(nowX, nowY, rt, engine.field);
 
-                for(int x = minX; x <= maxX; x++) {
+                for (int x = minX; x <= maxX; x++) {
                     fld.copy(engine.field);
                     int y = pieceNow.getBottom(x, nowY, rt, fld);
 
-                    if(!pieceNow.checkCollision(x, y, rt, fld)) {
+                    if (!pieceNow.checkCollision(x, y, rt, fld)) {
                         // そのまま
                         int pts = thinkMain(engine, x, y, rt, -1, fld, pieceNow, pieceNext, pieceHold, depth);
 
-                        if(pts >= bestPts) {
+                        if (pts >= bestPts) {
                             bestHold = false;
                             bestX = x;
                             bestY = y;
@@ -298,13 +324,13 @@ public class BasicAI extends DummyAI implements Runnable {
                             bestPts = pts;
                         }
 
-                        if((depth > 0) || (bestPts <= 10) || (pieceNow.id == Piece.PIECE_T)) {
+                        if ((depth > 0) || (bestPts <= 10) || (pieceNow.id == Piece.PIECE_T)) {
                             // 左ずらし
                             fld.copy(engine.field);
-                            if(!pieceNow.checkCollision(x - 1, y, rt, fld) && pieceNow.checkCollision(x - 1, y - 1, rt, fld)) {
+                            if (!pieceNow.checkCollision(x - 1, y, rt, fld) && pieceNow.checkCollision(x - 1, y - 1, rt, fld)) {
                                 pts = thinkMain(engine, x - 1, y, rt, -1, fld, pieceNow, pieceNext, pieceHold, depth);
 
-                                if(pts > bestPts) {
+                                if (pts > bestPts) {
                                     bestHold = false;
                                     bestX = x;
                                     bestY = y;
@@ -318,10 +344,10 @@ public class BasicAI extends DummyAI implements Runnable {
 
                             // 右ずらし
                             fld.copy(engine.field);
-                            if(!pieceNow.checkCollision(x + 1, y, rt, fld) && pieceNow.checkCollision(x + 1, y - 1, rt, fld)) {
+                            if (!pieceNow.checkCollision(x + 1, y, rt, fld) && pieceNow.checkCollision(x + 1, y - 1, rt, fld)) {
                                 pts = thinkMain(engine, x + 1, y, rt, -1, fld, pieceNow, pieceNext, pieceHold, depth);
 
-                                if(pts > bestPts) {
+                                if (pts > bestPts) {
                                     bestHold = false;
                                     bestX = x;
                                     bestY = y;
@@ -334,29 +360,29 @@ public class BasicAI extends DummyAI implements Runnable {
                             }
 
                             // 左rotation
-                            if(!engine.isRotateButtonDefaultRight() || engine.ruleopt.rotateButtonAllowReverse) {
+                            if (!engine.isRotateButtonDefaultRight() || engine.ruleopt.rotateButtonAllowReverse) {
                                 int rot = pieceNow.getRotateDirection(-1, rt);
                                 int newX = x;
                                 int newY = y;
                                 fld.copy(engine.field);
                                 pts = 0;
 
-                                if(!pieceNow.checkCollision(x, y, rot, fld)) {
+                                if (!pieceNow.checkCollision(x, y, rot, fld)) {
                                     pts = thinkMain(engine, x, y, rot, rt, fld, pieceNow, pieceNext, pieceHold, depth);
-                                } else if((engine.wallkick != null) && (engine.ruleopt.rotateWallkick)) {
+                                } else if ((engine.wallkick != null) && (engine.ruleopt.rotateWallkick)) {
                                     boolean allowUpward = (engine.ruleopt.rotateMaxUpwardWallkick < 0) ||
-                                                          (engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick);
+                                        (engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick);
                                     WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot,
-                                                          allowUpward, pieceNow, fld, null);
+                                        allowUpward, pieceNow, fld, null);
 
-                                    if(kick != null) {
+                                    if (kick != null) {
                                         newX = x + kick.offsetX;
                                         newY = y + kick.offsetY;
                                         pts = thinkMain(engine, newX, newY, rot, rt, fld, pieceNow, pieceNext, pieceHold, depth);
                                     }
                                 }
 
-                                if(pts > bestPts) {
+                                if (pts > bestPts) {
                                     bestHold = false;
                                     bestX = x;
                                     bestY = y;
@@ -369,29 +395,29 @@ public class BasicAI extends DummyAI implements Runnable {
                             }
 
                             // 右rotation
-                            if(engine.isRotateButtonDefaultRight() || engine.ruleopt.rotateButtonAllowReverse) {
+                            if (engine.isRotateButtonDefaultRight() || engine.ruleopt.rotateButtonAllowReverse) {
                                 int rot = pieceNow.getRotateDirection(1, rt);
                                 int newX = x;
                                 int newY = y;
                                 fld.copy(engine.field);
                                 pts = 0;
 
-                                if(!pieceNow.checkCollision(x, y, rot, fld)) {
+                                if (!pieceNow.checkCollision(x, y, rot, fld)) {
                                     pts = thinkMain(engine, x, y, rot, rt, fld, pieceNow, pieceNext, pieceHold, depth);
-                                } else if((engine.wallkick != null) && (engine.ruleopt.rotateWallkick)) {
+                                } else if ((engine.wallkick != null) && (engine.ruleopt.rotateWallkick)) {
                                     boolean allowUpward = (engine.ruleopt.rotateMaxUpwardWallkick < 0) ||
-                                                          (engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick);
+                                        (engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick);
                                     WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot,
-                                                          allowUpward, pieceNow, fld, null);
+                                        allowUpward, pieceNow, fld, null);
 
-                                    if(kick != null) {
+                                    if (kick != null) {
                                         newX = x + kick.offsetX;
                                         newY = y + kick.offsetY;
                                         pts = thinkMain(engine, newX, newY, rot, rt, fld, pieceNow, pieceNext, pieceHold, depth);
                                     }
                                 }
 
-                                if(pts > bestPts) {
+                                if (pts > bestPts) {
                                     bestHold = false;
                                     bestX = x;
                                     bestY = y;
@@ -404,29 +430,29 @@ public class BasicAI extends DummyAI implements Runnable {
                             }
 
                             // 180-degree rotation
-                            if(engine.ruleopt.rotateButtonAllowDouble) {
+                            if (engine.ruleopt.rotateButtonAllowDouble) {
                                 int rot = pieceNow.getRotateDirection(2, rt);
                                 int newX = x;
                                 int newY = y;
                                 fld.copy(engine.field);
                                 pts = 0;
 
-                                if(!pieceNow.checkCollision(x, y, rot, fld)) {
+                                if (!pieceNow.checkCollision(x, y, rot, fld)) {
                                     pts = thinkMain(engine, x, y, rot, rt, fld, pieceNow, pieceNext, pieceHold, depth);
-                                } else if((engine.wallkick != null) && (engine.ruleopt.rotateWallkick)) {
+                                } else if ((engine.wallkick != null) && (engine.ruleopt.rotateWallkick)) {
                                     boolean allowUpward = (engine.ruleopt.rotateMaxUpwardWallkick < 0) ||
-                                                          (engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick);
+                                        (engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick);
                                     WallkickResult kick = engine.wallkick.executeWallkick(x, y, 2, rt, rot,
-                                                          allowUpward, pieceNow, fld, null);
+                                        allowUpward, pieceNow, fld, null);
 
-                                    if(kick != null) {
+                                    if (kick != null) {
                                         newX = x + kick.offsetX;
                                         newY = y + kick.offsetY;
                                         pts = thinkMain(engine, newX, newY, rot, rt, fld, pieceNow, pieceNext, pieceHold, depth);
                                     }
                                 }
 
-                                if(pts > bestPts) {
+                                if (pts > bestPts) {
                                     bestHold = false;
                                     bestX = x;
                                     bestY = y;
@@ -441,27 +467,27 @@ public class BasicAI extends DummyAI implements Runnable {
                     }
                 }
 
-                if(pieceHold == null) {
+                if (pieceHold == null) {
                     pieceHold = engine.getNextObject(engine.nextPieceCount);
                 }
                 // ホールドピース
-                if((holdOK == true) && (pieceHold != null) && (depth == 0)) {
+                if ((holdOK == true) && (pieceHold != null) && (depth == 0)) {
                     int spawnX = engine.getSpawnPosX(engine.field, pieceHold);
                     int spawnY = engine.getSpawnPosY(pieceHold);
                     int minHoldX = pieceHold.getMostMovableLeft(spawnX, spawnY, rt, engine.field);
                     int maxHoldX = pieceHold.getMostMovableRight(spawnX, spawnY, rt, engine.field);
 
-                    for(int x = minHoldX; x <= maxHoldX; x++) {
+                    for (int x = minHoldX; x <= maxHoldX; x++) {
                         fld.copy(engine.field);
                         int y = pieceHold.getBottom(x, spawnY, rt, fld);
 
-                        if(!pieceHold.checkCollision(x, y, rt, fld)) {
+                        if (!pieceHold.checkCollision(x, y, rt, fld)) {
                             Piece pieceNext2 = engine.getNextObject(engine.nextPieceCount);
-                            if(holdEmpty) pieceNext2 = engine.getNextObject(engine.nextPieceCount + 1);
+                            if (holdEmpty) pieceNext2 = engine.getNextObject(engine.nextPieceCount + 1);
 
                             int pts = thinkMain(engine, x, y, rt, -1, fld, pieceHold, pieceNext2, null, depth);
 
-                            if(pts > bestPts) {
+                            if (pts > bestPts) {
                                 bestHold = true;
                                 bestX = x;
                                 bestY = y;
@@ -474,7 +500,7 @@ public class BasicAI extends DummyAI implements Runnable {
                 }
             }
 
-            if(bestPts > 0) break;
+            if (bestPts > 0) break;
         }
 
         thinkLastPieceNo++;
@@ -484,6 +510,7 @@ public class BasicAI extends DummyAI implements Runnable {
 
     /**
      * Think routine
+     *
      * @param engine GameEngine
      * @param x X-coordinate
      * @param y Y-coordinate
@@ -500,9 +527,9 @@ public class BasicAI extends DummyAI implements Runnable {
         int pts = 0;
 
         // Add points for being adjacent to other blocks
-        if(piece.checkCollision(x - 1, y, fld)) pts += 1;
-        if(piece.checkCollision(x + 1, y, fld)) pts += 1;
-        if(piece.checkCollision(x, y - 1, fld)) pts += 100;
+        if (piece.checkCollision(x - 1, y, fld)) pts += 1;
+        if (piece.checkCollision(x + 1, y, fld)) pts += 1;
+        if (piece.checkCollision(x, y - 1, fld)) pts += 100;
 
         // Number of holes and valleys needing an I piece (before placement)
         int holeBefore = fld.getHowManyHoles();
@@ -512,25 +539,25 @@ public class BasicAI extends DummyAI implements Runnable {
         int heightBefore = fld.getHighestBlockY();
         // T-Spin flag
         boolean tspin = false;
-        if((piece.id == Piece.PIECE_T) && (rtOld != -1) && (fld.isTSpinSpot(x, y, piece.big))) {
+        if ((piece.id == Piece.PIECE_T) && (rtOld != -1) && (fld.isTSpinSpot(x, y, piece.big))) {
             tspin = true;
         }
 
         // ピースを置く
-        if(!piece.placeToField(x, y, rt, fld)) {
+        if (!piece.placeToField(x, y, rt, fld)) {
             return 0;
         }
 
         // Line clear
         int lines = fld.checkLine();
-        if(lines > 0) {
+        if (lines > 0) {
             fld.clearLine();
             fld.downFloatingBlocks();
         }
 
         // All clear
         boolean allclear = fld.isEmpty();
-        if(allclear) pts += 500000;
+        if (allclear) pts += 500000;
 
         // Field height (after clears)
         int heightAfter = fld.getHighestBlockY();
@@ -539,90 +566,90 @@ public class BasicAI extends DummyAI implements Runnable {
         boolean danger = (heightAfter <= 12);
 
         // Additional points for lower placements
-        if((!danger) && (depth == 0))
+        if ((!danger) && (depth == 0))
             pts += y * 10;
         else
             pts += y * 20;
 
         // Linescountで加点
-        if((lines == 1) && (!danger) && (depth == 0) && (heightAfter >= 16) && (holeBefore < 3) && (!tspin) && (engine.combo < 1)) {
+        if ((lines == 1) && (!danger) && (depth == 0) && (heightAfter >= 16) && (holeBefore < 3) && (!tspin) && (engine.combo < 1)) {
             return 0;
         }
-        if((!danger) && (depth == 0)) {
-            if(lines == 1) pts += 10;
-            if(lines == 2) pts += 50;
-            if(lines == 3) pts += 100;
-            if(lines >= 4) pts += 100000;
+        if ((!danger) && (depth == 0)) {
+            if (lines == 1) pts += 10;
+            if (lines == 2) pts += 50;
+            if (lines == 3) pts += 100;
+            if (lines >= 4) pts += 100000;
         } else {
-            if(lines == 1) pts += 5000;
-            if(lines == 2) pts += 10000;
-            if(lines == 3) pts += 30000;
-            if(lines >= 4) pts += 100000;
+            if (lines == 1) pts += 5000;
+            if (lines == 2) pts += 10000;
+            if (lines == 3) pts += 30000;
+            if (lines >= 4) pts += 100000;
         }
 
-        if( (lines < 4) && (!allclear) ) {
+        if ((lines < 4) && (!allclear)) {
             // Number of holes and valleys needing an I piece (after placement)
             int holeAfter = fld.getHowManyHoles();
             int lidAfter = fld.getHowManyLidAboveHoles();
             int needIValleyAfter = fld.getTotalValleyNeedIPiece();
 
-            if(holeAfter > holeBefore) {
+            if (holeAfter > holeBefore) {
                 // Demerits for new holes
                 pts -= (holeAfter - holeBefore) * 10;
-                if(depth == 0) return 0;
-            } else if(holeAfter < holeBefore) {
+                if (depth == 0) return 0;
+            } else if (holeAfter < holeBefore) {
                 // Add points for reduction in number of holes
-                if(!danger)
+                if (!danger)
                     pts += (holeBefore - holeAfter) * 5;
                 else
                     pts += (holeBefore - holeAfter) * 10;
             }
 
-            if(lidAfter > lidBefore) {
+            if (lidAfter > lidBefore) {
                 // 穴の上に乗っているBlockを増やすと減点
-                if(!danger)
+                if (!danger)
                     pts -= (lidAfter - lidBefore) * 10;
                 else
                     pts -= (lidAfter - lidBefore) * 20;
-            } else if(lidAfter < lidBefore) {
+            } else if (lidAfter < lidBefore) {
                 // Add points for reduction in number blocks above holes
-                if(!danger)
+                if (!danger)
                     pts += (lidBefore - lidAfter) * 10;
                 else
                     pts += (lidBefore - lidAfter) * 20;
             }
 
-            if((tspin) && (lines >= 1)) {
+            if ((tspin) && (lines >= 1)) {
                 // T-Spin bonus
                 pts += 100000 * lines;
             }
 
-            if((needIValleyAfter > needIValleyBefore) && (needIValleyAfter >= 2)) {
+            if ((needIValleyAfter > needIValleyBefore) && (needIValleyAfter >= 2)) {
                 // 2つ以上I型が必要な穴を作ると減点
                 pts -= (needIValleyAfter - needIValleyBefore) * 10;
-                if(depth == 0) return 0;
-            } else if(needIValleyAfter < needIValleyBefore) {
+                if (depth == 0) return 0;
+            } else if (needIValleyAfter < needIValleyBefore) {
                 // Add points for reduction in number of holes
-                if((depth == 0) && (!danger))
+                if ((depth == 0) && (!danger))
                     pts += (needIValleyBefore - needIValleyAfter) * 10;
                 else
                     pts += (needIValleyBefore - needIValleyAfter) * 20;
             }
 
-            if(heightBefore < heightAfter) {
+            if (heightBefore < heightAfter) {
                 // Add points for reducing the height
-                if((depth == 0) && (!danger))
+                if ((depth == 0) && (!danger))
                     pts += (heightAfter - heightBefore) * 10;
                 else
                     pts += (heightAfter - heightBefore) * 20;
-            } else if(heightBefore > heightAfter) {
+            } else if (heightBefore > heightAfter) {
                 // Demerits for increase in height
-                if((depth > 0) || (danger))
+                if ((depth > 0) || (danger))
                     pts -= (heightBefore - heightAfter) * 4;
             }
 
             // Combo bonus
-            if((lines >= 1) && (engine.comboType != GameEngine.COMBO_TYPE_DISABLE)) {
+            if ((lines >= 1) && (engine.comboType != GameEngine.COMBO_TYPE_DISABLE)) {
                 pts += lines * engine.combo * 100;
             }
         }
@@ -632,6 +659,7 @@ public class BasicAI extends DummyAI implements Runnable {
 
     /**
      * Maximum妥協 levelを取得
+     *
      * @return Maximum妥協 level
      */
     public int getMaxThinkDepth() {
@@ -645,8 +673,8 @@ public class BasicAI extends DummyAI implements Runnable {
         log.info("BasicAI: Thread start");
         threadRunning = true;
 
-        while(threadRunning) {
-            if(thinkRequest) {
+        while (threadRunning) {
+            if (thinkRequest) {
                 thinkRequest = false;
                 thinking = true;
                 try {
@@ -657,7 +685,7 @@ public class BasicAI extends DummyAI implements Runnable {
                 thinking = false;
             }
 
-            if(thinkDelay > 0) {
+            if (thinkDelay > 0) {
                 try {
                     Thread.sleep(thinkDelay);
                 } catch (InterruptedException e) {

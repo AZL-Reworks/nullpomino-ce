@@ -16,25 +16,39 @@ import org.newdawn.slick.state.StateBasedGame;
  * Mode folder select
  */
 public class StateSelectModeFolder extends DummyMenuScrollState {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(StateSelectModeFolder.class);
 
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 19;
 
-    /** Number of folders in one page */
+    /**
+     * Number of folders in one page
+     */
     public static final int PAGE_HEIGHT = 24;
 
-    /** Top-level mode list */
+    /**
+     * Top-level mode list
+     */
     public static LinkedList<String> listTopLevelModes;
 
-    /** Folder names list */
+    /**
+     * Folder names list
+     */
     public static LinkedList<String> listFolder;
 
-    /** HashMap of mode folder (FolderName->ModeNames) */
+    /**
+     * HashMap of mode folder (FolderName->ModeNames)
+     */
     public static HashMap<String, LinkedList<String>> mapFolder;
 
-    /** Current folder name */
+    /**
+     * Current folder name
+     */
     public static String strCurrentFolder;
 
     /**
@@ -65,13 +79,13 @@ public class StateSelectModeFolder extends DummyMenuScrollState {
      * Load folder list file
      */
     public static void loadFolderListFile() {
-        if(listTopLevelModes == null) listTopLevelModes = new LinkedList<String>();
+        if (listTopLevelModes == null) listTopLevelModes = new LinkedList<String>();
         else listTopLevelModes.clear();
 
-        if(listFolder == null) listFolder = new LinkedList<String>();
+        if (listFolder == null) listFolder = new LinkedList<String>();
         else listFolder.clear();
 
-        if(mapFolder == null) mapFolder = new HashMap<String, LinkedList<String>>();
+        if (mapFolder == null) mapFolder = new HashMap<String, LinkedList<String>>();
         else mapFolder.clear();
 
         strCurrentFolder = NullpoMinoSlick.propGlobal.getProperty("name.folder", "");
@@ -81,27 +95,27 @@ public class StateSelectModeFolder extends DummyMenuScrollState {
             String strFolder = "";
 
             String str;
-            while((str = in.readLine()) != null) {
+            while ((str = in.readLine()) != null) {
                 str = str.trim();    // Trim the space
 
-                if(str.startsWith("#")) {
+                if (str.startsWith("#")) {
                     // Commment-line. Ignore it.
-                } else if(str.startsWith(":")) {
+                } else if (str.startsWith(":")) {
                     // New folder
                     strFolder = str.substring(1);
-                    if(!listFolder.contains(strFolder)) {
+                    if (!listFolder.contains(strFolder)) {
                         listFolder.add(strFolder);
                         LinkedList<String> listMode = new LinkedList<String>();
                         mapFolder.put(strFolder, listMode);
                     }
-                } else if(str.length() > 0) {
+                } else if (str.length() > 0) {
                     // Mode name
-                    if(strFolder.length() == 0) {
+                    if (strFolder.length() == 0) {
                         log.debug("(top-level)." + str);
                         listTopLevelModes.add(str);
                     } else {
                         LinkedList<String> listMode = mapFolder.get(strFolder);
-                        if((listMode != null) && !listMode.contains(str)) {
+                        if ((listMode != null) && !listMode.contains(str)) {
                             log.debug(strFolder + "." + str);
                             listMode.add(str);
                             mapFolder.put(strFolder, listMode);
@@ -122,10 +136,10 @@ public class StateSelectModeFolder extends DummyMenuScrollState {
     protected void prepareFolderList() {
         list = new String[listFolder.size() + 1];
         maxCursor = list.length - 1;
-        for(int i = 0; i < listFolder.size(); i++) {
+        for (int i = 0; i < listFolder.size(); i++) {
             list[i] = listFolder.get(i);
 
-            if(strCurrentFolder.equals(list[i])) {
+            if (strCurrentFolder.equals(list[i])) {
                 cursor = i;
             }
         }
@@ -134,6 +148,7 @@ public class StateSelectModeFolder extends DummyMenuScrollState {
 
     /**
      * Get folder description
+     *
      * @param str Folder name
      * @return Description
      */
@@ -142,7 +157,7 @@ public class StateSelectModeFolder extends DummyMenuScrollState {
         str2 = str2.replace('(', 'l');
         str2 = str2.replace(')', 'r');
         String result = NullpoMinoSlick.propModeDesc.getProperty("Folder_" + str2);
-        if(result == null) {
+        if (result == null) {
             result = NullpoMinoSlick.propDefaultModeDesc.getProperty("Folder_" + str2, "Folder_" + str2);
         }
         return result;
@@ -163,7 +178,7 @@ public class StateSelectModeFolder extends DummyMenuScrollState {
     @Override
     protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
         ResourceHolder.soundManager.play("decide");
-        if(cursor < listFolder.size()) {
+        if (cursor < listFolder.size()) {
             strCurrentFolder = list[cursor];
         } else {
             strCurrentFolder = "";

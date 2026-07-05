@@ -39,96 +39,148 @@ import mu.nu.nullpo.util.GeneralUtil;
  * RETRO MANIA mode (Original from NullpoUE build 121909 by Zircean)
  */
 public class RetroManiaMode extends DummyMode {
-    /** Current version */
+    /**
+     * Current version
+     */
     private static final int CURRENT_VERSION = 2;
 
-    /** Poweron Pattern */
+    /**
+     * Poweron Pattern
+     */
     private static final String STRING_POWERON_PATTERN =
-        "4040050165233516506133350555213560141520224542633206134255165200333560031332022463366645230432611435"+
-        "5335503262512313515002442203656664131543211220146344201325061401134610644005663441101532234006340505"+
-        "4621441004021465010225623313311635326311133504346120621126223156523530636115044065300222245330252325"+
-        "5563545455656660124120450663502223206465164461126135621055103645066644052535021110020361422122352566"+
-        "1564343513043465103636404534525056551422631026052022163516150316500504641606133253660234134530365424"+
-        "4124644510156225214120146050543513004022131140054341604166064441010614144404145451160041314635320626"+
-        "0246251556635262420616451361336106153451563316660054255631510320566516465265421144640513424316315421"+
-        "6644140264401653410103024436251016522052305506020020331200443440341001604426324366453255122653512056"+
-        "4234334231212152312006153023444306242003331046140330636540231321265610510125435251421621035523001404"+
-        "0335464640401464125332132315552404146634264364245513600336065666305002023203545052006445544450440460";
+        "4040050165233516506133350555213560141520224542633206134255165200333560031332022463366645230432611435" +
+            "5335503262512313515002442203656664131543211220146344201325061401134610644005663441101532234006340505" +
+            "4621441004021465010225623313311635326311133504346120621126223156523530636115044065300222245330252325" +
+            "5563545455656660124120450663502223206465164461126135621055103645066644052535021110020361422122352566" +
+            "1564343513043465103636404534525056551422631026052022163516150316500504641606133253660234134530365424" +
+            "4124644510156225214120146050543513004022131140054341604166064441010614144404145451160041314635320626" +
+            "0246251556635262420616451361336106153451563316660054255631510320566516465265421144640513424316315421" +
+            "6644140264401653410103024436251016522052305506020020331200443440341001604426324366453255122653512056" +
+            "4234334231212152312006153023444306242003331046140330636540231321265610510125435251421621035523001404" +
+            "0335464640401464125332132315552404146634264364245513600336065666305002023203545052006445544450440460";
 
-    /** Gravity table */
-    private static final int tableDenominator[][] = {{48, 32, 24, 18, 14, 12, 10, 8, 6, 4, 12, 10, 8, 6, 4, 2},
-                                                     {48, 24, 18, 15, 12, 10,  8, 6, 4, 2, 10,  8, 6, 4, 2, 1},
-                                                     {40, 20, 16, 12, 10,  8,  6, 4, 2, 1, 10,  8, 6, 4, 2, 1},
-                                                     {30, 15, 12, 10,  8,  6,  4, 2, 1, 1,  8,  6, 4, 2, 1, 1}};
+    /**
+     * Gravity table
+     */
+    private static final int tableDenominator[][] = { { 48, 32, 24, 18, 14, 12, 10, 8, 6, 4, 12, 10, 8, 6, 4, 2 },
+        { 48, 24, 18, 15, 12, 10, 8, 6, 4, 2, 10, 8, 6, 4, 2, 1 },
+        { 40, 20, 16, 12, 10, 8, 6, 4, 2, 1, 10, 8, 6, 4, 2, 1 },
+        { 30, 15, 12, 10, 8, 6, 4, 2, 1, 1, 8, 6, 4, 2, 1, 1 } };
 
-    /** Time until auto-level up occers */
-    private static final int levelTime[] = {3584, 2304, 2304, 2304, 2304, 2304, 2304, 2304,
-                                            2304, 3584, 3584, 2304, 2304, 2304, 2304, 3584};
+    /**
+     * Time until auto-level up occers
+     */
+    private static final int levelTime[] = { 3584, 2304, 2304, 2304, 2304, 2304, 2304, 2304,
+        2304, 3584, 3584, 2304, 2304, 2304, 2304, 3584 };
 
-    /** Name of game types */
-    private static final String[] GAMETYPE_NAME = {"EASY","NORMAL","HARD","HARDEST"};
+    /**
+     * Name of game types
+     */
+    private static final String[] GAMETYPE_NAME = { "EASY", "NORMAL", "HARD", "HARDEST" };
 
-    /** Number of game type */
+    /**
+     * Number of game type
+     */
     private static final int GAMETYPE_MAX = 4;
 
-    /** Number of ranking records */
+    /**
+     * Number of ranking records
+     */
     private static final int RANKING_MAX = 10;
 
-    /** Number of ranking types */
+    /**
+     * Number of ranking types
+     */
     private static final int RANKING_TYPE = 4;
 
-    /** Max score */
+    /**
+     * Max score
+     */
     private static final int MAX_SCORE = 999999;
 
-    /** Max lines */
+    /**
+     * Max lines
+     */
     private static final int MAX_LINES = 999;
 
-    /** Max level */
+    /**
+     * Max level
+     */
     private static final int MAX_LEVEL = 99;
 
-    /** GameManager object (Manages entire game status) */
+    /**
+     * GameManager object (Manages entire game status)
+     */
     private GameManager owner;
 
-    /** EventReceiver object (This receives many game events, can also be used for drawing the fonts.) */
+    /**
+     * EventReceiver object (This receives many game events, can also be used for drawing the fonts.)
+     */
     private EventReceiver receiver;
 
-    /** Amount of points you just get from line clears */
+    /**
+     * Amount of points you just get from line clears
+     */
     private int lastscore;
 
-    /** Elapsed time from last line clear (lastscore is displayed to screen until this reaches to 120) */
+    /**
+     * Elapsed time from last line clear (lastscore is displayed to screen until this reaches to 120)
+     */
     private int scgettime;
 
-    /** Selected game type */
+    /**
+     * Selected game type
+     */
     private int gametype;
 
-    /** Selected starting level */
+    /**
+     * Selected starting level
+     */
     private int startlevel;
 
-    /** Level timer */
+    /**
+     * Level timer
+     */
     private int levelTimer;
 
-    /** Amount of lines cleared (It will be reset when the level increases) */
+    /**
+     * Amount of lines cleared (It will be reset when the level increases)
+     */
     private int linesAfterLastLevelUp;
 
-    /** Big mode on/off */
+    /**
+     * Big mode on/off
+     */
     private boolean big;
 
-    /** Poweron Pattern on/off */
+    /**
+     * Poweron Pattern on/off
+     */
     private boolean poweron;
 
-    /** Version of this mode */
+    /**
+     * Version of this mode
+     */
     private int version;
 
-    /** Your place on leaderboard (-1: out of rank) */
+    /**
+     * Your place on leaderboard (-1: out of rank)
+     */
     private int rankingRank;
 
-    /** Score records */
+    /**
+     * Score records
+     */
     private int[][] rankingScore;
 
-    /** Line records */
+    /**
+     * Line records
+     */
     private int[][] rankingLines;
 
-    /** Time records */
+    /**
+     * Time records
+     */
     private int[][] rankingTime;
 
     /**
@@ -168,7 +220,7 @@ public class RetroManiaMode extends DummyMode {
         engine.speed.lockDelay = 30;
         engine.speed.das = 20;
 
-        if(owner.replayMode == false) {
+        if (owner.replayMode == false) {
             loadSetting(owner.modeConfig);
             loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
             version = CURRENT_VERSION;
@@ -176,20 +228,21 @@ public class RetroManiaMode extends DummyMode {
             loadSetting(owner.replayProp);
         }
 
-        engine.owner.backgroundStatus.bg = startlevel/2;
-        if(engine.owner.backgroundStatus.bg > 19) engine.owner.backgroundStatus.bg = 19;
+        engine.owner.backgroundStatus.bg = startlevel / 2;
+        if (engine.owner.backgroundStatus.bg > 19) engine.owner.backgroundStatus.bg = 19;
         engine.framecolor = GameEngine.FRAME_COLOR_GRAY;
     }
 
     /**
      * Set the gravity speed
+     *
      * @param engine GameEngine object
      */
     private void setSpeed(GameEngine engine) {
         int lv = engine.statistics.level;
 
-        if(lv < 0) lv = 0;
-        if(lv >= tableDenominator[0].length) lv = tableDenominator[0].length - 1;
+        if (lv < 0) lv = 0;
+        if (lv >= tableDenominator[0].length) lv = tableDenominator[0].length - 1;
 
         engine.speed.gravity = 1;
         engine.speed.denominator = tableDenominator[gametype][lv];
@@ -200,36 +253,36 @@ public class RetroManiaMode extends DummyMode {
      */
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             // Configuration changes
             int change = updateCursor(engine, 3);
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
-                switch(engine.statc[2]) {
-                case 0:
-                    gametype += change;
-                    if(gametype < 0) gametype = GAMETYPE_MAX - 1;
-                    if(gametype > GAMETYPE_MAX - 1) gametype = 0;
-                    break;
-                case 1:
-                    startlevel += change;
-                    if (startlevel < 0) startlevel = 15;
-                    if (startlevel > 15) startlevel = 0;
-                    engine.owner.backgroundStatus.bg = startlevel/2;
-                    break;
-                case 2:
-                    big = !big;
-                    break;
-                case 3:
-                    poweron = !poweron;
-                    break;
+                switch (engine.statc[2]) {
+                    case 0:
+                        gametype += change;
+                        if (gametype < 0) gametype = GAMETYPE_MAX - 1;
+                        if (gametype > GAMETYPE_MAX - 1) gametype = 0;
+                        break;
+                    case 1:
+                        startlevel += change;
+                        if (startlevel < 0) startlevel = 15;
+                        if (startlevel > 15) startlevel = 0;
+                        engine.owner.backgroundStatus.bg = startlevel / 2;
+                        break;
+                    case 2:
+                        big = !big;
+                        break;
+                    case 3:
+                        poweron = !poweron;
+                        break;
                 }
             }
 
             // Check for A button, when pressed this will begin the game
-            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
                 engine.playSE("decide");
                 saveSetting(owner.modeConfig);
                 receiver.saveModeConfig(owner.modeConfig);
@@ -237,7 +290,7 @@ public class RetroManiaMode extends DummyMode {
             }
 
             // Check for B button, when pressed this will shutdown the game engine.
-            if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.quitflag = true;
             }
 
@@ -246,7 +299,7 @@ public class RetroManiaMode extends DummyMode {
             engine.statc[3]++;
             engine.statc[2] = -1;
 
-            if(engine.statc[3] >= 60) {
+            if (engine.statc[3] >= 60) {
                 return false;
             }
         }
@@ -260,10 +313,10 @@ public class RetroManiaMode extends DummyMode {
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
         drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-                "DIFFICULTY", GAMETYPE_NAME[gametype],
-                "LEVEL", String.valueOf(startlevel),
-                "BIG", GeneralUtil.getONorOFF(big),
-                "POWERON", GeneralUtil.getONorOFF(poweron));
+            "DIFFICULTY", GAMETYPE_NAME[gametype],
+            "LEVEL", String.valueOf(startlevel),
+            "BIG", GeneralUtil.getONorOFF(big),
+            "POWERON", GeneralUtil.getONorOFF(poweron));
     }
 
     /**
@@ -271,8 +324,8 @@ public class RetroManiaMode extends DummyMode {
      */
     @Override
     public boolean onReady(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 0) {
-            if(poweron) {
+        if (engine.statc[0] == 0) {
+            if (poweron) {
                 engine.nextPieceArrayID = GeneralUtil.createNextPieceArrayFromNumberString(STRING_POWERON_PATTERN);
             }
         }
@@ -299,27 +352,27 @@ public class RetroManiaMode extends DummyMode {
     @Override
     public void renderLast(GameEngine engine, int playerID) {
         receiver.drawScoreFont(engine, playerID, 0, 0, "RETRO MANIA", EventReceiver.COLOR_GREEN);
-        receiver.drawScoreFont(engine, playerID, 0, 1, "("+GAMETYPE_NAME[gametype]+" SPEED)", EventReceiver.COLOR_GREEN);
+        receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME[gametype] + " SPEED)", EventReceiver.COLOR_GREEN);
 
-        if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
+        if ((engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false))) {
             // Leaderboard
-            if((owner.replayMode == false) && (big == false) && (startlevel == 0) && (engine.ai == null)) {
+            if ((owner.replayMode == false) && (big == false) && (startlevel == 0) && (engine.ai == null)) {
                 float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
                 int topY = (receiver.getNextDisplayType() == 2) ? 6 : 4;
-                receiver.drawScoreFont(engine, playerID, 3, topY-1, "SCORE  LINE TIME", EventReceiver.COLOR_BLUE, scale);
+                receiver.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE  LINE TIME", EventReceiver.COLOR_BLUE, scale);
 
-                for(int i = 0; i < RANKING_MAX; i++) {
-                    receiver.drawScoreFont(engine, playerID, 0, topY+i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
-                    receiver.drawScoreFont(engine, playerID, 3, topY+i, String.valueOf(rankingScore[gametype][i]), (i == rankingRank), scale);
-                    receiver.drawScoreFont(engine, playerID, 10, topY+i, String.valueOf(rankingLines[gametype][i]), (i == rankingRank), scale);
-                    receiver.drawScoreFont(engine, playerID, 15, topY+i, GeneralUtil.getTime(rankingTime[gametype][i]), (i == rankingRank), scale);
+                for (int i = 0; i < RANKING_MAX; i++) {
+                    receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
+                    receiver.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[gametype][i]), (i == rankingRank), scale);
+                    receiver.drawScoreFont(engine, playerID, 10, topY + i, String.valueOf(rankingLines[gametype][i]), (i == rankingRank), scale);
+                    receiver.drawScoreFont(engine, playerID, 15, topY + i, GeneralUtil.getTime(rankingTime[gametype][i]), (i == rankingRank), scale);
                 }
             }
         } else {
             // Game statistics
             receiver.drawScoreFont(engine, playerID, 0, 3, "SCORE", EventReceiver.COLOR_BLUE);
             String strScore;
-            if((lastscore == 0) || (scgettime >= 120)) {
+            if ((lastscore == 0) || (scgettime >= 120)) {
                 strScore = String.valueOf(engine.statistics.score);
             } else {
                 strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
@@ -346,13 +399,13 @@ public class RetroManiaMode extends DummyMode {
     @Override
     public void onLast(GameEngine engine, int playerID) {
         scgettime++;
-        if(engine.timerActive) levelTimer++;
+        if (engine.timerActive) levelTimer++;
 
         // Max-out score, lines, and level
-        if(version >= 2) {
-            if(engine.statistics.score > MAX_SCORE) engine.statistics.score = MAX_SCORE;
-            if(engine.statistics.lines > MAX_LINES) engine.statistics.lines = MAX_LINES;
-            if(engine.statistics.level > MAX_LEVEL) engine.statistics.level = MAX_LEVEL;
+        if (version >= 2) {
+            if (engine.statistics.score > MAX_SCORE) engine.statistics.score = MAX_SCORE;
+            if (engine.statistics.lines > MAX_LINES) engine.statistics.lines = MAX_LINES;
+            if (engine.statistics.level > MAX_LEVEL) engine.statistics.level = MAX_LEVEL;
         }
     }
 
@@ -364,26 +417,26 @@ public class RetroManiaMode extends DummyMode {
     public void calcScore(GameEngine engine, int playerID, int lines) {
         // Determines line-clear bonus
         int pts = 0;
-        int mult = Math.min(engine.statistics.level/2 + 1,5);
-        if(lines == 1) {
+        int mult = Math.min(engine.statistics.level / 2 + 1, 5);
+        if (lines == 1) {
             pts += 100 * mult; // Single
-        } else if(lines == 2) {
+        } else if (lines == 2) {
             pts += 400 * mult; // Double
-        } else if(lines == 3) {
+        } else if (lines == 3) {
             pts += 900 * mult; // Triple
-        } else if(lines >= 4) {
+        } else if (lines >= 4) {
             pts += 2000 * mult; // Four
         }
 
         // Perfect clear bonus
-        if(engine.field.isEmpty()) {
+        if (engine.field.isEmpty()) {
             engine.playSE("bravo");
-            if(version >= 2) pts *= 10;
+            if (version >= 2) pts *= 10;
             else pts *= 20;
         }
 
         // Add score
-        if(pts > 0) {
+        if (pts > 0) {
             lastscore = pts;
             scgettime = 0;
             engine.statistics.scoreFromLineClear += pts;
@@ -396,18 +449,17 @@ public class RetroManiaMode extends DummyMode {
         // Update the meter
         engine.meterValue = ((linesAfterLastLevelUp % 4) * receiver.getMeterMax(engine)) / 3;
         engine.meterColor = GameEngine.METER_COLOR_GREEN;
-        if(linesAfterLastLevelUp >= 1) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-        if(linesAfterLastLevelUp >= 2) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-        if(linesAfterLastLevelUp >= 3) engine.meterColor = GameEngine.METER_COLOR_RED;
+        if (linesAfterLastLevelUp >= 1) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+        if (linesAfterLastLevelUp >= 2) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+        if (linesAfterLastLevelUp >= 3) engine.meterColor = GameEngine.METER_COLOR_RED;
 
         // Level up
-        if( (linesAfterLastLevelUp >= 4) ||
-            ((levelTimer >= levelTime[Math.min(engine.statistics.level,15)]) && (lines == 0)) )
-        {
+        if ((linesAfterLastLevelUp >= 4) ||
+            ((levelTimer >= levelTime[Math.min(engine.statistics.level, 15)]) && (lines == 0))) {
             engine.statistics.level++;
 
             owner.backgroundStatus.fadecount = 0;
-            owner.backgroundStatus.fadebg = (engine.statistics.level/2);
+            owner.backgroundStatus.fadebg = (engine.statistics.level / 2);
             if (owner.backgroundStatus.fadebg > 19) owner.backgroundStatus.fadebg = 19;
             owner.backgroundStatus.fadesw = (owner.backgroundStatus.fadebg != owner.backgroundStatus.bg);
 
@@ -426,7 +478,7 @@ public class RetroManiaMode extends DummyMode {
      */
     @Override
     public void afterSoftDropFall(GameEngine engine, int playerID, int fall) {
-        if((version >= 2) && (engine.speed.denominator == 1)) return;
+        if ((version >= 2) && (engine.speed.denominator == 1)) return;
         engine.statistics.scoreFromSoftDrop += fall;
         engine.statistics.score += fall;
     }
@@ -445,10 +497,10 @@ public class RetroManiaMode extends DummyMode {
      */
     @Override
     public void renderResult(GameEngine engine, int playerID) {
-        receiver.drawMenuFont(engine, playerID,  0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
+        receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
 
         drawResultStats(engine, playerID, receiver, 3, EventReceiver.COLOR_BLUE,
-                STAT_SCORE, STAT_LINES, STAT_LEVEL, STAT_TIME);
+            STAT_SCORE, STAT_LINES, STAT_LEVEL, STAT_TIME);
         drawResultRank(engine, playerID, receiver, 11, EventReceiver.COLOR_BLUE, rankingRank);
     }
 
@@ -460,10 +512,10 @@ public class RetroManiaMode extends DummyMode {
         saveSetting(prop);
 
         // Checks/Updates the ranking
-        if((owner.replayMode == false) && (big == false) && (engine.ai == null)) {
+        if ((owner.replayMode == false) && (big == false) && (engine.ai == null)) {
             updateRanking(engine.statistics.score, engine.statistics.lines, engine.statistics.time, gametype);
 
-            if(rankingRank != -1) {
+            if (rankingRank != -1) {
                 saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
                 receiver.saveModeConfig(owner.modeConfig);
             }
@@ -496,15 +548,14 @@ public class RetroManiaMode extends DummyMode {
      * Load the ranking
      */
     private void loadRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            for (int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++)
-            {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            for (int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++) {
                 rankingScore[gametypeIndex][i] = prop.getProperty("retromania.ranking." + ruleName + "." + gametypeIndex + ".score." + i, 0);
                 rankingLines[gametypeIndex][i] = prop.getProperty("retromania.ranking." + ruleName + "." + gametypeIndex + ".lines." + i, 0);
                 rankingTime[gametypeIndex][i] = prop.getProperty("retromania.ranking." + ruleName + "." + gametypeIndex + ".time." + i, 0);
 
-                if(rankingScore[gametypeIndex][i] > MAX_SCORE) rankingScore[gametypeIndex][i] = MAX_SCORE;
-                if(rankingLines[gametypeIndex][i] > MAX_LINES) rankingLines[gametypeIndex][i] = MAX_LINES;
+                if (rankingScore[gametypeIndex][i] > MAX_SCORE) rankingScore[gametypeIndex][i] = MAX_SCORE;
+                if (rankingLines[gametypeIndex][i] > MAX_LINES) rankingLines[gametypeIndex][i] = MAX_LINES;
             }
         }
     }
@@ -513,9 +564,8 @@ public class RetroManiaMode extends DummyMode {
      * Save the ranking
      */
     private void saveRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            for (int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++)
-            {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            for (int gametypeIndex = 0; gametypeIndex < RANKING_TYPE; gametypeIndex++) {
                 prop.setProperty("retromania.ranking." + ruleName + "." + gametypeIndex + ".score." + i, rankingScore[gametypeIndex][i]);
                 prop.setProperty("retromania.ranking." + ruleName + "." + gametypeIndex + ".lines." + i, rankingLines[gametypeIndex][i]);
                 prop.setProperty("retromania.ranking." + ruleName + "." + gametypeIndex + ".time." + i, rankingTime[gametypeIndex][i]);
@@ -529,9 +579,9 @@ public class RetroManiaMode extends DummyMode {
     private void updateRanking(int sc, int li, int time, int type) {
         rankingRank = checkRanking(sc, li, time, type);
 
-        if(rankingRank != -1) {
+        if (rankingRank != -1) {
             // Shift the old records
-            for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+            for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
                 rankingScore[type][i] = rankingScore[type][i - 1];
                 rankingLines[type][i] = rankingLines[type][i - 1];
                 rankingTime[type][i] = rankingTime[type][i - 1];
@@ -548,12 +598,12 @@ public class RetroManiaMode extends DummyMode {
      * This function will check the ranking and returns which place you are. (-1: Out of rank)
      */
     private int checkRanking(int sc, int li, int time, int type) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            if(sc > rankingScore[type][i]) {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            if (sc > rankingScore[type][i]) {
                 return i;
-            } else if((sc == rankingScore[type][i]) && (li > rankingLines[type][i])) {
+            } else if ((sc == rankingScore[type][i]) && (li > rankingLines[type][i])) {
                 return i;
-            } else if((sc == rankingScore[type][i]) && (li == rankingLines[type][i]) && (time < rankingTime[type][i])) {
+            } else if ((sc == rankingScore[type][i]) && (li == rankingLines[type][i]) && (time < rankingTime[type][i])) {
                 return i;
             }
         }

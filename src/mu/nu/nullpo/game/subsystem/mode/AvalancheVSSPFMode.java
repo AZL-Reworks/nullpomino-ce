@@ -41,144 +41,166 @@ import mu.nu.nullpo.util.GeneralUtil;
  * AVALANCHE-SPF VS-BATTLE mode (Release Candidate 1)
  */
 public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
-    /** Current version */
+    /**
+     * Current version
+     */
     private static final int CURRENT_VERSION = 0;
 
-    /** Block colors */
+    /**
+     * Block colors
+     */
     private static final int[] BLOCK_COLORS =
-    {
-        Block.BLOCK_COLOR_RED,
-        Block.BLOCK_COLOR_GREEN,
-        Block.BLOCK_COLOR_BLUE,
-        Block.BLOCK_COLOR_YELLOW
-    };
+        {
+            Block.BLOCK_COLOR_RED,
+            Block.BLOCK_COLOR_GREEN,
+            Block.BLOCK_COLOR_BLUE,
+            Block.BLOCK_COLOR_YELLOW
+        };
 
-    /** Names of drop map sets */
-    private static final String[] DROP_SET_NAMES = {"CLASSIC", "REMIX", "SWORD", "S-MIRROR", "AVALANCHE", "A-MIRROR"};
+    /**
+     * Names of drop map sets
+     */
+    private static final String[] DROP_SET_NAMES = { "CLASSIC", "REMIX", "SWORD", "S-MIRROR", "AVALANCHE", "A-MIRROR" };
 
     private static final int[][][][] DROP_PATTERNS = {
         {
-            {{2,2,2,2}, {5,5,5,5}, {7,7,7,7}, {4,4,4,4}},
-            {{2,2,4,4}, {2,2,4,4}, {5,5,2,2}, {5,5,2,2}, {7,7,5,5}, {7,7,5,5}},
-            {{5,5,5,5}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {4,4,4,4}},
-            {{2,5,7,4}},
-            {{7,7,4,4}, {4,4,7,7}, {2,2,5,5}, {2,2,5,5}, {4,4,7,7}, {7,7,4,4}},
-            {{4,7,7,5}, {7,7,5,5}, {7,5,5,2}, {5,5,2,2}, {5,2,2,4}, {2,2,4,4}},
-            {{2,2,5,5}, {4,4,5,5}, {2,2,5,5}, {4,4,7,7}, {2,2,7,7}, {4,4,7,7}},
-            {{5,5,5,5}, {2,2,7,7}, {2,2,7,7}, {7,7,2,2}, {7,7,2,2}, {4,4,4,4}},
-            {{5,7,4,2}, {2,5,7,4}, {4,2,5,7}, {7,4,2,5}},
-            {{2,5,7,4}, {5,7,4,2}, {7,4,2,5}, {4,2,5,7}},
-            {{2,2,2,2}}
+            { { 2, 2, 2, 2 }, { 5, 5, 5, 5 }, { 7, 7, 7, 7 }, { 4, 4, 4, 4 } },
+            { { 2, 2, 4, 4 }, { 2, 2, 4, 4 }, { 5, 5, 2, 2 }, { 5, 5, 2, 2 }, { 7, 7, 5, 5 }, { 7, 7, 5, 5 } },
+            { { 5, 5, 5, 5 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 4, 4, 4, 4 } },
+            { { 2, 5, 7, 4 } },
+            { { 7, 7, 4, 4 }, { 4, 4, 7, 7 }, { 2, 2, 5, 5 }, { 2, 2, 5, 5 }, { 4, 4, 7, 7 }, { 7, 7, 4, 4 } },
+            { { 4, 7, 7, 5 }, { 7, 7, 5, 5 }, { 7, 5, 5, 2 }, { 5, 5, 2, 2 }, { 5, 2, 2, 4 }, { 2, 2, 4, 4 } },
+            { { 2, 2, 5, 5 }, { 4, 4, 5, 5 }, { 2, 2, 5, 5 }, { 4, 4, 7, 7 }, { 2, 2, 7, 7 }, { 4, 4, 7, 7 } },
+            { { 5, 5, 5, 5 }, { 2, 2, 7, 7 }, { 2, 2, 7, 7 }, { 7, 7, 2, 2 }, { 7, 7, 2, 2 }, { 4, 4, 4, 4 } },
+            { { 5, 7, 4, 2 }, { 2, 5, 7, 4 }, { 4, 2, 5, 7 }, { 7, 4, 2, 5 } },
+            { { 2, 5, 7, 4 }, { 5, 7, 4, 2 }, { 7, 4, 2, 5 }, { 4, 2, 5, 7 } },
+            { { 2, 2, 2, 2 } }
         },
         {
-            {{2,2,7,2}, {5,5,4,5}, {7,7,5,7}, {4,4,2,4}},
-            {{2,2,4,4}, {2,2,4,4}, {5,5,2,2}, {5,5,2,2}, {7,7,5,5}, {7,7,5,5}},
-            {{5,5,4,4}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {4,4,5,5}},
-            {{2,5,7,4}},
-            {{7,7,4,4}, {4,4,7,7}, {2,5,5,5}, {2,2,2,5}, {4,4,7,7}, {7,7,4,4}},
-            {{7,7,7,7}, {5,7,4,2}, {7,4,2,5}, {4,2,5,7}, {2,5,7,4}, {5,5,5,5}},
-            {{2,2,5,5}, {4,4,5,5}, {2,2,5,5}, {4,4,7,7}, {2,2,7,7}, {4,4,7,7}},
-            {{5,4,5,4}, {2,2,2,7}, {2,7,7,7}, {7,2,2,2}, {7,7,7,2}, {4,5,4,5}},
-            {{5,7,4,2}, {2,5,7,4}, {4,2,5,7}, {7,4,2,5}},
-            {{2,5,7,4}, {5,7,4,2}, {7,4,2,5}, {4,2,5,7}},
-            {{2,2,2,2}}
+            { { 2, 2, 7, 2 }, { 5, 5, 4, 5 }, { 7, 7, 5, 7 }, { 4, 4, 2, 4 } },
+            { { 2, 2, 4, 4 }, { 2, 2, 4, 4 }, { 5, 5, 2, 2 }, { 5, 5, 2, 2 }, { 7, 7, 5, 5 }, { 7, 7, 5, 5 } },
+            { { 5, 5, 4, 4 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 4, 4, 5, 5 } },
+            { { 2, 5, 7, 4 } },
+            { { 7, 7, 4, 4 }, { 4, 4, 7, 7 }, { 2, 5, 5, 5 }, { 2, 2, 2, 5 }, { 4, 4, 7, 7 }, { 7, 7, 4, 4 } },
+            { { 7, 7, 7, 7 }, { 5, 7, 4, 2 }, { 7, 4, 2, 5 }, { 4, 2, 5, 7 }, { 2, 5, 7, 4 }, { 5, 5, 5, 5 } },
+            { { 2, 2, 5, 5 }, { 4, 4, 5, 5 }, { 2, 2, 5, 5 }, { 4, 4, 7, 7 }, { 2, 2, 7, 7 }, { 4, 4, 7, 7 } },
+            { { 5, 4, 5, 4 }, { 2, 2, 2, 7 }, { 2, 7, 7, 7 }, { 7, 2, 2, 2 }, { 7, 7, 7, 2 }, { 4, 5, 4, 5 } },
+            { { 5, 7, 4, 2 }, { 2, 5, 7, 4 }, { 4, 2, 5, 7 }, { 7, 4, 2, 5 } },
+            { { 2, 5, 7, 4 }, { 5, 7, 4, 2 }, { 7, 4, 2, 5 }, { 4, 2, 5, 7 } },
+            { { 2, 2, 2, 2 } }
         },
         {
-            {{2,5,5,5}, {5,2,2,5}, {5,5,2,2}, {4,4,7,7}, {4,7,7,4}, {7,4,4,4}},
-            {{2,2,2,5,5,5}, {5,3,7,5,4,5}, {5,5,7,7,4,4}, {4,4,2,4,4,7}, {4,2,4,4,7,4}, {2,4,4,7,4,4}},
-            {{4,4,5,5,7,2}, {4,4,5,5,7,2}, {5,5,7,7,7,5}, {5,7,7,7,4,5}, {7,7,2,2,5,4}, {7,2,2,2,5,4}},
-            {{2,2,5,4,2,7}, {2,7,4,5,7,2}, {2,7,4,4,7,7}, {2,7,5,5,2,2}, {2,7,5,4,2,7}, {7,7,4,5,7,2}},
-            {{2,7,7,7,7}, {2,7,5,7,7}, {2,2,5,5,5}, {2,2,2,5,5}, {2,4,2,4,4}, {4,4,4,4,4}},
-            {{2,2,5,5}, {2,7,7,5}, {5,7,4,4}, {5,5,2,4}, {4,2,2,7}, {4,4,7,7}},
-            {{2,2,5,5}, {2,2,5,5}, {5,5,7,7}, {5,5,7,7}, {7,7,4,4}, {7,7,4,4}},
-            {{2,2,5,4,2,7}, {2,2,4,5,7,2}, {7,7,4,5,7,2}, {7,7,5,4,2,7}, {2,2,5,4,2,7}, {2,2,4,5,7,2}},
-            {{7,7,4,4,7,7}, {7,7,7,7,5,7}, {2,5,2,2,5,2}, {2,5,2,2,5,2}, {4,4,4,4,5,4}, {4,4,7,7,4,4}},
-            {{2,5,5,5,5,4}, {5,2,5,5,4,4}, {2,2,2,2,2,2}, {7,7,7,7,7,7}, {4,7,4,4,5,5}, {7,4,4,4,4,5}},
-            {{2,2,5,2,2,4}, {2,5,5,2,5,5}, {5,5,5,7,7,2}, {7,7,7,5,5,4}, {4,7,7,4,7,7}, {4,4,7,4,4,2}},
-            {{7,7,5,5,5,5}, {7,2,2,5,5,7}, {7,2,2,4,4,7}, {2,7,7,4,4,2}, {2,7,7,5,5,2}, {7,7,5,5,5,5}},
-            {{7,7,5,5}, {7,2,5,2}, {5,5,5,2}, {4,4,4,2}, {7,2,4,2}, {7,7,4,4}},
-            {{2,2,5,5}, {2,7,5,5}, {5,5,7,7}, {5,5,7,7}, {4,7,4,4}, {7,7,4,4}},
-            {{7,7,5,5,5}, {4,7,7,7,5}, {5,4,4,4,4}, {5,2,2,2,2}, {2,7,7,7,5}, {7,7,5,5,5}},
-            {{2,2,4}, {2,2,2}, {7,7,7}, {7,7,7}, {5,5,5}, {5,5,4}},
-            {{7,7,7,7}, {7,2,2,7}, {2,7,5,4}, {4,5,7,2}, {5,4,4,5}, {5,5,5,5}}
+            { { 2, 5, 5, 5 }, { 5, 2, 2, 5 }, { 5, 5, 2, 2 }, { 4, 4, 7, 7 }, { 4, 7, 7, 4 }, { 7, 4, 4, 4 } },
+            { { 2, 2, 2, 5, 5, 5 }, { 5, 3, 7, 5, 4, 5 }, { 5, 5, 7, 7, 4, 4 }, { 4, 4, 2, 4, 4, 7 }, { 4, 2, 4, 4, 7, 4 }, { 2, 4, 4, 7, 4, 4 } },
+            { { 4, 4, 5, 5, 7, 2 }, { 4, 4, 5, 5, 7, 2 }, { 5, 5, 7, 7, 7, 5 }, { 5, 7, 7, 7, 4, 5 }, { 7, 7, 2, 2, 5, 4 }, { 7, 2, 2, 2, 5, 4 } },
+            { { 2, 2, 5, 4, 2, 7 }, { 2, 7, 4, 5, 7, 2 }, { 2, 7, 4, 4, 7, 7 }, { 2, 7, 5, 5, 2, 2 }, { 2, 7, 5, 4, 2, 7 }, { 7, 7, 4, 5, 7, 2 } },
+            { { 2, 7, 7, 7, 7 }, { 2, 7, 5, 7, 7 }, { 2, 2, 5, 5, 5 }, { 2, 2, 2, 5, 5 }, { 2, 4, 2, 4, 4 }, { 4, 4, 4, 4, 4 } },
+            { { 2, 2, 5, 5 }, { 2, 7, 7, 5 }, { 5, 7, 4, 4 }, { 5, 5, 2, 4 }, { 4, 2, 2, 7 }, { 4, 4, 7, 7 } },
+            { { 2, 2, 5, 5 }, { 2, 2, 5, 5 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 7, 7, 4, 4 }, { 7, 7, 4, 4 } },
+            { { 2, 2, 5, 4, 2, 7 }, { 2, 2, 4, 5, 7, 2 }, { 7, 7, 4, 5, 7, 2 }, { 7, 7, 5, 4, 2, 7 }, { 2, 2, 5, 4, 2, 7 }, { 2, 2, 4, 5, 7, 2 } },
+            { { 7, 7, 4, 4, 7, 7 }, { 7, 7, 7, 7, 5, 7 }, { 2, 5, 2, 2, 5, 2 }, { 2, 5, 2, 2, 5, 2 }, { 4, 4, 4, 4, 5, 4 }, { 4, 4, 7, 7, 4, 4 } },
+            { { 2, 5, 5, 5, 5, 4 }, { 5, 2, 5, 5, 4, 4 }, { 2, 2, 2, 2, 2, 2 }, { 7, 7, 7, 7, 7, 7 }, { 4, 7, 4, 4, 5, 5 }, { 7, 4, 4, 4, 4, 5 } },
+            { { 2, 2, 5, 2, 2, 4 }, { 2, 5, 5, 2, 5, 5 }, { 5, 5, 5, 7, 7, 2 }, { 7, 7, 7, 5, 5, 4 }, { 4, 7, 7, 4, 7, 7 }, { 4, 4, 7, 4, 4, 2 } },
+            { { 7, 7, 5, 5, 5, 5 }, { 7, 2, 2, 5, 5, 7 }, { 7, 2, 2, 4, 4, 7 }, { 2, 7, 7, 4, 4, 2 }, { 2, 7, 7, 5, 5, 2 }, { 7, 7, 5, 5, 5, 5 } },
+            { { 7, 7, 5, 5 }, { 7, 2, 5, 2 }, { 5, 5, 5, 2 }, { 4, 4, 4, 2 }, { 7, 2, 4, 2 }, { 7, 7, 4, 4 } },
+            { { 2, 2, 5, 5 }, { 2, 7, 5, 5 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 4, 7, 4, 4 }, { 7, 7, 4, 4 } },
+            { { 7, 7, 5, 5, 5 }, { 4, 7, 7, 7, 5 }, { 5, 4, 4, 4, 4 }, { 5, 2, 2, 2, 2 }, { 2, 7, 7, 7, 5 }, { 7, 7, 5, 5, 5 } },
+            { { 2, 2, 4 }, { 2, 2, 2 }, { 7, 7, 7 }, { 7, 7, 7 }, { 5, 5, 5 }, { 5, 5, 4 } },
+            { { 7, 7, 7, 7 }, { 7, 2, 2, 7 }, { 2, 7, 5, 4 }, { 4, 5, 7, 2 }, { 5, 4, 4, 5 }, { 5, 5, 5, 5 } }
         },
         {
-            {{7,4,4,4}, {4,7,7,4}, {4,4,7,7}, {5,5,2,2}, {5,2,2,5}, {2,5,5,5}},
-            {{2,4,4,7,4,4}, {4,2,4,4,7,4}, {4,4,2,4,4,7}, {5,5,7,7,4,4}, {5,3,7,5,4,5}, {2,2,2,5,5,5}},
-            {{7,2,2,2,5,4}, {7,7,2,2,5,4}, {5,7,7,7,4,5}, {5,5,7,7,7,5}, {4,4,5,5,7,2}, {4,4,5,5,7,2}},
-            {{7,7,4,5,7,2}, {2,7,5,4,2,7}, {2,7,5,5,2,2}, {2,7,4,4,7,7}, {2,7,4,5,7,2}, {2,2,5,4,2,7}},
-            {{4,4,4,4,4}, {2,4,2,4,4}, {2,2,2,5,5}, {2,2,5,5,5}, {2,7,5,7,7}, {2,7,7,7,7}},
-            {{4,4,7,7}, {4,2,2,7}, {5,5,2,4}, {5,7,4,4}, {2,7,7,5}, {2,2,5,5}},
-            {{7,7,4,4}, {7,7,4,4}, {5,5,7,7}, {5,5,7,7}, {2,2,5,5}, {2,2,5,5}},
-            {{2,2,4,5,7,2}, {2,2,5,4,2,7}, {7,7,5,4,2,7}, {7,7,4,5,7,2}, {2,2,4,5,7,2}, {2,2,5,4,2,7}},
-            {{4,4,7,7,4,4}, {4,4,4,4,5,4}, {2,5,2,2,5,2}, {2,5,2,2,5,2}, {7,7,7,7,5,7}, {7,7,4,4,7,7}},
-            {{7,4,4,4,4,5}, {4,7,4,4,5,5}, {7,7,7,7,7,7}, {2,2,2,2,2,2}, {5,2,5,5,4,4}, {2,5,5,5,5,4}},
-            {{4,4,7,4,4,2}, {4,7,7,4,7,7}, {7,7,7,5,5,4}, {5,5,5,7,7,2}, {2,5,5,2,5,5}, {2,2,5,2,2,4}},
-            {{7,7,5,5,5,5}, {2,7,7,5,5,2}, {2,7,7,4,4,2}, {7,2,2,4,4,7}, {7,2,2,5,5,7}, {7,7,5,5,5,5}},
-            {{7,7,4,4}, {7,2,4,2}, {4,4,4,2}, {5,5,5,2}, {7,2,5,2}, {7,7,5,5}},
-            {{7,7,4,4}, {4,7,4,4}, {5,5,7,7}, {5,5,7,7}, {2,7,5,5}, {2,2,5,5}},
-            {{7,7,5,5,5}, {2,7,7,7,5}, {5,2,2,2,2}, {5,4,4,4,4}, {4,7,7,7,5}, {7,7,5,5,5}},
-            {{5,5,4}, {5,5,5}, {7,7,7}, {7,7,7}, {2,2,2}, {2,2,4}},
-            {{5,5,5,5}, {5,4,4,5}, {4,5,7,2}, {2,7,5,4}, {7,2,2,7}, {7,7,7,7}}
+            { { 7, 4, 4, 4 }, { 4, 7, 7, 4 }, { 4, 4, 7, 7 }, { 5, 5, 2, 2 }, { 5, 2, 2, 5 }, { 2, 5, 5, 5 } },
+            { { 2, 4, 4, 7, 4, 4 }, { 4, 2, 4, 4, 7, 4 }, { 4, 4, 2, 4, 4, 7 }, { 5, 5, 7, 7, 4, 4 }, { 5, 3, 7, 5, 4, 5 }, { 2, 2, 2, 5, 5, 5 } },
+            { { 7, 2, 2, 2, 5, 4 }, { 7, 7, 2, 2, 5, 4 }, { 5, 7, 7, 7, 4, 5 }, { 5, 5, 7, 7, 7, 5 }, { 4, 4, 5, 5, 7, 2 }, { 4, 4, 5, 5, 7, 2 } },
+            { { 7, 7, 4, 5, 7, 2 }, { 2, 7, 5, 4, 2, 7 }, { 2, 7, 5, 5, 2, 2 }, { 2, 7, 4, 4, 7, 7 }, { 2, 7, 4, 5, 7, 2 }, { 2, 2, 5, 4, 2, 7 } },
+            { { 4, 4, 4, 4, 4 }, { 2, 4, 2, 4, 4 }, { 2, 2, 2, 5, 5 }, { 2, 2, 5, 5, 5 }, { 2, 7, 5, 7, 7 }, { 2, 7, 7, 7, 7 } },
+            { { 4, 4, 7, 7 }, { 4, 2, 2, 7 }, { 5, 5, 2, 4 }, { 5, 7, 4, 4 }, { 2, 7, 7, 5 }, { 2, 2, 5, 5 } },
+            { { 7, 7, 4, 4 }, { 7, 7, 4, 4 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 2, 2, 5, 5 }, { 2, 2, 5, 5 } },
+            { { 2, 2, 4, 5, 7, 2 }, { 2, 2, 5, 4, 2, 7 }, { 7, 7, 5, 4, 2, 7 }, { 7, 7, 4, 5, 7, 2 }, { 2, 2, 4, 5, 7, 2 }, { 2, 2, 5, 4, 2, 7 } },
+            { { 4, 4, 7, 7, 4, 4 }, { 4, 4, 4, 4, 5, 4 }, { 2, 5, 2, 2, 5, 2 }, { 2, 5, 2, 2, 5, 2 }, { 7, 7, 7, 7, 5, 7 }, { 7, 7, 4, 4, 7, 7 } },
+            { { 7, 4, 4, 4, 4, 5 }, { 4, 7, 4, 4, 5, 5 }, { 7, 7, 7, 7, 7, 7 }, { 2, 2, 2, 2, 2, 2 }, { 5, 2, 5, 5, 4, 4 }, { 2, 5, 5, 5, 5, 4 } },
+            { { 4, 4, 7, 4, 4, 2 }, { 4, 7, 7, 4, 7, 7 }, { 7, 7, 7, 5, 5, 4 }, { 5, 5, 5, 7, 7, 2 }, { 2, 5, 5, 2, 5, 5 }, { 2, 2, 5, 2, 2, 4 } },
+            { { 7, 7, 5, 5, 5, 5 }, { 2, 7, 7, 5, 5, 2 }, { 2, 7, 7, 4, 4, 2 }, { 7, 2, 2, 4, 4, 7 }, { 7, 2, 2, 5, 5, 7 }, { 7, 7, 5, 5, 5, 5 } },
+            { { 7, 7, 4, 4 }, { 7, 2, 4, 2 }, { 4, 4, 4, 2 }, { 5, 5, 5, 2 }, { 7, 2, 5, 2 }, { 7, 7, 5, 5 } },
+            { { 7, 7, 4, 4 }, { 4, 7, 4, 4 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 2, 7, 5, 5 }, { 2, 2, 5, 5 } },
+            { { 7, 7, 5, 5, 5 }, { 2, 7, 7, 7, 5 }, { 5, 2, 2, 2, 2 }, { 5, 4, 4, 4, 4 }, { 4, 7, 7, 7, 5 }, { 7, 7, 5, 5, 5 } },
+            { { 5, 5, 4 }, { 5, 5, 5 }, { 7, 7, 7 }, { 7, 7, 7 }, { 2, 2, 2 }, { 2, 2, 4 } },
+            { { 5, 5, 5, 5 }, { 5, 4, 4, 5 }, { 4, 5, 7, 2 }, { 2, 7, 5, 4 }, { 7, 2, 2, 7 }, { 7, 7, 7, 7 } }
         },
         {
-            {{5,4,4,5,5}, {2,5,5,2,2}, {4,2,2,4,4}, {7,4,4,7,7}, {5,7,7,5,5}, {2,5,5,2,2}},
-            {{2,7,7,7,2}, {5,2,2,2,5}, {5,4,4,4,5}, {4,5,5,5,4}, {4,7,7,7,4}, {7,2,2,2,7}},
-            {{2,2,5,5,5}, {5,7,7,2,2}, {7,7,2,2,5}, {5,4,4,7,7}, {4,4,7,7,5}, {5,5,5,4,4}},
-            {{7,2,2,5,5}, {4,4,5,5,2}, {4,7,7,2,2}, {7,7,4,4,5}, {5,4,4,7,7}, {2,2,7,7,4}},
-            {{7,2,7,2,2}, {7,4,7,7,2}, {5,4,4,7,4}, {5,5,4,5,4}, {2,5,2,5,5}, {2,7,2,2,4}},
-            {{5,5,4,2,2}, {5,4,4,2,7}, {4,2,2,7,7}, {4,2,7,5,5}, {2,7,7,5,4}, {7,5,5,4,4}},
-            {{7,7,4,7,7}, {5,5,7,5,5}, {2,2,5,2,2}, {4,4,2,4,4}},
-            {{4,4,2,2,5}, {2,2,5,5,7}, {5,5,7,7,4}, {7,7,4,4,2}},
-            {{5,5,5,2,4}, {7,7,7,5,2}, {4,4,4,7,5}, {2,2,2,4,7}},
-            {{4,4,4,5,7}, {2,2,2,7,4}, {5,5,5,4,2}, {7,7,7,2,5}},
-            {{4,2,5,5,5}, {7,4,2,2,2}, {5,7,4,4,4}, {2,5,7,7,7}}
+            { { 5, 4, 4, 5, 5 }, { 2, 5, 5, 2, 2 }, { 4, 2, 2, 4, 4 }, { 7, 4, 4, 7, 7 }, { 5, 7, 7, 5, 5 }, { 2, 5, 5, 2, 2 } },
+            { { 2, 7, 7, 7, 2 }, { 5, 2, 2, 2, 5 }, { 5, 4, 4, 4, 5 }, { 4, 5, 5, 5, 4 }, { 4, 7, 7, 7, 4 }, { 7, 2, 2, 2, 7 } },
+            { { 2, 2, 5, 5, 5 }, { 5, 7, 7, 2, 2 }, { 7, 7, 2, 2, 5 }, { 5, 4, 4, 7, 7 }, { 4, 4, 7, 7, 5 }, { 5, 5, 5, 4, 4 } },
+            { { 7, 2, 2, 5, 5 }, { 4, 4, 5, 5, 2 }, { 4, 7, 7, 2, 2 }, { 7, 7, 4, 4, 5 }, { 5, 4, 4, 7, 7 }, { 2, 2, 7, 7, 4 } },
+            { { 7, 2, 7, 2, 2 }, { 7, 4, 7, 7, 2 }, { 5, 4, 4, 7, 4 }, { 5, 5, 4, 5, 4 }, { 2, 5, 2, 5, 5 }, { 2, 7, 2, 2, 4 } },
+            { { 5, 5, 4, 2, 2 }, { 5, 4, 4, 2, 7 }, { 4, 2, 2, 7, 7 }, { 4, 2, 7, 5, 5 }, { 2, 7, 7, 5, 4 }, { 7, 5, 5, 4, 4 } },
+            { { 7, 7, 4, 7, 7 }, { 5, 5, 7, 5, 5 }, { 2, 2, 5, 2, 2 }, { 4, 4, 2, 4, 4 } },
+            { { 4, 4, 2, 2, 5 }, { 2, 2, 5, 5, 7 }, { 5, 5, 7, 7, 4 }, { 7, 7, 4, 4, 2 } },
+            { { 5, 5, 5, 2, 4 }, { 7, 7, 7, 5, 2 }, { 4, 4, 4, 7, 5 }, { 2, 2, 2, 4, 7 } },
+            { { 4, 4, 4, 5, 7 }, { 2, 2, 2, 7, 4 }, { 5, 5, 5, 4, 2 }, { 7, 7, 7, 2, 5 } },
+            { { 4, 2, 5, 5, 5 }, { 7, 4, 2, 2, 2 }, { 5, 7, 4, 4, 4 }, { 2, 5, 7, 7, 7 } }
         },
         {
-            {{2,5,5,2,2}, {5,7,7,5,5}, {7,4,4,7,7}, {4,2,2,4,4}, {2,5,5,2,2}, {5,4,4,5,5}},
-            {{7,2,2,2,7}, {4,7,7,7,4}, {4,5,5,5,4}, {5,4,4,4,5}, {5,2,2,2,5}, {2,7,7,7,2}},
-            {{5,5,5,4,4}, {4,4,7,7,5}, {5,4,4,7,7}, {7,7,2,2,5}, {5,7,7,2,2}, {2,2,5,5,5}},
-            {{2,2,7,7,4}, {5,4,4,7,7}, {7,7,4,4,5}, {4,7,7,2,2}, {4,4,5,5,2}, {7,2,2,5,5}},
-            {{2,7,2,2,4}, {2,5,2,5,5}, {5,5,4,5,4}, {5,4,4,7,4}, {7,4,7,7,2}, {7,2,7,2,2}},
-            {{7,5,5,4,4}, {2,7,7,5,4}, {4,2,7,5,5}, {4,2,2,7,7}, {5,4,4,2,7}, {5,5,4,2,2}},
-            {{5,5,7,5,5}, {7,7,4,7,7}, {4,4,2,4,4}, {2,2,5,2,2}},
-            {{2,2,5,5,7}, {4,4,2,2,5}, {7,7,4,4,2}, {5,5,7,7,4}},
-            {{7,7,7,5,2}, {5,5,5,2,4}, {2,2,2,4,7}, {4,4,4,7,5}},
-            {{2,2,2,7,4}, {4,4,4,5,7}, {7,7,7,2,5}, {5,5,5,4,2}},
-            {{7,4,2,2,2}, {4,2,5,5,5}, {2,5,7,7,7}, {5,7,4,4,4}}
+            { { 2, 5, 5, 2, 2 }, { 5, 7, 7, 5, 5 }, { 7, 4, 4, 7, 7 }, { 4, 2, 2, 4, 4 }, { 2, 5, 5, 2, 2 }, { 5, 4, 4, 5, 5 } },
+            { { 7, 2, 2, 2, 7 }, { 4, 7, 7, 7, 4 }, { 4, 5, 5, 5, 4 }, { 5, 4, 4, 4, 5 }, { 5, 2, 2, 2, 5 }, { 2, 7, 7, 7, 2 } },
+            { { 5, 5, 5, 4, 4 }, { 4, 4, 7, 7, 5 }, { 5, 4, 4, 7, 7 }, { 7, 7, 2, 2, 5 }, { 5, 7, 7, 2, 2 }, { 2, 2, 5, 5, 5 } },
+            { { 2, 2, 7, 7, 4 }, { 5, 4, 4, 7, 7 }, { 7, 7, 4, 4, 5 }, { 4, 7, 7, 2, 2 }, { 4, 4, 5, 5, 2 }, { 7, 2, 2, 5, 5 } },
+            { { 2, 7, 2, 2, 4 }, { 2, 5, 2, 5, 5 }, { 5, 5, 4, 5, 4 }, { 5, 4, 4, 7, 4 }, { 7, 4, 7, 7, 2 }, { 7, 2, 7, 2, 2 } },
+            { { 7, 5, 5, 4, 4 }, { 2, 7, 7, 5, 4 }, { 4, 2, 7, 5, 5 }, { 4, 2, 2, 7, 7 }, { 5, 4, 4, 2, 7 }, { 5, 5, 4, 2, 2 } },
+            { { 5, 5, 7, 5, 5 }, { 7, 7, 4, 7, 7 }, { 4, 4, 2, 4, 4 }, { 2, 2, 5, 2, 2 } },
+            { { 2, 2, 5, 5, 7 }, { 4, 4, 2, 2, 5 }, { 7, 7, 4, 4, 2 }, { 5, 5, 7, 7, 4 } },
+            { { 7, 7, 7, 5, 2 }, { 5, 5, 5, 2, 4 }, { 2, 2, 2, 4, 7 }, { 4, 4, 4, 7, 5 } },
+            { { 2, 2, 2, 7, 4 }, { 4, 4, 4, 5, 7 }, { 7, 7, 7, 2, 5 }, { 5, 5, 5, 4, 2 } },
+            { { 7, 4, 2, 2, 2 }, { 4, 2, 5, 5, 5 }, { 2, 5, 7, 7, 7 }, { 5, 7, 4, 4, 4 } }
         }
     };
     private static final double[][] DROP_PATTERNS_ATTACK_MULTIPLIERS = {
-        {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.7, 1.0},
-        {1.0, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.85, 1.0}
+        { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.7, 1.0 },
+        { 1.0, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.85, 1.0 }
     };
     private static final double[][] DROP_PATTERNS_DEFEND_MULTIPLIERS = {
-        {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
-        {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.0, 1.0}
+        { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 },
+        { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.0, 1.0 }
     };
 
-    /** Version */
+    /**
+     * Version
+     */
     private int version;
 
-    /** Settings for starting countdown for ojama blocks */
+    /**
+     * Settings for starting countdown for ojama blocks
+     */
     private int[] ojamaCountdown;
 
-    /** Drop patterns */
+    /**
+     * Drop patterns
+     */
     private int[][][] dropPattern;
 
-    /** Drop map set selected */
+    /**
+     * Drop map set selected
+     */
     private int[] dropSet;
 
-    /** Drop map selected */
+    /**
+     * Drop map selected
+     */
     private int[] dropMap;
 
-    /** Drop multipliers */
+    /**
+     * Drop multipliers
+     */
     private double[] attackMultiplier, defendMultiplier;
 
-    /** Flag set when counters have been decremented */
+    /**
+     * Flag set when counters have been decremented
+     */
     private boolean[] countdownDecremented;
 
-    /** Flag set when cleared ojama have been turned into normal blocks */
+    /**
+     * Flag set when cleared ojama have been turned into normal blocks
+     */
     private boolean[] ojamaChecked;
 
     /*
@@ -207,6 +229,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 
     /**
      * Load settings not related to speeds
+     *
      * @param engine GameEngine
      * @param prop Property file to read from
      */
@@ -222,6 +245,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 
     /**
      * Save settings not related to speeds
+     *
      * @param engine GameEngine
      * @param prop Property file to save to
      */
@@ -234,21 +258,19 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
     }
 
     private void loadDropMapPreview(GameEngine engine, int playerID, int[][] pattern) {
-        if((pattern == null) && (engine.field != null)) {
+        if ((pattern == null) && (engine.field != null)) {
             engine.field.reset();
-        } else if(pattern != null) {
+        } else if (pattern != null) {
             engine.createFieldIfNeeded();
             engine.field.reset();
             int patternCol = 0;
-            int maxHeight = engine.field.getHeight()-1;
-            for (int x = 0; x < engine.field.getWidth(); x++)
-            {
+            int maxHeight = engine.field.getHeight() - 1;
+            for (int x = 0; x < engine.field.getWidth(); x++) {
                 if (patternCol >= pattern.length)
                     patternCol = 0;
-                for (int patternRow = 0; patternRow < pattern[patternCol].length; patternRow++)
-                {
-                    engine.field.setBlockColor(x, maxHeight-patternRow, pattern[patternCol][patternRow]);
-                    Block blk = engine.field.getBlock(x, maxHeight-patternRow);
+                for (int patternRow = 0; patternRow < pattern[patternCol].length; patternRow++) {
+                    engine.field.setBlockColor(x, maxHeight - patternRow, pattern[patternCol][patternRow]);
+                    Block blk = engine.field.getBlock(x, maxHeight - patternRow);
                     blk.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
                     blk.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
                 }
@@ -269,7 +291,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         countdownDecremented[playerID] = true;
         ojamaChecked[playerID] = false;
 
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             loadOtherSetting(engine, engine.owner.modeConfig);
             loadPreset(engine, engine.owner.modeConfig, -1 - playerID, "spf");
             version = CURRENT_VERSION;
@@ -286,227 +308,225 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
         // Menu
-        if((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
+        if ((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
             // Configuration changes
             // Up
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
                 engine.statc[2]--;
-                if(engine.statc[2] < 0){
+                if (engine.statc[2] < 0) {
                     engine.statc[2] = 32;
                     loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-                }
-                else if (engine.statc[2] == 30)
+                } else if (engine.statc[2] == 30)
                     engine.field = null;
                 engine.playSE("cursor");
             }
             // Down
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
                 engine.statc[2]++;
-                if(engine.statc[2] > 32) {
+                if (engine.statc[2] > 32) {
                     engine.statc[2] = 0;
                     engine.field = null;
-                }
-                else if (engine.statc[2] == 31)
+                } else if (engine.statc[2] == 31)
                     loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
                 engine.playSE("cursor");
             }
 
             // Configuration changes
             int change = 0;
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT)) change = -1;
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) change = 1;
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT)) change = -1;
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) change = 1;
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
                 int m = 1;
-                if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
-                if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
+                if (engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
+                if (engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
 
-                switch(engine.statc[2]) {
-                case 0:
-                    engine.speed.gravity += change * m;
-                    if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
-                    if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
-                    break;
-                case 1:
-                    engine.speed.denominator += change * m;
-                    if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
-                    if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
-                    break;
-                case 2:
-                    engine.speed.are += change;
-                    if(engine.speed.are < 0) engine.speed.are = 99;
-                    if(engine.speed.are > 99) engine.speed.are = 0;
-                    break;
-                case 3:
-                    engine.speed.areLine += change;
-                    if(engine.speed.areLine < 0) engine.speed.areLine = 99;
-                    if(engine.speed.areLine > 99) engine.speed.areLine = 0;
-                    break;
-                case 4:
-                    engine.speed.lineDelay += change;
-                    if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
-                    if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
-                    break;
-                case 5:
-                    if (m >= 10) engine.speed.lockDelay += change*10;
-                    else engine.speed.lockDelay += change;
-                    if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 999;
-                    if(engine.speed.lockDelay > 999) engine.speed.lockDelay = 0;
-                    break;
-                case 6:
-                    engine.speed.das += change;
-                    if(engine.speed.das < 0) engine.speed.das = 99;
-                    if(engine.speed.das > 99) engine.speed.das = 0;
-                    break;
-                case 7:
-                    engine.cascadeDelay += change;
-                    if(engine.cascadeDelay < 0) engine.cascadeDelay = 20;
-                    if(engine.cascadeDelay > 20) engine.cascadeDelay = 0;
-                    break;
-                case 8:
-                    engine.cascadeClearDelay += change;
-                    if(engine.cascadeClearDelay < 0) engine.cascadeClearDelay = 99;
-                    if(engine.cascadeClearDelay > 99) engine.cascadeClearDelay = 0;
-                    break;
-                case 9:
-                    ojamaCounterMode[playerID] += change;
-                    if(ojamaCounterMode[playerID] < 0) ojamaCounterMode[playerID] = 2;
-                    if(ojamaCounterMode[playerID] > 2) ojamaCounterMode[playerID] = 0;
-                    break;
-                case 10:
-                    if (m >= 10) maxAttack[playerID] += change*10;
-                    else maxAttack[playerID] += change;
-                    if(maxAttack[playerID] < 0) maxAttack[playerID] = 99;
-                    if(maxAttack[playerID] > 99) maxAttack[playerID] = 0;
-                    break;
-                case 11:
-                    rensaShibari[playerID] += change;
-                    if(rensaShibari[playerID] < 1) rensaShibari[playerID] = 20;
-                    if(rensaShibari[playerID] > 20) rensaShibari[playerID] = 1;
-                    break;
-                case 12:
-                    engine.colorClearSize += change;
-                    if(engine.colorClearSize < 2) engine.colorClearSize = 36;
-                    if(engine.colorClearSize > 36) engine.colorClearSize = 2;
-                    break;
-                case 13:
-                    if (m >= 10) ojamaRate[playerID] += change*100;
-                    else ojamaRate[playerID] += change*10;
-                    if(ojamaRate[playerID] < 10) ojamaRate[playerID] = 1000;
-                    if(ojamaRate[playerID] > 1000) ojamaRate[playerID] = 10;
-                    break;
-                case 14:
-                    if (m > 10) hurryupSeconds[playerID] += change*m/10;
-                    else hurryupSeconds[playerID] += change;
-                    if(hurryupSeconds[playerID] < 0) hurryupSeconds[playerID] = 300;
-                    if(hurryupSeconds[playerID] > 300) hurryupSeconds[playerID] = 0;
-                    break;
-                case 15:
-                    dangerColumnDouble[playerID] = !dangerColumnDouble[playerID];
-                    break;
-                case 16:
-                    dangerColumnShowX[playerID] = !dangerColumnShowX[playerID];
-                    break;
-                case 17:
-                    ojamaCountdown[playerID] += change;
-                    if(ojamaCountdown[playerID] < 1) ojamaCountdown[playerID] = 10;
-                    if(ojamaCountdown[playerID] > 10) ojamaCountdown[playerID] = 1;
-                    break;
-                case 18:
-                    zenKeshiType[playerID] += change;
-                    if(zenKeshiType[playerID] < 0) zenKeshiType[playerID] = 2;
-                    if(zenKeshiType[playerID] > 2) zenKeshiType[playerID] = 0;
-                    break;
-                case 19:
-                    feverMapSet[playerID] += change;
-                    if(feverMapSet[playerID] < 0) feverMapSet[playerID] = FEVER_MAPS.length-1;
-                    if(feverMapSet[playerID] >= FEVER_MAPS.length) feverMapSet[playerID] = 0;
-                    break;
-                case 20:
-                    outlineType[playerID] += change;
-                    if(outlineType[playerID] < 0) outlineType[playerID] = 2;
-                    if(outlineType[playerID] > 2) outlineType[playerID] = 0;
-                    break;
-                case 21:
-                    chainDisplayType[playerID] += change;
-                    if(chainDisplayType[playerID] < 0) chainDisplayType[playerID] = 3;
-                    if(chainDisplayType[playerID] > 3) chainDisplayType[playerID] = 0;
-                    break;
-                case 22:
-                    cascadeSlow[playerID] = !cascadeSlow[playerID];
-                    break;
-                case 23:
-                    newChainPower[playerID] = !newChainPower[playerID];
-                    break;
-                case 24:
-                    useMap[playerID] = !useMap[playerID];
-                    if(!useMap[playerID]) {
-                        if(engine.field != null) engine.field.reset();
-                    } else {
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    }
-                    break;
-                case 25:
-                    mapSet[playerID] += change;
-                    if(mapSet[playerID] < 0) mapSet[playerID] = 99;
-                    if(mapSet[playerID] > 99) mapSet[playerID] = 0;
-                    if(useMap[playerID]) {
-                        mapNumber[playerID] = -1;
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    }
-                    break;
-                case 26:
-                    if(useMap[playerID]) {
-                        mapNumber[playerID] += change;
-                        if(mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
-                        if(mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    } else {
-                        mapNumber[playerID] = -1;
-                    }
-                    break;
-                case 27:
-                    bigDisplay = !bigDisplay;
-                    break;
-                case 28:
-                    bgmno += change;
-                    if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
-                    if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
-                    break;
-                case 29:
-                    enableSE[playerID] = !enableSE[playerID];
-                    break;
-                case 30:
-                case 31:
-                    presetNumber[playerID] += change;
-                    if(presetNumber[playerID] < 0) presetNumber[playerID] = 99;
-                    if(presetNumber[playerID] > 99) presetNumber[playerID] = 0;
-                    break;
-                case 32:
-                    dropSet[playerID] += change;
-                    if(dropSet[playerID] < 0) dropSet[playerID] = DROP_PATTERNS.length-1;
-                    if(dropSet[playerID] >= DROP_PATTERNS.length) dropSet[playerID] = 0;
-                    if(dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
-                    loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-                    break;
-                case 33:
-                    dropMap[playerID] += change;
-                    if(dropMap[playerID] < 0) dropMap[playerID] = DROP_PATTERNS[dropSet[playerID]].length-1;
-                    if(dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
-                    loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-                    break;
+                switch (engine.statc[2]) {
+                    case 0:
+                        engine.speed.gravity += change * m;
+                        if (engine.speed.gravity < -1) engine.speed.gravity = 99999;
+                        if (engine.speed.gravity > 99999) engine.speed.gravity = -1;
+                        break;
+                    case 1:
+                        engine.speed.denominator += change * m;
+                        if (engine.speed.denominator < -1) engine.speed.denominator = 99999;
+                        if (engine.speed.denominator > 99999) engine.speed.denominator = -1;
+                        break;
+                    case 2:
+                        engine.speed.are += change;
+                        if (engine.speed.are < 0) engine.speed.are = 99;
+                        if (engine.speed.are > 99) engine.speed.are = 0;
+                        break;
+                    case 3:
+                        engine.speed.areLine += change;
+                        if (engine.speed.areLine < 0) engine.speed.areLine = 99;
+                        if (engine.speed.areLine > 99) engine.speed.areLine = 0;
+                        break;
+                    case 4:
+                        engine.speed.lineDelay += change;
+                        if (engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
+                        if (engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
+                        break;
+                    case 5:
+                        if (m >= 10) engine.speed.lockDelay += change * 10;
+                        else engine.speed.lockDelay += change;
+                        if (engine.speed.lockDelay < 0) engine.speed.lockDelay = 999;
+                        if (engine.speed.lockDelay > 999) engine.speed.lockDelay = 0;
+                        break;
+                    case 6:
+                        engine.speed.das += change;
+                        if (engine.speed.das < 0) engine.speed.das = 99;
+                        if (engine.speed.das > 99) engine.speed.das = 0;
+                        break;
+                    case 7:
+                        engine.cascadeDelay += change;
+                        if (engine.cascadeDelay < 0) engine.cascadeDelay = 20;
+                        if (engine.cascadeDelay > 20) engine.cascadeDelay = 0;
+                        break;
+                    case 8:
+                        engine.cascadeClearDelay += change;
+                        if (engine.cascadeClearDelay < 0) engine.cascadeClearDelay = 99;
+                        if (engine.cascadeClearDelay > 99) engine.cascadeClearDelay = 0;
+                        break;
+                    case 9:
+                        ojamaCounterMode[playerID] += change;
+                        if (ojamaCounterMode[playerID] < 0) ojamaCounterMode[playerID] = 2;
+                        if (ojamaCounterMode[playerID] > 2) ojamaCounterMode[playerID] = 0;
+                        break;
+                    case 10:
+                        if (m >= 10) maxAttack[playerID] += change * 10;
+                        else maxAttack[playerID] += change;
+                        if (maxAttack[playerID] < 0) maxAttack[playerID] = 99;
+                        if (maxAttack[playerID] > 99) maxAttack[playerID] = 0;
+                        break;
+                    case 11:
+                        rensaShibari[playerID] += change;
+                        if (rensaShibari[playerID] < 1) rensaShibari[playerID] = 20;
+                        if (rensaShibari[playerID] > 20) rensaShibari[playerID] = 1;
+                        break;
+                    case 12:
+                        engine.colorClearSize += change;
+                        if (engine.colorClearSize < 2) engine.colorClearSize = 36;
+                        if (engine.colorClearSize > 36) engine.colorClearSize = 2;
+                        break;
+                    case 13:
+                        if (m >= 10) ojamaRate[playerID] += change * 100;
+                        else ojamaRate[playerID] += change * 10;
+                        if (ojamaRate[playerID] < 10) ojamaRate[playerID] = 1000;
+                        if (ojamaRate[playerID] > 1000) ojamaRate[playerID] = 10;
+                        break;
+                    case 14:
+                        if (m > 10) hurryupSeconds[playerID] += change * m / 10;
+                        else hurryupSeconds[playerID] += change;
+                        if (hurryupSeconds[playerID] < 0) hurryupSeconds[playerID] = 300;
+                        if (hurryupSeconds[playerID] > 300) hurryupSeconds[playerID] = 0;
+                        break;
+                    case 15:
+                        dangerColumnDouble[playerID] = !dangerColumnDouble[playerID];
+                        break;
+                    case 16:
+                        dangerColumnShowX[playerID] = !dangerColumnShowX[playerID];
+                        break;
+                    case 17:
+                        ojamaCountdown[playerID] += change;
+                        if (ojamaCountdown[playerID] < 1) ojamaCountdown[playerID] = 10;
+                        if (ojamaCountdown[playerID] > 10) ojamaCountdown[playerID] = 1;
+                        break;
+                    case 18:
+                        zenKeshiType[playerID] += change;
+                        if (zenKeshiType[playerID] < 0) zenKeshiType[playerID] = 2;
+                        if (zenKeshiType[playerID] > 2) zenKeshiType[playerID] = 0;
+                        break;
+                    case 19:
+                        feverMapSet[playerID] += change;
+                        if (feverMapSet[playerID] < 0) feverMapSet[playerID] = FEVER_MAPS.length - 1;
+                        if (feverMapSet[playerID] >= FEVER_MAPS.length) feverMapSet[playerID] = 0;
+                        break;
+                    case 20:
+                        outlineType[playerID] += change;
+                        if (outlineType[playerID] < 0) outlineType[playerID] = 2;
+                        if (outlineType[playerID] > 2) outlineType[playerID] = 0;
+                        break;
+                    case 21:
+                        chainDisplayType[playerID] += change;
+                        if (chainDisplayType[playerID] < 0) chainDisplayType[playerID] = 3;
+                        if (chainDisplayType[playerID] > 3) chainDisplayType[playerID] = 0;
+                        break;
+                    case 22:
+                        cascadeSlow[playerID] = !cascadeSlow[playerID];
+                        break;
+                    case 23:
+                        newChainPower[playerID] = !newChainPower[playerID];
+                        break;
+                    case 24:
+                        useMap[playerID] = !useMap[playerID];
+                        if (!useMap[playerID]) {
+                            if (engine.field != null) engine.field.reset();
+                        } else {
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        }
+                        break;
+                    case 25:
+                        mapSet[playerID] += change;
+                        if (mapSet[playerID] < 0) mapSet[playerID] = 99;
+                        if (mapSet[playerID] > 99) mapSet[playerID] = 0;
+                        if (useMap[playerID]) {
+                            mapNumber[playerID] = -1;
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        }
+                        break;
+                    case 26:
+                        if (useMap[playerID]) {
+                            mapNumber[playerID] += change;
+                            if (mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
+                            if (mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        } else {
+                            mapNumber[playerID] = -1;
+                        }
+                        break;
+                    case 27:
+                        bigDisplay = !bigDisplay;
+                        break;
+                    case 28:
+                        bgmno += change;
+                        if (bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
+                        if (bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
+                        break;
+                    case 29:
+                        enableSE[playerID] = !enableSE[playerID];
+                        break;
+                    case 30:
+                    case 31:
+                        presetNumber[playerID] += change;
+                        if (presetNumber[playerID] < 0) presetNumber[playerID] = 99;
+                        if (presetNumber[playerID] > 99) presetNumber[playerID] = 0;
+                        break;
+                    case 32:
+                        dropSet[playerID] += change;
+                        if (dropSet[playerID] < 0) dropSet[playerID] = DROP_PATTERNS.length - 1;
+                        if (dropSet[playerID] >= DROP_PATTERNS.length) dropSet[playerID] = 0;
+                        if (dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
+                        loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
+                        break;
+                    case 33:
+                        dropMap[playerID] += change;
+                        if (dropMap[playerID] < 0) dropMap[playerID] = DROP_PATTERNS[dropSet[playerID]].length - 1;
+                        if (dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
+                        loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
+                        break;
                 }
             }
 
             // 決定
-            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
                 engine.playSE("decide");
 
-                if(engine.statc[2] == 29) {
+                if (engine.statc[2] == 29) {
                     loadPreset(engine, owner.modeConfig, presetNumber[playerID], "spf");
-                } else if(engine.statc[2] == 30) {
+                } else if (engine.statc[2] == 30) {
                     savePreset(engine, owner.modeConfig, presetNumber[playerID], "spf");
                     receiver.saveModeConfig(owner.modeConfig);
                 } else {
@@ -518,52 +538,50 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
             }
 
             // Cancel
-            if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.quitflag = true;
             }
 
             // プレビュー用Map読み込み
-            if(useMap[playerID] && (engine.statc[3] == 0)) {
+            if (useMap[playerID] && (engine.statc[3] == 0)) {
                 loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
             }
 
             // Random map preview
-            if(useMap[playerID] && (propMap[playerID] != null) && (mapNumber[playerID] < 0)) {
-                if(engine.statc[3] % 30 == 0) {
+            if (useMap[playerID] && (propMap[playerID] != null) && (mapNumber[playerID] < 0)) {
+                if (engine.statc[3] % 30 == 0) {
                     engine.statc[5]++;
-                    if(engine.statc[5] >= mapMaxNo[playerID]) engine.statc[5] = 0;
+                    if (engine.statc[5] >= mapMaxNo[playerID]) engine.statc[5] = 0;
                     loadMapPreview(engine, playerID, engine.statc[5], false);
                 }
             }
 
             engine.statc[3]++;
-        } else if(engine.statc[4] == 0) {
+        } else if (engine.statc[4] == 0) {
             engine.statc[3]++;
             engine.statc[2] = 0;
 
-            if(engine.statc[3] >= 300)
+            if (engine.statc[3] >= 300)
                 engine.statc[4] = 1;
-            else if (engine.statc[3] == 240)
-            {
+            else if (engine.statc[3] == 240) {
                 engine.statc[2] = 32;
                 loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-            }
-            else if(engine.statc[3] >= 180)
+            } else if (engine.statc[3] >= 180)
                 engine.statc[2] = 24;
-            else if(engine.statc[3] >= 120)
+            else if (engine.statc[3] >= 120)
                 engine.statc[2] = 17;
-            else if(engine.statc[3] >= 60)
+            else if (engine.statc[3] >= 60)
                 engine.statc[2] = 9;
         } else {
             // 開始
-            if((owner.engine[0].statc[4] == 1) && (owner.engine[1].statc[4] == 1) && (playerID == 1)) {
+            if ((owner.engine[0].statc[4] == 1) && (owner.engine[1].statc[4] == 1) && (playerID == 1)) {
                 owner.engine[0].stat = GameEngine.STAT_READY;
                 owner.engine[1].stat = GameEngine.STAT_READY;
                 owner.engine[0].resetStatc();
                 owner.engine[1].resetStatc();
             }
             // Cancel
-            else if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.statc[4] = 0;
             }
         }
@@ -572,7 +590,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
     }
 
     @Override
-    public boolean onMove (GameEngine engine, int playerID) {
+    public boolean onMove(GameEngine engine, int playerID) {
         cleared[playerID] = false;
         ojamaDrop[playerID] = false;
         countdownDecremented[playerID] = false;
@@ -580,7 +598,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
     }
 
     @Override
-    public void onClear (GameEngine engine, int playerID) {
+    public void onClear(GameEngine engine, int playerID) {
         ojamaChecked[playerID] = false;
     }
 
@@ -589,87 +607,87 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
      */
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
-        if(engine.statc[4] == 0) {
-            if(engine.statc[2] < 9) {
+        if (engine.statc[4] == 0) {
+            if (engine.statc[2] < 9) {
                 drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_ORANGE, 0,
-                        "GRAVITY", String.valueOf(engine.speed.gravity),
-                        "G-MAX", String.valueOf(engine.speed.denominator),
-                        "ARE", String.valueOf(engine.speed.are),
-                        "ARE LINE", String.valueOf(engine.speed.areLine),
-                        "LINE DELAY", String.valueOf(engine.speed.lineDelay),
-                        "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
-                        "DAS", String.valueOf(engine.speed.das),
-                        "FALL DELAY", String.valueOf(engine.cascadeDelay),
-                        "CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
+                    "GRAVITY", String.valueOf(engine.speed.gravity),
+                    "G-MAX", String.valueOf(engine.speed.denominator),
+                    "ARE", String.valueOf(engine.speed.are),
+                    "ARE LINE", String.valueOf(engine.speed.areLine),
+                    "LINE DELAY", String.valueOf(engine.speed.lineDelay),
+                    "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+                    "DAS", String.valueOf(engine.speed.das),
+                    "FALL DELAY", String.valueOf(engine.cascadeDelay),
+                    "CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
 
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/5", EventReceiver.COLOR_YELLOW);
-            } else if(engine.statc[2] < 17) {
+            } else if (engine.statc[2] < 17) {
                 drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_CYAN, 9,
-                        "COUNTER", OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]],
-                        "MAX ATTACK", String.valueOf(maxAttack[playerID]),
-                        "MIN CHAIN", String.valueOf(rensaShibari[playerID]),
-                        "CLEAR SIZE", String.valueOf(engine.colorClearSize),
-                        "OJAMA RATE", String.valueOf(ojamaRate[playerID]),
-                        "HURRYUP", (hurryupSeconds[playerID] == 0) ? "NONE" : hurryupSeconds[playerID]+"SEC",
-                        "X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY",
-                        "X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX[playerID]));
+                    "COUNTER", OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]],
+                    "MAX ATTACK", String.valueOf(maxAttack[playerID]),
+                    "MIN CHAIN", String.valueOf(rensaShibari[playerID]),
+                    "CLEAR SIZE", String.valueOf(engine.colorClearSize),
+                    "OJAMA RATE", String.valueOf(ojamaRate[playerID]),
+                    "HURRYUP", (hurryupSeconds[playerID] == 0) ? "NONE" : hurryupSeconds[playerID] + "SEC",
+                    "X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY",
+                    "X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX[playerID]));
 
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/5", EventReceiver.COLOR_YELLOW);
-            } else if(engine.statc[2] < 24) {
+            } else if (engine.statc[2] < 24) {
                 initMenu(EventReceiver.COLOR_CYAN, 17);
                 drawMenu(engine, playerID, receiver,
-                        "COUNTDOWN", (ojamaCountdown[playerID] == 10) ? "NONE" :
-                            String.valueOf(ojamaCountdown[playerID]),
-                        "ZENKESHI", ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
+                    "COUNTDOWN", (ojamaCountdown[playerID] == 10) ? "NONE" :
+                        String.valueOf(ojamaCountdown[playerID]),
+                    "ZENKESHI", ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
                 menuColor = (zenKeshiType[playerID] == ZENKESHI_MODE_FEVER) ?
-                        EventReceiver.COLOR_PURPLE : EventReceiver.COLOR_WHITE;
+                    EventReceiver.COLOR_PURPLE : EventReceiver.COLOR_WHITE;
                 drawMenu(engine, playerID, receiver, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
                 menuColor = EventReceiver.COLOR_DARKBLUE;
                 drawMenu(engine, playerID, receiver,
-                        "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]],
-                        "SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]],
-                        "FALL ANIM", cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
+                    "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]],
+                    "SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]],
+                    "FALL ANIM", cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
                 menuColor = EventReceiver.COLOR_CYAN;
                 drawMenu(engine, playerID, receiver, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
 
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/5", EventReceiver.COLOR_YELLOW);
-            } else if(engine.statc[2] < 32) {
+            } else if (engine.statc[2] < 32) {
                 initMenu(EventReceiver.COLOR_PINK, 24);
                 drawMenu(engine, playerID, receiver,
-                        "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
-                        "MAP SET", String.valueOf(mapSet[playerID]),
-                        "MAP NO.", (mapNumber[playerID] < 0) ? "RANDOM" : mapNumber[playerID]+"/"+(mapMaxNo[playerID]-1),
-                        "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+                    "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
+                    "MAP SET", String.valueOf(mapSet[playerID]),
+                    "MAP NO.", (mapNumber[playerID] < 0) ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1),
+                    "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
                 menuColor = EventReceiver.COLOR_DARKBLUE;
                 drawMenu(engine, playerID, receiver,
-                        "BGM", String.valueOf(bgmno),
-                        "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
+                    "BGM", String.valueOf(bgmno),
+                    "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
                 menuColor = EventReceiver.COLOR_GREEN;
                 drawMenu(engine, playerID, receiver,
-                        "LOAD", String.valueOf(presetNumber[playerID]),
-                        "SAVE", String.valueOf(presetNumber[playerID]));
+                    "LOAD", String.valueOf(presetNumber[playerID]),
+                    "SAVE", String.valueOf(presetNumber[playerID]));
 
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 4/5", EventReceiver.COLOR_YELLOW);
             } else {
-                receiver.drawMenuFont(engine, playerID, 0,  0, "ATTACK", EventReceiver.COLOR_CYAN);
+                receiver.drawMenuFont(engine, playerID, 0, 0, "ATTACK", EventReceiver.COLOR_CYAN);
                 int multiplier = (int) (100 * getAttackMultiplier(dropSet[playerID], dropMap[playerID]));
                 if (multiplier >= 100)
-                    receiver.drawMenuFont(engine, playerID, 2,  1, multiplier + "%",
-                            multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_GREEN);
+                    receiver.drawMenuFont(engine, playerID, 2, 1, multiplier + "%",
+                        multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_GREEN);
                 else
-                    receiver.drawMenuFont(engine, playerID, 3,  1, multiplier + "%", EventReceiver.COLOR_RED);
-                receiver.drawMenuFont(engine, playerID, 0,  2, "DEFEND", EventReceiver.COLOR_CYAN);
+                    receiver.drawMenuFont(engine, playerID, 3, 1, multiplier + "%", EventReceiver.COLOR_RED);
+                receiver.drawMenuFont(engine, playerID, 0, 2, "DEFEND", EventReceiver.COLOR_CYAN);
                 multiplier = (int) (100 * getDefendMultiplier(dropSet[playerID], dropMap[playerID]));
                 if (multiplier >= 100)
-                    receiver.drawMenuFont(engine, playerID, 2,  3, multiplier + "%",
-                            multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_RED);
+                    receiver.drawMenuFont(engine, playerID, 2, 3, multiplier + "%",
+                        multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_RED);
                 else
-                    receiver.drawMenuFont(engine, playerID, 3,  3, multiplier + "%", EventReceiver.COLOR_GREEN);
+                    receiver.drawMenuFont(engine, playerID, 3, 3, multiplier + "%", EventReceiver.COLOR_GREEN);
 
                 drawMenu(engine, playerID, receiver, 14, EventReceiver.COLOR_CYAN, 32,
-                        "DROP SET", DROP_SET_NAMES[dropSet[playerID]],
-                        "DROP MAP", String.format("%2d", dropMap[playerID]+1) + "/" +
-                                    String.format("%2d", DROP_PATTERNS[dropSet[playerID]].length));
+                    "DROP SET", DROP_SET_NAMES[dropSet[playerID]],
+                    "DROP MAP", String.format("%2d", dropMap[playerID] + 1) + "/" +
+                        String.format("%2d", DROP_PATTERNS[dropSet[playerID]].length));
 
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 5/5", EventReceiver.COLOR_YELLOW);
             }
@@ -678,16 +696,15 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         }
     }
 
-    public static double getAttackMultiplier(int set, int map)
-    {
+    public static double getAttackMultiplier(int set, int map) {
         try {
             return DROP_PATTERNS_ATTACK_MULTIPLIERS[set][map];
         } catch (ArrayIndexOutOfBoundsException e) {
             return 1.0;
         }
     }
-    public static double getDefendMultiplier(int set, int map)
-    {
+
+    public static double getDefendMultiplier(int set, int map) {
         try {
             return DROP_PATTERNS_DEFEND_MULTIPLIERS[set][map];
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -714,7 +731,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
      */
     @Override
     public void renderMove(GameEngine engine, int playerID) {
-        if(engine.gameStarted)
+        if (engine.gameStarted)
             drawX(engine, playerID);
     }
 
@@ -729,38 +746,38 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         int fontColor = EventReceiver.COLOR_WHITE;
 
         // Timer
-        if(playerID == 0) {
+        if (playerID == 0) {
             receiver.drawDirectFont(engine, playerID, 224, 8, GeneralUtil.getTime(engine.statistics.time));
         }
 
         // Ojama Counter
         fontColor = EventReceiver.COLOR_WHITE;
-        if(ojama[playerID] >= 1) fontColor = EventReceiver.COLOR_YELLOW;
-        if(ojama[playerID] >= 6) fontColor = EventReceiver.COLOR_ORANGE;
-        if(ojama[playerID] >= 12) fontColor = EventReceiver.COLOR_RED;
+        if (ojama[playerID] >= 1) fontColor = EventReceiver.COLOR_YELLOW;
+        if (ojama[playerID] >= 6) fontColor = EventReceiver.COLOR_ORANGE;
+        if (ojama[playerID] >= 12) fontColor = EventReceiver.COLOR_RED;
 
         String strOjama = String.valueOf(ojama[playerID]);
-        if(ojamaAdd[playerID] > 0)
+        if (ojamaAdd[playerID] > 0)
             strOjama = strOjama + "(+" + String.valueOf(ojamaAdd[playerID]) + ")";
 
-        if(!strOjama.equals("0")) {
+        if (!strOjama.equals("0")) {
             receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 32, strOjama, fontColor);
         }
 
         // Score
         String strScoreMultiplier = "";
-        if((lastscore[playerID] != 0) && (lastmultiplier[playerID] != 0) && (scgettime[playerID] > 0))
+        if ((lastscore[playerID] != 0) && (lastmultiplier[playerID] != 0) && (scgettime[playerID] > 0))
             strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 
-        if(engine.displaysize == 1) {
+        if (engine.displaysize == 1) {
             receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 440, String.format("%12d", score[playerID]), playerColor);
             receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 456, String.format("%12s", strScoreMultiplier), playerColor);
-        } else if(engine.gameStarted) {
+        } else if (engine.gameStarted) {
             receiver.drawDirectFont(engine, playerID, fldPosX - 28, fldPosY + 248, String.format("%8d", score[playerID]), playerColor);
             receiver.drawDirectFont(engine, playerID, fldPosX - 28, fldPosY + 264, String.format("%8s", strScoreMultiplier), playerColor);
         }
 
-        if((engine.stat != GameEngine.STAT_MOVE) && (engine.stat != GameEngine.STAT_RESULT) && (engine.gameStarted))
+        if ((engine.stat != GameEngine.STAT_MOVE) && (engine.stat != GameEngine.STAT_RESULT) && (engine.gameStarted))
             drawX(engine, playerID);
 
         if (!owner.engine[playerID].gameActive)
@@ -771,13 +788,11 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         int blockColor, textColor;
         int d = (engine.displaysize == 1) ? 2 : 1;
         String str;
-        if((engine.field != null) && (engine.stat != GameEngine.STAT_RESULT) && (engine.gameStarted))
+        if ((engine.field != null) && (engine.stat != GameEngine.STAT_RESULT) && (engine.gameStarted))
             for (int x = 0; x < engine.field.getWidth(); x++)
-                for (int y = 0; y < engine.field.getHeight(); y++)
-                {
+                for (int y = 0; y < engine.field.getHeight(); y++) {
                     b = engine.field.getBlock(x, y);
-                    if (!b.isEmpty() && b.countdown > 0)
-                    {
+                    if (!b.isEmpty() && b.countdown > 0) {
                         blockColor = b.secondaryColor;
                         textColor = EventReceiver.COLOR_WHITE;
                         if (blockColor == Block.BLOCK_COLOR_BLUE)
@@ -798,11 +813,10 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
     }
 
     @Override
-    protected int ptsToOjama(GameEngine engine, int playerID, int pts, int rate)
-    {
+    protected int ptsToOjama(GameEngine engine, int playerID, int pts, int rate) {
         int enemyID = 0;
-        if(playerID == 0) enemyID = 1;
-        return ((int) (pts * attackMultiplier[playerID] * defendMultiplier[enemyID])+rate-1)/rate;
+        if (playerID == 0) enemyID = 1;
+        return ((int) (pts * attackMultiplier[playerID] * defendMultiplier[enemyID]) + rate - 1) / rate;
     }
 
     @Override
@@ -813,11 +827,9 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         ojamaChecked[playerID] = true;
         //Turn cleared ojama into normal blocks
         for (int x = 0; x < engine.field.getWidth(); x++)
-            for (int y = (-1* engine.field.getHiddenHeight()); y < engine.field.getHeight(); y++)
-            {
+            for (int y = (-1 * engine.field.getHiddenHeight()); y < engine.field.getHeight(); y++) {
                 Block b = engine.field.getBlock(x, y);
-                if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.hard < 4)
-                {
+                if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.hard < 4) {
                     b.hard = 0;
                     b.color = b.secondaryColor;
                     b.countdown = 0;
@@ -833,14 +845,12 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         engine.field.setBlockLinkByColor();
 
         int enemyID = 0;
-        if(playerID == 0) enemyID = 1;
-        if (ojamaAdd[enemyID] > 0)
-        {
+        if (playerID == 0) enemyID = 1;
+        if (ojamaAdd[enemyID] > 0) {
             ojama[enemyID] += ojamaAdd[enemyID];
             ojamaAdd[enemyID] = 0;
         }
-        if (zenKeshi[playerID] && zenKeshiType[playerID] == ZENKESHI_MODE_FEVER)
-        {
+        if (zenKeshi[playerID] && zenKeshiType[playerID] == ZENKESHI_MODE_FEVER) {
             loadFeverMap(engine, playerID, 4);
             zenKeshi[playerID] = false;
             zenKeshiDisplay[playerID] = 120;
@@ -851,19 +861,16 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 
         boolean result = false;
         //Decrement countdowns
-        if (ojamaCountdown[playerID] != 10 && !countdownDecremented[playerID])
-        {
+        if (ojamaCountdown[playerID] != 10 && !countdownDecremented[playerID]) {
             countdownDecremented[playerID] = true;
             for (int y = (engine.field.getHiddenHeight() * -1); y < engine.field.getHeight(); y++)
-                for (int x = 0; x < engine.field.getWidth(); x++)
-                {
+                for (int x = 0; x < engine.field.getWidth(); x++) {
                     Block b = engine.field.getBlock(x, y);
                     if (b == null)
                         continue;
                     if (b.countdown > 1)
                         b.countdown--;
-                    else if (b.countdown == 1)
-                    {
+                    else if (b.countdown == 1) {
                         b.countdown = 0;
                         b.hard = 0;
                         b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
@@ -876,8 +883,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         }
         //Drop garbage if needed.
         if (ojama[playerID] > 0 && !ojamaDrop[playerID] && (!cleared[playerID] ||
-                (ojamaCounterMode[playerID] != OJAMA_COUNTER_FEVER)))
-        {
+            (ojamaCounterMode[playerID] != OJAMA_COUNTER_FEVER))) {
             ojamaDrop[playerID] = true;
             int width = engine.field.getWidth();
             int hiddenHeight = engine.field.getHiddenHeight();
@@ -886,16 +892,13 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
             engine.field.garbageDrop(engine, drop, false, 4, ojamaCountdown[playerID]);
             engine.field.setAllSkin(engine.getSkin());
             int patternCol = 0;
-            for (int x = 0; x < engine.field.getWidth(); x++)
-            {
+            for (int x = 0; x < engine.field.getWidth(); x++) {
                 if (patternCol >= dropPattern[enemyID].length)
                     patternCol = 0;
                 int patternRow = 0;
-                for (int y = ((drop + width - 1) / width) - hiddenHeight; y >= (-1 * hiddenHeight); y--)
-                {
+                for (int y = ((drop + width - 1) / width) - hiddenHeight; y >= (-1 * hiddenHeight); y--) {
                     Block b = engine.field.getBlock(x, y);
-                    if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.secondaryColor == 0)
-                    {
+                    if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.secondaryColor == 0) {
                         if (patternRow >= dropPattern[enemyID][patternCol].length)
                             patternRow = 0;
                         b.secondaryColor = dropPattern[enemyID][patternCol][patternRow];
@@ -908,7 +911,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         }
         //Check for game over
         if (!engine.field.getBlockEmpty(2, 0) ||
-                (dangerColumnDouble[playerID] && !engine.field.getBlockEmpty(3, 0)))
+            (dangerColumnDouble[playerID] && !engine.field.getBlockEmpty(3, 0)))
             engine.stat = GameEngine.STAT_GAMEOVER;
         return false;
     }
@@ -921,7 +924,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
         saveOtherSetting(engine, owner.replayProp);
         savePreset(engine, owner.replayProp, -1 - playerID, "spf");
 
-        if(useMap[playerID] && (fldBackup[playerID] != null)) {
+        if (useMap[playerID] && (fldBackup[playerID] != null)) {
             saveMap(fldBackup[playerID], owner.replayProp, playerID);
         }
 

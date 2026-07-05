@@ -45,194 +45,306 @@ import org.apache.log4j.Logger;
  * PRACTICE Mode
  */
 public class PracticeMode extends DummyMode {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(PracticeMode.class);
 
-    /** Current version */
+    /**
+     * Current version
+     */
     private static final int CURRENT_VERSION = 5;
 
-    /** Most recent scoring event typeの定count */
+    /**
+     * Most recent scoring event typeの定count
+     */
     private static final int EVENT_NONE = 0,
-                             EVENT_SINGLE = 1,
-                             EVENT_DOUBLE = 2,
-                             EVENT_TRIPLE = 3,
-                             EVENT_FOUR = 4,
-                             EVENT_TSPIN_ZERO_MINI = 5,
-                             EVENT_TSPIN_ZERO = 6,
-                             EVENT_TSPIN_SINGLE_MINI = 7,
-                             EVENT_TSPIN_SINGLE = 8,
-                             EVENT_TSPIN_DOUBLE_MINI = 9,
-                             EVENT_TSPIN_DOUBLE = 10,
-                             EVENT_TSPIN_TRIPLE = 11,
-                             EVENT_TSPIN_EZ = 12;
+        EVENT_SINGLE = 1,
+        EVENT_DOUBLE = 2,
+        EVENT_TRIPLE = 3,
+        EVENT_FOUR = 4,
+        EVENT_TSPIN_ZERO_MINI = 5,
+        EVENT_TSPIN_ZERO = 6,
+        EVENT_TSPIN_SINGLE_MINI = 7,
+        EVENT_TSPIN_SINGLE = 8,
+        EVENT_TSPIN_DOUBLE_MINI = 9,
+        EVENT_TSPIN_DOUBLE = 10,
+        EVENT_TSPIN_TRIPLE = 11,
+        EVENT_TSPIN_EZ = 12;
 
-    /** Comboで手に入る point */
-    private static final int COMBO_GOAL_TABLE[] = {0,0,1,1,2,2,3,3,4,4,4,5};
+    /**
+     * Comboで手に入る point
+     */
+    private static final int COMBO_GOAL_TABLE[] = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 };
 
-    /** Levelタイプの定count */
+    /**
+     * Levelタイプの定count
+     */
     private static final int LEVELTYPE_NONE = 0,
-                             LEVELTYPE_10LINES = 1,
-                             LEVELTYPE_POINTS = 2,
-                             LEVELTYPE_MANIA = 3,
-                             LEVELTYPE_MANIAPLUS = 4,
-                             LEVELTYPE_MAX = 5;
+        LEVELTYPE_10LINES = 1,
+        LEVELTYPE_POINTS = 2,
+        LEVELTYPE_MANIA = 3,
+        LEVELTYPE_MANIAPLUS = 4,
+        LEVELTYPE_MAX = 5;
 
-    /** 裏段位のName */
+    /**
+     * 裏段位のName
+     */
     private static final String[] tableSecretGradeName =
-    {
-         "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",    //  0～ 8
-        "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",    //  9～17
-        "GM"                                                    // 18
-    };
+        {
+            "9", "8", "7", "6", "5", "4", "3", "2", "1",    //  0～ 8
+            "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",    //  9～17
+            "GM"                                                    // 18
+        };
 
-    /** Levelタイプの表示名 */
-    private static final String[] LEVELTYPE_STRING = {"NONE", "10LINES", "POINTS", "MANIA", "MANIA+"};
+    /**
+     * Levelタイプの表示名
+     */
+    private static final String[] LEVELTYPE_STRING = { "NONE", "10LINES", "POINTS", "MANIA", "MANIA+" };
 
-    /** Comboタイプの表示名 */
-    private static final String[] COMBOTYPE_STRING = {"DISABLE", "NORMAL", "DOUBLE"};
+    /**
+     * Comboタイプの表示名
+     */
+    private static final String[] COMBOTYPE_STRING = { "DISABLE", "NORMAL", "DOUBLE" };
 
-    /** Outline type names */
-    private static final String[] BLOCK_OUTLINE_TYPE_STRING = {"NONE", "NORMAL", "CONNECT", "SAMECOLOR"};
+    /**
+     * Outline type names
+     */
+    private static final String[] BLOCK_OUTLINE_TYPE_STRING = { "NONE", "NORMAL", "CONNECT", "SAMECOLOR" };
 
-    /** GameManager that owns this mode */
+    /**
+     * GameManager that owns this mode
+     */
     private GameManager owner;
 
-    /** Drawing and event handling EventReceiver */
+    /**
+     * Drawing and event handling EventReceiver
+     */
     private EventReceiver receiver;
 
-    /** Level upまでの残り point */
+    /**
+     * Level upまでの残り point
+     */
     private int goal;
 
-    /** 直前に手に入れた point */
+    /**
+     * 直前に手に入れた point
+     */
     private int lastgoal;
 
-    /** Most recent increase in score */
+    /**
+     * Most recent increase in score
+     */
     private int lastscore;
 
-    /** Time to display the most recent increase in score */
+    /**
+     * Time to display the most recent increase in score
+     */
     private int scgettime;
 
-    /** Most recent scoring event type */
+    /**
+     * Most recent scoring event type
+     */
     private int lastevent;
 
-    /** Most recent scoring eventでB2Bだったらtrue */
+    /**
+     * Most recent scoring eventでB2Bだったらtrue
+     */
     private boolean lastb2b;
 
-    /** Most recent scoring eventでのCombocount */
+    /**
+     * Most recent scoring eventでのCombocount
+     */
     private int lastcombo;
 
-    /** Most recent scoring eventでのピースID */
+    /**
+     * Most recent scoring eventでのピースID
+     */
     private int lastpiece;
 
-    /** Endingの残り time */
+    /**
+     * Endingの残り time
+     */
     private int rolltime;
 
-    /** Ending開始 flag */
+    /**
+     * Ending開始 flag
+     */
     private boolean rollstarted;
 
-    /** 裏段位 */
+    /**
+     * 裏段位
+     */
     private int secretGrade;
 
-    /** BGM number */
+    /**
+     * BGM number
+     */
     private int bgmno;
 
-    /** Flag for types of T-Spins allowed (0=none, 1=normal, 2=all spin) */
+    /**
+     * Flag for types of T-Spins allowed (0=none, 1=normal, 2=all spin)
+     */
     private int tspinEnableType;
 
-    /** Old flag for allowing T-Spins */
+    /**
+     * Old flag for allowing T-Spins
+     */
     private boolean enableTSpin;
 
-    /** Flag for enabling wallkick T-Spins */
+    /**
+     * Flag for enabling wallkick T-Spins
+     */
     private boolean enableTSpinKick;
 
-    /** Spin check type (4Point or Immobile) */
+    /**
+     * Spin check type (4Point or Immobile)
+     */
     private int spinCheckType;
 
-    /** Immobile EZ spin */
+    /**
+     * Immobile EZ spin
+     */
     private boolean tspinEnableEZ;
 
-    /** Flag for enabling B2B */
+    /**
+     * Flag for enabling B2B
+     */
     private boolean enableB2B;
 
-    /** Comboタイプ */
+    /**
+     * Comboタイプ
+     */
     private int comboType;
 
-    /** Big */
+    /**
+     * Big
+     */
     private boolean big;
 
-    /** Big時の横移動単位 */
+    /**
+     * Big時の横移動単位
+     */
     private boolean bigmove;
 
-    /** Big時Linescount半分 */
+    /**
+     * Big時Linescount半分
+     */
     private boolean bighalf;
 
-    /** Levelタイプ */
+    /**
+     * Levelタイプ
+     */
     private int leveltype;
 
-    /** Preset number */
+    /**
+     * Preset number
+     */
     private int presetNumber;
 
-    /** Map number */
+    /**
+     * Map number
+     */
     private int mapNumber;
 
-    /** Current version */
+    /**
+     * Current version
+     */
     private int version;
 
-    /** Next Section の level (これ-1のときに levelストップする) */
+    /**
+     * Next Section の level (これ-1のときに levelストップする)
+     */
     private int nextseclv;
 
-    /** Levelが増えた flag */
+    /**
+     * Levelが増えた flag
+     */
     private boolean lvupflag;
 
-    /** Combo bonus */
+    /**
+     * Combo bonus
+     */
     private int comboValue;
 
-    /** Hard drop bonus */
+    /**
+     * Hard drop bonus
+     */
     private int harddropBonus;
 
-    /** levelstop sound */
+    /**
+     * levelstop sound
+     */
     private boolean lvstopse;
 
-    /** クリアになる level */
+    /**
+     * クリアになる level
+     */
     private int goallv;
 
-    /** 制限 time (0:なし) */
+    /**
+     * 制限 time (0:なし)
+     */
     private int timelimit;
 
-    /** Ending time (0:なし) */
+    /**
+     * Ending time (0:なし)
+     */
     private int rolltimelimit;
 
-    /** 出現可能ピースの配列 */
+    /**
+     * 出現可能ピースの配列
+     */
     private boolean[] pieceEnable;
 
-    /** Map使用 flag */
+    /**
+     * Map使用 flag
+     */
     private boolean useMap;
 
-    /** バックアップ用field (Mapをリプレイに保存するときに使用) */
+    /**
+     * バックアップ用field (Mapをリプレイに保存するときに使用)
+     */
     private Field fldBackup;
 
-    /** 残り time */
+    /**
+     * 残り time
+     */
     private int timelimitTimer;
 
-    /** Level upごとに制限 timeをリセットする */
+    /**
+     * Level upごとに制限 timeをリセットする
+     */
     private boolean timelimitResetEveryLevel;
 
-    /** 骨Blockを使う */
+    /**
+     * 骨Blockを使う
+     */
     private boolean bone;
 
-    /** Number of frames before placed blocks disappear (-1:Disable) */
+    /**
+     * Number of frames before placed blocks disappear (-1:Disable)
+     */
     private int blockHidden;
 
-    /** Use alpha-blending for blockHidden */
+    /**
+     * Use alpha-blending for blockHidden
+     */
     private boolean blockHiddenAnim;
 
-    /** Outline type */
+    /**
+     * Outline type
+     */
     private int blockOutlineType;
 
-    /** Show outline only flag. If enabled it does not show actual image of blocks. */
+    /**
+     * Show outline only flag. If enabled it does not show actual image of blocks.
+     */
     private boolean blockShowOutlineOnly;
 
-    /** Hebo hidden level (0=None) */
+    /**
+     * Hebo hidden level (0=None)
+     */
     private int heboHiddenLevel;
 
     /*
@@ -272,7 +384,7 @@ public class PracticeMode extends DummyMode {
         timelimitTimer = 0;
         engine.framecolor = GameEngine.FRAME_COLOR_YELLOW;
 
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             version = CURRENT_VERSION;
             presetNumber = engine.owner.modeConfig.getProperty("practice.presetNumber", 0);
             mapNumber = engine.owner.modeConfig.getProperty("practice.mapNumber", 0);
@@ -287,6 +399,7 @@ public class PracticeMode extends DummyMode {
 
     /**
      * Presetを読み込み
+     *
      * @param engine GameEngine
      * @param prop Property file to read from
      * @param preset Preset number
@@ -315,7 +428,7 @@ public class PracticeMode extends DummyMode {
         goallv = prop.getProperty("practice.goallv." + preset, -1);
         timelimit = prop.getProperty("practice.timelimit." + preset, 0);
         rolltimelimit = prop.getProperty("practice.rolltimelimit." + preset, 0);
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             pieceEnable[i] = prop.getProperty("practice.pieceEnable." + i + "." + preset, (i < Piece.PIECE_STANDARD_COUNT));
         }
         useMap = prop.getProperty("practice.useMap." + preset, false);
@@ -330,6 +443,7 @@ public class PracticeMode extends DummyMode {
 
     /**
      * Presetを保存
+     *
      * @param engine GameEngine
      * @param prop Property file to save to
      * @param preset Preset number
@@ -358,7 +472,7 @@ public class PracticeMode extends DummyMode {
         prop.setProperty("practice.goallv." + preset, goallv);
         prop.setProperty("practice.timelimit." + preset, timelimit);
         prop.setProperty("practice.rolltimelimit." + preset, rolltimelimit);
-        for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+        for (int i = 0; i < Piece.PIECE_COUNT; i++) {
             prop.setProperty("practice.pieceEnable." + i + "." + preset, pieceEnable[i]);
         }
         prop.setProperty("practice.useMap." + preset, useMap);
@@ -373,6 +487,7 @@ public class PracticeMode extends DummyMode {
 
     /**
      * Map読み込み
+     *
      * @param field field
      * @param prop Property file to read from
      * @param preset 任意のID
@@ -387,6 +502,7 @@ public class PracticeMode extends DummyMode {
 
     /**
      * Map保存
+     *
      * @param field field
      * @param prop Property file to save to
      * @param id 任意のID
@@ -401,225 +517,225 @@ public class PracticeMode extends DummyMode {
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
         // Menu
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             owner.menuOnly = true;
 
             // Configuration changes
             int change = updateCursor(engine, 45);
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
                 int m = 1;
-                if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
-                if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
+                if (engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
+                if (engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
 
-                switch(engine.statc[2]) {
-                case 0:
-                    engine.speed.gravity += change * m;
-                    if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
-                    if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
-                    break;
-                case 1:
-                    engine.speed.denominator += change * m;
-                    if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
-                    if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
-                    break;
-                case 2:
-                    engine.speed.are += change;
-                    if(engine.speed.are < 0) engine.speed.are = 99;
-                    if(engine.speed.are > 99) engine.speed.are = 0;
-                    break;
-                case 3:
-                    engine.speed.areLine += change;
-                    if(engine.speed.areLine < 0) engine.speed.areLine = 99;
-                    if(engine.speed.areLine > 99) engine.speed.areLine = 0;
-                    break;
-                case 4:
-                    engine.speed.lineDelay += change;
-                    if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
-                    if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
-                    break;
-                case 5:
-                    engine.speed.lockDelay += change;
-                    if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
-                    if(engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
-                    break;
-                case 6:
-                    engine.speed.das += change;
-                    if(engine.speed.das < 0) engine.speed.das = 99;
-                    if(engine.speed.das > 99) engine.speed.das = 0;
-                    break;
-                case 7:
-                    bgmno += change;
-                    if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
-                    if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
-                    break;
-                case 8:
-                    big = !big;
-                    break;
-                case 9:
-                    leveltype += change;
-                    if(leveltype < 0) leveltype = LEVELTYPE_MAX - 1;
-                    if(leveltype > LEVELTYPE_MAX - 1) leveltype = 0;
-                    break;
-                case 10:
-                    //enableTSpin = !enableTSpin;
-                    tspinEnableType += change;
-                    if(tspinEnableType < 0) tspinEnableType = 2;
-                    if(tspinEnableType > 2) tspinEnableType = 0;
-                    break;
-                case 11:
-                    enableTSpinKick = !enableTSpinKick;
-                    break;
-                case 12:
-                    spinCheckType += change;
-                    if(spinCheckType < 0) spinCheckType = 1;
-                    if(spinCheckType > 1) spinCheckType = 0;
-                    break;
-                case 13:
-                    tspinEnableEZ = !tspinEnableEZ;
-                    break;
-                case 14:
-                    enableB2B = !enableB2B;
-                    break;
-                case 15:
-                    comboType += change;
-                    if(comboType < 0) comboType = 2;
-                    if(comboType > 2) comboType = 0;
-                    break;
-                case 16:
-                    lvstopse = !lvstopse;
-                    break;
-                case 17:
-                    bigmove = !bigmove;
-                    break;
-                case 18:
-                    bighalf = !bighalf;
-                    break;
-                case 19:
-                    goallv += change * m;
-                    if(goallv < -1) goallv = 9999;
-                    if(goallv > 9999) goallv = -1;
-                    break;
-                case 20:
-                    timelimit += change * 60 * m;
-                    if(timelimit < 0) timelimit = 3600 * 20;
-                    if(timelimit > 3600 * 20) timelimit = 0;
-                    break;
-                case 21:
-                    rolltimelimit += change * 60 * m;
-                    if(rolltimelimit < 0) rolltimelimit = 3600 * 20;
-                    if(rolltimelimit > 3600 * 20) rolltimelimit = 0;
-                    break;
-                case 22:
-                    timelimitResetEveryLevel = !timelimitResetEveryLevel;
-                    break;
-                case 23:
-                    bone = !bone;
-                    break;
-                case 24:
-                    blockHidden += change * m;
-                    if(blockHidden < -2) blockHidden = 9999;
-                    if(blockHidden > 9999) blockHidden = -2;
-                    break;
-                case 25:
-                    blockHiddenAnim = !blockHiddenAnim;
-                    break;
-                case 26:
-                    blockOutlineType += change;
-                    if(blockOutlineType < 0) blockOutlineType = 3;
-                    if(blockOutlineType > 3) blockOutlineType = 0;
-                    break;
-                case 27:
-                    blockShowOutlineOnly = !blockShowOutlineOnly;
-                    break;
-                case 28:
-                    heboHiddenLevel += change;
-                    if(heboHiddenLevel < 0) heboHiddenLevel = 7;
-                    if(heboHiddenLevel > 7) heboHiddenLevel = 0;
-                    break;
-                case 29:
-                    pieceEnable[0] = !pieceEnable[0];
-                    break;
-                case 30:
-                    pieceEnable[1] = !pieceEnable[1];
-                    break;
-                case 31:
-                    pieceEnable[2] = !pieceEnable[2];
-                    break;
-                case 32:
-                    pieceEnable[3] = !pieceEnable[3];
-                    break;
-                case 33:
-                    pieceEnable[4] = !pieceEnable[4];
-                    break;
-                case 34:
-                    pieceEnable[5] = !pieceEnable[5];
-                    break;
-                case 35:
-                    pieceEnable[6] = !pieceEnable[6];
-                    break;
-                case 36:
-                    pieceEnable[7] = !pieceEnable[7];
-                    break;
-                case 37:
-                    pieceEnable[8] = !pieceEnable[8];
-                    break;
-                case 38:
-                    pieceEnable[9] = !pieceEnable[9];
-                    break;
-                case 39:
-                    pieceEnable[10] = !pieceEnable[10];
-                    break;
-                case 40:
-                    useMap = !useMap;
-                    break;
-                case 41:
-                case 42:
-                case 43:
-                    mapNumber += change;
-                    if(mapNumber < 0) mapNumber = 99;
-                    if(mapNumber > 99) mapNumber = 0;
-                    break;
-                case 44:
-                case 45:
-                    presetNumber += change;
-                    if(presetNumber < 0) presetNumber = 99;
-                    if(presetNumber > 99) presetNumber = 0;
-                    break;
+                switch (engine.statc[2]) {
+                    case 0:
+                        engine.speed.gravity += change * m;
+                        if (engine.speed.gravity < -1) engine.speed.gravity = 99999;
+                        if (engine.speed.gravity > 99999) engine.speed.gravity = -1;
+                        break;
+                    case 1:
+                        engine.speed.denominator += change * m;
+                        if (engine.speed.denominator < -1) engine.speed.denominator = 99999;
+                        if (engine.speed.denominator > 99999) engine.speed.denominator = -1;
+                        break;
+                    case 2:
+                        engine.speed.are += change;
+                        if (engine.speed.are < 0) engine.speed.are = 99;
+                        if (engine.speed.are > 99) engine.speed.are = 0;
+                        break;
+                    case 3:
+                        engine.speed.areLine += change;
+                        if (engine.speed.areLine < 0) engine.speed.areLine = 99;
+                        if (engine.speed.areLine > 99) engine.speed.areLine = 0;
+                        break;
+                    case 4:
+                        engine.speed.lineDelay += change;
+                        if (engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
+                        if (engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
+                        break;
+                    case 5:
+                        engine.speed.lockDelay += change;
+                        if (engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
+                        if (engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
+                        break;
+                    case 6:
+                        engine.speed.das += change;
+                        if (engine.speed.das < 0) engine.speed.das = 99;
+                        if (engine.speed.das > 99) engine.speed.das = 0;
+                        break;
+                    case 7:
+                        bgmno += change;
+                        if (bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
+                        if (bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
+                        break;
+                    case 8:
+                        big = !big;
+                        break;
+                    case 9:
+                        leveltype += change;
+                        if (leveltype < 0) leveltype = LEVELTYPE_MAX - 1;
+                        if (leveltype > LEVELTYPE_MAX - 1) leveltype = 0;
+                        break;
+                    case 10:
+                        //enableTSpin = !enableTSpin;
+                        tspinEnableType += change;
+                        if (tspinEnableType < 0) tspinEnableType = 2;
+                        if (tspinEnableType > 2) tspinEnableType = 0;
+                        break;
+                    case 11:
+                        enableTSpinKick = !enableTSpinKick;
+                        break;
+                    case 12:
+                        spinCheckType += change;
+                        if (spinCheckType < 0) spinCheckType = 1;
+                        if (spinCheckType > 1) spinCheckType = 0;
+                        break;
+                    case 13:
+                        tspinEnableEZ = !tspinEnableEZ;
+                        break;
+                    case 14:
+                        enableB2B = !enableB2B;
+                        break;
+                    case 15:
+                        comboType += change;
+                        if (comboType < 0) comboType = 2;
+                        if (comboType > 2) comboType = 0;
+                        break;
+                    case 16:
+                        lvstopse = !lvstopse;
+                        break;
+                    case 17:
+                        bigmove = !bigmove;
+                        break;
+                    case 18:
+                        bighalf = !bighalf;
+                        break;
+                    case 19:
+                        goallv += change * m;
+                        if (goallv < -1) goallv = 9999;
+                        if (goallv > 9999) goallv = -1;
+                        break;
+                    case 20:
+                        timelimit += change * 60 * m;
+                        if (timelimit < 0) timelimit = 3600 * 20;
+                        if (timelimit > 3600 * 20) timelimit = 0;
+                        break;
+                    case 21:
+                        rolltimelimit += change * 60 * m;
+                        if (rolltimelimit < 0) rolltimelimit = 3600 * 20;
+                        if (rolltimelimit > 3600 * 20) rolltimelimit = 0;
+                        break;
+                    case 22:
+                        timelimitResetEveryLevel = !timelimitResetEveryLevel;
+                        break;
+                    case 23:
+                        bone = !bone;
+                        break;
+                    case 24:
+                        blockHidden += change * m;
+                        if (blockHidden < -2) blockHidden = 9999;
+                        if (blockHidden > 9999) blockHidden = -2;
+                        break;
+                    case 25:
+                        blockHiddenAnim = !blockHiddenAnim;
+                        break;
+                    case 26:
+                        blockOutlineType += change;
+                        if (blockOutlineType < 0) blockOutlineType = 3;
+                        if (blockOutlineType > 3) blockOutlineType = 0;
+                        break;
+                    case 27:
+                        blockShowOutlineOnly = !blockShowOutlineOnly;
+                        break;
+                    case 28:
+                        heboHiddenLevel += change;
+                        if (heboHiddenLevel < 0) heboHiddenLevel = 7;
+                        if (heboHiddenLevel > 7) heboHiddenLevel = 0;
+                        break;
+                    case 29:
+                        pieceEnable[0] = !pieceEnable[0];
+                        break;
+                    case 30:
+                        pieceEnable[1] = !pieceEnable[1];
+                        break;
+                    case 31:
+                        pieceEnable[2] = !pieceEnable[2];
+                        break;
+                    case 32:
+                        pieceEnable[3] = !pieceEnable[3];
+                        break;
+                    case 33:
+                        pieceEnable[4] = !pieceEnable[4];
+                        break;
+                    case 34:
+                        pieceEnable[5] = !pieceEnable[5];
+                        break;
+                    case 35:
+                        pieceEnable[6] = !pieceEnable[6];
+                        break;
+                    case 36:
+                        pieceEnable[7] = !pieceEnable[7];
+                        break;
+                    case 37:
+                        pieceEnable[8] = !pieceEnable[8];
+                        break;
+                    case 38:
+                        pieceEnable[9] = !pieceEnable[9];
+                        break;
+                    case 39:
+                        pieceEnable[10] = !pieceEnable[10];
+                        break;
+                    case 40:
+                        useMap = !useMap;
+                        break;
+                    case 41:
+                    case 42:
+                    case 43:
+                        mapNumber += change;
+                        if (mapNumber < 0) mapNumber = 99;
+                        if (mapNumber > 99) mapNumber = 0;
+                        break;
+                    case 44:
+                    case 45:
+                        presetNumber += change;
+                        if (presetNumber < 0) presetNumber = 99;
+                        if (presetNumber > 99) presetNumber = 0;
+                        break;
                 }
             }
 
             // 決定
-            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
                 engine.playSE("decide");
 
-                if(engine.statc[2] == 41) {
+                if (engine.statc[2] == 41) {
                     // fieldエディット
                     engine.enterFieldEdit();
                     return true;
-                } else if(engine.statc[2] == 42) {
+                } else if (engine.statc[2] == 42) {
                     // Map読み込み
                     engine.createFieldIfNeeded();
                     engine.field.reset();
 
                     CustomProperties prop = receiver.loadProperties("config/map/practice/" + mapNumber + ".map");
-                    if(prop != null) {
+                    if (prop != null) {
                         loadMap(engine.field, prop, 0);
                         engine.field.setAllSkin(engine.getSkin());
                     }
-                } else if(engine.statc[2] == 43) {
+                } else if (engine.statc[2] == 43) {
                     // Map保存
-                    if(engine.field != null) {
+                    if (engine.field != null) {
                         CustomProperties prop = new CustomProperties();
                         saveMap(engine.field, prop, 0);
                         receiver.saveProperties("config/map/practice/" + mapNumber + ".map", prop);
                     }
-                } else if(engine.statc[2] == 44) {
+                } else if (engine.statc[2] == 44) {
                     // Preset読み込み
                     loadPreset(engine, owner.modeConfig, presetNumber);
-                } else if(engine.statc[2] == 45) {
+                } else if (engine.statc[2] == 45) {
                     // Preset保存
                     savePreset(engine, owner.modeConfig, presetNumber);
                     receiver.saveModeConfig(owner.modeConfig);
@@ -630,9 +746,9 @@ public class PracticeMode extends DummyMode {
                     savePreset(engine, owner.modeConfig, -1);
                     receiver.saveModeConfig(owner.modeConfig);
 
-                    if(useMap && ((engine.field == null) || (engine.field.isEmpty()))) {
+                    if (useMap && ((engine.field == null) || (engine.field.isEmpty()))) {
                         CustomProperties prop = receiver.loadProperties("config/map/practice/" + mapNumber + ".map");
-                        if(prop != null) {
+                        if (prop != null) {
                             engine.createFieldIfNeeded();
                             loadMap(engine.field, prop, 0);
                             engine.field.setAllSkin(engine.getSkin());
@@ -647,7 +763,7 @@ public class PracticeMode extends DummyMode {
             }
 
             // Cancel
-            if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.quitflag = true;
             }
 
@@ -658,10 +774,10 @@ public class PracticeMode extends DummyMode {
             engine.statc[3]++;
             engine.statc[2] = 0;
 
-            if(engine.statc[3] >= 60) {
+            if (engine.statc[3] >= 60) {
                 engine.statc[2] = 22;
             }
-            if((engine.statc[3] >= 120) || engine.ctrl.isPush(Controller.BUTTON_F)) {
+            if ((engine.statc[3] >= 120) || engine.ctrl.isPush(Controller.BUTTON_F)) {
                 owner.menuOnly = false;
                 return false;
             }
@@ -677,32 +793,32 @@ public class PracticeMode extends DummyMode {
     public void renderSetting(GameEngine engine, int playerID) {
         receiver.drawMenuFont(engine, playerID, 1, 1, "PRACTICE MODE SETTINGS", EventReceiver.COLOR_ORANGE);
 
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             receiver.drawMenuFont(engine, playerID, 1, 27, "A:START B:EXIT C+<>:FAST CHANGE", EventReceiver.COLOR_CYAN);
         } else {
             receiver.drawMenuFont(engine, playerID, 1, 27, "F:SKIP", EventReceiver.COLOR_RED);
         }
 
-        if(engine.statc[2] < 23) {
-            if(owner.replayMode == false) {
+        if (engine.statc[2] < 23) {
+            if (owner.replayMode == false) {
                 receiver.drawMenuFont(engine, playerID, 1, engine.statc[2] + 3, "b", EventReceiver.COLOR_RED);
             }
 
-            receiver.drawMenuFont(engine, playerID, 2,  3, "GRAVITY:" + engine.speed.gravity, (engine.statc[2] == 0));
-            receiver.drawMenuFont(engine, playerID, 2,  4, "G-MAX:" + engine.speed.denominator, (engine.statc[2] == 1));
-            receiver.drawMenuFont(engine, playerID, 2,  5, "ARE:" + engine.speed.are, (engine.statc[2] == 2));
-            receiver.drawMenuFont(engine, playerID, 2,  6, "ARE LINE:" + engine.speed.areLine, (engine.statc[2] == 3));
-            receiver.drawMenuFont(engine, playerID, 2,  7, "LINE DELAY:" + engine.speed.lineDelay, (engine.statc[2] == 4));
-            receiver.drawMenuFont(engine, playerID, 2,  8, "LOCK DELAY:" + engine.speed.lockDelay, (engine.statc[2] == 5));
-            receiver.drawMenuFont(engine, playerID, 2,  9, "DAS:" + engine.speed.das, (engine.statc[2] == 6));
+            receiver.drawMenuFont(engine, playerID, 2, 3, "GRAVITY:" + engine.speed.gravity, (engine.statc[2] == 0));
+            receiver.drawMenuFont(engine, playerID, 2, 4, "G-MAX:" + engine.speed.denominator, (engine.statc[2] == 1));
+            receiver.drawMenuFont(engine, playerID, 2, 5, "ARE:" + engine.speed.are, (engine.statc[2] == 2));
+            receiver.drawMenuFont(engine, playerID, 2, 6, "ARE LINE:" + engine.speed.areLine, (engine.statc[2] == 3));
+            receiver.drawMenuFont(engine, playerID, 2, 7, "LINE DELAY:" + engine.speed.lineDelay, (engine.statc[2] == 4));
+            receiver.drawMenuFont(engine, playerID, 2, 8, "LOCK DELAY:" + engine.speed.lockDelay, (engine.statc[2] == 5));
+            receiver.drawMenuFont(engine, playerID, 2, 9, "DAS:" + engine.speed.das, (engine.statc[2] == 6));
             receiver.drawMenuFont(engine, playerID, 2, 10, "BGM:" + bgmno, (engine.statc[2] == 7));
             receiver.drawMenuFont(engine, playerID, 2, 11, "BIG:" + GeneralUtil.getONorOFF(big), (engine.statc[2] == 8));
             receiver.drawMenuFont(engine, playerID, 2, 12, "LEVEL TYPE:" + LEVELTYPE_STRING[leveltype], (engine.statc[2] == 9));
             String strTSpinEnable = "";
-            if(version >= 4) {
-                if(tspinEnableType == 0) strTSpinEnable = "OFF";
-                if(tspinEnableType == 1) strTSpinEnable = "T-ONLY";
-                if(tspinEnableType == 2) strTSpinEnable = "ALL";
+            if (version >= 4) {
+                if (tspinEnableType == 0) strTSpinEnable = "OFF";
+                if (tspinEnableType == 1) strTSpinEnable = "T-ONLY";
+                if (tspinEnableType == 2) strTSpinEnable = "ALL";
             } else {
                 strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
             }
@@ -716,40 +832,40 @@ public class PracticeMode extends DummyMode {
             receiver.drawMenuFont(engine, playerID, 2, 20, "BIG MOVE:" + (bigmove ? "2 CELL" : "1 CELL"), (engine.statc[2] == 17));
             receiver.drawMenuFont(engine, playerID, 2, 21, "BIG HALF:" + GeneralUtil.getONorOFF(bighalf), (engine.statc[2] == 18));
             String strGoalLv = "ENDLESS";
-            if(goallv >= 0) {
-                if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS))
+            if (goallv >= 0) {
+                if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS))
                     strGoalLv = "LV" + String.valueOf((goallv + 1) * 100);
-                else if(leveltype == LEVELTYPE_NONE)
+                else if (leveltype == LEVELTYPE_NONE)
                     strGoalLv = String.valueOf(goallv + 1) + " LINES";
                 else
                     strGoalLv = "LV" + String.valueOf(goallv + 1);
             }
             receiver.drawMenuFont(engine, playerID, 2, 22, "GOAL LEVEL:" + strGoalLv, (engine.statc[2] == 19));
             receiver.drawMenuFont(engine, playerID, 2, 23, "TIME LIMIT:" + ((timelimit == 0) ? "NONE" : GeneralUtil.getTime(timelimit)),
-                                  (engine.statc[2] == 20));
+                (engine.statc[2] == 20));
             receiver.drawMenuFont(engine, playerID, 2, 24, "ROLL LIMIT:" + ((rolltimelimit == 0) ? "NONE" : GeneralUtil.getTime(rolltimelimit)),
-                                  (engine.statc[2] == 21));
+                (engine.statc[2] == 21));
             receiver.drawMenuFont(engine, playerID, 2, 25, "TIME LIMIT RESET EVERY LEVEL:" + GeneralUtil.getONorOFF(timelimitResetEveryLevel),
-                      (engine.statc[2] == 22));
-        } else if(engine.statc[2] < 46) {
-            if(owner.replayMode == false) {
+                (engine.statc[2] == 22));
+        } else if (engine.statc[2] < 46) {
+            if (owner.replayMode == false) {
                 receiver.drawMenuFont(engine, playerID, 1, engine.statc[2] - 23 + 3, "b", EventReceiver.COLOR_RED);
             }
 
-            receiver.drawMenuFont(engine, playerID, 2,  3, "USE BONE BLOCKS:" + GeneralUtil.getONorOFF(bone), (engine.statc[2] == 23));
+            receiver.drawMenuFont(engine, playerID, 2, 3, "USE BONE BLOCKS:" + GeneralUtil.getONorOFF(bone), (engine.statc[2] == 23));
             String strHiddenFrames = "NONE";
-            if(blockHidden == -2) strHiddenFrames = "LOCK FLASH (" + engine.ruleopt.lockflash + "F)";
-            if(blockHidden >= 0) strHiddenFrames = String.format("%d (%.2f SEC.)", blockHidden, (float)(blockHidden / 60f));
-            receiver.drawMenuFont(engine, playerID, 2,  4, "BLOCK HIDDEN FRAMES:" + strHiddenFrames, (engine.statc[2] == 24));
-            receiver.drawMenuFont(engine, playerID, 2,  5, "BLOCK HIDDEN ANIM:" + GeneralUtil.getONorOFF(blockHiddenAnim),
-                    (engine.statc[2] == 25));
-            receiver.drawMenuFont(engine, playerID, 2,  6, "BLOCK OUTLINE TYPE:" + BLOCK_OUTLINE_TYPE_STRING[blockOutlineType],
-                    (engine.statc[2] == 26));
-            receiver.drawMenuFont(engine, playerID, 2,  7, "BLOCK OUTLINE ONLY:" + GeneralUtil.getONorOFF(blockShowOutlineOnly),
-                    (engine.statc[2] == 27));
-            receiver.drawMenuFont(engine, playerID, 2,  8, "HEBO HIDDEN:" + ((heboHiddenLevel == 0) ? "NONE" : "LV"+heboHiddenLevel),
-                    (engine.statc[2] == 28));
-            receiver.drawMenuFont(engine, playerID, 2,  9, "PIECE I:" + GeneralUtil.getONorOFF(pieceEnable[0]), (engine.statc[2] == 29));
+            if (blockHidden == -2) strHiddenFrames = "LOCK FLASH (" + engine.ruleopt.lockflash + "F)";
+            if (blockHidden >= 0) strHiddenFrames = String.format("%d (%.2f SEC.)", blockHidden, (float) (blockHidden / 60f));
+            receiver.drawMenuFont(engine, playerID, 2, 4, "BLOCK HIDDEN FRAMES:" + strHiddenFrames, (engine.statc[2] == 24));
+            receiver.drawMenuFont(engine, playerID, 2, 5, "BLOCK HIDDEN ANIM:" + GeneralUtil.getONorOFF(blockHiddenAnim),
+                (engine.statc[2] == 25));
+            receiver.drawMenuFont(engine, playerID, 2, 6, "BLOCK OUTLINE TYPE:" + BLOCK_OUTLINE_TYPE_STRING[blockOutlineType],
+                (engine.statc[2] == 26));
+            receiver.drawMenuFont(engine, playerID, 2, 7, "BLOCK OUTLINE ONLY:" + GeneralUtil.getONorOFF(blockShowOutlineOnly),
+                (engine.statc[2] == 27));
+            receiver.drawMenuFont(engine, playerID, 2, 8, "HEBO HIDDEN:" + ((heboHiddenLevel == 0) ? "NONE" : "LV" + heboHiddenLevel),
+                (engine.statc[2] == 28));
+            receiver.drawMenuFont(engine, playerID, 2, 9, "PIECE I:" + GeneralUtil.getONorOFF(pieceEnable[0]), (engine.statc[2] == 29));
             receiver.drawMenuFont(engine, playerID, 2, 10, "PIECE L:" + GeneralUtil.getONorOFF(pieceEnable[1]), (engine.statc[2] == 30));
             receiver.drawMenuFont(engine, playerID, 2, 11, "PIECE O:" + GeneralUtil.getONorOFF(pieceEnable[2]), (engine.statc[2] == 31));
             receiver.drawMenuFont(engine, playerID, 2, 12, "PIECE Z:" + GeneralUtil.getONorOFF(pieceEnable[3]), (engine.statc[2] == 32));
@@ -774,24 +890,24 @@ public class PracticeMode extends DummyMode {
      */
     @Override
     public boolean onReady(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 0) {
+        if (engine.statc[0] == 0) {
             //  time制限設定
-            if(timelimit > 0) timelimitTimer = timelimit;
+            if (timelimit > 0) timelimitTimer = timelimit;
 
             // 骨Block
             engine.bone = bone;
 
             // 出現可能なピースを設定
-            if(version >= 1) {
-                for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+            if (version >= 1) {
+                for (int i = 0; i < Piece.PIECE_COUNT; i++) {
                     engine.nextPieceEnable[i] = pieceEnable[i];
                 }
             }
 
             // Map読み込み・リプレイ保存用にバックアップ
-            if(version >= 2) {
-                if(useMap) {
-                    if(owner.replayMode) {
+            if (version >= 2) {
+                if (useMap) {
+                    if (owner.replayMode) {
                         log.debug("Loading map data from replay data");
                         engine.createFieldIfNeeded();
                         loadMap(engine.field, owner.replayProp, 0);
@@ -800,7 +916,7 @@ public class PracticeMode extends DummyMode {
                         log.debug("Backup map data");
                         fldBackup = new Field(engine.field);
                     }
-                } else if(engine.field != null) {
+                } else if (engine.field != null) {
                     log.debug("Use no map, reseting field");
                     engine.field.reset();
                 } else {
@@ -821,16 +937,16 @@ public class PracticeMode extends DummyMode {
         engine.bigmove = bigmove;
         engine.bighalf = bighalf;
 
-        if((leveltype != LEVELTYPE_MANIA) && (leveltype != LEVELTYPE_MANIAPLUS)) {
+        if ((leveltype != LEVELTYPE_MANIA) && (leveltype != LEVELTYPE_MANIAPLUS)) {
             engine.b2bEnable = enableB2B;
             engine.comboType = comboType;
             engine.statistics.levelDispAdd = 1;
 
             engine.tspinAllowKick = enableTSpinKick;
-            if(version >= 4) {
-                if(tspinEnableType == 0) {
+            if (version >= 4) {
+                if (tspinEnableType == 0) {
                     engine.tspinEnable = false;
-                } else if(tspinEnableType == 1) {
+                } else if (tspinEnableType == 1) {
                     engine.tspinEnable = true;
                 } else {
                     engine.tspinEnable = true;
@@ -850,9 +966,9 @@ public class PracticeMode extends DummyMode {
             engine.statistics.levelDispAdd = 0;
         }
 
-        if(version >= 5) {
+        if (version >= 5) {
             // Hidden
-            if(blockHidden == -2) {
+            if (blockHidden == -2) {
                 engine.blockHidden = engine.ruleopt.lockflash;
             } else {
                 engine.blockHidden = blockHidden;
@@ -876,37 +992,38 @@ public class PracticeMode extends DummyMode {
 
     /**
      * Set Hebo Hidden params
+     *
      * @param engine GameEngine
      */
     private void setHeboHidden(GameEngine engine) {
-        if(heboHiddenLevel >= 1) {
+        if (heboHiddenLevel >= 1) {
             engine.heboHiddenEnable = true;
 
-            if(heboHiddenLevel == 1) {
+            if (heboHiddenLevel == 1) {
                 engine.heboHiddenYLimit = 15;
                 engine.heboHiddenTimerMax = (engine.heboHiddenYNow + 2) * 120;
             }
-            if(heboHiddenLevel == 2) {
+            if (heboHiddenLevel == 2) {
                 engine.heboHiddenYLimit = 17;
                 engine.heboHiddenTimerMax = (engine.heboHiddenYNow + 1) * 100;
             }
-            if(heboHiddenLevel == 3) {
+            if (heboHiddenLevel == 3) {
                 engine.heboHiddenYLimit = 19;
                 engine.heboHiddenTimerMax = engine.heboHiddenYNow * 60 + 60;
             }
-            if(heboHiddenLevel == 4) {
+            if (heboHiddenLevel == 4) {
                 engine.heboHiddenYLimit = 19;
                 engine.heboHiddenTimerMax = engine.heboHiddenYNow * 30 + 45;
             }
-            if(heboHiddenLevel == 5) {
+            if (heboHiddenLevel == 5) {
                 engine.heboHiddenYLimit = 19;
                 engine.heboHiddenTimerMax = engine.heboHiddenYNow * 30 + 30;
             }
-            if(heboHiddenLevel == 6) {
+            if (heboHiddenLevel == 6) {
                 engine.heboHiddenYLimit = 19;
                 engine.heboHiddenTimerMax = engine.heboHiddenYNow * 2 + 15;
             }
-            if(heboHiddenLevel == 7) {
+            if (heboHiddenLevel == 7) {
                 engine.heboHiddenYLimit = 20;
                 engine.heboHiddenTimerMax = engine.heboHiddenYNow + 15;
             }
@@ -922,7 +1039,7 @@ public class PracticeMode extends DummyMode {
     public void renderLast(GameEngine engine, int playerID) {
         receiver.drawScoreFont(engine, playerID, 0, 0, "PRACTICE", EventReceiver.COLOR_YELLOW);
 
-        if(engine.stat == GameEngine.STAT_FIELDEDIT) {
+        if (engine.stat == GameEngine.STAT_FIELDEDIT) {
             // fieldエディットのとき
 
             // 座標
@@ -940,24 +1057,24 @@ public class PracticeMode extends DummyMode {
                 receiver.drawScoreFont(engine, playerID, 0, 10, "" + engine.field.getHowManyHoles());
             }
             */
-        } else if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+        } else if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
             //  levelタイプがMANIAのとき
 
             // Score
             receiver.drawScoreFont(engine, playerID, 0, 5, "SCORE", EventReceiver.COLOR_BLUE);
             String strScore = String.valueOf(engine.statistics.score);
-            if((lastscore > 0) && (scgettime < 120)) strScore += "(+" + lastscore + ")";
+            if ((lastscore > 0) && (scgettime < 120)) strScore += "(+" + lastscore + ")";
             receiver.drawScoreFont(engine, playerID, 0, 6, strScore);
 
             //  level
             receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", EventReceiver.COLOR_BLUE);
             int tempLevel = engine.statistics.level;
-            if(tempLevel < 0) tempLevel = 0;
+            if (tempLevel < 0) tempLevel = 0;
             String strLevel = String.format("%3d", tempLevel);
             receiver.drawScoreFont(engine, playerID, 0, 10, strLevel);
 
             int speed = engine.speed.gravity / 128;
-            if(engine.speed.gravity < 0) speed = 40;
+            if (engine.speed.gravity < 0) speed = 40;
             receiver.drawSpeedMeter(engine, playerID, 0, 11, speed);
 
             receiver.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
@@ -965,18 +1082,18 @@ public class PracticeMode extends DummyMode {
             // Time
             receiver.drawScoreFont(engine, playerID, 0, 14, "TIME", EventReceiver.COLOR_BLUE);
             int time = engine.statistics.time;
-            if(timelimit > 0) time = timelimitTimer;
-            if(time < 0) time = 0;
+            if (timelimit > 0) time = timelimitTimer;
+            if (time < 0) time = 0;
             int fontcolor = EventReceiver.COLOR_WHITE;
-            if((time < 30 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
-            if((time < 20 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
-            if((time < 10 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_RED;
+            if ((time < 30 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
+            if ((time < 20 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
+            if ((time < 10 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_RED;
             receiver.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(time), fontcolor);
 
             // Roll 残り time
-            if((engine.gameActive) && (engine.ending == 2)) {
+            if ((engine.gameActive) && (engine.ending == 2)) {
                 int remainTime = rolltimelimit - rolltime;
-                if(remainTime < 0) remainTime = 0;
+                if (remainTime < 0) remainTime = 0;
                 receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", EventReceiver.COLOR_BLUE);
                 receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(remainTime), ((remainTime > 0) && (remainTime < 10 * 60)));
             }
@@ -986,17 +1103,17 @@ public class PracticeMode extends DummyMode {
             // Score
             receiver.drawScoreFont(engine, playerID, 0, 2, "SCORE", EventReceiver.COLOR_BLUE);
             String strScore = String.valueOf(engine.statistics.score);
-            if((lastscore > 0) && (scgettime < 120)) strScore += "(+" + lastscore + ")";
+            if ((lastscore > 0) && (scgettime < 120)) strScore += "(+" + lastscore + ")";
             receiver.drawScoreFont(engine, playerID, 0, 3, strScore);
 
-            if(leveltype == LEVELTYPE_POINTS) {
+            if (leveltype == LEVELTYPE_POINTS) {
                 // ゴール
                 receiver.drawScoreFont(engine, playerID, 0, 5, "GOAL", EventReceiver.COLOR_BLUE);
                 String strGoal = String.valueOf(goal);
-                if((lastgoal != 0) && (scgettime < 120) && (engine.ending == 0))
+                if ((lastgoal != 0) && (scgettime < 120) && (engine.ending == 0))
                     strGoal += "(-" + String.valueOf(lastgoal) + ")";
                 receiver.drawScoreFont(engine, playerID, 0, 6, strGoal);
-            } else if(leveltype == LEVELTYPE_10LINES) {
+            } else if (leveltype == LEVELTYPE_10LINES) {
                 // Lines( levelタイプが10LINESのとき)
                 receiver.drawScoreFont(engine, playerID, 0, 5, "LINE", EventReceiver.COLOR_BLUE);
                 receiver.drawScoreFont(engine, playerID, 0, 6, engine.statistics.lines + "/" + ((engine.statistics.level + 1) * 10));
@@ -1007,7 +1124,7 @@ public class PracticeMode extends DummyMode {
             }
 
             //  level
-            if(leveltype != LEVELTYPE_NONE) {
+            if (leveltype != LEVELTYPE_NONE) {
                 receiver.drawScoreFont(engine, playerID, 0, 8, "LEVEL", EventReceiver.COLOR_BLUE);
                 receiver.drawScoreFont(engine, playerID, 0, 9, String.valueOf(engine.statistics.level + 1));
             }
@@ -1023,73 +1140,73 @@ public class PracticeMode extends DummyMode {
             // Time
             receiver.drawScoreFont(engine, playerID, 0, 17, "TIME", EventReceiver.COLOR_BLUE);
             int time = engine.statistics.time;
-            if(timelimit > 0) time = timelimitTimer;
-            if(time < 0) time = 0;
+            if (timelimit > 0) time = timelimitTimer;
+            if (time < 0) time = 0;
             int fontcolor = EventReceiver.COLOR_WHITE;
-            if((time < 30 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
-            if((time < 20 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
-            if((time < 10 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_RED;
+            if ((time < 30 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
+            if ((time < 20 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
+            if ((time < 10 * 60) && (time > 0) && (timelimit > 0)) fontcolor = EventReceiver.COLOR_RED;
             receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), fontcolor);
 
             // Roll 残り time
-            if((engine.gameActive) && (engine.ending == 2)) {
+            if ((engine.gameActive) && (engine.ending == 2)) {
                 int remainTime = rolltimelimit - rolltime;
-                if(remainTime < 0) remainTime = 0;
+                if (remainTime < 0) remainTime = 0;
                 receiver.drawScoreFont(engine, playerID, 0, 20, "ROLL TIME", EventReceiver.COLOR_BLUE);
                 receiver.drawScoreFont(engine, playerID, 0, 21, GeneralUtil.getTime(remainTime), ((remainTime > 0) && (remainTime < 10 * 60)));
             }
 
             // Line clear event
-            if((lastevent != EVENT_NONE) && (scgettime < 120)) {
+            if ((lastevent != EVENT_NONE) && (scgettime < 120)) {
                 String strPieceName = Piece.getPieceName(lastpiece);
 
-                switch(lastevent) {
-                case EVENT_SINGLE:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", EventReceiver.COLOR_DARKBLUE);
-                    break;
-                case EVENT_DOUBLE:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", EventReceiver.COLOR_BLUE);
-                    break;
-                case EVENT_TRIPLE:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", EventReceiver.COLOR_GREEN);
-                    break;
-                case EVENT_FOUR:
-                    if(lastb2b) receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_ZERO_MINI:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", EventReceiver.COLOR_PURPLE);
-                    break;
-                case EVENT_TSPIN_ZERO:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", EventReceiver.COLOR_PINK);
-                    break;
-                case EVENT_TSPIN_SINGLE_MINI:
-                    if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_SINGLE:
-                    if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_DOUBLE_MINI:
-                    if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_DOUBLE:
-                    if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_TRIPLE:
-                    if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_EZ:
-                    if(lastb2b) receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE);
-                    break;
+                switch (lastevent) {
+                    case EVENT_SINGLE:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", EventReceiver.COLOR_DARKBLUE);
+                        break;
+                    case EVENT_DOUBLE:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", EventReceiver.COLOR_BLUE);
+                        break;
+                    case EVENT_TRIPLE:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", EventReceiver.COLOR_GREEN);
+                        break;
+                    case EVENT_FOUR:
+                        if (lastb2b) receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_ZERO_MINI:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", EventReceiver.COLOR_PURPLE);
+                        break;
+                    case EVENT_TSPIN_ZERO:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", EventReceiver.COLOR_PINK);
+                        break;
+                    case EVENT_TSPIN_SINGLE_MINI:
+                        if (lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_SINGLE:
+                        if (lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_DOUBLE_MINI:
+                        if (lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_DOUBLE:
+                        if (lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_TRIPLE:
+                        if (lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_EZ:
+                        if (lastb2b) receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE);
+                        break;
                 }
 
-                if((lastcombo >= 2) && (lastevent != EVENT_TSPIN_ZERO_MINI) && (lastevent != EVENT_TSPIN_ZERO))
+                if ((lastcombo >= 2) && (lastevent != EVENT_TSPIN_ZERO_MINI) && (lastevent != EVENT_TSPIN_ZERO))
                     receiver.drawMenuFont(engine, playerID, 2, 22, (lastcombo - 1) + "COMBO", EventReceiver.COLOR_CYAN);
             }
         }
@@ -1102,40 +1219,40 @@ public class PracticeMode extends DummyMode {
     public void onLast(GameEngine engine, int playerID) {
         scgettime++;
 
-        if(engine.gameActive && engine.timerActive) {
+        if (engine.gameActive && engine.timerActive) {
             // Hebo Hidden
             setHeboHidden(engine);
         }
 
-        if((engine.gameActive) && (engine.ending == 2)) {
+        if ((engine.gameActive) && (engine.ending == 2)) {
             // Ending中
             rolltime++;
 
             // Roll 終了
-            if(rolltime >= rolltimelimit) {
+            if (rolltime >= rolltimelimit) {
                 engine.gameEnded();
                 engine.resetStatc();
                 engine.stat = GameEngine.STAT_EXCELLENT;
             }
         } else {
-            if((timelimitTimer > 0) && (engine.timerActive == true)) timelimitTimer--;
+            if ((timelimitTimer > 0) && (engine.timerActive == true)) timelimitTimer--;
 
             // Out of time
-            if((timelimit > 0) && (timelimitTimer <= 0) && (engine.timerActive == true)) {
+            if ((timelimit > 0) && (timelimitTimer <= 0) && (engine.timerActive == true)) {
                 engine.gameEnded();
                 engine.timerActive = false;
                 engine.resetStatc();
-                if(goallv == -1) engine.stat = GameEngine.STAT_ENDINGSTART;
+                if (goallv == -1) engine.stat = GameEngine.STAT_ENDINGSTART;
                 else engine.stat = GameEngine.STAT_GAMEOVER;
             }
 
             // 10秒前からのカウントダウン
-            if((timelimit > 0) && (timelimitTimer <= 10 * 60) && (timelimitTimer % 60 == 0) && (engine.timerActive == true)) {
+            if ((timelimit > 0) && (timelimitTimer <= 10 * 60) && (timelimitTimer % 60 == 0) && (engine.timerActive == true)) {
                 engine.playSE("countdown");
             }
 
             // 5秒前からのBGM fadeout
-            if((timelimit > 0) && (timelimitTimer <= 5 * 60) && (timelimitResetEveryLevel == false) && (engine.timerActive == true)) {
+            if ((timelimit > 0) && (timelimitTimer <= 5 * 60) && (timelimitResetEveryLevel == false) && (engine.timerActive == true)) {
                 owner.bgmStatus.fadesw = true;
             }
         }
@@ -1149,7 +1266,7 @@ public class PracticeMode extends DummyMode {
      */
     @Override
     public boolean onGameOver(GameEngine engine, int playerID) {
-        if((engine.statc[0] == 0) && (engine.gameActive)) {
+        if ((engine.statc[0] == 0) && (engine.gameActive)) {
             secretGrade = engine.field.getSecretGrade();
         }
         return false;
@@ -1161,32 +1278,32 @@ public class PracticeMode extends DummyMode {
     @Override
     public boolean onMove(GameEngine engine, int playerID) {
         // 新規ピース出現時
-        if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
-            if((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) && (!lvupflag)) {
+        if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+            if ((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) && (!lvupflag)) {
                 // Level up
-                if(engine.statistics.level < nextseclv - 1) {
+                if (engine.statistics.level < nextseclv - 1) {
                     engine.statistics.level++;
-                    if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
+                    if ((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
                     setMeter(engine, playerID);
                 }
 
                 // Hard drop bonusInitialization
                 harddropBonus = 0;
             }
-            if( (engine.ending == 0) && (engine.statc[0] > 0) && ((version >= 1) || (engine.holdDisable == false)) ) {
+            if ((engine.ending == 0) && (engine.statc[0] > 0) && ((version >= 1) || (engine.holdDisable == false))) {
                 lvupflag = false;
             }
         }
 
         // Endingスタート
-        if((engine.ending == 2) && (rollstarted == false)) {
+        if ((engine.ending == 2) && (rollstarted == false)) {
             rollstarted = true;
 
-            if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+            if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
                 engine.blockHidden = 300;
                 engine.blockHiddenAnim = true;
 
-                if(leveltype == LEVELTYPE_MANIA)
+                if (leveltype == LEVELTYPE_MANIA)
                     engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
             }
 
@@ -1202,11 +1319,11 @@ public class PracticeMode extends DummyMode {
     @Override
     public boolean onARE(GameEngine engine, int playerID) {
         // 最後の frame
-        if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
-            if((engine.ending == 0) && (engine.statc[0] >= engine.statc[1] - 1) && (!lvupflag)) {
-                if(engine.statistics.level < nextseclv - 1) {
+        if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+            if ((engine.ending == 0) && (engine.statc[0] >= engine.statc[1] - 1) && (!lvupflag)) {
+                if (engine.statistics.level < nextseclv - 1) {
                     engine.statistics.level++;
-                    if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
+                    if ((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
                     setMeter(engine, playerID);
                 }
                 lvupflag = true;
@@ -1222,13 +1339,13 @@ public class PracticeMode extends DummyMode {
     @Override
     public void calcScore(GameEngine engine, int playerID, int lines) {
         // Decrease Hebo Hidden
-        if((engine.heboHiddenEnable) && (lines > 0)) {
+        if ((engine.heboHiddenEnable) && (lines > 0)) {
             engine.heboHiddenTimerNow = 0;
             engine.heboHiddenYNow -= lines;
-            if(engine.heboHiddenYNow < 0) engine.heboHiddenYNow = 0;
+            if (engine.heboHiddenYNow < 0) engine.heboHiddenYNow = 0;
         }
 
-        if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+        if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
             calcScoreMania(engine, playerID, lines);
         } else {
             calcScoreNormal(engine, playerID, lines);
@@ -1236,36 +1353,36 @@ public class PracticeMode extends DummyMode {
     }
 
     /**
-     *  levelタイプがMANIAのときのCalculate score
+     * levelタイプがMANIAのときのCalculate score
      */
     private void calcScoreMania(GameEngine engine, int playerID, int lines) {
         // Combo
-        if(lines == 0) {
+        if (lines == 0) {
             comboValue = 1;
         } else {
             comboValue = comboValue + (2 * lines) - 2;
-            if(comboValue < 1) comboValue = 1;
+            if (comboValue < 1) comboValue = 1;
         }
 
-        if((lines >= 1) && (engine.ending == 0)) {
+        if ((lines >= 1) && (engine.ending == 0)) {
             // Level up
             int levelb = engine.statistics.level;
 
-            if(leveltype == LEVELTYPE_MANIA) {
+            if (leveltype == LEVELTYPE_MANIA) {
                 engine.statistics.level += lines;
             } else {
                 int levelplus = lines;
-                if(lines == 3) levelplus = 4;
-                if(lines >= 4) levelplus = 6;
+                if (lines == 3) levelplus = 4;
+                if (lines >= 4) levelplus = 6;
                 engine.statistics.level += levelplus;
             }
 
-            if((engine.statistics.level >= (goallv + 1) * 100) && (goallv != -1)) {
+            if ((engine.statistics.level >= (goallv + 1) * 100) && (goallv != -1)) {
                 // Ending
                 engine.statistics.level = (goallv + 1) * 100;
                 engine.ending = 1;
                 engine.timerActive = false;
-                if(rolltimelimit == 0) {
+                if (rolltimelimit == 0) {
                     engine.gameEnded();
                     secretGrade = engine.field.getSecretGrade();
                 } else {
@@ -1273,12 +1390,12 @@ public class PracticeMode extends DummyMode {
                     engine.staffrollEnableStatistics = false;
                     engine.staffrollNoDeath = false;
                 }
-            } else if(engine.statistics.level >= nextseclv) {
+            } else if (engine.statistics.level >= nextseclv) {
                 // Next Section
                 engine.playSE("levelup");
 
                 // Background切り替え
-                if(owner.backgroundStatus.bg < 19) {
+                if (owner.backgroundStatus.bg < 19) {
                     owner.backgroundStatus.fadesw = true;
                     owner.backgroundStatus.fadecount = 0;
                     owner.backgroundStatus.fadebg = owner.backgroundStatus.bg + 1;
@@ -1288,46 +1405,46 @@ public class PracticeMode extends DummyMode {
                 nextseclv += 100;
 
                 // 制限 timeリセット
-                if((timelimitResetEveryLevel == true) && (timelimit > 0)) timelimitTimer = timelimit;
-            } else if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) {
+                if ((timelimitResetEveryLevel == true) && (timelimit > 0)) timelimitTimer = timelimit;
+            } else if ((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) {
                 engine.playSE("levelstop");
             }
 
             // Calculate score
-            if(leveltype == LEVELTYPE_MANIA) {
+            if (leveltype == LEVELTYPE_MANIA) {
                 int manuallock = 0;
-                if(engine.manualLock == true) manuallock = 1;
+                if (engine.manualLock == true) manuallock = 1;
 
                 int bravo = 1;
-                if(engine.field.isEmpty()) {
+                if (engine.field.isEmpty()) {
                     bravo = 4;
                     engine.playSE("bravo");
                 }
 
                 int speedBonus = engine.getLockDelay() - engine.statc[0];
-                if(speedBonus < 0) speedBonus = 0;
+                if (speedBonus < 0) speedBonus = 0;
 
-                lastscore = ((levelb + lines)/4 + engine.softdropFall + manuallock + harddropBonus) * lines * comboValue * bravo +
-                            (engine.statistics.level / 2) + (speedBonus * 7);
+                lastscore = ((levelb + lines) / 4 + engine.softdropFall + manuallock + harddropBonus) * lines * comboValue * bravo +
+                    (engine.statistics.level / 2) + (speedBonus * 7);
 
                 engine.statistics.score += lastscore;
                 engine.statistics.scoreFromLineClear += lastscore;
                 scgettime = 0;
             } else {
                 int manuallock = 0;
-                if(engine.manualLock == true) manuallock = 1;
+                if (engine.manualLock == true) manuallock = 1;
 
                 int bravo = 1;
-                if(engine.field.isEmpty()) {
+                if (engine.field.isEmpty()) {
                     bravo = 2;
                     engine.playSE("bravo");
                 }
 
                 int speedBonus = engine.getLockDelay() - engine.statc[0];
-                if(speedBonus < 0) speedBonus = 0;
+                if (speedBonus < 0) speedBonus = 0;
 
-                lastscore = ( ((levelb + lines) / 4 + engine.softdropFall + manuallock + harddropBonus) * lines * comboValue + speedBonus +
-                            (engine.statistics.level / 2) ) * bravo;
+                lastscore = (((levelb + lines) / 4 + engine.softdropFall + manuallock + harddropBonus) * lines * comboValue + speedBonus +
+                    (engine.statistics.level / 2)) * bravo;
 
                 engine.statistics.score += lastscore;
                 engine.statistics.scoreFromLineClear += lastscore;
@@ -1339,17 +1456,17 @@ public class PracticeMode extends DummyMode {
     }
 
     /**
-     *  levelタイプがMANIA系以外のときのCalculate score
+     * levelタイプがMANIA系以外のときのCalculate score
      */
     private void calcScoreNormal(GameEngine engine, int playerID, int lines) {
         // Line clear bonus
         int pts = 0;
         int cmb = 0;
 
-        if(engine.tspin) {
+        if (engine.tspin) {
             // T-Spin 0 lines
-            if((lines == 0) && (!engine.tspinez)) {
-                if(engine.tspinmini) {
+            if ((lines == 0) && (!engine.tspinez)) {
+                if (engine.tspinmini) {
                     pts += 100 * (engine.statistics.level + 1);
                     lastevent = EVENT_TSPIN_ZERO_MINI;
                 } else {
@@ -1358,8 +1475,8 @@ public class PracticeMode extends DummyMode {
                 }
             }
             // Immobile EZ Spin
-            else if(engine.tspinez && (lines > 0)) {
-                if(engine.b2b) {
+            else if (engine.tspinez && (lines > 0)) {
+                if (engine.b2b) {
                     pts += 180 * (engine.statistics.level + 1);
                 } else {
                     pts += 120 * (engine.statistics.level + 1);
@@ -1367,16 +1484,16 @@ public class PracticeMode extends DummyMode {
                 lastevent = EVENT_TSPIN_EZ;
             }
             // T-Spin 1 line
-            else if(lines == 1) {
-                if(engine.tspinmini) {
-                    if(engine.b2b) {
+            else if (lines == 1) {
+                if (engine.tspinmini) {
+                    if (engine.b2b) {
                         pts += 300 * (engine.statistics.level + 1);
                     } else {
                         pts += 200 * (engine.statistics.level + 1);
                     }
                     lastevent = EVENT_TSPIN_SINGLE_MINI;
                 } else {
-                    if(engine.b2b) {
+                    if (engine.b2b) {
                         pts += 1200 * (engine.statistics.level + 1);
                     } else {
                         pts += 800 * (engine.statistics.level + 1);
@@ -1385,16 +1502,16 @@ public class PracticeMode extends DummyMode {
                 }
             }
             // T-Spin 2 lines
-            else if(lines == 2) {
-                if(engine.tspinmini && engine.useAllSpinBonus) {
-                    if(engine.b2b) {
+            else if (lines == 2) {
+                if (engine.tspinmini && engine.useAllSpinBonus) {
+                    if (engine.b2b) {
                         pts += 600 * (engine.statistics.level + 1);
                     } else {
                         pts += 400 * (engine.statistics.level + 1);
                     }
                     lastevent = EVENT_TSPIN_DOUBLE_MINI;
                 } else {
-                    if(engine.b2b) {
+                    if (engine.b2b) {
                         pts += 1800 * (engine.statistics.level + 1);
                     } else {
                         pts += 1200 * (engine.statistics.level + 1);
@@ -1403,8 +1520,8 @@ public class PracticeMode extends DummyMode {
                 }
             }
             // T-Spin 3 lines
-            else if(lines >= 3) {
-                if(engine.b2b) {
+            else if (lines >= 3) {
+                if (engine.b2b) {
                     pts += 2400 * (engine.statistics.level + 1);
                 } else {
                     pts += 1600 * (engine.statistics.level + 1);
@@ -1412,18 +1529,18 @@ public class PracticeMode extends DummyMode {
                 lastevent = EVENT_TSPIN_TRIPLE;
             }
         } else {
-            if(lines == 1) {
+            if (lines == 1) {
                 pts += 100 * (engine.statistics.level + 1); // 1列
                 lastevent = EVENT_SINGLE;
-            } else if(lines == 2) {
+            } else if (lines == 2) {
                 pts += 300 * (engine.statistics.level + 1); // 2列
                 lastevent = EVENT_DOUBLE;
-            } else if(lines == 3) {
+            } else if (lines == 3) {
                 pts += 500 * (engine.statistics.level + 1); // 3列
                 lastevent = EVENT_TRIPLE;
-            } else if(lines >= 4) {
+            } else if (lines >= 4) {
                 // 4 lines
-                if(engine.b2b) {
+                if (engine.b2b) {
                     pts += 1200 * (engine.statistics.level + 1);
                 } else {
                     pts += 800 * (engine.statistics.level + 1);
@@ -1435,47 +1552,46 @@ public class PracticeMode extends DummyMode {
         lastb2b = engine.b2b;
 
         // Combo
-        if((engine.combo >= 1) && (lines >= 1)) {
+        if ((engine.combo >= 1) && (lines >= 1)) {
             cmb += ((engine.combo - 1) * 50) * (engine.statistics.level + 1);
             lastcombo = engine.combo;
         }
 
         // All clear
-        if((lines >= 1) && (engine.field.isEmpty())) {
+        if ((lines >= 1) && (engine.field.isEmpty())) {
             engine.playSE("bravo");
             pts += 1800 * (engine.statistics.level + 1);
         }
 
         // Add to score
-        if((pts > 0) || (cmb > 0)) {
+        if ((pts > 0) || (cmb > 0)) {
             lastpiece = engine.nowPieceObject.id;
             lastscore = pts + cmb;
             scgettime = 0;
-            if(lines >= 1) engine.statistics.scoreFromLineClear += pts;
+            if (lines >= 1) engine.statistics.scoreFromLineClear += pts;
             else engine.statistics.scoreFromOtherBonus += pts;
             engine.statistics.score += pts;
 
             int cmbindex = engine.combo - 1;
-            if(cmbindex < 0) cmbindex = 0;
-            if(cmbindex >= COMBO_GOAL_TABLE.length) cmbindex = COMBO_GOAL_TABLE.length - 1;
+            if (cmbindex < 0) cmbindex = 0;
+            if (cmbindex >= COMBO_GOAL_TABLE.length) cmbindex = COMBO_GOAL_TABLE.length - 1;
             lastgoal = ((pts / 100) / (engine.statistics.level + 1)) + COMBO_GOAL_TABLE[cmbindex];
             goal -= lastgoal;
-            if(goal <= 0) goal = 0;
+            if (goal <= 0) goal = 0;
         }
 
         boolean endingFlag = false; // Ending突入ならtrue
 
-        if( ((leveltype == LEVELTYPE_10LINES) && (engine.statistics.lines >= (engine.statistics.level + 1) * 10)) ||
-            ((leveltype == LEVELTYPE_POINTS) && (goal <= 0)) )
-        {
-            if((engine.statistics.level >= goallv) && (goallv != -1)) {
+        if (((leveltype == LEVELTYPE_10LINES) && (engine.statistics.lines >= (engine.statistics.level + 1) * 10)) ||
+            ((leveltype == LEVELTYPE_POINTS) && (goal <= 0))) {
+            if ((engine.statistics.level >= goallv) && (goallv != -1)) {
                 // Ending
                 endingFlag = true;
             } else {
                 // Level up
                 engine.statistics.level++;
 
-                if(owner.backgroundStatus.bg < 19) {
+                if (owner.backgroundStatus.bg < 19) {
                     owner.backgroundStatus.fadesw = true;
                     owner.backgroundStatus.fadecount = 0;
                     owner.backgroundStatus.fadebg = owner.backgroundStatus.bg + 1;
@@ -1484,22 +1600,22 @@ public class PracticeMode extends DummyMode {
                 goal = 5 * (engine.statistics.level + 1);
 
                 // 制限 timeリセット
-                if((timelimitResetEveryLevel == true) && (timelimit > 0)) timelimitTimer = timelimit;
+                if ((timelimitResetEveryLevel == true) && (timelimit > 0)) timelimitTimer = timelimit;
 
                 engine.playSE("levelup");
             }
         }
 
         // Ending ( levelタイプNONE）
-        if( (version >= 2) && (leveltype == LEVELTYPE_NONE) && (engine.statistics.lines >= goallv + 1) && ((goallv != -1) || (version <= 2)) ) {
+        if ((version >= 2) && (leveltype == LEVELTYPE_NONE) && (engine.statistics.lines >= goallv + 1) && ((goallv != -1) || (version <= 2))) {
             endingFlag = true;
         }
 
         // Ending突入処理
-        if(endingFlag) {
+        if (endingFlag) {
             engine.timerActive = false;
 
-            if(rolltimelimit == 0) {
+            if (rolltimelimit == 0) {
                 engine.ending = 1;
                 engine.gameEnded();
                 secretGrade = engine.field.getSecretGrade();
@@ -1516,52 +1632,53 @@ public class PracticeMode extends DummyMode {
 
     /**
      * Meterの量を更新
+     *
      * @param engine GameEngine
      * @param playerID Player number
      */
     private void setMeter(GameEngine engine, int playerID) {
-        if((engine.gameActive) && (engine.ending == 2)) {
+        if ((engine.gameActive) && (engine.ending == 2)) {
             int remainRollTime = rolltimelimit - rolltime;
             engine.meterValue = (remainRollTime * receiver.getMeterMax(engine)) / rolltimelimit;
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(remainRollTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(remainRollTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(remainRollTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
-        } else if(timelimit > 0) {
+            if (remainRollTime <= 30 * 60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (remainRollTime <= 20 * 60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (remainRollTime <= 10 * 60) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if (timelimit > 0) {
             int remainTime = timelimitTimer;
             engine.meterValue = (remainTime * receiver.getMeterMax(engine)) / timelimit;
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(remainTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(remainTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(remainTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
-        } else if(leveltype == LEVELTYPE_10LINES) {
+            if (remainTime <= 30 * 60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (remainTime <= 20 * 60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (remainTime <= 10 * 60) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if (leveltype == LEVELTYPE_10LINES) {
             engine.meterValue = ((engine.statistics.lines % 10) * receiver.getMeterMax(engine)) / 9;
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(engine.statistics.lines % 10 >= 4) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(engine.statistics.lines % 10 >= 6) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(engine.statistics.lines % 10 >= 8) engine.meterColor = GameEngine.METER_COLOR_RED;
-        } else if(leveltype == LEVELTYPE_POINTS) {
+            if (engine.statistics.lines % 10 >= 4) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (engine.statistics.lines % 10 >= 6) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (engine.statistics.lines % 10 >= 8) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if (leveltype == LEVELTYPE_POINTS) {
             engine.meterValue = (goal * receiver.getMeterMax(engine)) / (5 * (engine.statistics.level + 1));
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(engine.meterValue <= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(engine.meterValue <= receiver.getMeterMax(engine) / 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(engine.meterValue <= receiver.getMeterMax(engine) / 4) engine.meterColor = GameEngine.METER_COLOR_RED;
-        } else if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+            if (engine.meterValue <= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (engine.meterValue <= receiver.getMeterMax(engine) / 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (engine.meterValue <= receiver.getMeterMax(engine) / 4) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
             engine.meterValue = ((engine.statistics.level % 100) * receiver.getMeterMax(engine)) / 99;
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(engine.statistics.level % 100 >= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(engine.statistics.level % 100 >= 80) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(engine.statistics.level == nextseclv - 1) engine.meterColor = GameEngine.METER_COLOR_RED;
-        } else if((leveltype == LEVELTYPE_NONE) && (goallv != -1)) {
+            if (engine.statistics.level % 100 >= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (engine.statistics.level % 100 >= 80) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (engine.statistics.level == nextseclv - 1) engine.meterColor = GameEngine.METER_COLOR_RED;
+        } else if ((leveltype == LEVELTYPE_NONE) && (goallv != -1)) {
             engine.meterValue = ((engine.statistics.lines) * receiver.getMeterMax(engine)) / (goallv + 1);
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(engine.meterValue >= receiver.getMeterMax(engine) / 10) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(engine.meterValue >= receiver.getMeterMax(engine) / 5) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(engine.meterValue >= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_RED;
+            if (engine.meterValue >= receiver.getMeterMax(engine) / 10) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (engine.meterValue >= receiver.getMeterMax(engine) / 5) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (engine.meterValue >= receiver.getMeterMax(engine) / 2) engine.meterColor = GameEngine.METER_COLOR_RED;
         }
 
-        if(engine.meterValue < 0) engine.meterValue = 0;
-        if(engine.meterValue > receiver.getMeterMax(engine)) engine.meterValue = receiver.getMeterMax(engine);
+        if (engine.meterValue < 0) engine.meterValue = 0;
+        if (engine.meterValue > receiver.getMeterMax(engine)) engine.meterValue = receiver.getMeterMax(engine);
     }
 
     /*
@@ -1569,7 +1686,7 @@ public class PracticeMode extends DummyMode {
      */
     @Override
     public void afterSoftDropFall(GameEngine engine, int playerID, int fall) {
-        if((leveltype != LEVELTYPE_MANIA) && (leveltype != LEVELTYPE_MANIAPLUS)) {
+        if ((leveltype != LEVELTYPE_MANIA) && (leveltype != LEVELTYPE_MANIAPLUS)) {
             engine.statistics.scoreFromSoftDrop += fall;
             engine.statistics.score += fall;
         }
@@ -1580,8 +1697,8 @@ public class PracticeMode extends DummyMode {
      */
     @Override
     public void afterHardDropFall(GameEngine engine, int playerID, int fall) {
-        if((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
-            if(fall * 2 > harddropBonus) harddropBonus = fall * 2;
+        if ((leveltype == LEVELTYPE_MANIA) || (leveltype == LEVELTYPE_MANIAPLUS)) {
+            if (fall * 2 > harddropBonus) harddropBonus = fall * 2;
         } else {
             engine.statistics.scoreFromHardDrop += fall * 2;
             engine.statistics.score += fall * 2;
@@ -1594,10 +1711,10 @@ public class PracticeMode extends DummyMode {
     @Override
     public void renderResult(GameEngine engine, int playerID) {
         drawResultStats(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE,
-                STAT_SCORE, STAT_LINES, STAT_LEVEL_ADD_DISP, STAT_TIME, STAT_SPL, STAT_SPM, STAT_LPM);
-        if(secretGrade > 0) {
+            STAT_SCORE, STAT_LINES, STAT_LEVEL_ADD_DISP, STAT_TIME, STAT_SPL, STAT_SPM, STAT_LPM);
+        if (secretGrade > 0) {
             drawResult(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE,
-                    "S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade-1]));
+                "S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade - 1]));
         }
     }
 
@@ -1607,7 +1724,7 @@ public class PracticeMode extends DummyMode {
     @Override
     public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
         engine.owner.replayProp.setProperty("practice.version", version);
-        if(useMap && (fldBackup != null)) {
+        if (useMap && (fldBackup != null)) {
             saveMap(fldBackup, prop, 0);
         }
         savePreset(engine, engine.owner.replayProp, -1);

@@ -41,83 +41,129 @@ import mu.nu.nullpo.util.GeneralUtil;
  * SQUARE Mode
  */
 public class SquareMode extends DummyMode {
-    /** Current version */
+    /**
+     * Current version
+     */
     private static final int CURRENT_VERSION = 1;
 
     public int[] tableGravityChangeScore =
-    {
-        150, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2500, 4000, 5000
-    };
+        {
+            150, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2500, 4000, 5000
+        };
 
     public int[] tableGravityValue =
-    {
-        1, 2, 3, 4, 6, 8, 10, 20, 30, 60, 120, 180, 300, -1
-    };
+        {
+            1, 2, 3, 4, 6, 8, 10, 20, 30, 60, 120, 180, 300, -1
+        };
 
-    /** Number of ranking records */
+    /**
+     * Number of ranking records
+     */
     private static final int RANKING_MAX = 10;
 
-    /** Number of ranking types */
+    /**
+     * Number of ranking types
+     */
     private static final int RANKING_TYPE = 3;
 
-    /** Name of game types */
-    private static final String[] GAMETYPE_NAME = {"MARATHON","ULTRA","SPRINT"};
+    /**
+     * Name of game types
+     */
+    private static final String[] GAMETYPE_NAME = { "MARATHON", "ULTRA", "SPRINT" };
 
-    /** Number of game types */
+    /**
+     * Number of game types
+     */
     private static final int GAMETYPE_MAX = 3;
 
-    /** Max time in Ultra */
+    /**
+     * Max time in Ultra
+     */
     private static final int ULTRA_MAX_TIME = 10800;
 
-    /** Max score in Sprint */
+    /**
+     * Max score in Sprint
+     */
     private static final int SPRINT_MAX_SCORE = 150;
 
-    /** GameManager object (Manages entire game status) */
+    /**
+     * GameManager object (Manages entire game status)
+     */
     private GameManager owner;
 
-    /** EventReceiver object (This receives many game events, can also be used for drawing the fonts.) */
+    /**
+     * EventReceiver object (This receives many game events, can also be used for drawing the fonts.)
+     */
     private EventReceiver receiver;
 
-    /** Current gravity number (When the point reaches tableGravityChangeScore's value, this variable will increase) */
+    /**
+     * Current gravity number (When the point reaches tableGravityChangeScore's value, this variable will increase)
+     */
     private int gravityindex;
 
-    /** Amount of points you just get from line clears */
+    /**
+     * Amount of points you just get from line clears
+     */
     private int lastscore;
 
-    /** Elapsed time from last line clear (lastscore is displayed to screen until this reaches to 120) */
+    /**
+     * Elapsed time from last line clear (lastscore is displayed to screen until this reaches to 120)
+     */
     private int scgettime;
 
-    /** Number of squares created */
+    /**
+     * Number of squares created
+     */
     private int squares;
 
-    /** Selected game type */
+    /**
+     * Selected game type
+     */
     private int gametype;
 
-    /** Outline type */
+    /**
+     * Outline type
+     */
     private int outlinetype;
 
-    /** Type of spins allowed (0=off 1=t-only 2=all) */
+    /**
+     * Type of spins allowed (0=off 1=t-only 2=all)
+     */
     private int tspinEnableType;
 
-    /** Use TNT64 avalanche (native+cascade) */
+    /**
+     * Use TNT64 avalanche (native+cascade)
+     */
     private boolean tntAvalanche;
 
-    /** Grayout broken blocks */
+    /**
+     * Grayout broken blocks
+     */
     private int grayoutEnable;
 
-    /** Version number */
+    /**
+     * Version number
+     */
     private int version;
 
-    /** Your place on leaderboard (-1: out of rank) */
+    /**
+     * Your place on leaderboard (-1: out of rank)
+     */
     private int rankingRank;
 
-    /** Score records */
+    /**
+     * Score records
+     */
     private int[][] rankingScore;
 
-    /** Time records */
+    /**
+     * Time records
+     */
     private int[][] rankingTime;
 
-    /** Squares records */
+    /**
+     * Squares records
+     */
     private int[][] rankingSquares;
 
     /*
@@ -148,7 +194,7 @@ public class SquareMode extends DummyMode {
         rankingTime = new int[RANKING_TYPE][RANKING_MAX];
         rankingSquares = new int[RANKING_TYPE][RANKING_MAX];
 
-        if(owner.replayMode == false) {
+        if (owner.replayMode == false) {
             loadSetting(owner.modeConfig);
             loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
             version = CURRENT_VERSION;
@@ -161,6 +207,7 @@ public class SquareMode extends DummyMode {
 
     /**
      * Set the gravity speed
+     *
      * @param engine GameEngine
      */
     public void setSpeed(GameEngine engine) {
@@ -169,7 +216,7 @@ public class SquareMode extends DummyMode {
             if (speedlv < 0) speedlv = 0;
             if (speedlv > 5000) speedlv = 5000;
 
-            while(speedlv >= tableGravityChangeScore[gravityindex]) gravityindex++;
+            while (speedlv >= tableGravityChangeScore[gravityindex]) gravityindex++;
             engine.speed.gravity = tableGravityValue[gravityindex];
         } else {
             engine.speed.gravity = 1;
@@ -183,42 +230,42 @@ public class SquareMode extends DummyMode {
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
         // Main menu
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             // Configuration changes
             int change = updateCursor(engine, 4);
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
-                switch(engine.statc[2]) {
-                case 0:
-                    gametype += change;
-                    if(gametype < 0) gametype = GAMETYPE_MAX - 1;
-                    if(gametype > GAMETYPE_MAX - 1) gametype = 0;
-                    break;
-                case 1:
-                    outlinetype += change;
-                    if(outlinetype < 0) outlinetype = 2;
-                    if(outlinetype > 2) outlinetype = 0;
-                    break;
-                case 2:
-                    tspinEnableType += change;
-                    if(tspinEnableType < 0) tspinEnableType = 2;
-                    if(tspinEnableType > 2) tspinEnableType = 0;
-                    break;
-                case 3:
-                    tntAvalanche = !tntAvalanche;
-                    break;
-                case 4:
-                    grayoutEnable += change;
-                    if(grayoutEnable < 0) grayoutEnable = 2;
-                    if(grayoutEnable > 2) grayoutEnable = 0;
-                    break;
+                switch (engine.statc[2]) {
+                    case 0:
+                        gametype += change;
+                        if (gametype < 0) gametype = GAMETYPE_MAX - 1;
+                        if (gametype > GAMETYPE_MAX - 1) gametype = 0;
+                        break;
+                    case 1:
+                        outlinetype += change;
+                        if (outlinetype < 0) outlinetype = 2;
+                        if (outlinetype > 2) outlinetype = 0;
+                        break;
+                    case 2:
+                        tspinEnableType += change;
+                        if (tspinEnableType < 0) tspinEnableType = 2;
+                        if (tspinEnableType > 2) tspinEnableType = 0;
+                        break;
+                    case 3:
+                        tntAvalanche = !tntAvalanche;
+                        break;
+                    case 4:
+                        grayoutEnable += change;
+                        if (grayoutEnable < 0) grayoutEnable = 2;
+                        if (grayoutEnable > 2) grayoutEnable = 0;
+                        break;
                 }
             }
 
             // A button (confirm)
-            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
                 engine.playSE("decide");
                 saveSetting(owner.modeConfig);
                 receiver.saveModeConfig(owner.modeConfig);
@@ -226,7 +273,7 @@ public class SquareMode extends DummyMode {
             }
 
             // B button (cancel)
-            if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.quitflag = true;
             }
 
@@ -235,7 +282,7 @@ public class SquareMode extends DummyMode {
             engine.statc[3]++;
             engine.statc[2] = -1;
 
-            if(engine.statc[3] >= 60) {
+            if (engine.statc[3] >= 60) {
                 return false;
             }
         }
@@ -249,23 +296,23 @@ public class SquareMode extends DummyMode {
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
         String strOutline = "";
-        if(outlinetype == 0) strOutline = "NORMAL";
-        if(outlinetype == 1) strOutline = "CONNECT";
-        if(outlinetype == 2) strOutline = "NONE";
+        if (outlinetype == 0) strOutline = "NORMAL";
+        if (outlinetype == 1) strOutline = "CONNECT";
+        if (outlinetype == 2) strOutline = "NONE";
         String strTSpinEnable = "";
-        if(tspinEnableType == 0) strTSpinEnable = "OFF";
-        if(tspinEnableType == 1) strTSpinEnable = "T-ONLY";
-        if(tspinEnableType == 2) strTSpinEnable = "ALL";
+        if (tspinEnableType == 0) strTSpinEnable = "OFF";
+        if (tspinEnableType == 1) strTSpinEnable = "T-ONLY";
+        if (tspinEnableType == 2) strTSpinEnable = "ALL";
         String grayoutStr = "";
-        if(grayoutEnable == 0) grayoutStr = "OFF";
-        if(grayoutEnable == 1) grayoutStr = "SPIN ONLY";
-        if(grayoutEnable == 2) grayoutStr = "ALL";
+        if (grayoutEnable == 0) grayoutStr = "OFF";
+        if (grayoutEnable == 1) grayoutStr = "SPIN ONLY";
+        if (grayoutEnable == 2) grayoutStr = "ALL";
         drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-                "GAME TYPE", GAMETYPE_NAME[gametype],
-                "OUTLINE", strOutline,
-                "AVALANCHE", strTSpinEnable,
-                "AVALANCHE", tntAvalanche ? "TNT" : "WORLDS",
-                "GRAYOUT", grayoutStr);
+            "GAME TYPE", GAMETYPE_NAME[gametype],
+            "OUTLINE", strOutline,
+            "AVALANCHE", strTSpinEnable,
+            "AVALANCHE", tntAvalanche ? "TNT" : "WORLDS",
+            "GRAYOUT", grayoutStr);
     }
 
     /*
@@ -275,13 +322,13 @@ public class SquareMode extends DummyMode {
     public void startGame(GameEngine engine, int playerID) {
         engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
 
-        if(outlinetype == 0) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
-        if(outlinetype == 1) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
-        if(outlinetype == 2) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
+        if (outlinetype == 0) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
+        if (outlinetype == 1) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
+        if (outlinetype == 2) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
 
-        if(tspinEnableType == 0) {
+        if (tspinEnableType == 0) {
             engine.tspinEnable = false;
-        } else if(tspinEnableType == 1) {
+        } else if (tspinEnableType == 1) {
             engine.tspinEnable = true;
         } else {
             engine.tspinEnable = true;
@@ -311,27 +358,27 @@ public class SquareMode extends DummyMode {
      */
     @Override
     public void renderLast(GameEngine engine, int playerID) {
-        receiver.drawScoreFont(engine, playerID, 0, 0, "SQUARE ("+GAMETYPE_NAME[gametype]+")", EventReceiver.COLOR_DARKBLUE);
+        receiver.drawScoreFont(engine, playerID, 0, 0, "SQUARE (" + GAMETYPE_NAME[gametype] + ")", EventReceiver.COLOR_DARKBLUE);
 
-        if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
-            if((owner.replayMode == false) && (engine.ai == null)) {
+        if ((engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false))) {
+            if ((owner.replayMode == false) && (engine.ai == null)) {
                 float scale = ((receiver.getNextDisplayType() == 2) && (gametype == 0)) ? 0.5f : 1.0f;
                 int topY = ((receiver.getNextDisplayType() == 2) && (gametype == 0)) ? 6 : 4;
 
                 if (gametype == 0) {
-                    receiver.drawScoreFont(engine, playerID, 3, topY-1, "SCORE SQUARE TIME", EventReceiver.COLOR_BLUE, scale);
+                    receiver.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE SQUARE TIME", EventReceiver.COLOR_BLUE, scale);
                 } else if (gametype == 1) {
                     receiver.drawScoreFont(engine, playerID, 3, 3, "SCORE SQUARE", EventReceiver.COLOR_BLUE);
                 } else if (gametype == 2) {
                     receiver.drawScoreFont(engine, playerID, 3, 3, "TIME     SQUARE", EventReceiver.COLOR_BLUE);
                 }
 
-                for(int i = 0; i < RANKING_MAX; i++) {
-                    receiver.drawScoreFont(engine, playerID, 0, topY+i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
+                for (int i = 0; i < RANKING_MAX; i++) {
+                    receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
                     if (gametype == 0) {
-                        receiver.drawScoreFont(engine, playerID, 3, topY+i, String.valueOf(rankingScore[gametype][i]), (i == rankingRank), scale);
-                        receiver.drawScoreFont(engine, playerID, 9, topY+i, String.valueOf(rankingSquares[gametype][i]), (i == rankingRank), scale);
-                        receiver.drawScoreFont(engine, playerID, 16, topY+i, GeneralUtil.getTime(rankingTime[gametype][i]), (i == rankingRank), scale);
+                        receiver.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[gametype][i]), (i == rankingRank), scale);
+                        receiver.drawScoreFont(engine, playerID, 9, topY + i, String.valueOf(rankingSquares[gametype][i]), (i == rankingRank), scale);
+                        receiver.drawScoreFont(engine, playerID, 16, topY + i, GeneralUtil.getTime(rankingTime[gametype][i]), (i == rankingRank), scale);
                     } else if (gametype == 1) {
                         receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[gametype][i]), (i == rankingRank));
                         receiver.drawScoreFont(engine, playerID, 9, 4 + i, String.valueOf(rankingSquares[gametype][i]), (i == rankingRank));
@@ -344,7 +391,7 @@ public class SquareMode extends DummyMode {
         } else {
             receiver.drawScoreFont(engine, playerID, 0, 3, "SCORE", EventReceiver.COLOR_BLUE);
             String strScore;
-            if((lastscore == 0) || (scgettime <= 0)) {
+            if ((lastscore == 0) || (scgettime <= 0)) {
                 strScore = String.valueOf(engine.statistics.score);
             } else {
                 strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
@@ -358,14 +405,14 @@ public class SquareMode extends DummyMode {
             receiver.drawScoreFont(engine, playerID, 0, 10, String.valueOf(squares));
 
             receiver.drawScoreFont(engine, playerID, 0, 12, "TIME", EventReceiver.COLOR_BLUE);
-            if(gametype == 1) {
+            if (gametype == 1) {
                 // Ultra timer
                 int time = ULTRA_MAX_TIME - engine.statistics.time;
-                if(time < 0) time = 0;
+                if (time < 0) time = 0;
                 int fontcolor = EventReceiver.COLOR_WHITE;
-                if((time < 30 * 60) && (time > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
-                if((time < 20 * 60) && (time > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
-                if((time < 10 * 60) && (time > 0)) fontcolor = EventReceiver.COLOR_RED;
+                if ((time < 30 * 60) && (time > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
+                if ((time < 20 * 60) && (time > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
+                if ((time < 10 * 60) && (time > 0)) fontcolor = EventReceiver.COLOR_RED;
                 receiver.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(time), fontcolor);
             } else {
                 // Normal timer
@@ -386,22 +433,22 @@ public class SquareMode extends DummyMode {
             // Timer meter
             engine.meterValue = (remainTime * receiver.getMeterMax(engine)) / ULTRA_MAX_TIME;
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(remainTime <= 3600) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(remainTime <= 1800) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(remainTime <= 600) engine.meterColor = GameEngine.METER_COLOR_RED;
+            if (remainTime <= 3600) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (remainTime <= 1800) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (remainTime <= 600) engine.meterColor = GameEngine.METER_COLOR_RED;
 
             // Countdown
-            if((remainTime > 0) && (remainTime <= 10 * 60) && (engine.statistics.time % 60 == 0) && (engine.timerActive == true)) {
+            if ((remainTime > 0) && (remainTime <= 10 * 60) && (engine.statistics.time % 60 == 0) && (engine.timerActive == true)) {
                 engine.playSE("countdown");
             }
 
             // BGM fadeout
-            if((remainTime <= 5 * 60) && (engine.timerActive == true)) {
+            if ((remainTime <= 5 * 60) && (engine.timerActive == true)) {
                 owner.bgmStatus.fadesw = true;
             }
 
             // Time up!
-            if((engine.statistics.time >= ULTRA_MAX_TIME) && (engine.timerActive == true)) {
+            if ((engine.statistics.time >= ULTRA_MAX_TIME) && (engine.timerActive == true)) {
                 engine.gameEnded();
                 engine.resetStatc();
                 engine.stat = GameEngine.STAT_ENDINGSTART;
@@ -409,15 +456,15 @@ public class SquareMode extends DummyMode {
             }
         } else if (gametype == 2) {
             int remainScore = SPRINT_MAX_SCORE - engine.statistics.score;
-            if(engine.timerActive == false) remainScore = 0;
+            if (engine.timerActive == false) remainScore = 0;
             engine.meterValue = (remainScore * receiver.getMeterMax(engine)) / SPRINT_MAX_SCORE;
             engine.meterColor = GameEngine.METER_COLOR_GREEN;
-            if(remainScore <= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-            if(remainScore <= 30) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-            if(remainScore <= 10) engine.meterColor = GameEngine.METER_COLOR_RED;
+            if (remainScore <= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+            if (remainScore <= 30) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+            if (remainScore <= 10) engine.meterColor = GameEngine.METER_COLOR_RED;
 
             // Goal
-            if((engine.statistics.score >= SPRINT_MAX_SCORE) && (engine.timerActive == true)) {
+            if ((engine.statistics.score >= SPRINT_MAX_SCORE) && (engine.timerActive == true)) {
                 engine.gameEnded();
                 engine.resetStatc();
                 engine.stat = GameEngine.STAT_ENDINGSTART;
@@ -430,21 +477,22 @@ public class SquareMode extends DummyMode {
      */
     @Override
     public boolean onLineClear(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 1) {
-            if(grayoutEnable == 2) grayoutBrokenBlocks(engine.field);
+        if (engine.statc[0] == 1) {
+            if (grayoutEnable == 2) grayoutBrokenBlocks(engine.field);
         }
         return false;
     }
 
     /**
      * Make all broken blocks gray.
+     *
      * @param field Field
      */
     private void grayoutBrokenBlocks(Field field) {
-        for(int i = (field.getHiddenHeight() * -1); i < field.getHeightWithoutHurryupFloor(); i++) {
-            for(int j = 0; j < field.getWidth(); j++) {
+        for (int i = (field.getHiddenHeight() * -1); i < field.getHeightWithoutHurryupFloor(); i++) {
+            for (int j = 0; j < field.getWidth(); j++) {
                 Block blk = field.getBlock(j, i);
-                if((blk != null) && !blk.isEmpty() && blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)) {
+                if ((blk != null) && !blk.isEmpty() && blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)) {
                     blk.color = Block.BLOCK_COLOR_GRAY;
                 }
             }
@@ -475,11 +523,11 @@ public class SquareMode extends DummyMode {
             }
 
             if (lines > 3) {
-                pts = 3 + (lines - 3)*2;
+                pts = 3 + (lines - 3) * 2;
             }
 
             int[] squareClears = engine.field.getHowManySquareClears();
-            pts += 10*squareClears[0]+5*squareClears[1];
+            pts += 10 * squareClears[0] + 5 * squareClears[1];
 
             lastscore = pts;
             scgettime = 120;
@@ -492,6 +540,7 @@ public class SquareMode extends DummyMode {
 
     /**
      * Spin avalanche routine.
+     *
      * @param engine GameEngine
      * @param playerID Player ID
      * @param lines Number of lines cleared
@@ -502,28 +551,26 @@ public class SquareMode extends DummyMode {
 
         int hiddenHeight = field.getHiddenHeight();
         int height = field.getHeight();
-        boolean[] affectY = new boolean[height+hiddenHeight];
+        boolean[] affectY = new boolean[height + hiddenHeight];
         for (int i = 0; i < affectY.length; i++)
             affectY[i] = false;
-        int minY = engine.nowPieceObject.getMinimumBlockY()+engine.nowPieceY;
+        int minY = engine.nowPieceObject.getMinimumBlockY() + engine.nowPieceY;
         if (field.getLineFlag(minY))
-            for (int i = minY+hiddenHeight; i >= 0; i--)
+            for (int i = minY + hiddenHeight; i >= 0; i--)
                 affectY[i] = true;
 
-        int testY = minY+1;
+        int testY = minY + 1;
 
         while (!field.getLineFlag(testY) && testY < height)
             testY++;
-        for (int y = testY+hiddenHeight; y < affectY.length; y++)
+        for (int y = testY + hiddenHeight; y < affectY.length; y++)
             affectY[y] = true;
 
-        for (int y = (hiddenHeight * -1); y < height; y++)
-        {
-            if (affectY[y+hiddenHeight])
-            {
-                for(int x = 0; x < field.getWidth(); x++) {
+        for (int y = (hiddenHeight * -1); y < height; y++) {
+            if (affectY[y + hiddenHeight]) {
+                for (int x = 0; x < field.getWidth(); x++) {
                     Block blk = field.getBlock(x, y);
-                    if((blk != null) && !blk.isEmpty()) {
+                    if ((blk != null) && !blk.isEmpty()) {
                         // Change each affected block to broken and garbage, and break connections.
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
@@ -531,20 +578,18 @@ public class SquareMode extends DummyMode {
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-                        if(grayoutEnable != 0) blk.color = Block.BLOCK_COLOR_GRAY;
+                        if (grayoutEnable != 0) blk.color = Block.BLOCK_COLOR_GRAY;
                     }
                 }
-            }
-            else if(tntAvalanche)
-            {
+            } else if (tntAvalanche) {
                 // Set anti-gravity when TNT avalanche is used
-                for(int x = 0; x < field.getWidth(); x++) {
+                for (int x = 0; x < field.getWidth(); x++) {
                     Block blk = field.getBlock(x, y);
-                    if((blk != null) && !blk.isEmpty()) {
+                    if ((blk != null) && !blk.isEmpty()) {
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
                     }
-                    blk = field.getBlock(x, y-1);
-                    if((blk != null) && !blk.isEmpty()) {
+                    blk = field.getBlock(x, y - 1);
+                    if ((blk != null) && !blk.isEmpty()) {
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
                     }
                 }
@@ -559,6 +604,7 @@ public class SquareMode extends DummyMode {
 
     /**
      * Old T-Spin avalanche routine.
+     *
      * @param engine GameEngine
      * @param playerID Player ID
      * @param lines Number of lines cleared
@@ -570,17 +616,17 @@ public class SquareMode extends DummyMode {
 
         // This sets the highest line that will be affected by the avalanche.
         int topLine = field.getHiddenHeight() * -1;
-        if(lines == 1) {
-            for(int i = (field.getHiddenHeight() * -1); i < field.getHeightWithoutHurryupFloor(); i++) {
-                if(field.getLineFlag(i)) {
+        if (lines == 1) {
+            for (int i = (field.getHiddenHeight() * -1); i < field.getHeightWithoutHurryupFloor(); i++) {
+                if (field.getLineFlag(i)) {
                     // Found a line
                     topLine = i + 1;
                     break;
-                } else if(tntAvalanche) {
+                } else if (tntAvalanche) {
                     // Set anti-gravity when TNT avalanche is used
-                    for(int j = 0; j < field.getWidth(); j++) {
+                    for (int j = 0; j < field.getWidth(); j++) {
                         Block blk = field.getBlock(j, i);
-                        if((blk != null) && !blk.isEmpty()) {
+                        if ((blk != null) && !blk.isEmpty()) {
                             blk.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
                         }
                     }
@@ -588,12 +634,12 @@ public class SquareMode extends DummyMode {
             }
         }
 
-        for(int i = (field.getHeightWithoutHurryupFloor() - 1); i >= topLine; i--) {
+        for (int i = (field.getHeightWithoutHurryupFloor() - 1); i >= topLine; i--) {
             // There can be lines cleared underneath, in case of a spin hurdle or such.
-            if(!field.getLineFlag(i)) {
-                for(int j = 0; j < field.getWidth(); j++) {
+            if (!field.getLineFlag(i)) {
+                for (int j = 0; j < field.getWidth(); j++) {
                     Block blk = field.getBlock(j, i);
-                    if((blk != null) && !blk.isEmpty()) {
+                    if ((blk != null) && !blk.isEmpty()) {
                         // Change each affected block to broken and garbage, and break connections.
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
@@ -601,7 +647,7 @@ public class SquareMode extends DummyMode {
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
                         blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-                        if(grayoutEnable != 0) blk.color = Block.BLOCK_COLOR_GRAY;
+                        if (grayoutEnable != 0) blk.color = Block.BLOCK_COLOR_GRAY;
                     }
                 }
             }
@@ -616,10 +662,10 @@ public class SquareMode extends DummyMode {
      */
     @Override
     public boolean lineClearEnd(GameEngine engine, int playerID) {
-        if((engine.lineGravityType == GameEngine.LINE_GRAVITY_CASCADE) && (engine.lineGravityTotalLines > 0) && (tntAvalanche)) {
+        if ((engine.lineGravityType == GameEngine.LINE_GRAVITY_CASCADE) && (engine.lineGravityTotalLines > 0) && (tntAvalanche)) {
             Field field = engine.field;
-            for(int i = field.getHeightWithoutHurryupFloor() - 1; i >= (field.getHiddenHeight() * -1); i--) {
-                if(field.isEmptyLine(i)) {
+            for (int i = field.getHeightWithoutHurryupFloor() - 1; i >= (field.getHiddenHeight() * -1); i--) {
+                if (field.isEmptyLine(i)) {
                     field.cutLine(i, 1);
                     engine.lineGravityTotalLines--;
                     return true;
@@ -636,8 +682,8 @@ public class SquareMode extends DummyMode {
     public void pieceLocked(GameEngine engine, int playerID, int lines) {
         int[] sq = engine.field.checkForSquares();
         squares += sq[0] + sq[1];
-        if(sq[0] == 0 && sq[1] > 0) engine.playSE("square_s");
-        else if(sq[0] > 0) engine.playSE("square_g");
+        if (sq[0] == 0 && sq[1] > 0) engine.playSE("square_s");
+        else if (sq[0] > 0) engine.playSE("square_g");
     }
 
     /*
@@ -645,13 +691,13 @@ public class SquareMode extends DummyMode {
      */
     @Override
     public void renderResult(GameEngine engine, int playerID) {
-        receiver.drawMenuFont(engine, playerID,  0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
+        receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", EventReceiver.COLOR_ORANGE);
 
         drawResult(engine, playerID, receiver, 3, EventReceiver.COLOR_BLUE,
-                "SCORE", String.format("%10d", engine.statistics.score),
-                "LINE", String.format("%10d", engine.statistics.lines),
-                "SQUARE", String.format("%10d", squares),
-                "TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+            "SCORE", String.format("%10d", engine.statistics.score),
+            "LINE", String.format("%10d", engine.statistics.lines),
+            "SQUARE", String.format("%10d", squares),
+            "TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
         drawResultRank(engine, playerID, receiver, 11, EventReceiver.COLOR_BLUE, rankingRank);
     }
 
@@ -664,10 +710,10 @@ public class SquareMode extends DummyMode {
         prop.setProperty("square.squares", squares);
 
         // Update the ranking
-        if((owner.replayMode == false) && (engine.ai == null)) {
+        if ((owner.replayMode == false) && (engine.ai == null)) {
             updateRanking(engine.statistics.score, engine.statistics.time, squares, gametype);
 
-            if(rankingRank != -1) {
+            if (rankingRank != -1) {
                 saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
                 receiver.saveModeConfig(owner.modeConfig);
             }
@@ -676,6 +722,7 @@ public class SquareMode extends DummyMode {
 
     /**
      * Load the settings from CustomProperties
+     *
      * @param prop CustomProperties to read
      */
     private void loadSetting(CustomProperties prop) {
@@ -692,6 +739,7 @@ public class SquareMode extends DummyMode {
 
     /**
      * Save the settings to CustomProperties
+     *
      * @param prop CustomProperties to write
      */
     private void saveSetting(CustomProperties prop) {
@@ -705,12 +753,13 @@ public class SquareMode extends DummyMode {
 
     /**
      * Load the ranking from CustomProperties
+     *
      * @param prop CustomProperties to read
      * @param ruleName Rule name
      */
     private void loadRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            for(int j = 0; j < GAMETYPE_MAX; j++) {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            for (int j = 0; j < GAMETYPE_MAX; j++) {
                 rankingScore[j][i] = prop.getProperty("square.ranking." + ruleName + "." + j + ".score." + i, 0);
                 rankingTime[j][i] = prop.getProperty("square.ranking." + ruleName + "." + j + ".time." + i, -1);
                 rankingSquares[j][i] = prop.getProperty("square.ranking." + ruleName + "." + j + ".squares." + i, 0);
@@ -720,12 +769,13 @@ public class SquareMode extends DummyMode {
 
     /**
      * Save the ranking to CustomProperties
+     *
      * @param prop CustomProperties to write
      * @param ruleName Rule name
      */
     private void saveRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            for(int j = 0; j < GAMETYPE_MAX; j++) {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            for (int j = 0; j < GAMETYPE_MAX; j++) {
                 prop.setProperty("square.ranking." + ruleName + "." + j + ".score." + i, rankingScore[j][i]);
                 prop.setProperty("square.ranking." + ruleName + "." + j + ".time." + i, rankingTime[j][i]);
                 prop.setProperty("square.ranking." + ruleName + "." + j + ".squares." + i, rankingSquares[j][i]);
@@ -735,6 +785,7 @@ public class SquareMode extends DummyMode {
 
     /**
      * Update the ranking
+     *
      * @param sc Score
      * @param time Time
      * @param sq Squares
@@ -743,9 +794,9 @@ public class SquareMode extends DummyMode {
     private void updateRanking(int sc, int time, int sq, int type) {
         rankingRank = checkRanking(sc, time, sq, type);
 
-        if(rankingRank != -1) {
+        if (rankingRank != -1) {
             // Shift the old records
-            for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+            for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
                 rankingScore[type][i] = rankingScore[type][i - 1];
                 rankingTime[type][i] = rankingTime[type][i - 1];
                 rankingSquares[type][i] = rankingSquares[type][i - 1];
@@ -760,6 +811,7 @@ public class SquareMode extends DummyMode {
 
     /**
      * This function will check the ranking and returns which place you are. (-1: Out of rank)
+     *
      * @param sc Score
      * @param time Time
      * @param sq Squares
@@ -767,28 +819,28 @@ public class SquareMode extends DummyMode {
      * @return Place (-1: Out of rank)
      */
     private int checkRanking(int sc, int time, int sq, int type) {
-        for(int i = 0; i < RANKING_MAX; i++) {
+        for (int i = 0; i < RANKING_MAX; i++) {
             if (gametype == 0) {
                 // Marathon
-                if(sc > rankingScore[type][i]) {
+                if (sc > rankingScore[type][i]) {
                     return i;
-                } else if((sc == rankingScore[type][i]) && (sq > rankingSquares[type][i])) {
+                } else if ((sc == rankingScore[type][i]) && (sq > rankingSquares[type][i])) {
                     return i;
-                } else if((sc == rankingScore[type][i]) && (sq == rankingSquares[type][i]) && (time < rankingTime[type][i])) {
+                } else if ((sc == rankingScore[type][i]) && (sq == rankingSquares[type][i]) && (time < rankingTime[type][i])) {
                     return i;
                 }
             } else if (gametype == 1 && time >= ULTRA_MAX_TIME) {
                 // Ultra
-                if(sc > rankingScore[type][i]) {
+                if (sc > rankingScore[type][i]) {
                     return i;
-                } else if((sc == rankingScore[type][i]) && (sq > rankingSquares[type][i])) {
+                } else if ((sc == rankingScore[type][i]) && (sq > rankingSquares[type][i])) {
                     return i;
                 }
             } else if (gametype == 2 && sc >= SPRINT_MAX_SCORE) {
                 // Sprint
-                if((time < rankingTime[type][i]) || (rankingTime[type][i] < 0)) {
+                if ((time < rankingTime[type][i]) || (rankingTime[type][i] < 0)) {
                     return i;
-                } else if((time == rankingTime[type][i]) && (sq > rankingSquares[type][i])) {
+                } else if ((time == rankingTime[type][i]) && (sq > rankingSquares[type][i])) {
                     return i;
                 }
             }

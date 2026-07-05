@@ -38,16 +38,24 @@ import org.newdawn.slick.Sound;
  * Sound effectsマネージャ
  */
 public class SoundManager {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(SoundManager.class);
 
-    /** 登録できるWAVE file のMaximumcount */
+    /**
+     * 登録できるWAVE file のMaximumcount
+     */
     protected int maxClips;
 
-    /** WAVE file  data (Name-> data本体) */
+    /**
+     * WAVE file  data (Name-> data本体)
+     */
     protected HashMap<String, Sound> clipMap;
 
-    /** 登録されたWAVE file count */
+    /**
+     * 登録されたWAVE file count
+     */
     protected int counter = 0;
 
     /**
@@ -59,6 +67,7 @@ public class SoundManager {
 
     /**
      * Constructor
+     *
      * @param maxClips 登録できるWAVE file のMaximumcount
      */
     public SoundManager(int maxClips) {
@@ -68,12 +77,13 @@ public class SoundManager {
 
     /**
      * Load WAVE file
+     *
      * @param name 登録名
      * @param filename Filename (String）
      * @return true if successful, false if failed
      */
     public boolean load(String name, String filename) {
-        if(counter >= maxClips) {
+        if (counter >= maxClips) {
             log.error("No more wav files can be loaded (" + maxClips + ")");
             return false;
         }
@@ -81,7 +91,7 @@ public class SoundManager {
         try {
             Sound clip = new Sound(filename);
             clipMap.put(name, clip);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             log.error("Failed to load wav file", e);
             return false;
         }
@@ -91,12 +101,13 @@ public class SoundManager {
 
     /**
      * Load WAVE file
+     *
      * @param name 登録名
      * @param fileurl Filename (URL）
      * @return true if successful, false if failed
      */
     public boolean load(String name, URL fileurl) {
-        if(counter >= maxClips) {
+        if (counter >= maxClips) {
             log.error("No more wav files can be loaded (" + maxClips + ")");
             return false;
         }
@@ -104,7 +115,7 @@ public class SoundManager {
         try {
             Sound clip = new Sound(fileurl);
             clipMap.put(name, clip);
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             log.error("Failed to load wav file", e);
             return false;
         }
@@ -114,25 +125,27 @@ public class SoundManager {
 
     /**
      * 再生
+     *
      * @param name 登録名
      */
     public void play(String name) {
         // Nameに対応するクリップを取得
         Sound clip = clipMap.get(name);
 
-        if(clip != null) {
+        if (clip != null) {
             clip.play();
         }
     }
 
     /**
      * 停止
+     *
      * @param name 登録名
      */
     public void stop(String name) {
         Sound clip = clipMap.get(name);
 
-        if(clip != null) {
+        if (clip != null) {
             clip.stop();
         }
     }

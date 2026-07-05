@@ -38,7 +38,7 @@ public abstract class LimitedHistoryRandomizer extends Randomizer {
             }
         }
         for (int i = 3; i > 0; i--) {
-            history[i] = history[i-1];
+            history[i] = history[i - 1];
         }
         history[0] = pieces[id];
         return pieces[id];

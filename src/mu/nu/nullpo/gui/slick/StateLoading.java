@@ -43,13 +43,19 @@ import org.newdawn.slick.state.StateBasedGame;
  * ロード画面のステート
  */
 public class StateLoading extends BasicGameState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 0;
 
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(StateLoading.class);
 
-    /** プリロード進行度 */
+    /**
+     * プリロード進行度
+     */
     protected int preloadCount, preloadSet;
 
     /*
@@ -86,7 +92,7 @@ public class StateLoading extends BasicGameState {
         // 画像などを読み込み
         try {
             ResourceHolder.load();
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             log.error("Resource load failed", e);
         }
     }
@@ -96,40 +102,43 @@ public class StateLoading extends BasicGameState {
      */
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         // 巨大な画像をあらかじめ画面に描画することでメモリにキャッシュさせる
-        if(preloadSet == 0) {
-            if(preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
+        if (preloadSet == 0) {
+            if (preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
                 try {
                     ResourceHolder.imgBreak[preloadCount][0].draw(0, 0);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 preloadCount++;
             } else {
                 preloadCount = 0;
                 preloadSet++;
             }
         }
-        if(preloadSet == 1) {
-            if(preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
+        if (preloadSet == 1) {
+            if (preloadCount < ResourceHolder.BLOCK_BREAK_MAX) {
                 try {
                     ResourceHolder.imgBreak[preloadCount][1].draw(0, 0);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 preloadCount++;
             } else {
                 preloadCount = 0;
                 preloadSet++;
             }
         }
-        if(preloadSet == 2) {
-            if(preloadCount < ResourceHolder.PERASE_MAX) {
+        if (preloadSet == 2) {
+            if (preloadCount < ResourceHolder.PERASE_MAX) {
                 try {
                     ResourceHolder.imgPErase[preloadCount].draw(0, 0);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 preloadCount++;
             } else {
                 preloadCount = 0;
                 preloadSet++;
             }
         }
-        if(preloadSet == 3) {
+        if (preloadSet == 3) {
             ResourceHolder.imgFont.draw(0, 0);
             preloadSet++;
         }
@@ -142,24 +151,24 @@ public class StateLoading extends BasicGameState {
      * Update game
      */
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-        if(preloadSet > 2) {
+        if (preloadSet > 2) {
             // Change title bar caption
-            if(container instanceof AppGameContainer) {
+            if (container instanceof AppGameContainer) {
                 ((AppGameContainer) container).setTitle("NullpoMino version" + GameManager.getVersionString());
                 ((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
             }
 
             // First run
-            if(NullpoMinoSlick.propConfig.getProperty("option.firstSetupMode", true) == true) {
+            if (NullpoMinoSlick.propConfig.getProperty("option.firstSetupMode", true) == true) {
                 // Set various default settings here
                 GameKey.gamekey[0].loadDefaultKeymap();
                 GameKey.gamekey[0].saveConfig(NullpoMinoSlick.propConfig);
                 NullpoMinoSlick.propConfig.setProperty("option.firstSetupMode", false);
 
                 // Set default rotation button setting (only for first run)
-                if(NullpoMinoSlick.propGlobal.getProperty("global.firstSetupMode", true) == true) {
-                    for(int pl = 0; pl < 2; pl++) {
-                        if(NullpoMinoSlick.propGlobal.getProperty(pl + ".tuning.owRotateButtonDefaultRight") == null) {
+                if (NullpoMinoSlick.propGlobal.getProperty("global.firstSetupMode", true) == true) {
+                    for (int pl = 0; pl < 2; pl++) {
+                        if (NullpoMinoSlick.propGlobal.getProperty(pl + ".tuning.owRotateButtonDefaultRight") == null) {
                             NullpoMinoSlick.propGlobal.setProperty(pl + ".tuning.owRotateButtonDefaultRight", 0);
                         }
                     }

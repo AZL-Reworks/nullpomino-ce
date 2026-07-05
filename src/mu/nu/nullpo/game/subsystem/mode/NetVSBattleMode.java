@@ -56,323 +56,474 @@ import org.apache.log4j.Logger;
  * NET-VS-BATTLE Mode
  */
 public class NetVSBattleMode extends NetDummyMode {
-    /** Log */
+    /**
+     * Log
+     */
     static final Logger log = Logger.getLogger(NetVSBattleMode.class);
 
-    /** Maximum number of players */
+    /**
+     * Maximum number of players
+     */
     private static final int MAX_PLAYERS = 6;
 
-    /** Most recent scoring event type constants */
+    /**
+     * Most recent scoring event type constants
+     */
     private static final int EVENT_NONE = 0,
-                             EVENT_SINGLE = 1,
-                             EVENT_DOUBLE = 2,
-                             EVENT_TRIPLE = 3,
-                             EVENT_FOUR = 4,
-                             EVENT_TSPIN_SINGLE_MINI = 5,
-                             EVENT_TSPIN_SINGLE = 6,
-                             EVENT_TSPIN_DOUBLE = 7,
-                             EVENT_TSPIN_TRIPLE = 8,
-                             EVENT_TSPIN_DOUBLE_MINI = 9,
-                             EVENT_TSPIN_EZ = 10;
+        EVENT_SINGLE = 1,
+        EVENT_DOUBLE = 2,
+        EVENT_TRIPLE = 3,
+        EVENT_FOUR = 4,
+        EVENT_TSPIN_SINGLE_MINI = 5,
+        EVENT_TSPIN_SINGLE = 6,
+        EVENT_TSPIN_DOUBLE = 7,
+        EVENT_TSPIN_TRIPLE = 8,
+        EVENT_TSPIN_DOUBLE_MINI = 9,
+        EVENT_TSPIN_EZ = 10;
 
-    /** Type of attack performed */
+    /**
+     * Type of attack performed
+     */
     private static final int ATTACK_CATEGORY_NORMAL = 0,
-                             ATTACK_CATEGORY_B2B = 1,
-                             ATTACK_CATEGORY_SPIN = 2,
-                             ATTACK_CATEGORY_COMBO = 3,
-                             ATTACK_CATEGORY_BRAVO = 4,
-                             ATTACK_CATEGORY_GEM = 5,
-                             ATTACK_CATEGORIES = 6;
+        ATTACK_CATEGORY_B2B = 1,
+        ATTACK_CATEGORY_SPIN = 2,
+        ATTACK_CATEGORY_COMBO = 3,
+        ATTACK_CATEGORY_BRAVO = 4,
+        ATTACK_CATEGORY_GEM = 5,
+        ATTACK_CATEGORIES = 6;
 
-    /** Numbers of seats numbers corresponding to frames on player's screen */
+    /**
+     * Numbers of seats numbers corresponding to frames on player's screen
+     */
     private static final int[][] GAME_SEAT_NUMBERS =
-    {
-        {0,1,2,3,4,5},
-        {1,0,2,3,4,5},
-        {1,2,0,3,4,5},
-        {1,2,3,0,4,5},
-        {1,2,3,4,0,5},
-        {1,2,3,4,5,0},
-    };
+        {
+            { 0, 1, 2, 3, 4, 5 },
+            { 1, 0, 2, 3, 4, 5 },
+            { 1, 2, 0, 3, 4, 5 },
+            { 1, 2, 3, 0, 4, 5 },
+            { 1, 2, 3, 4, 0, 5 },
+            { 1, 2, 3, 4, 5, 0 },
+        };
 
-    /** Each player's garbage block color */
+    /**
+     * Each player's garbage block color
+     */
     private static final int[] PLAYER_COLOR_BLOCK = {
         Block.BLOCK_COLOR_RED, Block.BLOCK_COLOR_BLUE, Block.BLOCK_COLOR_GREEN,
         Block.BLOCK_COLOR_YELLOW, Block.BLOCK_COLOR_PURPLE, Block.BLOCK_COLOR_CYAN
     };
 
-    /** Each player's frame color */
+    /**
+     * Each player's frame color
+     */
     private static final int[] PLAYER_COLOR_FRAME = {
         GameEngine.FRAME_COLOR_RED, GameEngine.FRAME_COLOR_BLUE, GameEngine.FRAME_COLOR_GREEN,
         GameEngine.FRAME_COLOR_YELLOW, GameEngine.FRAME_COLOR_PURPLE, GameEngine.FRAME_COLOR_CYAN
     };
 
-    /** Team font colors */
+    /**
+     * Team font colors
+     */
     private static final int[] TEAM_FONT_COLORS = {
         EventReceiver.COLOR_WHITE,
         EventReceiver.COLOR_RED, EventReceiver.COLOR_GREEN, EventReceiver.COLOR_BLUE, EventReceiver.COLOR_YELLOW,
         EventReceiver.COLOR_PURPLE, EventReceiver.COLOR_CYAN
     };
 
-    /** Time before forced piece lock */
+    /**
+     * Time before forced piece lock
+     */
     private static final int PIECE_AUTO_LOCK_TIME = 60 * 60;
 
-    /** Attack table (for T-Spin only) */
+    /**
+     * Attack table (for T-Spin only)
+     */
     private static final int[][] LINE_ATTACK_TABLE =
-    {
-        // 1-2P, 3P, 4P, 5P, 6P
-        {0, 0, 0, 0, 0},    // Single
-        {1, 1, 0, 0, 0},    // Double
-        {2, 2, 1, 1, 1},    // Triple
-        {4, 3, 2, 2, 2},    // Four
-        {1, 1, 0, 0, 0},    // T-Mini-S
-        {2, 2, 1, 1, 1},    // T-Single
-        {4, 3, 2, 2, 2},    // T-Double
-        {6, 4, 3, 3, 3},    // T-Triple
-        {4, 3, 2, 2, 2},    // T-Mini-D
-        {1, 1, 0, 0, 0},    // EZ-T
-    };
+        {
+            // 1-2P, 3P, 4P, 5P, 6P
+            { 0, 0, 0, 0, 0 },    // Single
+            { 1, 1, 0, 0, 0 },    // Double
+            { 2, 2, 1, 1, 1 },    // Triple
+            { 4, 3, 2, 2, 2 },    // Four
+            { 1, 1, 0, 0, 0 },    // T-Mini-S
+            { 2, 2, 1, 1, 1 },    // T-Single
+            { 4, 3, 2, 2, 2 },    // T-Double
+            { 6, 4, 3, 3, 3 },    // T-Triple
+            { 4, 3, 2, 2, 2 },    // T-Mini-D
+            { 1, 1, 0, 0, 0 },    // EZ-T
+        };
 
-    /** Attack table(for All Spin) */
+    /**
+     * Attack table(for All Spin)
+     */
     private static final int[][] LINE_ATTACK_TABLE_ALLSPIN =
-    {
-        // 1-2P, 3P, 4P, 5P, 6P
-        {0, 0, 0, 0, 0},    // Single
-        {1, 1, 0, 0, 0},    // Double
-        {2, 2, 1, 1, 1},    // Triple
-        {4, 3, 2, 2, 2},    // Four
-        {0, 0, 0, 0, 0},    // T-Mini-S
-        {2, 2, 1, 1, 1},    // T-Single
-        {4, 3, 2, 2, 2},    // T-Double
-        {6, 4, 3, 3, 3},    // T-Triple
-        {3, 2, 1, 1, 1},    // T-Mini-D
-        {0,    0, 0, 0, 0},    // EZ-T
-    };
+        {
+            // 1-2P, 3P, 4P, 5P, 6P
+            { 0, 0, 0, 0, 0 },    // Single
+            { 1, 1, 0, 0, 0 },    // Double
+            { 2, 2, 1, 1, 1 },    // Triple
+            { 4, 3, 2, 2, 2 },    // Four
+            { 0, 0, 0, 0, 0 },    // T-Mini-S
+            { 2, 2, 1, 1, 1 },    // T-Single
+            { 4, 3, 2, 2, 2 },    // T-Double
+            { 6, 4, 3, 3, 3 },    // T-Triple
+            { 3, 2, 1, 1, 1 },    // T-Mini-D
+            { 0, 0, 0, 0, 0 },    // EZ-T
+        };
 
-    /** Indexes of attack types in attack table */
+    /**
+     * Indexes of attack types in attack table
+     */
     private static final int LINE_ATTACK_INDEX_SINGLE = 0,
-                             LINE_ATTACK_INDEX_DOUBLE = 1,
-                             LINE_ATTACK_INDEX_TRIPLE = 2,
-                             LINE_ATTACK_INDEX_FOUR = 3,
-                             LINE_ATTACK_INDEX_TMINI = 4,
-                             LINE_ATTACK_INDEX_TSINGLE = 5,
-                             LINE_ATTACK_INDEX_TDOUBLE = 6,
-                             LINE_ATTACK_INDEX_TTRIPLE = 7,
-                             LINE_ATTACK_INDEX_TMINI_D = 8,
-                             LINE_ATTACK_INDEX_EZ_T = 9;
+        LINE_ATTACK_INDEX_DOUBLE = 1,
+        LINE_ATTACK_INDEX_TRIPLE = 2,
+        LINE_ATTACK_INDEX_FOUR = 3,
+        LINE_ATTACK_INDEX_TMINI = 4,
+        LINE_ATTACK_INDEX_TSINGLE = 5,
+        LINE_ATTACK_INDEX_TDOUBLE = 6,
+        LINE_ATTACK_INDEX_TTRIPLE = 7,
+        LINE_ATTACK_INDEX_TMINI_D = 8,
+        LINE_ATTACK_INDEX_EZ_T = 9;
 
-    /** Combo attack table */
+    /**
+     * Combo attack table
+     */
     private static final int[][] COMBO_ATTACK_TABLE = {
-        {0,0,1,1,2,2,3,3,4,4,4,5}, // 1-2 Player(s)
-        {0,0,1,1,1,2,2,3,3,4,4,4}, // 3 Player
-        {0,0,0,1,1,1,2,2,3,3,4,4}, // 4 Player
-        {0,0,0,1,1,1,1,2,2,3,3,4}, // 5 Player
-        {0,0,0,0,1,1,1,1,2,2,3,3}, // 6 Payers
+        { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 }, // 1-2 Player(s)
+        { 0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 4, 4 }, // 3 Player
+        { 0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 4, 4 }, // 4 Player
+        { 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 4 }, // 5 Player
+        { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3 }, // 6 Payers
     };
 
     private static int GARBAGE_DENOMINATOR = 60; // can be divided by 2,3,4,5
 
-    /** Drawing and event handling EventReceiver */
+    /**
+     * Drawing and event handling EventReceiver
+     */
     private EventReceiver receiver;
 
-    /** Current room ID */
+    /**
+     * Current room ID
+     */
     private int currentRoomID;
 
-    /** Current room informations */
+    /**
+     * Current room informations
+     */
     private NetRoomInfo currentRoomInfo;
 
-    /** true if rule is locked */
+    /**
+     * true if rule is locked
+     */
     private boolean rulelockFlag;
 
-    /** Use reduced attack tables if 3 or more players are alive */
+    /**
+     * Use reduced attack tables if 3 or more players are alive
+     */
     private boolean reduceLineSend;
 
-    /** Use fractional garbage system */
+    /**
+     * Use fractional garbage system
+     */
     private boolean useFractionalGarbage;
 
-    /** Garbage hole change probability */
+    /**
+     * Garbage hole change probability
+     */
     private int garbagePercent;
 
-    /** Change garbage on attack */
+    /**
+     * Change garbage on attack
+     */
     private boolean garbageChangePerAttack;
 
-    /** Divide hole change rate by number of remaining opposing players/teams */
+    /**
+     * Divide hole change rate by number of remaining opposing players/teams
+     */
     private boolean divideChangeRateByPlayers;
 
-    /** Column number of hole in most recent garbage line */
+    /**
+     * Column number of hole in most recent garbage line
+     */
     private int lastHole = -1;
 
     /** Tank mode */
     //private boolean useTankMode = false;
 
-    /** Time in seconds before hurry up (-1 if hurry up disabled) */
+    /**
+     * Time in seconds before hurry up (-1 if hurry up disabled)
+     */
     private int hurryupSeconds;
 
-    /** Number of pieces to be placed between adding Hurry Up lines */
+    /**
+     * Number of pieces to be placed between adding Hurry Up lines
+     */
     private int hurryupInterval;
 
-    /** true if Hurry Up has been started */
+    /**
+     * true if Hurry Up has been started
+     */
     private boolean hurryupStarted;
 
-    /** Number of frames left to show "HURRY UP!" text */
+    /**
+     * Number of frames left to show "HURRY UP!" text
+     */
     private int hurryupShowFrames;
 
-    /** Seat number of local player (-1: spectator) */
+    /**
+     * Seat number of local player (-1: spectator)
+     */
     private int playerSeatNumber;
 
-    /** Number of games since joining this room */
+    /**
+     * Number of games since joining this room
+     */
     private int numGames;
 
-    /** Local player wins count */
+    /**
+     * Local player wins count
+     */
     private int numWins;
 
-    /** Number of players */
+    /**
+     * Number of players
+     */
     private int numPlayers;
 
-    /** Number of spectators */
+    /**
+     * Number of spectators
+     */
     private int numSpectators;
 
-    /** Number of players in current game */
+    /**
+     * Number of players in current game
+     */
     private int numNowPlayers;
 
-    /** Maximum number of players in this room */
+    /**
+     * Maximum number of players in this room
+     */
     private int numMaxPlayers;
 
-    /** Number of alive players */
+    /**
+     * Number of alive players
+     */
     private int numAlivePlayers;
 
-    /** Seat numbers of players */
+    /**
+     * Seat numbers of players
+     */
     private int[] allPlayerSeatNumbers;
 
-    /** true if player field exists */
+    /**
+     * true if player field exists
+     */
     private boolean[] isPlayerExist;
 
-    /** true if player is ready */
+    /**
+     * true if player is ready
+     */
     private boolean[] isReady;
 
-    /** Dead flag */
+    /**
+     * Dead flag
+     */
     private boolean[] isDead;
 
-    /** Place */
+    /**
+     * Place
+     */
     private int[] playerPlace;
 
-    /** true if you KO'd player */
+    /**
+     * true if you KO'd player
+     */
     private boolean[] playerKObyYou;
 
-    /** Block skin used */
+    /**
+     * Block skin used
+     */
     private int[] playerSkin;
 
-    /** Player name */
+    /**
+     * Player name
+     */
     private String[] playerNames;
 
-    /** Team name */
+    /**
+     * Team name
+     */
     private String[] playerTeams;
 
-    /** Team colors */
+    /**
+     * Team colors
+     */
     private int[] playerTeamColors;
 
-    /** Number of games played */
+    /**
+     * Number of games played
+     */
     private int[] playerGamesCount;
 
-    /** Number of wins */
+    /**
+     * Number of wins
+     */
     private int[] playerWinCount;
 
 //    private boolean[] playerTeamsIsTank;
 //
 //    private boolean isTank;
 
-    /** true if room game is in progress */
+    /**
+     * true if room game is in progress
+     */
     private boolean isNetGameActive;
 
-    /** true if room game is finished */
+    /**
+     * true if room game is finished
+     */
     private boolean isNetGameFinished;
 
-    /** true if local player joined game in progress */
+    /**
+     * true if local player joined game in progress
+     */
     private boolean isNewcomer;
 
-    /** true if waiting for ready status change */
+    /**
+     * true if waiting for ready status change
+     */
     private boolean isReadyChangePending;
 
-    /** true if practice mode */
+    /**
+     * true if practice mode
+     */
     private boolean isPractice;
 
-    /** Automatic start timer is enabled */
+    /**
+     * Automatic start timer is enabled
+     */
     private boolean autoStartActive;
 
-    /** Time left until automatic start */
+    /**
+     * Time left until automatic start
+     */
     private int autoStartTimer;
 
-    /** true is time elapsed counter is enabled */
+    /**
+     * true is time elapsed counter is enabled
+     */
     private boolean netPlayTimerActive;
 
-    /** Elapsed time */
+    /**
+     * Elapsed time
+     */
     private int netPlayTimer;
 
-    /** How long current piece is active */
+    /**
+     * How long current piece is active
+     */
     private int pieceMoveTimer;
 
-    /** Previous state of active piece */
+    /**
+     * Previous state of active piece
+     */
     private int prevPieceID, prevPieceX, prevPieceY, prevPieceDir;
 
-    /** Time to display the most recent increase in score */
+    /**
+     * Time to display the most recent increase in score
+     */
     private int[] scgettime;
 
-    /** Most recent scoring event type */
+    /**
+     * Most recent scoring event type
+     */
     private int[] lastevent;
 
-    /** true if most recent scoring event was B2B */
+    /**
+     * true if most recent scoring event was B2B
+     */
     private boolean[] lastb2b;
 
-    /** Most recent scoring event Combo count */
+    /**
+     * Most recent scoring event Combo count
+     */
     private int[] lastcombo;
 
-    /** Most recent scoring event piece type */
+    /**
+     * Most recent scoring event piece type
+     */
     private int[] lastpiece;
 
-    /** Count of garbage lines send */
+    /**
+     * Count of garbage lines send
+     */
     private int[] garbageSent;
 
-    /** Amount of garbage in garbage queue */
+    /**
+     * Amount of garbage in garbage queue
+     */
     private int[] garbage;
 
-    /** Recieved garbage entries */
+    /**
+     * Recieved garbage entries
+     */
     private LinkedList<GarbageEntry> garbageEntries;
 
-    /** APL (Attack Per Line) */
+    /**
+     * APL (Attack Per Line)
+     */
     private float playerAPL;
 
-    /** APM (Attack Per Minute) */
+    /**
+     * APM (Attack Per Minute)
+     */
     private float playerAPM;
 
-    /** Number of pieces placed after Hurry Up has started */
+    /**
+     * Number of pieces placed after Hurry Up has started
+     */
     private int hurryupCount;
 
-    /** Map number to use */
+    /**
+     * Map number to use
+     */
     private int mapNo;
 
-    /** Random for selecting map in Practice mode */
+    /**
+     * Random for selecting map in Practice mode
+     */
     private Random randMap;
 
-    /** Practice mode last used map number */
+    /**
+     * Practice mode last used map number
+     */
     private int mapPreviousPracticeMap;
 
-    /** UID of player who attacked local player last */
+    /**
+     * UID of player who attacked local player last
+     */
     private int lastAttackerUID;
 
-    /** KO count */
+    /**
+     * KO count
+     */
     private int currentKO;
 
-    /** true if can exit from practice game */
+    /**
+     * true if can exit from practice game
+     */
     private boolean isPracticeExitAllowed;
 
     /**
      * ゲーム席 numberを元にfield numberを返す
+     *
      * @param seat ゲーム席 number
      * @return 対応するfield number
      */
     private int getPlayerIDbySeatID(int seat) {
         int myseat = playerSeatNumber;
-        if(myseat < 0) myseat = 0;
+        if (myseat < 0) myseat = 0;
         return GAME_SEAT_NUMBERS[myseat][seat];
     }
 
@@ -383,24 +534,24 @@ public class NetVSBattleMode extends NetDummyMode {
         numPlayers = 0;
         numSpectators = 0;
 
-        for(int i = 0; i < MAX_PLAYERS; i++) {
+        for (int i = 0; i < MAX_PLAYERS; i++) {
             isPlayerExist[i] = false;
             isReady[i] = false;
             allPlayerSeatNumbers[i] = -1;
             owner.engine[i].framecolor = GameEngine.FRAME_COLOR_GRAY;
         }
 
-        if((currentRoomID != -1) && (netLobby != null)) {
-            for(NetPlayerInfo pInfo: netLobby.updateSameRoomPlayerInfoList()) {
-                if(pInfo.roomID == currentRoomID) {
-                    if(pInfo.seatID != -1) {
+        if ((currentRoomID != -1) && (netLobby != null)) {
+            for (NetPlayerInfo pInfo : netLobby.updateSameRoomPlayerInfoList()) {
+                if (pInfo.roomID == currentRoomID) {
+                    if (pInfo.seatID != -1) {
                         int playerID = getPlayerIDbySeatID(pInfo.seatID);
                         isPlayerExist[playerID] = true;
                         isReady[playerID] = pInfo.ready;
                         allPlayerSeatNumbers[playerID] = pInfo.seatID;
                         numPlayers++;
 
-                        if(pInfo.seatID < PLAYER_COLOR_FRAME.length) {
+                        if (pInfo.seatID < PLAYER_COLOR_FRAME.length) {
                             owner.engine[playerID].framecolor = PLAYER_COLOR_FRAME[pInfo.seatID];
                         }
                     } else {
@@ -413,16 +564,17 @@ public class NetVSBattleMode extends NetDummyMode {
 
     /**
      * 生き残っているチームcountを返す(チーム無しPlayerも1つのチームとcountえる)
+     *
      * @return 生き残っているチームcount
      */
     private int getNumberOfTeamsAlive() {
         LinkedList<String> listTeamName = new LinkedList<String>();
         int noTeamCount = 0;
 
-        for(int i = 0; i < MAX_PLAYERS; i++) {
-            if(isPlayerExist[i] && !isDead[i] && owner.engine[i].gameActive) {
-                if(playerTeams[i].length() > 0) {
-                    if(!listTeamName.contains(playerTeams[i])) {
+        for (int i = 0; i < MAX_PLAYERS; i++) {
+            if (isPlayerExist[i] && !isDead[i] && owner.engine[i].gameActive) {
+                if (playerTeams[i].length() > 0) {
+                    if (!listTeamName.contains(playerTeams[i])) {
                         listTeamName.add(playerTeams[i]);
                     }
                 } else {
@@ -436,6 +588,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
     /**
      * 今この部屋で参戦状態のNumber of playersを返す
+     *
      * @return 参戦状態のNumber of players
      */
     /*
@@ -509,7 +662,7 @@ public class NetVSBattleMode extends NetDummyMode {
         garbage = new int[MAX_PLAYERS];
         mapPreviousPracticeMap = -1;
         playerSkin = new int[MAX_PLAYERS];
-        for(int i = 0; i < MAX_PLAYERS; i++) playerSkin[i] = -1;
+        for (int i = 0; i < MAX_PLAYERS; i++) playerSkin[i] = -1;
         resetFlags();
     }
 
@@ -536,6 +689,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
     /**
      * When you join the room
+     *
      * @param lobby NetLobbyFrame
      * @param client NetPlayerClient
      * @param roomInfo NetRoomInfo
@@ -548,7 +702,7 @@ public class NetVSBattleMode extends NetDummyMode {
         owner.reset();
 
         isReady = new boolean[MAX_PLAYERS];
-        if(currentRoomInfo != null) {
+        if (currentRoomInfo != null) {
             currentRoomInfo.delete();
             currentRoomInfo = null;
         }
@@ -558,10 +712,10 @@ public class NetVSBattleMode extends NetDummyMode {
         currentRoomInfo = roomInfo;
         autoStartActive = false;
 
-        if(roomInfo == null) numMaxPlayers = 0;
+        if (roomInfo == null) numMaxPlayers = 0;
         else numMaxPlayers = roomInfo.maxPlayers;
 
-        if(roomInfo != null) {
+        if (roomInfo != null) {
             rulelockFlag = roomInfo.ruleLock;
             reduceLineSend = roomInfo.reduceLineSend;
             hurryupSeconds = roomInfo.hurryupSeconds;
@@ -572,7 +726,7 @@ public class NetVSBattleMode extends NetDummyMode {
             divideChangeRateByPlayers = roomInfo.divideChangeRateByPlayers;
             //useTankMode = roomInfo.useTankMode;
 
-            for(int i = 0; i < getPlayers(); i++) {
+            for (int i = 0; i < getPlayers(); i++) {
                 owner.engine[i].speed.gravity = roomInfo.gravity;
                 owner.engine[i].speed.denominator = roomInfo.denominator;
                 owner.engine[i].speed.are = roomInfo.are;
@@ -583,13 +737,13 @@ public class NetVSBattleMode extends NetDummyMode {
                 owner.engine[i].b2bEnable = roomInfo.b2b;
                 owner.engine[i].comboType = (roomInfo.combo) ? GameEngine.COMBO_TYPE_NORMAL : GameEngine.COMBO_TYPE_DISABLE;
 
-                if(roomInfo.tspinEnableType == 0) {
+                if (roomInfo.tspinEnableType == 0) {
                     owner.engine[i].tspinEnable = false;
                     owner.engine[i].useAllSpinBonus = false;
-                } else if(roomInfo.tspinEnableType == 1) {
+                } else if (roomInfo.tspinEnableType == 1) {
                     owner.engine[i].tspinEnable = true;
                     owner.engine[i].useAllSpinBonus = false;
-                } else if(roomInfo.tspinEnableType == 2) {
+                } else if (roomInfo.tspinEnableType == 2) {
                     owner.engine[i].tspinEnable = true;
                     owner.engine[i].useAllSpinBonus = true;
                 }
@@ -597,18 +751,18 @@ public class NetVSBattleMode extends NetDummyMode {
 
             isNewcomer = roomInfo.playing;
 
-            if(!rulelockFlag) {
+            if (!rulelockFlag) {
                 // Revert rules
                 owner.engine[0].ruleopt.copy(netLobby.ruleOptPlayer);
                 owner.engine[0].randomizer = GeneralUtil.loadRandomizer(owner.engine[0].ruleopt.strRandomizer);
                 owner.engine[0].wallkick = GeneralUtil.loadWallkick(owner.engine[0].ruleopt.strWallkick);
             } else {
                 // Set to locked rule
-                if((netLobby != null) && (netLobby.ruleOptLock != null)) {
+                if ((netLobby != null) && (netLobby.ruleOptLock != null)) {
                     log.info("Set locked rule");
                     Randomizer randomizer = GeneralUtil.loadRandomizer(netLobby.ruleOptLock.strRandomizer);
                     Wallkick wallkick = GeneralUtil.loadWallkick(netLobby.ruleOptLock.strWallkick);
-                    for(int i = 0; i < getPlayers(); i++) {
+                    for (int i = 0; i < getPlayers(); i++) {
                         owner.engine[i].ruleopt.copy(netLobby.ruleOptLock);
                         owner.engine[i].randomizer = randomizer;
                         owner.engine[i].wallkick = wallkick;
@@ -622,15 +776,15 @@ public class NetVSBattleMode extends NetDummyMode {
         numGames = 0;
         numWins = 0;
 
-        for(int i = 0; i < getPlayers(); i++) {
+        for (int i = 0; i < getPlayers(); i++) {
             owner.engine[i].enableSE = false;
-            if(i >= numMaxPlayers) {
+            if (i >= numMaxPlayers) {
                 owner.engine[i].isVisible = false;
             } else {
                 owner.engine[i].isVisible = true;
             }
         }
-        if(playerSeatNumber >= 0) {
+        if (playerSeatNumber >= 0) {
             owner.engine[0].displaysize = 0;
             owner.engine[0].enableSE = true;
         } else {
@@ -639,7 +793,7 @@ public class NetVSBattleMode extends NetDummyMode {
         }
 
         // Apply 1vs1 layout
-        if((roomInfo != null) && (roomInfo.maxPlayers == 2)) {
+        if ((roomInfo != null) && (roomInfo.maxPlayers == 2)) {
             owner.engine[0].displaysize = 0;
             owner.engine[1].displaysize = 0;
         }
@@ -655,23 +809,23 @@ public class NetVSBattleMode extends NetDummyMode {
         LinkedList<NetPlayerInfo> pList = netLobby.getSameRoomPlayerInfoList();
         LinkedList<String> teamList = new LinkedList<String>();
 
-        for(int i = 0; i < MAX_PLAYERS; i++) {
+        for (int i = 0; i < MAX_PLAYERS; i++) {
             playerNames[i] = "";
             playerTeams[i] = "";
             playerTeamColors[i] = 0;
             playerGamesCount[i] = 0;
             playerWinCount[i] = 0;
 
-            for(NetPlayerInfo pInfo: pList) {
-                if((pInfo.seatID != -1) && (getPlayerIDbySeatID(pInfo.seatID) == i)) {
+            for (NetPlayerInfo pInfo : pList) {
+                if ((pInfo.seatID != -1) && (getPlayerIDbySeatID(pInfo.seatID) == i)) {
                     playerNames[i] = pInfo.strName;
                     playerTeams[i] = pInfo.strTeam;
                     playerGamesCount[i] = pInfo.playCountNow;
                     playerWinCount[i] = pInfo.winCountNow;
 
                     // Set team color
-                    if(playerTeams[i].length() > 0) {
-                        if(!teamList.contains(playerTeams[i])) {
+                    if (playerTeams[i].length() > 0) {
+                        if (!teamList.contains(playerTeams[i])) {
                             teamList.add(playerTeams[i]);
                             playerTeamColors[i] = teamList.size();
                         } else {
@@ -685,11 +839,12 @@ public class NetVSBattleMode extends NetDummyMode {
 
     /**
      * 今溜まっているgarbage blockのcountを返す
+     *
      * @return 今溜まっているgarbage blockのcount
      */
     private int getTotalGarbageLines() {
         int count = 0;
-        for(GarbageEntry garbageEntry: garbageEntries) {
+        for (GarbageEntry garbageEntry : garbageEntries) {
             count += garbageEntry.lines;
         }
         return count;
@@ -697,13 +852,14 @@ public class NetVSBattleMode extends NetDummyMode {
 
     /**
      * Send field state
+     *
      * @param engine GameEngine
      */
     private void sendField(GameEngine engine) {
-        if(isPractice) return;
-        if(numPlayers + numSpectators < 2) return;
+        if (isPractice) return;
+        if (numPlayers + numSpectators < 2) return;
 
-        if(owner.receiver.isStickySkin(engine) || netAlwaysSendFieldAttributes) {
+        if (owner.receiver.isStickySkin(engine) || netAlwaysSendFieldAttributes) {
             // Send with attributes
             String strSrcFieldData = engine.field.attrFieldToString();
             int nocompSize = strSrcFieldData.length();
@@ -713,7 +869,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
             String strFieldData = strSrcFieldData;
             boolean isCompressed = false;
-            if(compSize < nocompSize) {
+            if (compSize < nocompSize) {
                 strFieldData = strCompFieldData;
                 isCompressed = true;
             }
@@ -733,7 +889,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
             String strFieldData = strSrcFieldData;
             boolean isCompressed = false;
-            if(compSize < nocompSize) {
+            if (compSize < nocompSize) {
                 strFieldData = strCompFieldData;
                 isCompressed = true;
             }
@@ -750,6 +906,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
     /**
      * Start practice mode
+     *
      * @param engine GameEngine
      */
     private void startPractice(GameEngine engine) {
@@ -760,8 +917,8 @@ public class NetVSBattleMode extends NetDummyMode {
         engine.resetStatc();
 
         // map
-        if((currentRoomInfo != null) && currentRoomInfo.useMap && (netLobby.mapList.size() > 0)) {
-            if(randMap == null) randMap = new Random();
+        if ((currentRoomInfo != null) && currentRoomInfo.useMap && (netLobby.mapList.size() > 0)) {
+            if (randMap == null) randMap = new Random();
 
             int map = 0;
             int maxMap = netLobby.mapList.size();
@@ -781,13 +938,14 @@ public class NetVSBattleMode extends NetDummyMode {
 
     /**
      * Send game results
+     *
      * @param engine GameEngine
      * @param playerID Player ID
      */
     private void sendGameStat(GameEngine engine, int playerID) {
         String msg = "gstat\t";
         msg += playerPlace[playerID] + "\t";
-        msg += ((float)garbageSent[playerID] / GARBAGE_DENOMINATOR) + "\t" + playerAPL + "\t" + playerAPM + "\t";
+        msg += ((float) garbageSent[playerID] / GARBAGE_DENOMINATOR) + "\t" + playerAPL + "\t" + playerAPM + "\t";
         msg += engine.statistics.lines + "\t" + engine.statistics.lpm + "\t";
         msg += engine.statistics.totalPieceLocked + "\t" + engine.statistics.pps + "\t";
         msg += netPlayTimer + "\t" + currentKO + "\t" + numWins + "\t" + numGames;
@@ -800,7 +958,7 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public void playerInit(GameEngine engine, int playerID) {
-        if((playerID >= 1) || (playerSeatNumber == -1)) {
+        if ((playerID >= 1) || (playerSeatNumber == -1)) {
             engine.displaysize = -1;
             engine.enableSE = false;
         } else {
@@ -817,27 +975,27 @@ public class NetVSBattleMode extends NetDummyMode {
 
 //        playerTeamsIsTank[playerID] = true;
 
-        if(playerID == 0) {
+        if (playerID == 0) {
             prevPieceID = Piece.PIECE_NONE;
             prevPieceX = 0;
             prevPieceY = 0;
             prevPieceDir = 0;
 
-            if(garbageEntries == null) {
+            if (garbageEntries == null) {
                 garbageEntries = new LinkedList<GarbageEntry>();
             } else {
                 garbageEntries.clear();
             }
 
-            if(playerSeatNumber >= 0) {
+            if (playerSeatNumber >= 0) {
                 engine.framecolor = PLAYER_COLOR_FRAME[playerSeatNumber];
             }
         }
 
-        if(playerID >= numMaxPlayers) {
+        if (playerID >= numMaxPlayers) {
             engine.isVisible = false;
         }
-        if(playerID == getPlayers() - 1) {
+        if (playerID == getPlayers() - 1) {
             updatePlayerExist();
         }
     }
@@ -860,7 +1018,7 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
-        if((playerID == 0) && (playerSeatNumber >= 0)) {
+        if ((playerID == 0) && (playerSeatNumber >= 0)) {
             isPlayerExist[0] = true;
             engine.framecolor = PLAYER_COLOR_FRAME[playerSeatNumber];
 
@@ -868,21 +1026,21 @@ public class NetVSBattleMode extends NetDummyMode {
             engine.enableSE = true;
 
             // Apply 1vs1 layout
-            if((currentRoomInfo != null) && (currentRoomInfo.maxPlayers == 2)) {
+            if ((currentRoomInfo != null) && (currentRoomInfo.maxPlayers == 2)) {
                 owner.engine[0].displaysize = 0;
                 owner.engine[1].displaysize = 0;
             }
 
-            if((netLobby != null) && (netLobby.netPlayerClient != null)) {
-                if((!isReadyChangePending) && (numPlayers >= 2)) {
+            if ((netLobby != null) && (netLobby.netPlayerClient != null)) {
+                if ((!isReadyChangePending) && (numPlayers >= 2)) {
                     // Ready ON
-                    if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5) && (isReady[0] == false) && (!currentRoomInfo.playing)) {
+                    if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5) && (isReady[0] == false) && (!currentRoomInfo.playing)) {
                         engine.playSE("decide");
                         isReadyChangePending = true;
                         netLobby.netPlayerClient.send("ready\ttrue\n");
                     }
                     // Ready OFF
-                    if(engine.ctrl.isPush(Controller.BUTTON_B) && (engine.statc[3] >= 5) && (isReady[0] == true) && (!currentRoomInfo.playing)) {
+                    if (engine.ctrl.isPush(Controller.BUTTON_B) && (engine.statc[3] >= 5) && (isReady[0] == true) && (!currentRoomInfo.playing)) {
                         engine.playSE("change");
                         isReadyChangePending = true;
                         netLobby.netPlayerClient.send("ready\tfalse\n");
@@ -890,10 +1048,10 @@ public class NetVSBattleMode extends NetDummyMode {
                 }
 
                 // Random map preview
-                if((currentRoomInfo != null) && currentRoomInfo.useMap && !netLobby.mapList.isEmpty()) {
-                    if(engine.statc[3] % 30 == 0) {
+                if ((currentRoomInfo != null) && currentRoomInfo.useMap && !netLobby.mapList.isEmpty()) {
+                    if (engine.statc[3] % 30 == 0) {
                         engine.statc[5]++;
-                        if(engine.statc[5] >= netLobby.mapList.size()) engine.statc[5] = 0;
+                        if (engine.statc[5] >= netLobby.mapList.size()) engine.statc[5] = 0;
                         engine.createFieldIfNeeded();
                         engine.field.stringToField(netLobby.mapList.get(engine.statc[5]));
                         engine.field.setAllSkin(engine.getSkin());
@@ -904,14 +1062,14 @@ public class NetVSBattleMode extends NetDummyMode {
                 }
 
                 // Practice mode
-                if(engine.ctrl.isPush(Controller.BUTTON_F) && (engine.statc[3] >= 5)) {
+                if (engine.ctrl.isPush(Controller.BUTTON_F) && (engine.statc[3] >= 5)) {
                     engine.playSE("decide");
                     startPractice(engine);
                 }
             }
 
             // GC呼び出し
-            if(engine.statc[3] == 0) {
+            if (engine.statc[3] == 0) {
                 System.gc();
             }
 
@@ -926,38 +1084,38 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
-        if((netLobby == null) || (netLobby.netPlayerClient == null)) return;
-        if(engine.isVisible == false) return;
+        if ((netLobby == null) || (netLobby.netPlayerClient == null)) return;
+        if (engine.isVisible == false) return;
 
-        if((currentRoomInfo != null) && (!currentRoomInfo.playing)) {
+        if ((currentRoomInfo != null) && (!currentRoomInfo.playing)) {
             int x = receiver.getFieldDisplayPositionX(engine, playerID);
             int y = receiver.getFieldDisplayPositionY(engine, playerID);
 
-            if(isReady[playerID] && isPlayerExist[playerID]) {
-                if(engine.displaysize != -1)
+            if (isReady[playerID] && isPlayerExist[playerID]) {
+                if (engine.displaysize != -1)
                     receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", EventReceiver.COLOR_YELLOW);
                 else
                     receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", EventReceiver.COLOR_YELLOW, 0.5f);
             }
 
-            if((playerID == 0) && (playerSeatNumber >= 0) && (!isReadyChangePending) && (numPlayers >= 2)) {
-                if(!isReady[playerID]) {
+            if ((playerID == 0) && (playerSeatNumber >= 0) && (!isReadyChangePending) && (numPlayers >= 2)) {
+                if (!isReady[playerID]) {
                     String strTemp = "A(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_A) + " KEY):";
-                    if(strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
+                    if (strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
                     receiver.drawMenuFont(engine, playerID, 0, 16, strTemp, EventReceiver.COLOR_CYAN);
                     receiver.drawMenuFont(engine, playerID, 1, 17, "READY", EventReceiver.COLOR_CYAN);
                 } else {
                     String strTemp = "B(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_B) + " KEY):";
-                    if(strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
+                    if (strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
                     receiver.drawMenuFont(engine, playerID, 0, 16, strTemp, EventReceiver.COLOR_BLUE);
                     receiver.drawMenuFont(engine, playerID, 1, 17, "CANCEL", EventReceiver.COLOR_BLUE);
                 }
             }
         }
 
-        if((playerID == 0) && (playerSeatNumber >= 0)) {
+        if ((playerID == 0) && (playerSeatNumber >= 0)) {
             String strTemp = "F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):";
-            if(strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
+            if (strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
             receiver.drawMenuFont(engine, playerID, 0, 18, strTemp, EventReceiver.COLOR_PURPLE);
             receiver.drawMenuFont(engine, playerID, 1, 19, "PRACTICE", EventReceiver.COLOR_PURPLE);
         }
@@ -968,16 +1126,16 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public boolean onReady(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 0) {
+        if (engine.statc[0] == 0) {
             // Map
-            if(currentRoomInfo.useMap && (mapNo < netLobby.mapList.size()) && !isPractice) {
+            if (currentRoomInfo.useMap && (mapNo < netLobby.mapList.size()) && !isPractice) {
                 engine.createFieldIfNeeded();
                 engine.field.stringToField(netLobby.mapList.get(mapNo));
-                if((playerID == 0) && (playerSeatNumber >= 0)) {
+                if ((playerID == 0) && (playerSeatNumber >= 0)) {
                     engine.field.setAllSkin(engine.getSkin());
-                } else if(rulelockFlag && (netLobby.ruleOptLock != null)) {
+                } else if (rulelockFlag && (netLobby.ruleOptLock != null)) {
                     engine.field.setAllSkin(netLobby.ruleOptLock.skin);
-                } else if(playerSkin[playerID] >= 0) {
+                } else if (playerSkin[playerID] >= 0) {
                     engine.field.setAllSkin(playerSkin[playerID]);
                 }
                 engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
@@ -986,7 +1144,7 @@ public class NetVSBattleMode extends NetDummyMode {
             }
         }
 
-        if(isPractice && (engine.statc[0] >= 10)) {
+        if (isPractice && (engine.statc[0] >= 10)) {
             isPracticeExitAllowed = true;
         }
 
@@ -998,7 +1156,7 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public void startGame(GameEngine engine, int playerID) {
-        if(currentRoomInfo != null) {
+        if (currentRoomInfo != null) {
             engine.speed.gravity = currentRoomInfo.gravity;
             engine.speed.denominator = currentRoomInfo.denominator;
             engine.speed.are = currentRoomInfo.are;
@@ -1012,18 +1170,18 @@ public class NetVSBattleMode extends NetDummyMode {
             engine.spinCheckType = currentRoomInfo.spinCheckType;
             engine.tspinEnableEZ = currentRoomInfo.tspinEnableEZ;
 
-            if(currentRoomInfo.tspinEnableType == 0) {
+            if (currentRoomInfo.tspinEnableType == 0) {
                 engine.tspinEnable = false;
                 engine.useAllSpinBonus = false;
-            } else if(currentRoomInfo.tspinEnableType == 1) {
+            } else if (currentRoomInfo.tspinEnableType == 1) {
                 engine.tspinEnable = true;
                 engine.useAllSpinBonus = false;
-            } else if(currentRoomInfo.tspinEnableType == 2) {
+            } else if (currentRoomInfo.tspinEnableType == 2) {
                 engine.tspinEnable = true;
                 engine.useAllSpinBonus = true;
             }
         }
-        if(isPractice) {
+        if (isPractice) {
             owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
         } else {
             owner.bgmStatus.bgm = BGMStatus.BGM_NORMAL1;
@@ -1041,28 +1199,23 @@ public class NetVSBattleMode extends NetDummyMode {
     @Override
     public boolean onMove(GameEngine engine, int playerID) {
         // Start game直後の新規ピース出現時
-        if((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) &&
-           (playerID == 0) && (playerSeatNumber >= 0) && (!isPractice))
-        {
+        if ((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) &&
+            (playerID == 0) && (playerSeatNumber >= 0) && (!isPractice)) {
             netPlayTimerActive = true;
             sendField(engine);
         }
 
         // 移動
-        if((engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0) && (engine.nowPieceObject != null) && (!isPractice) &&
-           (numPlayers + numSpectators >= 2))
-        {
-            if( ((engine.nowPieceObject == null) && (prevPieceID != Piece.PIECE_NONE)) || (engine.manualLock) )
-            {
+        if ((engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0) && (engine.nowPieceObject != null) && (!isPractice) &&
+            (numPlayers + numSpectators >= 2)) {
+            if (((engine.nowPieceObject == null) && (prevPieceID != Piece.PIECE_NONE)) || (engine.manualLock)) {
                 prevPieceID = Piece.PIECE_NONE;
                 netLobby.netPlayerClient.send("game\tpiece\t" + prevPieceID + "\t" + prevPieceX + "\t" + prevPieceY + "\t" + prevPieceDir + "\t" +
-                        0 + "\t" + engine.getSkin() + "\t" + false + "\n");
+                    0 + "\t" + engine.getSkin() + "\t" + false + "\n");
 
-                if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
-            }
-            else if((engine.nowPieceObject.id != prevPieceID) || (engine.nowPieceX != prevPieceX) ||
-                    (engine.nowPieceY != prevPieceY) || (engine.nowPieceObject.direction != prevPieceDir))
-            {
+                if ((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
+            } else if ((engine.nowPieceObject.id != prevPieceID) || (engine.nowPieceX != prevPieceX) ||
+                (engine.nowPieceY != prevPieceY) || (engine.nowPieceObject.direction != prevPieceDir)) {
                 prevPieceID = engine.nowPieceObject.id;
                 prevPieceX = engine.nowPieceX;
                 prevPieceY = engine.nowPieceY;
@@ -1071,23 +1224,23 @@ public class NetVSBattleMode extends NetDummyMode {
                 int x = prevPieceX + engine.nowPieceObject.dataOffsetX[prevPieceDir];
                 int y = prevPieceY + engine.nowPieceObject.dataOffsetY[prevPieceDir];
                 netLobby.netPlayerClient.send("game\tpiece\t" + prevPieceID + "\t" + x + "\t" + y + "\t" + prevPieceDir + "\t" +
-                                engine.nowPieceBottomY + "\t" + engine.ruleopt.pieceColor[prevPieceID] + "\t" + engine.getSkin() + "\t" +
-                                engine.nowPieceObject.big + "\n");
+                    engine.nowPieceBottomY + "\t" + engine.ruleopt.pieceColor[prevPieceID] + "\t" + engine.getSkin() + "\t" +
+                    engine.nowPieceObject.big + "\n");
 
-                if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
+                if ((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
             }
         }
 
         // 強制固定
-        if((engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0) && (engine.nowPieceObject != null)) {
+        if ((engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0) && (engine.nowPieceObject != null)) {
             pieceMoveTimer++;
-            if(pieceMoveTimer >= PIECE_AUTO_LOCK_TIME) {
+            if (pieceMoveTimer >= PIECE_AUTO_LOCK_TIME) {
                 engine.nowPieceY = engine.nowPieceBottomY;
                 engine.lockDelayNow = engine.getLockDelay();
             }
         }
 
-        if((playerID != 0) || (playerSeatNumber == -1)) {
+        if ((playerID != 0) || (playerSeatNumber == -1)) {
             return true;
         }
 
@@ -1099,7 +1252,7 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public void pieceLocked(GameEngine engine, int playerID, int lines) {
-        if((engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
+        if ((engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
             sendField(engine);
             pieceMoveTimer = 0;
         }
@@ -1110,7 +1263,7 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public boolean onLineClear(GameEngine engine, int playerID) {
-        if((engine.statc[0] == 1) && (engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
+        if ((engine.statc[0] == 1) && (engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
             sendField(engine);
         }
         return false;
@@ -1122,7 +1275,7 @@ public class NetVSBattleMode extends NetDummyMode {
     @Override
     public void calcScore(GameEngine engine, int playerID, int lines) {
         // 攻撃
-        if(lines > 0) {
+        if (lines > 0) {
             //int pts = 0;
             int[] pts = new int[ATTACK_CATEGORIES];
 
@@ -1130,22 +1283,22 @@ public class NetVSBattleMode extends NetDummyMode {
 
             int numAliveTeams = getNumberOfTeamsAlive();
             int attackNumPlayerIndex = numAliveTeams - 2;
-            if(isPractice || !reduceLineSend) attackNumPlayerIndex = 0;
-            if(attackNumPlayerIndex < 0) attackNumPlayerIndex = 0;
-            if(attackNumPlayerIndex > 4) attackNumPlayerIndex = 4;
+            if (isPractice || !reduceLineSend) attackNumPlayerIndex = 0;
+            if (attackNumPlayerIndex < 0) attackNumPlayerIndex = 0;
+            if (attackNumPlayerIndex > 4) attackNumPlayerIndex = 4;
 
             int attackLineIndex = LINE_ATTACK_INDEX_SINGLE;
             int mainAttackCategory = ATTACK_CATEGORY_NORMAL;
 
-            if(engine.tspin) {
+            if (engine.tspin) {
                 mainAttackCategory = ATTACK_CATEGORY_SPIN;
-                if(engine.tspinez) {
+                if (engine.tspinez) {
                     attackLineIndex = LINE_ATTACK_INDEX_EZ_T;
                     lastevent[playerID] = EVENT_TSPIN_EZ;
                 }
                 // T-Spin 1 line
-                else if(lines == 1) {
-                    if(engine.tspinmini) {
+                else if (lines == 1) {
+                    if (engine.tspinmini) {
                         attackLineIndex = LINE_ATTACK_INDEX_TMINI;
                         lastevent[playerID] = EVENT_TSPIN_SINGLE_MINI;
                     } else {
@@ -1154,8 +1307,8 @@ public class NetVSBattleMode extends NetDummyMode {
                     }
                 }
                 // T-Spin 2 lines
-                else if(lines == 2) {
-                    if(engine.tspinmini && engine.useAllSpinBonus) {
+                else if (lines == 2) {
+                    if (engine.tspinmini && engine.useAllSpinBonus) {
                         attackLineIndex = LINE_ATTACK_INDEX_TMINI_D;
                         lastevent[playerID] = EVENT_TSPIN_DOUBLE_MINI;
                     } else {
@@ -1164,24 +1317,24 @@ public class NetVSBattleMode extends NetDummyMode {
                     }
                 }
                 // T-Spin 3 lines
-                else if(lines >= 3) {
+                else if (lines >= 3) {
                     attackLineIndex = LINE_ATTACK_INDEX_TTRIPLE;
                     lastevent[playerID] = EVENT_TSPIN_TRIPLE;
                 }
             } else {
-                if(lines == 1) {
+                if (lines == 1) {
                     // 1列
                     attackLineIndex = LINE_ATTACK_INDEX_SINGLE;
                     lastevent[playerID] = EVENT_SINGLE;
-                } else if(lines == 2) {
+                } else if (lines == 2) {
                     // 2列
                     attackLineIndex = LINE_ATTACK_INDEX_DOUBLE;
                     lastevent[playerID] = EVENT_DOUBLE;
-                } else if(lines == 3) {
+                } else if (lines == 3) {
                     // 3列
                     attackLineIndex = LINE_ATTACK_INDEX_TRIPLE;
                     lastevent[playerID] = EVENT_TRIPLE;
-                } else if(lines >= 4) {
+                } else if (lines >= 4) {
                     // 4 lines
                     attackLineIndex = LINE_ATTACK_INDEX_FOUR;
                     lastevent[playerID] = EVENT_FOUR;
@@ -1190,17 +1343,17 @@ public class NetVSBattleMode extends NetDummyMode {
 
             // 攻撃力計算
             //log.debug("attackNumPlayerIndex:" + attackNumPlayerIndex + ", attackLineIndex:" + attackLineIndex);
-            if(engine.useAllSpinBonus)
+            if (engine.useAllSpinBonus)
                 pts[mainAttackCategory] += LINE_ATTACK_TABLE_ALLSPIN[attackLineIndex][attackNumPlayerIndex];
             else
                 pts[mainAttackCategory] += LINE_ATTACK_TABLE[attackLineIndex][attackNumPlayerIndex];
 
             // B2B
-            if(engine.b2b) {
+            if (engine.b2b) {
                 lastb2b[playerID] = true;
 
-                if(pts[mainAttackCategory] > 0) {
-                    if((attackLineIndex == LINE_ATTACK_INDEX_TTRIPLE) && (!engine.useAllSpinBonus))
+                if (pts[mainAttackCategory] > 0) {
+                    if ((attackLineIndex == LINE_ATTACK_INDEX_TTRIPLE) && (!engine.useAllSpinBonus))
                         pts[ATTACK_CATEGORY_B2B] += 2;
                     else
                         pts[ATTACK_CATEGORY_B2B] += 1;
@@ -1210,16 +1363,16 @@ public class NetVSBattleMode extends NetDummyMode {
             }
 
             // Combo
-            if(engine.comboType != GameEngine.COMBO_TYPE_DISABLE) {
+            if (engine.comboType != GameEngine.COMBO_TYPE_DISABLE) {
                 int cmbindex = engine.combo - 1;
-                if(cmbindex < 0) cmbindex = 0;
-                if(cmbindex >= COMBO_ATTACK_TABLE[attackNumPlayerIndex].length) cmbindex = COMBO_ATTACK_TABLE[attackNumPlayerIndex].length - 1;
+                if (cmbindex < 0) cmbindex = 0;
+                if (cmbindex >= COMBO_ATTACK_TABLE[attackNumPlayerIndex].length) cmbindex = COMBO_ATTACK_TABLE[attackNumPlayerIndex].length - 1;
                 pts[ATTACK_CATEGORY_COMBO] += COMBO_ATTACK_TABLE[attackNumPlayerIndex][cmbindex];
                 lastcombo[playerID] = engine.combo;
             }
 
             // All clear
-            if((lines >= 1) && (engine.field.isEmpty()) && (currentRoomInfo.bravo)) {
+            if ((lines >= 1) && (engine.field.isEmpty()) && (currentRoomInfo.bravo)) {
                 engine.playSE("bravo");
                 pts[ATTACK_CATEGORY_BRAVO] += 6;
             }
@@ -1229,32 +1382,32 @@ public class NetVSBattleMode extends NetDummyMode {
 
             lastpiece[playerID] = engine.nowPieceObject.id;
 
-            for(int i = 0; i < pts.length; i++){
+            for (int i = 0; i < pts.length; i++) {
                 pts[i] *= GARBAGE_DENOMINATOR;
             }
-            if(useFractionalGarbage && !isPractice) {
-                if(numAliveTeams >= 3) {
-                    for(int i = 0; i < pts.length; i++){
+            if (useFractionalGarbage && !isPractice) {
+                if (numAliveTeams >= 3) {
+                    for (int i = 0; i < pts.length; i++) {
                         pts[i] = pts[i] / (numAliveTeams - 1);
                     }
                 }
             }
 
             // Attack lines count
-            for(int i : pts){
+            for (int i : pts) {
                 garbageSent[playerID] += i;
             }
 
             // 相殺
             garbage[playerID] = getTotalGarbageLines();
-            for(int i = 0; i < pts.length; i++){ //TODO: Establish specific priority of garbage cancellation.
-                if((pts[i] > 0) && (garbage[playerID] > 0) && (currentRoomInfo.counter)) {
-                    while(!useFractionalGarbage && !garbageEntries.isEmpty() && (pts[i] > 0)
-                            || useFractionalGarbage && !garbageEntries.isEmpty() && (pts[i] >= GARBAGE_DENOMINATOR)) {
+            for (int i = 0; i < pts.length; i++) { //TODO: Establish specific priority of garbage cancellation.
+                if ((pts[i] > 0) && (garbage[playerID] > 0) && (currentRoomInfo.counter)) {
+                    while (!useFractionalGarbage && !garbageEntries.isEmpty() && (pts[i] > 0)
+                        || useFractionalGarbage && !garbageEntries.isEmpty() && (pts[i] >= GARBAGE_DENOMINATOR)) {
                         GarbageEntry garbageEntry = garbageEntries.getFirst();
                         garbageEntry.lines -= pts[i];
 
-                        if(garbageEntry.lines <= 0) {
+                        if (garbageEntry.lines <= 0) {
                             pts[i] = Math.abs(garbageEntry.lines);
                             garbageEntries.removeFirst();
                         } else {
@@ -1265,57 +1418,57 @@ public class NetVSBattleMode extends NetDummyMode {
             }
 
             //  Attack
-            if(!isPractice && (numPlayers + numSpectators >= 2)) {
+            if (!isPractice && (numPlayers + numSpectators >= 2)) {
                 garbage[playerID] = getTotalGarbageLines();
 
                 String stringPts = "";
-                for(int i : pts){
+                for (int i : pts) {
                     stringPts += i + "\t";
                 }
                 netLobby.netPlayerClient.send("game\tattack\t" + stringPts + "\t" + lastevent[playerID] + "\t" + lastb2b[playerID] + "\t" +
-                        lastcombo[playerID] + "\t" + garbage[playerID] + "\t" + lastpiece[playerID] + "\n");
+                    lastcombo[playerID] + "\t" + garbage[playerID] + "\t" + lastpiece[playerID] + "\n");
             }
         }
 
         // せり上がり
-        if(((lines == 0) || (!currentRoomInfo.rensaBlock)) && (getTotalGarbageLines() >= GARBAGE_DENOMINATOR) && (!isPractice)) {
+        if (((lines == 0) || (!currentRoomInfo.rensaBlock)) && (getTotalGarbageLines() >= GARBAGE_DENOMINATOR) && (!isPractice)) {
             engine.playSE("garbage");
 
             int smallGarbageCount = 0;    // 10pts未満のgarbage blockcountの合計count(後でまとめてせり上げる)
             int hole = lastHole;
             int newHole;
-            if(hole == -1) {
+            if (hole == -1) {
                 hole = engine.random.nextInt(engine.field.getWidth());
             }
 
             int finalGarbagePercent = garbagePercent;
-            if(divideChangeRateByPlayers){
+            if (divideChangeRateByPlayers) {
                 finalGarbagePercent /= (getNumberOfTeamsAlive() - 1);
             }
 
-            while(!garbageEntries.isEmpty()) {
+            while (!garbageEntries.isEmpty()) {
                 GarbageEntry garbageEntry = garbageEntries.poll();
                 smallGarbageCount += garbageEntry.lines % GARBAGE_DENOMINATOR;
 
-                if(garbageEntry.lines / GARBAGE_DENOMINATOR > 0) {
+                if (garbageEntry.lines / GARBAGE_DENOMINATOR > 0) {
                     int seatFrom = allPlayerSeatNumbers[garbageEntry.playerID];
                     int garbageColor = (seatFrom < 0) ? Block.BLOCK_COLOR_GRAY : PLAYER_COLOR_BLOCK[seatFrom];
                     lastAttackerUID = garbageEntry.uid;
-                    if(garbageChangePerAttack == true){
-                        if(engine.random.nextInt(100) < finalGarbagePercent) {
+                    if (garbageChangePerAttack == true) {
+                        if (engine.random.nextInt(100) < finalGarbagePercent) {
                             newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-                            if(newHole >= hole) {
+                            if (newHole >= hole) {
                                 newHole++;
                             }
                             hole = newHole;
                         }
                         engine.field.addSingleHoleGarbage(hole, garbageColor, engine.getSkin(),
-                                  garbageEntry.lines / GARBAGE_DENOMINATOR);
+                            garbageEntry.lines / GARBAGE_DENOMINATOR);
                     } else {
-                        for(int i = garbageEntry.lines / GARBAGE_DENOMINATOR; i > 0; i--) {
-                            if(engine.random.nextInt(100) < finalGarbagePercent) {
+                        for (int i = garbageEntry.lines / GARBAGE_DENOMINATOR; i > 0; i--) {
+                            if (engine.random.nextInt(100) < finalGarbagePercent) {
                                 newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-                                if(newHole >= hole) {
+                                if (newHole >= hole) {
                                     newHole++;
                                 }
                                 hole = newHole;
@@ -1327,7 +1480,7 @@ public class NetVSBattleMode extends NetDummyMode {
                 }
             }
 
-            if(smallGarbageCount > 0) {
+            if (smallGarbageCount > 0) {
                 // 10pts以上の部分をすべてせり上げる
 
                 //int hole = engine.random.nextInt(engine.field.getWidth());
@@ -1335,24 +1488,24 @@ public class NetVSBattleMode extends NetDummyMode {
                 //          Block.BLOCK_ATTRIBUTE_GARBAGE | Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE,
                 //          smallGarbageCount / GARBAGE_DENOMINATOR);
 
-                if(smallGarbageCount / GARBAGE_DENOMINATOR > 0) {
+                if (smallGarbageCount / GARBAGE_DENOMINATOR > 0) {
                     lastAttackerUID = -1;
 
-                    if(garbageChangePerAttack == true){
-                        if(engine.random.nextInt(100) < finalGarbagePercent) {
+                    if (garbageChangePerAttack == true) {
+                        if (engine.random.nextInt(100) < finalGarbagePercent) {
                             newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-                            if(newHole >= hole) {
+                            if (newHole >= hole) {
                                 newHole++;
                             }
                             hole = newHole;
                         }
                         engine.field.addSingleHoleGarbage(hole, Block.BLOCK_COLOR_GRAY, engine.getSkin(),
-                                  smallGarbageCount / GARBAGE_DENOMINATOR);
+                            smallGarbageCount / GARBAGE_DENOMINATOR);
                     } else {
-                        for(int i = smallGarbageCount / GARBAGE_DENOMINATOR; i > 0; i--) {
-                            if(engine.random.nextInt(100) < finalGarbagePercent) {
+                        for (int i = smallGarbageCount / GARBAGE_DENOMINATOR; i > 0; i--) {
+                            if (engine.random.nextInt(100) < finalGarbagePercent) {
                                 newHole = engine.random.nextInt(engine.field.getWidth() - 1);
-                                if(newHole >= hole) {
+                                if (newHole >= hole) {
                                     newHole++;
                                 }
                                 hole = newHole;
@@ -1364,7 +1517,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
                 }
                 // 10pts未満は次回繰越
-                if(smallGarbageCount % GARBAGE_DENOMINATOR > 0) {
+                if (smallGarbageCount % GARBAGE_DENOMINATOR > 0) {
                     GarbageEntry smallGarbageEntry = new GarbageEntry(smallGarbageCount % GARBAGE_DENOMINATOR, -1);
                     garbageEntries.add(smallGarbageEntry);
                 }
@@ -1374,11 +1527,11 @@ public class NetVSBattleMode extends NetDummyMode {
         }
 
         // HURRY UP!
-        if((hurryupSeconds >= 0) && (engine.timerActive) && (!isPractice)) {
-            if(hurryupStarted) {
+        if ((hurryupSeconds >= 0) && (engine.timerActive) && (!isPractice)) {
+            if (hurryupStarted) {
                 hurryupCount++;
 
-                if(hurryupCount % hurryupInterval == 0) {
+                if (hurryupCount % hurryupInterval == 0) {
                     engine.field.addHurryupFloor(1, engine.getSkin());
                 }
             } else {
@@ -1392,9 +1545,9 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public boolean onARE(GameEngine engine, int playerID) {
-        if((engine.statc[0] == 0) && (engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
+        if ((engine.statc[0] == 0) && (engine.ending == 0) && (playerID == 0) && (playerSeatNumber >= 0)) {
             sendField(engine);
-            if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
+            if ((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
         }
         return false;
     }
@@ -1405,12 +1558,11 @@ public class NetVSBattleMode extends NetDummyMode {
     @Override
     public void onLast(GameEngine engine, int playerID) {
         scgettime[playerID]++;
-        if((playerID == 0) && (hurryupShowFrames > 0)) hurryupShowFrames--;
+        if ((playerID == 0) && (hurryupShowFrames > 0)) hurryupShowFrames--;
 
         // HURRY UP!
-        if((playerID == 0) && (engine.timerActive) && (hurryupSeconds >= 0) && (engine.statistics.time == hurryupSeconds * 60) &&
-           (!isPractice) && (!hurryupStarted))
-        {
+        if ((playerID == 0) && (engine.timerActive) && (hurryupSeconds >= 0) && (engine.statistics.time == hurryupSeconds * 60) &&
+            (!isPractice) && (!hurryupStarted)) {
             netLobby.netPlayerClient.send("game\thurryup\n");
             owner.receiver.playSE("hurryup");
             hurryupStarted = true;
@@ -1420,47 +1572,47 @@ public class NetVSBattleMode extends NetDummyMode {
         // せり上がりMeter
         int tempGarbage = garbage[playerID] / GARBAGE_DENOMINATOR;
         float tempGarbageF = (float) garbage[playerID] / GARBAGE_DENOMINATOR;
-        int newMeterValue = (int)(tempGarbageF * receiver.getBlockGraphicsHeight(engine, playerID));
-        if((playerID == 0) && (playerSeatNumber != -1)) {
-            if(newMeterValue > engine.meterValue) {
+        int newMeterValue = (int) (tempGarbageF * receiver.getBlockGraphicsHeight(engine, playerID));
+        if ((playerID == 0) && (playerSeatNumber != -1)) {
+            if (newMeterValue > engine.meterValue) {
                 engine.meterValue += receiver.getBlockGraphicsHeight(engine, playerID) / 2;
-                if(engine.meterValue > newMeterValue) {
+                if (engine.meterValue > newMeterValue) {
                     engine.meterValue = newMeterValue;
                 }
-            } else if(newMeterValue < engine.meterValue) {
+            } else if (newMeterValue < engine.meterValue) {
                 engine.meterValue--;
             }
         } else {
             engine.meterValue = newMeterValue;
         }
-        if(tempGarbage >= 4) engine.meterColor = GameEngine.METER_COLOR_RED;
-        else if(tempGarbage >= 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-        else if(tempGarbage >= 1) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+        if (tempGarbage >= 4) engine.meterColor = GameEngine.METER_COLOR_RED;
+        else if (tempGarbage >= 3) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+        else if (tempGarbage >= 1) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
         else engine.meterColor = GameEngine.METER_COLOR_GREEN;
 
         // APL & APM
-        if((playerID == 0) && (engine.gameActive) && (engine.timerActive)) {
-            float tempGarbageSent = (float)garbageSent[playerID] / GARBAGE_DENOMINATOR;
+        if ((playerID == 0) && (engine.gameActive) && (engine.timerActive)) {
+            float tempGarbageSent = (float) garbageSent[playerID] / GARBAGE_DENOMINATOR;
             playerAPM = (tempGarbageSent * 3600) / (engine.statistics.time);
 
-            if(engine.statistics.lines > 0) {
-                playerAPL = (float)(tempGarbageSent / engine.statistics.lines);
+            if (engine.statistics.lines > 0) {
+                playerAPL = (float) (tempGarbageSent / engine.statistics.lines);
             } else {
                 playerAPL = 0f;
             }
         }
 
         // Timer
-        if((playerID == 0) && (netPlayTimerActive)) netPlayTimer++;
+        if ((playerID == 0) && (netPlayTimerActive)) netPlayTimer++;
 
         // Automatically start timer
-        if((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
-            if(numPlayers <= 1) {
+        if ((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
+            if (numPlayers <= 1) {
                 autoStartActive = false;
-            } else if(autoStartTimer > 0) {
+            } else if (autoStartTimer > 0) {
                 autoStartTimer--;
             } else {
-                if(playerSeatNumber != -1) {
+                if (playerSeatNumber != -1) {
                     netLobby.netPlayerClient.send("autostart\n");
                 }
                 autoStartTimer = 0;
@@ -1469,12 +1621,12 @@ public class NetVSBattleMode extends NetDummyMode {
         }
 
         // End practice mode
-        if((playerID == 0) && ((isPractice) && (isPracticeExitAllowed)) && (engine.ctrl.isPush(Controller.BUTTON_F))) {
+        if ((playerID == 0) && ((isPractice) && (isPracticeExitAllowed)) && (engine.ctrl.isPush(Controller.BUTTON_F))) {
             engine.timerActive = false;
             owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
             isPracticeExitAllowed = false;
 
-            if(isPractice) {
+            if (isPractice) {
                 isPractice = false;
                 engine.field.reset();
                 engine.gameEnded();
@@ -1504,11 +1656,10 @@ public class NetVSBattleMode extends NetDummyMode {
     @Override
     public void renderLast(GameEngine engine, int playerID) {
         // Number of players
-        if((playerID == getPlayers() - 1) && (netLobby != null) && (netLobby.netPlayerClient != null) && (netLobby.netPlayerClient.isConnected()) &&
-           (!owner.engine[1].isVisible || owner.engine[1].displaysize == -1 || !isNetGameActive))
-        {
+        if ((playerID == getPlayers() - 1) && (netLobby != null) && (netLobby.netPlayerClient != null) && (netLobby.netPlayerClient.isConnected()) &&
+            (!owner.engine[1].isVisible || owner.engine[1].displaysize == -1 || !isNetGameActive)) {
             int x = (owner.receiver.getNextDisplayType() == 2) ? 544 : 503;
-            if(currentRoomID != -1) {
+            if (currentRoomID != -1) {
                 receiver.drawDirectFont(engine, 0, x, 286, "PLAYERS", EventReceiver.COLOR_CYAN, 0.5f);
                 receiver.drawDirectFont(engine, 0, x, 294, "" + numPlayers, EventReceiver.COLOR_WHITE, 0.5f);
                 receiver.drawDirectFont(engine, 0, x, 302, "SPECTATORS", EventReceiver.COLOR_CYAN, 0.5f);
@@ -1523,34 +1674,34 @@ public class NetVSBattleMode extends NetDummyMode {
         }
 
         // All number of players
-        if(playerID == getPlayers() - 1) netDrawAllPlayersCount(engine);
+        if (playerID == getPlayers() - 1) netDrawAllPlayersCount(engine);
 
         // 経過 time
-        if((playerID == 0) && (currentRoomID != -1)) {
+        if ((playerID == 0) && (currentRoomID != -1)) {
             receiver.drawDirectFont(engine, 0, 256, 16, GeneralUtil.getTime(netPlayTimer));
 
-            if((hurryupSeconds >= 0) && (hurryupShowFrames > 0) && (!isPractice) && (hurryupStarted)) {
+            if ((hurryupSeconds >= 0) && (hurryupShowFrames > 0) && (!isPractice) && (hurryupStarted)) {
                 receiver.drawDirectFont(engine, 0, 256 - 8, 32, "HURRY UP!", (hurryupShowFrames % 2 == 0));
             }
         }
 
-        if((isPlayerExist[playerID]) && (engine.isVisible)) {
+        if ((isPlayerExist[playerID]) && (engine.isVisible)) {
             int x = receiver.getFieldDisplayPositionX(engine, playerID);
             int y = receiver.getFieldDisplayPositionY(engine, playerID);
 
             // Name
-            if((playerNames != null) && (playerNames[playerID] != null) && (playerNames[playerID].length() > 0)) {
+            if ((playerNames != null) && (playerNames[playerID] != null) && (playerNames[playerID].length() > 0)) {
                 String name = playerNames[playerID];
                 int fontcolorNum = playerTeamColors[playerID];
-                if(fontcolorNum < 0) fontcolorNum = 0;
-                if(fontcolorNum > TEAM_FONT_COLORS.length - 1) fontcolorNum = TEAM_FONT_COLORS.length - 1;
+                if (fontcolorNum < 0) fontcolorNum = 0;
+                if (fontcolorNum > TEAM_FONT_COLORS.length - 1) fontcolorNum = TEAM_FONT_COLORS.length - 1;
                 int fontcolor = TEAM_FONT_COLORS[fontcolorNum];
 
-                if(engine.displaysize == -1) {
-                    if(name.length() > 7) name = name.substring(0, 7) + "..";
+                if (engine.displaysize == -1) {
+                    if (name.length() > 7) name = name.substring(0, 7) + "..";
                     receiver.drawTTFDirectFont(engine, playerID, x, y - 16, name, fontcolor);
-                } else if(playerID == 0) {
-                    if(name.length() > 14) name = name.substring(0, 14) + "..";
+                } else if (playerID == 0) {
+                    if (name.length() > 14) name = name.substring(0, 14) + "..";
                     receiver.drawTTFDirectFont(engine, playerID, x, y - 20, name, fontcolor);
                 } else {
                     receiver.drawTTFDirectFont(engine, playerID, x, y - 20, name, fontcolor);
@@ -1558,161 +1709,161 @@ public class NetVSBattleMode extends NetDummyMode {
             }
 
             // garbage blockcount
-            if((garbage[playerID] > 0) && (useFractionalGarbage)) {
+            if ((garbage[playerID] > 0) && (useFractionalGarbage)) {
                 String strTempGarbage;
 
                 int fontColor = EventReceiver.COLOR_WHITE;
-                if(garbage[playerID] >= GARBAGE_DENOMINATOR) fontColor = EventReceiver.COLOR_YELLOW;
-                if(garbage[playerID] >= GARBAGE_DENOMINATOR*3) fontColor = EventReceiver.COLOR_ORANGE;
-                if(garbage[playerID] >= GARBAGE_DENOMINATOR*4) fontColor = EventReceiver.COLOR_RED;
+                if (garbage[playerID] >= GARBAGE_DENOMINATOR) fontColor = EventReceiver.COLOR_YELLOW;
+                if (garbage[playerID] >= GARBAGE_DENOMINATOR * 3) fontColor = EventReceiver.COLOR_ORANGE;
+                if (garbage[playerID] >= GARBAGE_DENOMINATOR * 4) fontColor = EventReceiver.COLOR_RED;
 
-                if(engine.displaysize != -1) {
+                if (engine.displaysize != -1) {
                     //strTempGarbage = String.format(Locale.ROOT, "%5.2f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
-                    strTempGarbage = String.format(Locale.US, "%5.2f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
+                    strTempGarbage = String.format(Locale.US, "%5.2f", (float) garbage[playerID] / GARBAGE_DENOMINATOR);
                     receiver.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor, 1.0f);
                 } else {
                     //strTempGarbage = String.format(Locale.ROOT, "%4.1f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
-                    strTempGarbage = String.format(Locale.US, "%4.1f", (float)garbage[playerID] / GARBAGE_DENOMINATOR);
+                    strTempGarbage = String.format(Locale.US, "%4.1f", (float) garbage[playerID] / GARBAGE_DENOMINATOR);
                     receiver.drawDirectFont(engine, playerID, x + 64, y + 168, strTempGarbage, fontColor, 0.5f);
                 }
             }
         }
 
         // Practice mode
-        if((playerID == 0) && ((isPractice) || (numNowPlayers == 1)) && (isPracticeExitAllowed)) {
-            if((lastevent[playerID] == EVENT_NONE) || (scgettime[playerID] >= 120)) {
+        if ((playerID == 0) && ((isPractice) || (numNowPlayers == 1)) && (isPracticeExitAllowed)) {
+            if ((lastevent[playerID] == EVENT_NONE) || (scgettime[playerID] >= 120)) {
                 receiver.drawMenuFont(engine, 0, 0, 21,
-                        "F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):\n END GAME",
-                        EventReceiver.COLOR_PURPLE);
+                    "F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):\n END GAME",
+                    EventReceiver.COLOR_PURPLE);
             }
 
-            if(isPractice && engine.timerActive) {
+            if (isPractice && engine.timerActive) {
                 receiver.drawDirectFont(engine, 0, 256, 32, GeneralUtil.getTime(engine.statistics.time), EventReceiver.COLOR_PURPLE);
             }
         }
 
         // Automatically start timer
-        if((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
+        if ((playerID == 0) && (currentRoomInfo != null) && (autoStartActive) && (!isNetGameActive)) {
             receiver.drawDirectFont(engine, 0, 496, 16, GeneralUtil.getTime(autoStartTimer),
-                                    currentRoomInfo.autoStartTNET2, EventReceiver.COLOR_RED, EventReceiver.COLOR_YELLOW);
+                currentRoomInfo.autoStartTNET2, EventReceiver.COLOR_RED, EventReceiver.COLOR_YELLOW);
         }
 
         // Line clear event
-        if((lastevent[playerID] != EVENT_NONE) && (scgettime[playerID] < 120)) {
+        if ((lastevent[playerID] != EVENT_NONE) && (scgettime[playerID] < 120)) {
             String strPieceName = Piece.getPieceName(lastpiece[playerID]);
 
-            if(engine.displaysize != -1) {
-                switch(lastevent[playerID]) {
-                case EVENT_SINGLE:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", EventReceiver.COLOR_DARKBLUE);
-                    break;
-                case EVENT_DOUBLE:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", EventReceiver.COLOR_BLUE);
-                    break;
-                case EVENT_TRIPLE:
-                    receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", EventReceiver.COLOR_GREEN);
-                    break;
-                case EVENT_FOUR:
-                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_SINGLE_MINI:
-                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_SINGLE:
-                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_DOUBLE_MINI:
-                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_DOUBLE:
-                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_TRIPLE:
-                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE);
-                    break;
-                case EVENT_TSPIN_EZ:
-                    if(lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_RED);
-                    else receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE);
-                    break;
+            if (engine.displaysize != -1) {
+                switch (lastevent[playerID]) {
+                    case EVENT_SINGLE:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", EventReceiver.COLOR_DARKBLUE);
+                        break;
+                    case EVENT_DOUBLE:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", EventReceiver.COLOR_BLUE);
+                        break;
+                    case EVENT_TRIPLE:
+                        receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", EventReceiver.COLOR_GREEN);
+                        break;
+                    case EVENT_FOUR:
+                        if (lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_SINGLE_MINI:
+                        if (lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_SINGLE:
+                        if (lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_DOUBLE_MINI:
+                        if (lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_DOUBLE:
+                        if (lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_TRIPLE:
+                        if (lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE);
+                        break;
+                    case EVENT_TSPIN_EZ:
+                        if (lastb2b[playerID]) receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_RED);
+                        else receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE);
+                        break;
                 }
 
-                if(lastcombo[playerID] >= 2)
+                if (lastcombo[playerID] >= 2)
                     receiver.drawMenuFont(engine, playerID, 2, 22, (lastcombo[playerID] - 1) + "COMBO", EventReceiver.COLOR_CYAN);
             } else {
                 int x = receiver.getFieldDisplayPositionX(engine, playerID);
                 int y = receiver.getFieldDisplayPositionY(engine, playerID);
                 int x2 = 8;
-                if(useFractionalGarbage && (garbage[playerID] > 0)) x2 = 0;
+                if (useFractionalGarbage && (garbage[playerID] > 0)) x2 = 0;
 
-                switch(lastevent[playerID]) {
-                case EVENT_SINGLE:
-                    receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "SINGLE", EventReceiver.COLOR_DARKBLUE, 0.5f);
-                    break;
-                case EVENT_DOUBLE:
-                    receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "DOUBLE", EventReceiver.COLOR_BLUE, 0.5f);
-                    break;
-                case EVENT_TRIPLE:
-                    receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "TRIPLE", EventReceiver.COLOR_GREEN, 0.5f);
-                    break;
-                case EVENT_FOUR:
-                    if(lastb2b[playerID]) receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_RED, 0.5f);
-                    else receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_ORANGE, 0.5f);
-                    break;
-                case EVENT_TSPIN_SINGLE_MINI:
-                    if(lastb2b[playerID])
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_RED, 0.5f);
-                    else
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE, 0.5f);
-                    break;
-                case EVENT_TSPIN_SINGLE:
-                    if(lastb2b[playerID])
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_RED, 0.5f);
-                    else
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE, 0.5f);
-                    break;
-                case EVENT_TSPIN_DOUBLE_MINI:
-                    if(lastb2b[playerID])
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_RED, 0.5f);
-                    else
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE, 0.5f);
-                    break;
-                case EVENT_TSPIN_DOUBLE:
-                    if(lastb2b[playerID])
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED, 0.5f);
-                    else
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE, 0.5f);
-                    break;
-                case EVENT_TSPIN_TRIPLE:
-                    if(lastb2b[playerID])
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED, 0.5f);
-                    else
-                        receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE, 0.5f);
-                    break;
-                case EVENT_TSPIN_EZ:
-                    if(lastb2b[playerID])
-                        receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_RED, 0.5f);
-                    else
-                        receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE, 0.5f);
-                    break;
+                switch (lastevent[playerID]) {
+                    case EVENT_SINGLE:
+                        receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "SINGLE", EventReceiver.COLOR_DARKBLUE, 0.5f);
+                        break;
+                    case EVENT_DOUBLE:
+                        receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "DOUBLE", EventReceiver.COLOR_BLUE, 0.5f);
+                        break;
+                    case EVENT_TRIPLE:
+                        receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "TRIPLE", EventReceiver.COLOR_GREEN, 0.5f);
+                        break;
+                    case EVENT_FOUR:
+                        if (lastb2b[playerID]) receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_RED, 0.5f);
+                        else receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", EventReceiver.COLOR_ORANGE, 0.5f);
+                        break;
+                    case EVENT_TSPIN_SINGLE_MINI:
+                        if (lastb2b[playerID])
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_RED, 0.5f);
+                        else
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE, 0.5f);
+                        break;
+                    case EVENT_TSPIN_SINGLE:
+                        if (lastb2b[playerID])
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_RED, 0.5f);
+                        else
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE, 0.5f);
+                        break;
+                    case EVENT_TSPIN_DOUBLE_MINI:
+                        if (lastb2b[playerID])
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_RED, 0.5f);
+                        else
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE, 0.5f);
+                        break;
+                    case EVENT_TSPIN_DOUBLE:
+                        if (lastb2b[playerID])
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED, 0.5f);
+                        else
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE, 0.5f);
+                        break;
+                    case EVENT_TSPIN_TRIPLE:
+                        if (lastb2b[playerID])
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED, 0.5f);
+                        else
+                            receiver.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE, 0.5f);
+                        break;
+                    case EVENT_TSPIN_EZ:
+                        if (lastb2b[playerID])
+                            receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_RED, 0.5f);
+                        else
+                            receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName, EventReceiver.COLOR_ORANGE, 0.5f);
+                        break;
                 }
 
-                if(lastcombo[playerID] >= 2)
+                if (lastcombo[playerID] >= 2)
                     receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 176, (lastcombo[playerID] - 1) + "COMBO", EventReceiver.COLOR_CYAN, 0.5f);
             }
         }
         // Games count
-        else if(isPlayerExist[playerID] && engine.isVisible && !isPractice) {
+        else if (isPlayerExist[playerID] && engine.isVisible && !isPractice) {
             String strTemp = playerWinCount[playerID] + "/" + playerGamesCount[playerID];
 
-            if(engine.displaysize != -1) {
+            if (engine.displaysize != -1) {
                 int y = 21;
-                if(engine.stat == GameEngine.STAT_RESULT) y = 22;
+                if (engine.stat == GameEngine.STAT_RESULT) y = 22;
                 receiver.drawMenuFont(engine, playerID, 0, y, strTemp, EventReceiver.COLOR_WHITE);
             } else {
                 int x = receiver.getFieldDisplayPositionX(engine, playerID);
@@ -1731,8 +1882,8 @@ public class NetVSBattleMode extends NetDummyMode {
         engine.allowTextRenderByReceiver = false;
         isPracticeExitAllowed = false;
 
-        if((playerID == 0) && (isPractice)) {
-            if(engine.statc[0] < engine.field.getHeight() + 1) {
+        if ((playerID == 0) && (isPractice)) {
+            if (engine.statc[0] < engine.field.getHeight() + 1) {
                 return false;
             } else {
                 engine.field.reset();
@@ -1742,12 +1893,12 @@ public class NetVSBattleMode extends NetDummyMode {
             }
         }
 
-        if((playerID == 0) && (!isDead[playerID])) {
+        if ((playerID == 0) && (!isDead[playerID])) {
             owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
             engine.resetFieldVisible();
 
             sendField(engine);
-            if((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
+            if ((numNowPlayers == 2) && (numMaxPlayers == 2)) netSendNextAndHold(engine);
             netLobby.netPlayerClient.send("dead\t" + lastAttackerUID + "\n");
 
             engine.stat = GameEngine.STAT_CUSTOM;
@@ -1755,16 +1906,16 @@ public class NetVSBattleMode extends NetDummyMode {
             return true;
         }
 
-        if(isDead[playerID]) {
-            if(playerPlace[playerID] <= 2) {
+        if (isDead[playerID]) {
+            if (playerPlace[playerID] <= 2) {
                 engine.statistics.time = netPlayTimer;
             }
-            if(engine.field == null) {
+            if (engine.field == null) {
                 engine.stat = GameEngine.STAT_SETTING;
                 engine.resetStatc();
                 return true;
             }
-            if( (engine.statc[0] < engine.field.getHeight() + 1) || ((playerID == 0) && (playerSeatNumber >= 0)) ) {
+            if ((engine.statc[0] < engine.field.getHeight() + 1) || ((playerID == 0) && (playerSeatNumber >= 0))) {
                 return false;
             }
         }
@@ -1777,55 +1928,55 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public void renderGameOver(GameEngine engine, int playerID) {
-        if((playerID == 0) && (isPractice)) return;
-        if(engine.isVisible == false) return;
+        if ((playerID == 0) && (isPractice)) return;
+        if (engine.isVisible == false) return;
 
         int x = receiver.getFieldDisplayPositionX(engine, playerID);
         int y = receiver.getFieldDisplayPositionY(engine, playerID);
         int place = playerPlace[playerID];
 
-        if(engine.displaysize != -1) {
-            if(isReady[playerID] && !isNetGameActive) {
+        if (engine.displaysize != -1) {
+            if (isReady[playerID] && !isNetGameActive) {
                 receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", EventReceiver.COLOR_YELLOW);
-            } else if((numNowPlayers == 2) && (isDead[playerID])) {
+            } else if ((numNowPlayers == 2) && (isDead[playerID])) {
                 receiver.drawDirectFont(engine, playerID, x + 52, y + 204, "LOSE", EventReceiver.COLOR_WHITE);
-            } else if(place == 1) {
+            } else if (place == 1) {
                 //receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "GAME OVER", EventReceiver.COLOR_WHITE);
-            } else if(place == 2) {
+            } else if (place == 2) {
                 receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "2ND PLACE", EventReceiver.COLOR_WHITE);
-            } else if(place == 3) {
+            } else if (place == 3) {
                 receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "3RD PLACE", EventReceiver.COLOR_RED);
-            } else if(place == 4) {
+            } else if (place == 4) {
                 receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "4TH PLACE", EventReceiver.COLOR_GREEN);
-            } else if(place == 5) {
+            } else if (place == 5) {
                 receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "5TH PLACE", EventReceiver.COLOR_BLUE);
-            } else if(place == 6) {
+            } else if (place == 6) {
                 receiver.drawDirectFont(engine, playerID, x + 12, y + 204, "6TH PLACE", EventReceiver.COLOR_PURPLE);
             }
 
-            if(playerKObyYou[playerID]) {
+            if (playerKObyYou[playerID]) {
                 receiver.drawDirectFont(engine, playerID, x + 52, y + 236, "K.O.", EventReceiver.COLOR_PINK);
             }
         } else {
-            if(isReady[playerID] && !isNetGameActive) {
+            if (isReady[playerID] && !isNetGameActive) {
                 receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", EventReceiver.COLOR_YELLOW, 0.5f);
-            } else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
+            } else if ((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
                 receiver.drawDirectFont(engine, playerID, x + 28, y + 80, "LOSE", EventReceiver.COLOR_WHITE, 0.5f);
-            } else if(place == 1) {
+            } else if (place == 1) {
                 //receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "GAME OVER", EventReceiver.COLOR_WHITE, 0.5f);
-            } else if(place == 2) {
+            } else if (place == 2) {
                 receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "2ND PLACE", EventReceiver.COLOR_WHITE, 0.5f);
-            } else if(place == 3) {
+            } else if (place == 3) {
                 receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "3RD PLACE", EventReceiver.COLOR_RED, 0.5f);
-            } else if(place == 4) {
+            } else if (place == 4) {
                 receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "4TH PLACE", EventReceiver.COLOR_GREEN, 0.5f);
-            } else if(place == 5) {
+            } else if (place == 5) {
                 receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "5TH PLACE", EventReceiver.COLOR_BLUE, 0.5f);
-            } else if(place == 6) {
+            } else if (place == 6) {
                 receiver.drawDirectFont(engine, playerID, x + 8, y + 80, "6TH PLACE", EventReceiver.COLOR_PURPLE, 0.5f);
             }
 
-            if(playerKObyYou[playerID]) {
+            if (playerKObyYou[playerID]) {
                 receiver.drawDirectFont(engine, playerID, x + 28, y + 96, "K.O.", EventReceiver.COLOR_PINK, 0.5f);
             }
         }
@@ -1836,7 +1987,7 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public boolean onCustom(GameEngine engine, int playerID) {
-        if(!isNetGameActive) {
+        if (!isNetGameActive) {
             isDead[playerID] = true;
             engine.stat = GameEngine.STAT_GAMEOVER;
             engine.resetStatc();
@@ -1852,20 +2003,20 @@ public class NetVSBattleMode extends NetDummyMode {
         engine.gameEnded();
         engine.allowTextRenderByReceiver = false;
 
-        if(engine.statc[0] == 0) {
+        if (engine.statc[0] == 0) {
             //if((playerID == 0) && (playerSeatNumber != -1)) numWins++;
             owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-            if(engine.ai != null) engine.ai.shutdown(engine, playerID);
+            if (engine.ai != null) engine.ai.shutdown(engine, playerID);
             engine.resetFieldVisible();
             engine.playSE("excellent");
         }
 
-        if((engine.statc[0] >= 120) && (engine.ctrl.isPush(Controller.BUTTON_A))) {
+        if ((engine.statc[0] >= 120) && (engine.ctrl.isPush(Controller.BUTTON_A))) {
             engine.statc[0] = engine.field.getHeight() + 1 + 180;
         }
 
-        if((engine.statc[0] >= engine.field.getHeight() + 1 + 180) && (!isNetGameActive) && (playerID == 0) && (playerSeatNumber != -1)) {
-            if(engine.field != null) engine.field.reset();
+        if ((engine.statc[0] >= engine.field.getHeight() + 1 + 180) && (!isNetGameActive) && (playerID == 0) && (playerSeatNumber != -1)) {
+            if (engine.field != null) engine.field.reset();
             engine.resetStatc();
             engine.stat = GameEngine.STAT_RESULT;
         } else {
@@ -1880,23 +2031,23 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public void renderExcellent(GameEngine engine, int playerID) {
-        if(engine.isVisible == false) return;
+        if (engine.isVisible == false) return;
 
         int x = receiver.getFieldDisplayPositionX(engine, playerID);
         int y = receiver.getFieldDisplayPositionY(engine, playerID);
 
-        if(engine.displaysize != -1) {
-            if(isReady[playerID] && !isNetGameActive) {
+        if (engine.displaysize != -1) {
+            if (isReady[playerID] && !isNetGameActive) {
                 receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", EventReceiver.COLOR_YELLOW);
-            } else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
+            } else if ((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
                 receiver.drawDirectFont(engine, playerID, x + 52, y + 204, "WIN!", EventReceiver.COLOR_YELLOW);
             } else {
                 receiver.drawDirectFont(engine, playerID, x + 4, y + 204, "1ST PLACE!", EventReceiver.COLOR_YELLOW);
             }
         } else {
-            if(isReady[playerID] && !isNetGameActive) {
+            if (isReady[playerID] && !isNetGameActive) {
                 receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", EventReceiver.COLOR_YELLOW, 0.5f);
-            } else if((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
+            } else if ((numNowPlayers == 2) || (currentRoomInfo.maxPlayers == 2)) {
                 receiver.drawDirectFont(engine, playerID, x + 28, y + 80, "WIN!", EventReceiver.COLOR_YELLOW, 0.5f);
             } else {
                 receiver.drawDirectFont(engine, playerID, x + 4, y + 80, "1ST PLACE!", EventReceiver.COLOR_YELLOW, 0.5f);
@@ -1912,13 +2063,13 @@ public class NetVSBattleMode extends NetDummyMode {
         engine.allowTextRenderByReceiver = false;
 
         // 設定画面へ
-        if(engine.ctrl.isPush(Controller.BUTTON_A) && !isNetGameActive && (playerID == 0)) {
+        if (engine.ctrl.isPush(Controller.BUTTON_A) && !isNetGameActive && (playerID == 0)) {
             engine.playSE("decide");
             resetFlags();
             owner.reset();
         }
         // Practice mode
-        if(engine.ctrl.isPush(Controller.BUTTON_F) && (playerID == 0)) {
+        if (engine.ctrl.isPush(Controller.BUTTON_F) && (playerID == 0)) {
             engine.playSE("decide");
             startPractice(engine);
         }
@@ -1931,28 +2082,28 @@ public class NetVSBattleMode extends NetDummyMode {
      */
     @Override
     public void renderResult(GameEngine engine, int playerID) {
-        if(!isPractice) {
+        if (!isPractice) {
             receiver.drawMenuFont(engine, playerID, 0, 0, "RESULT", EventReceiver.COLOR_ORANGE);
 
-            if(playerPlace[playerID] == 1) {
-                if(numNowPlayers == 2) {
+            if (playerPlace[playerID] == 1) {
+                if (numNowPlayers == 2) {
                     receiver.drawMenuFont(engine, playerID, 6, 1, "WIN!", EventReceiver.COLOR_YELLOW);
-                } else if(numNowPlayers > 2) {
+                } else if (numNowPlayers > 2) {
                     receiver.drawMenuFont(engine, playerID, 6, 1, "1ST!", EventReceiver.COLOR_YELLOW);
                 }
-            } else if(playerPlace[playerID] == 2) {
-                if(numNowPlayers == 2) {
+            } else if (playerPlace[playerID] == 2) {
+                if (numNowPlayers == 2) {
                     receiver.drawMenuFont(engine, playerID, 6, 1, "LOSE", EventReceiver.COLOR_WHITE);
                 } else {
                     receiver.drawMenuFont(engine, playerID, 7, 1, "2ND", EventReceiver.COLOR_WHITE);
                 }
-            } else if(playerPlace[playerID] == 3) {
+            } else if (playerPlace[playerID] == 3) {
                 receiver.drawMenuFont(engine, playerID, 7, 1, "3RD", EventReceiver.COLOR_RED);
-            } else if(playerPlace[playerID] == 4) {
+            } else if (playerPlace[playerID] == 4) {
                 receiver.drawMenuFont(engine, playerID, 7, 1, "4TH", EventReceiver.COLOR_GREEN);
-            } else if(playerPlace[playerID] == 5) {
+            } else if (playerPlace[playerID] == 5) {
                 receiver.drawMenuFont(engine, playerID, 7, 1, "5TH", EventReceiver.COLOR_BLUE);
-            } else if(playerPlace[playerID] == 6) {
+            } else if (playerPlace[playerID] == 6) {
                 receiver.drawMenuFont(engine, playerID, 7, 1, "6TH", EventReceiver.COLOR_DARKBLUE);
             }
         } else {
@@ -1960,26 +2111,26 @@ public class NetVSBattleMode extends NetDummyMode {
         }
 
         drawResult(engine, playerID, receiver, 2, EventReceiver.COLOR_ORANGE,
-                "ATTACK", String.format("%10g", (float)garbageSent[playerID] / GARBAGE_DENOMINATOR),
-                "LINE", String.format("%10d", engine.statistics.lines),
-                "PIECE", String.format("%10d", engine.statistics.totalPieceLocked),
-                "ATK/LINE", String.format("%10g", playerAPL),
-                "ATTACK/MIN", String.format("%10g", playerAPM),
-                "LINE/MIN", String.format("%10g", engine.statistics.lpm),
-                "PIECE/SEC", String.format("%10g", engine.statistics.pps),
-                "TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+            "ATTACK", String.format("%10g", (float) garbageSent[playerID] / GARBAGE_DENOMINATOR),
+            "LINE", String.format("%10d", engine.statistics.lines),
+            "PIECE", String.format("%10d", engine.statistics.totalPieceLocked),
+            "ATK/LINE", String.format("%10g", playerAPL),
+            "ATTACK/MIN", String.format("%10g", playerAPM),
+            "LINE/MIN", String.format("%10g", engine.statistics.lpm),
+            "PIECE/SEC", String.format("%10g", engine.statistics.pps),
+            "TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
 
-        if(!isNetGameActive && (playerSeatNumber >= 0) && (playerID == 0)) {
+        if (!isNetGameActive && (playerSeatNumber >= 0) && (playerID == 0)) {
             String strTemp = "A(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_A) + " KEY):";
-            if(strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
+            if (strTemp.length() > 10) strTemp = strTemp.substring(0, 10);
             receiver.drawMenuFont(engine, playerID, 0, 18, strTemp, EventReceiver.COLOR_RED);
             receiver.drawMenuFont(engine, playerID, 1, 19, "RESTART", EventReceiver.COLOR_RED);
         }
 
         String strTempF = "F(" + receiver.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):";
-        if(strTempF.length() > 10) strTempF = strTempF.substring(0, 10);
+        if (strTempF.length() > 10) strTempF = strTempF.substring(0, 10);
         receiver.drawMenuFont(engine, playerID, 0, 20, strTempF, EventReceiver.COLOR_PURPLE);
-        if(!isPractice) {
+        if (!isPractice) {
             receiver.drawMenuFont(engine, playerID, 1, 21, "PRACTICE", EventReceiver.COLOR_PURPLE);
         } else {
             receiver.drawMenuFont(engine, playerID, 1, 21, "RETRY", EventReceiver.COLOR_PURPLE);
@@ -1995,7 +2146,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
     @Override
     public void netlobbyOnDisconnect(NetLobbyFrame lobby, NetPlayerClient client, Throwable ex) {
-        for(int i = 0; i < getPlayers(); i++) {
+        for (int i = 0; i < getPlayers(); i++) {
             owner.engine[i].stat = GameEngine.STAT_NOTHING;
         }
     }
@@ -2003,20 +2154,20 @@ public class NetVSBattleMode extends NetDummyMode {
     @Override
     public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
         // Player状態変更
-        if(message[0].equals("playerupdate")) {
+        if (message[0].equals("playerupdate")) {
             NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
 
-            if((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
+            if ((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
                 int playerID = getPlayerIDbySeatID(pInfo.seatID);
 
-                if(isReady[playerID] != pInfo.ready) {
+                if (isReady[playerID] != pInfo.ready) {
                     isReady[playerID] = pInfo.ready;
 
-                    if((playerID == 0) && (playerSeatNumber != -1)) {
+                    if ((playerID == 0) && (playerSeatNumber != -1)) {
                         isReadyChangePending = false;
                     } else {
-                        if(pInfo.ready) receiver.playSE("decide");
-                        else if(!pInfo.playing) receiver.playSE("change");
+                        if (pInfo.ready) receiver.playSE("decide");
+                        else if (!pInfo.playing) receiver.playSE("change");
                     }
                 }
             }
@@ -2025,42 +2176,42 @@ public class NetVSBattleMode extends NetDummyMode {
             updatePlayerNames();
         }
         // Player切断
-        if(message[0].equals("playerlogout")) {
+        if (message[0].equals("playerlogout")) {
             NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
 
-            if((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
+            if ((pInfo.roomID == currentRoomID) && (pInfo.seatID != -1)) {
                 updatePlayerExist();
                 updatePlayerNames();
             }
         }
         // 参戦状態変更
-        if(message[0].equals("changestatus")) {
+        if (message[0].equals("changestatus")) {
             int uid = Integer.parseInt(message[2]);
 
-            if(uid == netLobby.netPlayerClient.getPlayerUID()) {
+            if (uid == netLobby.netPlayerClient.getPlayerUID()) {
                 playerSeatNumber = client.getYourPlayerInfo().seatID;
                 isReady[0] = false;
 
                 updatePlayerExist();
                 updatePlayerNames();
 
-                if(playerSeatNumber >= 0) {
+                if (playerSeatNumber >= 0) {
                     // 参戦
                     owner.engine[0].displaysize = 0;
                     owner.engine[0].enableSE = true;
-                    for(int i = 1; i < getPlayers(); i++) {
+                    for (int i = 1; i < getPlayers(); i++) {
                         owner.engine[i].displaysize = -1;
                     }
                 } else {
                     // 観戦
-                    for(int i = 0; i < getPlayers(); i++) {
+                    for (int i = 0; i < getPlayers(); i++) {
                         owner.engine[i].displaysize = -1;
                         owner.engine[i].enableSE = false;
                     }
                 }
 
                 // Apply 1vs1 layout
-                if((currentRoomInfo != null) && (currentRoomInfo.maxPlayers == 2)) {
+                if ((currentRoomInfo != null) && (currentRoomInfo.maxPlayers == 2)) {
                     owner.engine[0].displaysize = 0;
                     owner.engine[1].displaysize = 0;
                 }
@@ -2068,20 +2219,20 @@ public class NetVSBattleMode extends NetDummyMode {
                 isPractice = false;
                 owner.engine[0].stat = GameEngine.STAT_SETTING;
 
-                for(int i = 0; i < getPlayers(); i++) {
-                    if(owner.engine[i].field != null) {
+                for (int i = 0; i < getPlayers(); i++) {
+                    if (owner.engine[i].field != null) {
                         owner.engine[i].field.reset();
                     }
                     owner.engine[i].nowPieceObject = null;
                     garbage[i] = 0;
 
-                    if((owner.engine[i].stat == GameEngine.STAT_NOTHING) || (isNetGameFinished)) {
+                    if ((owner.engine[i].stat == GameEngine.STAT_NOTHING) || (isNetGameFinished)) {
                         owner.engine[i].stat = GameEngine.STAT_SETTING;
                     }
                     owner.engine[i].resetStatc();
                 }
             } else {
-                if(message[1].equals("watchonly")) {
+                if (message[1].equals("watchonly")) {
                     int seatID = Integer.parseInt(message[4]);
                     int playerID = getPlayerIDbySeatID(seatID);
                     isPlayerExist[playerID] = false;
@@ -2091,46 +2242,46 @@ public class NetVSBattleMode extends NetDummyMode {
             }
         }
         // 誰か来た
-        if(message[0].equals("playerenter")) {
+        if (message[0].equals("playerenter")) {
             int seatID = Integer.parseInt(message[3]);
-            if((seatID != -1) && (numPlayers < 2)) {
+            if ((seatID != -1) && (numPlayers < 2)) {
                 owner.receiver.playSE("levelstop");
             }
         }
         // 誰か出て行った
-        if(message[0].equals("playerleave")) {
+        if (message[0].equals("playerleave")) {
             int seatID = Integer.parseInt(message[3]);
 
-            if(seatID != -1) {
+            if (seatID != -1) {
                 int playerID = getPlayerIDbySeatID(seatID);
                 isPlayerExist[playerID] = false;
                 isReady[playerID] = false;
                 garbage[playerID] = 0;
 
                 numPlayers--;
-                if(numPlayers < 2) {
+                if (numPlayers < 2) {
                     isReady[0] = false;
                     autoStartActive = false;
                 }
             }
         }
         // Automatic timer start
-        if(message[0].equals("autostartbegin")) {
-            if(numPlayers >= 2) {
+        if (message[0].equals("autostartbegin")) {
+            if (numPlayers >= 2) {
                 int seconds = Integer.parseInt(message[1]);
                 autoStartTimer = seconds * 60;
                 autoStartActive = true;
             }
         }
         // Automatic timer stop
-        if(message[0].equals("autostartstop")) {
+        if (message[0].equals("autostartstop")) {
             autoStartActive = false;
         }
         // game start
-        if(message[0].equals("start")) {
+        if (message[0].equals("start")) {
             long randseed = Long.parseLong(message[1], 16);
             numNowPlayers = Integer.parseInt(message[2]);
-            if((numNowPlayers >= 2) && (playerSeatNumber != -1)) numGames++;
+            if ((numNowPlayers >= 2) && (playerSeatNumber != -1)) numGames++;
             numAlivePlayers = numNowPlayers;
             mapNo = Integer.parseInt(message[3]);
 
@@ -2141,10 +2292,10 @@ public class NetVSBattleMode extends NetDummyMode {
             isNetGameActive = true;
             netPlayTimer = 0;
 
-            if(currentRoomInfo != null)
+            if (currentRoomInfo != null)
                 currentRoomInfo.playing = true;
 
-            if((playerSeatNumber != -1) && (!rulelockFlag) && (netLobby.ruleOptPlayer != null))
+            if ((playerSeatNumber != -1) && (!rulelockFlag) && (netLobby.ruleOptPlayer != null))
                 owner.engine[0].ruleopt.copy(netLobby.ruleOptPlayer);    // Restore rules
 
             updatePlayerExist();
@@ -2152,24 +2303,24 @@ public class NetVSBattleMode extends NetDummyMode {
 
             log.debug("Game Started numNowPlayers:" + numNowPlayers + " numMaxPlayers:" + numMaxPlayers + " mapNo:" + mapNo);
 
-            for(int i = 0; i < getPlayers(); i++) {
+            for (int i = 0; i < getPlayers(); i++) {
                 GameEngine engine = owner.engine[i];
                 engine.resetStatc();
 
-                if(isPlayerExist[i]) {
+                if (isPlayerExist[i]) {
                     engine.stat = GameEngine.STAT_READY;
                     engine.randSeed = randseed;
                     engine.random = new Random(randseed);
 
-                    if((numMaxPlayers == 2) && (numNowPlayers == 2)) {
+                    if ((numMaxPlayers == 2) && (numNowPlayers == 2)) {
                         engine.isVisible = true;
                         engine.displaysize = 0;
 
-                        if( (rulelockFlag) || ((i == 0) && (playerSeatNumber != -1)) ) {
+                        if ((rulelockFlag) || ((i == 0) && (playerSeatNumber != -1))) {
                             engine.isNextVisible = true;
                             engine.isHoldVisible = true;
 
-                            if(i != 0) {
+                            if (i != 0) {
                                 engine.randomizer = owner.engine[0].randomizer;
                             }
                         } else {
@@ -2177,13 +2328,13 @@ public class NetVSBattleMode extends NetDummyMode {
                             engine.isHoldVisible = false;
                         }
                     }
-                } else if(i < numMaxPlayers) {
+                } else if (i < numMaxPlayers) {
                     engine.stat = GameEngine.STAT_SETTING;
                     engine.isVisible = true;
                     engine.isNextVisible = false;
                     engine.isHoldVisible = false;
 
-                    if((numMaxPlayers == 2) && (numNowPlayers == 2)) {
+                    if ((numMaxPlayers == 2) && (numNowPlayers == 2)) {
                         engine.isVisible = false;
                     }
                 } else {
@@ -2196,11 +2347,11 @@ public class NetVSBattleMode extends NetDummyMode {
             }
         }
         // 死亡
-        if(message[0].equals("dead")) {
+        if (message[0].equals("dead")) {
             int seatID = Integer.parseInt(message[3]);
             int playerID = getPlayerIDbySeatID(seatID);
             int koUID = -1;
-            if(message.length > 5) koUID = Integer.parseInt(message[5]);
+            if (message.length > 5) koUID = Integer.parseInt(message[5]);
 
 //            if((useTankMode == true) && (playerTeamsIsTank[playerID] == true)) {
 //                String teamName = playerTeams[playerID];
@@ -2215,7 +2366,7 @@ public class NetVSBattleMode extends NetDummyMode {
 //                isTank = true;
 //            }
 
-            if(!isDead[playerID]) {
+            if (!isDead[playerID]) {
                 isDead[playerID] = true;
                 playerPlace[playerID] = Integer.parseInt(message[4]);
                 owner.engine[playerID].gameEnded();
@@ -2223,17 +2374,17 @@ public class NetVSBattleMode extends NetDummyMode {
                 owner.engine[playerID].resetStatc();
                 numAlivePlayers--;
 
-                if(koUID == netLobby.netPlayerClient.getPlayerUID()) {
+                if (koUID == netLobby.netPlayerClient.getPlayerUID()) {
                     playerKObyYou[playerID] = true;
                     currentKO++;
                 }
-                if((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
+                if ((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
                     sendGameStat(owner.engine[playerID], playerID);
                 }
             }
         }
         // game finished
-        if(message[0].equals("finish")) {
+        if (message[0].equals("finish")) {
             log.debug("Game Finished");
 
             isNetGameActive = false;
@@ -2241,10 +2392,10 @@ public class NetVSBattleMode extends NetDummyMode {
             isNewcomer = false;
             netPlayTimerActive = false;
 
-            if(currentRoomInfo != null)
+            if (currentRoomInfo != null)
                 currentRoomInfo.playing = false;
 
-            if(isPractice) {
+            if (isPractice) {
                 isPractice = false;
                 owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
                 owner.engine[0].gameEnded();
@@ -2254,10 +2405,10 @@ public class NetVSBattleMode extends NetDummyMode {
 
             boolean flagTeamWin = Boolean.parseBoolean(message[4]);
 
-            if(flagTeamWin) {
+            if (flagTeamWin) {
                 //String strTeam = NetUtil.urlDecode(message[3]);
-                for(int i = 0; i < MAX_PLAYERS; i++) {
-                    if(isPlayerExist[i] && !isDead[i]) {
+                for (int i = 0; i < MAX_PLAYERS; i++) {
+                    if (isPlayerExist[i] && !isDead[i]) {
                         playerPlace[i] = 1;
                         owner.engine[i].gameEnded();
                         owner.engine[i].stat = GameEngine.STAT_EXCELLENT;
@@ -2265,7 +2416,7 @@ public class NetVSBattleMode extends NetDummyMode {
                         owner.engine[i].statistics.time = netPlayTimer;
                         numAlivePlayers--;
 
-                        if((i == 0) && (playerSeatNumber != -1)) {
+                        if ((i == 0) && (playerSeatNumber != -1)) {
                             numWins++;
                             sendGameStat(owner.engine[i], i);
                         }
@@ -2273,9 +2424,9 @@ public class NetVSBattleMode extends NetDummyMode {
                 }
             } else {
                 int seatID = Integer.parseInt(message[2]);
-                if(seatID != -1) {
+                if (seatID != -1) {
                     int playerID = getPlayerIDbySeatID(seatID);
-                    if(isPlayerExist[playerID]) {
+                    if (isPlayerExist[playerID]) {
                         playerPlace[playerID] = 1;
                         owner.engine[playerID].gameEnded();
                         owner.engine[playerID].stat = GameEngine.STAT_EXCELLENT;
@@ -2283,7 +2434,7 @@ public class NetVSBattleMode extends NetDummyMode {
                         owner.engine[playerID].statistics.time = netPlayTimer;
                         numAlivePlayers--;
 
-                        if((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
+                        if ((seatID == playerSeatNumber) && (playerSeatNumber != -1)) {
                             numWins++;
                             sendGameStat(owner.engine[playerID], playerID);
                         }
@@ -2291,7 +2442,7 @@ public class NetVSBattleMode extends NetDummyMode {
                 }
             }
 
-            if((playerSeatNumber == -1) || (playerPlace[0] >= 3)) {
+            if ((playerSeatNumber == -1) || (playerPlace[0] >= 3)) {
                 owner.receiver.playSE("matchend");
             }
 
@@ -2299,18 +2450,18 @@ public class NetVSBattleMode extends NetDummyMode {
             updatePlayerNames();
         }
         // game messages
-        if(message[0].equals("game")) {
+        if (message[0].equals("game")) {
             int uid = Integer.parseInt(message[1]);
             int seatID = Integer.parseInt(message[2]);
             int playerID = getPlayerIDbySeatID(seatID);
 
-            if(owner.engine[playerID].field == null) {
+            if (owner.engine[playerID].field == null) {
                 owner.engine[playerID].field = new Field();
             }
 
             // Field without attributes
-            if(message[3].equals("field")) {
-                if(message.length > 7) {
+            if (message[3].equals("field")) {
+                if (message.length > 7) {
                     owner.engine[playerID].nowPieceObject = null;
                     owner.engine[playerID].holdDisable = false;
                     garbage[playerID] = Integer.parseInt(message[4]);
@@ -2318,10 +2469,10 @@ public class NetVSBattleMode extends NetDummyMode {
                     int highestGarbageY = Integer.parseInt(message[6]);
                     int highestWallY = Integer.parseInt(message[7]);
                     playerSkin[playerID] = skin;
-                    if(message.length > 9) {
+                    if (message.length > 9) {
                         String strFieldData = message[8];
                         boolean isCompressed = Boolean.parseBoolean(message[9]);
-                        if(isCompressed) {
+                        if (isCompressed) {
                             strFieldData = NetUtil.decompressString(strFieldData);
                         }
                         owner.engine[playerID].field.stringToField(strFieldData, skin, highestGarbageY, highestWallY);
@@ -2331,17 +2482,17 @@ public class NetVSBattleMode extends NetDummyMode {
                 }
             }
             // Field with attributes
-            if(message[3].equals("fieldattr")) {
-                if(message.length > 5) {
+            if (message[3].equals("fieldattr")) {
+                if (message.length > 5) {
                     owner.engine[playerID].nowPieceObject = null;
                     owner.engine[playerID].holdDisable = false;
                     garbage[playerID] = Integer.parseInt(message[4]);
                     int skin = Integer.parseInt(message[5]);
                     playerSkin[playerID] = skin;
-                    if(message.length > 7) {
+                    if (message.length > 7) {
                         String strFieldData = message[6];
                         boolean isCompressed = Boolean.parseBoolean(message[7]);
-                        if(isCompressed) {
+                        if (isCompressed) {
                             strFieldData = NetUtil.decompressString(strFieldData);
                         }
                         owner.engine[playerID].field.attrStringToField(strFieldData, skin);
@@ -2351,10 +2502,10 @@ public class NetVSBattleMode extends NetDummyMode {
                 }
             }
             // 操作中Block
-            if(message[3].equals("piece")) {
+            if (message[3].equals("piece")) {
                 int id = Integer.parseInt(message[4]);
 
-                if(id >= 0) {
+                if (id >= 0) {
                     int pieceX = Integer.parseInt(message[5]);
                     int pieceY = Integer.parseInt(message[6]);
                     int pieceDir = Integer.parseInt(message[7]);
@@ -2376,7 +2527,7 @@ public class NetVSBattleMode extends NetDummyMode {
                     owner.engine[playerID].nowPieceBottomY =
                         owner.engine[playerID].nowPieceObject.getBottom(pieceX, pieceY, owner.engine[playerID].field);
 
-                    if(owner.engine[playerID].stat != GameEngine.STAT_EXCELLENT) {
+                    if (owner.engine[playerID].stat != GameEngine.STAT_EXCELLENT) {
                         owner.engine[playerID].stat = GameEngine.STAT_MOVE;
                         owner.engine[playerID].statc[0] = 2;
                     }
@@ -2386,14 +2537,13 @@ public class NetVSBattleMode extends NetDummyMode {
                     owner.engine[playerID].nowPieceObject = null;
                 }
 
-                if((playerSeatNumber == -1) && (!netPlayTimerActive) && (!isNetGameFinished) && (!isNewcomer)) {
+                if ((playerSeatNumber == -1) && (!netPlayTimerActive) && (!isNetGameFinished) && (!isNewcomer)) {
                     netPlayTimerActive = true;
                     netPlayTimer = 0;
                 }
 
-                if((playerSeatNumber != -1) && (netPlayTimerActive) && (!isPractice) &&
-                   (owner.engine[0].stat == GameEngine.STAT_READY) && (owner.engine[0].statc[0] < owner.engine[0].goEnd))
-                {
+                if ((playerSeatNumber != -1) && (netPlayTimerActive) && (!isPractice) &&
+                    (owner.engine[0].stat == GameEngine.STAT_READY) && (owner.engine[0].statc[0] < owner.engine[0].goEnd)) {
                     owner.engine[0].statc[0] = owner.engine[0].goEnd;
                 }
             }
@@ -2411,13 +2561,13 @@ public class NetVSBattleMode extends NetDummyMode {
 //                playerTeamsIsTank[playerID] = true;
 //            }
             //  Attack
-            if(message[3].equals("attack")) {
+            if (message[3].equals("attack")) {
                 //int pts = Integer.parseInt(message[4]);
                 int[] pts = new int[ATTACK_CATEGORIES];
                 int sumPts = 0;
 
-                for(int i = 0; i < ATTACK_CATEGORIES; i++){
-                    pts[i] = Integer.parseInt(message[4+i]);
+                for (int i = 0; i < ATTACK_CATEGORIES; i++) {
+                    pts[i] = Integer.parseInt(message[4 + i]);
                     sumPts += pts[i];
                 }
 
@@ -2428,49 +2578,49 @@ public class NetVSBattleMode extends NetDummyMode {
                 lastpiece[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 9]);
                 scgettime[playerID] = 0;
 
-                if( (playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
-                        ((playerTeams[0].length() <= 0) || (playerTeams[playerID].length() <= 0) || !playerTeams[0].equalsIgnoreCase(playerTeams[playerID])))
+                if ((playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
+                    ((playerTeams[0].length() <= 0) || (playerTeams[playerID].length() <= 0) || !playerTeams[0].equalsIgnoreCase(playerTeams[playerID])))
 //                if( (playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
 //                    ((playerTeams[0].length() <= 0) || (playerTeams[playerID].length() <= 0) || (!playerTeams[0].equalsIgnoreCase(playerTeams[playerID]))) &&
 //                    (playerTeamsIsTank[0]) )
                 {
                     int secondAdd = 0; //TODO: Allow for chunking of attack types other than b2b.
-                    if(currentRoomInfo.b2bChunk){
+                    if (currentRoomInfo.b2bChunk) {
                         secondAdd = pts[ATTACK_CATEGORY_B2B];
                     }
 
                     GarbageEntry garbageEntry = new GarbageEntry(sumPts - secondAdd, playerID, uid);
                     garbageEntries.add(garbageEntry);
 
-                    if(secondAdd > 0){
+                    if (secondAdd > 0) {
                         garbageEntry = new GarbageEntry(secondAdd, playerID, uid);
                         garbageEntries.add(garbageEntry);
                     }
 
                     garbage[0] = getTotalGarbageLines();
-                    if(garbage[0] >= 4*GARBAGE_DENOMINATOR) owner.engine[0].playSE("danger");
+                    if (garbage[0] >= 4 * GARBAGE_DENOMINATOR) owner.engine[0].playSE("danger");
                     netLobby.netPlayerClient.send("game\tgarbageupdate\t" + garbage[0] + "\n");
                 }
             }
             // せり上がりバー更新
-            if(message[3].equals("garbageupdate")) {
+            if (message[3].equals("garbageupdate")) {
                 garbage[playerID] = Integer.parseInt(message[4]);
             }
             // NEXT and HOLD
-            if(message[3].equals("next")) {
+            if (message[3].equals("next")) {
                 int maxNext = Integer.parseInt(message[4]);
                 owner.engine[playerID].ruleopt.nextDisplay = maxNext;
                 owner.engine[playerID].holdDisable = Boolean.parseBoolean(message[5]);
 
-                for(int i = 0; i < maxNext + 1; i++) {
-                    if(i + 6 < message.length) {
+                for (int i = 0; i < maxNext + 1; i++) {
+                    if (i + 6 < message.length) {
                         String[] strPieceData = message[i + 6].split(";");
                         int pieceID = Integer.parseInt(strPieceData[0]);
                         int pieceDirection = Integer.parseInt(strPieceData[1]);
                         int pieceColor = Integer.parseInt(strPieceData[2]);
 
-                        if(i == 0) {
-                            if(pieceID == Piece.PIECE_NONE) {
+                        if (i == 0) {
+                            if (pieceID == Piece.PIECE_NONE) {
                                 owner.engine[playerID].holdPieceObject = null;
                             } else {
                                 owner.engine[playerID].holdPieceObject = new Piece(pieceID);
@@ -2480,7 +2630,7 @@ public class NetVSBattleMode extends NetDummyMode {
                                 owner.engine[playerID].holdPieceObject.updateConnectData();
                             }
                         } else {
-                            if((owner.engine[playerID].nextPieceArrayObject == null) || (owner.engine[playerID].nextPieceArrayObject.length < maxNext)) {
+                            if ((owner.engine[playerID].nextPieceArrayObject == null) || (owner.engine[playerID].nextPieceArrayObject.length < maxNext)) {
                                 owner.engine[playerID].nextPieceArrayObject = new Piece[maxNext];
                             }
                             owner.engine[playerID].nextPieceArrayObject[i - 1] = new Piece(pieceID);
@@ -2496,9 +2646,9 @@ public class NetVSBattleMode extends NetDummyMode {
                 owner.engine[playerID].isHoldVisible = true;
             }
             // HurryUp
-            if(message[3].equals("hurryup")) {
-                if(!hurryupStarted && (hurryupSeconds > 0)) {
-                    if((playerSeatNumber != -1) && (owner.engine[0].timerActive)) {
+            if (message[3].equals("hurryup")) {
+                if (!hurryupStarted && (hurryupSeconds > 0)) {
+                    if ((playerSeatNumber != -1) && (owner.engine[0].timerActive)) {
                         owner.receiver.playSE("hurryup");
                     }
                     hurryupStarted = true;
@@ -2512,13 +2662,19 @@ public class NetVSBattleMode extends NetDummyMode {
      * 敵から送られてきたgarbage blockの data
      */
     private class GarbageEntry {
-        /** garbage blockcount */
+        /**
+         * garbage blockcount
+         */
         public int lines = 0;
 
-        /** 送信元(ゲーム用Player number) */
+        /**
+         * 送信元(ゲーム用Player number)
+         */
         public int playerID = 0;
 
-        /** 送信元(ゲーム以外用Player number) */
+        /**
+         * 送信元(ゲーム以外用Player number)
+         */
         public int uid = 0;
 
         /**
@@ -2530,6 +2686,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
         /**
          * パラメータ付きConstructor
+         *
          * @param g garbage blockcount
          */
         @SuppressWarnings("unused")
@@ -2539,6 +2696,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
         /**
          * パラメータ付きConstructor
+         *
          * @param g garbage blockcount
          * @param p 送信元(ゲーム用Player number)
          */
@@ -2549,6 +2707,7 @@ public class NetVSBattleMode extends NetDummyMode {
 
         /**
          * パラメータ付きConstructor
+         *
          * @param g garbage blockcount
          * @param p 送信元(ゲーム用Player number)
          * @param s 送信元(ゲーム以外用Player number)

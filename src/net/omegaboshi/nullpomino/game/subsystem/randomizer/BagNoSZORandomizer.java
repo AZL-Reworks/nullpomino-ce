@@ -9,7 +9,7 @@ public class BagNoSZORandomizer extends BagRandomizer {
     public BagNoSZORandomizer() {
         super();
     }
-    
+
     public void init() {
         firstBag = true;
         super.init();

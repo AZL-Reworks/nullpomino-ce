@@ -20,13 +20,14 @@ import java.nio.ByteBuffer;
  ****************************************************************************/
 
 public class Crypt {
-    private Crypt() {} // defined so class can't be instantiated.
+    private Crypt() {
+    } // defined so class can't be instantiated.
 
     private static final int ITERATIONS = 16;
 
     private static final boolean shifts2[] = {
         false, false, true, true, true, true, true, true,
-        false, true,  true, true, true, true, true, false
+        false, true, true, true, true, true, true, false
     };
 
     private static final int skb[][] = {
@@ -346,16 +347,16 @@ public class Crypt {
 
     private static int fourBytesToInt(byte b[], int offset) {
         return byteToUnsigned(b[offset++])
-        | (byteToUnsigned(b[offset++]) <<  8)
-        | (byteToUnsigned(b[offset++]) << 16)
-        | (byteToUnsigned(b[offset]) << 24);
+            | (byteToUnsigned(b[offset++]) << 8)
+            | (byteToUnsigned(b[offset++]) << 16)
+            | (byteToUnsigned(b[offset]) << 24);
     }
 
     private static final void intToFourBytes(int iValue, byte b[], int offset) {
-        b[offset++] = (byte)((iValue)        & 0xff);
-        b[offset++] = (byte)((iValue >>> 8 ) & 0xff);
-        b[offset++] = (byte)((iValue >>> 16) & 0xff);
-        b[offset] = (byte)((iValue >>> 24) & 0xff);
+        b[offset++] = (byte) ((iValue) & 0xff);
+        b[offset++] = (byte) ((iValue >>> 8) & 0xff);
+        b[offset++] = (byte) ((iValue >>> 16) & 0xff);
+        b[offset] = (byte) ((iValue >>> 24) & 0xff);
     }
 
     private static final void PERM_OP(int a, int b, int n, int m, int results[]) {
@@ -378,8 +379,8 @@ public class Crypt {
         return a;
     }
 
-    private static int [] des_set_key(byte key[]) {
-        int schedule[] = new int [ITERATIONS * 2];
+    private static int[] des_set_key(byte key[]) {
+        int schedule[] = new int[ITERATIONS * 2];
 
         int c = fourBytesToInt(key, 0);
         int d = fourBytesToInt(key, 4);
@@ -387,29 +388,33 @@ public class Crypt {
         int results[] = new int[2];
 
         PERM_OP(d, c, 4, 0x0f0f0f0f, results);
-        d = results[0]; c = results[1];
+        d = results[0];
+        c = results[1];
 
         c = HPERM_OP(c, -2, 0xcccc0000);
         d = HPERM_OP(d, -2, 0xcccc0000);
 
         PERM_OP(d, c, 1, 0x55555555, results);
-        d = results[0]; c = results[1];
+        d = results[0];
+        c = results[1];
 
         PERM_OP(c, d, 8, 0x00ff00ff, results);
-        c = results[0]; d = results[1];
+        c = results[0];
+        d = results[1];
 
         PERM_OP(d, c, 1, 0x55555555, results);
-        d = results[0]; c = results[1];
+        d = results[0];
+        c = results[1];
 
-        d = (((d & 0x000000ff) <<  16) |  (d & 0x0000ff00)     |
-                ((d & 0x00ff0000) >>> 16) | ((c & 0xf0000000) >>> 4));
+        d = (((d & 0x000000ff) << 16) | (d & 0x0000ff00) |
+            ((d & 0x00ff0000) >>> 16) | ((c & 0xf0000000) >>> 4));
         c &= 0x0fffffff;
 
         int s, t;
         int j = 0;
 
-        for(int i = 0; i < ITERATIONS; i ++) {
-            if(shifts2[i]) {
+        for (int i = 0; i < ITERATIONS; i++) {
+            if (shifts2[i]) {
                 c = (c >>> 2) | (c << 26);
                 d = (d >>> 2) | (d << 26);
             } else {
@@ -420,21 +425,21 @@ public class Crypt {
             c &= 0x0fffffff;
             d &= 0x0fffffff;
 
-            s = skb[0][ (c       ) & 0x3f                       ]|
-            skb[1][((c >>>  6) & 0x03) | ((c >>>  7) & 0x3c)]|
-            skb[2][((c >>> 13) & 0x0f) | ((c >>> 14) & 0x30)]|
-            skb[3][((c >>> 20) & 0x01) | ((c >>> 21) & 0x06) |
-                   ((c >>> 22) & 0x38)];
+            s = skb[0][(c) & 0x3f] |
+                skb[1][((c >>> 6) & 0x03) | ((c >>> 7) & 0x3c)] |
+                skb[2][((c >>> 13) & 0x0f) | ((c >>> 14) & 0x30)] |
+                skb[3][((c >>> 20) & 0x01) | ((c >>> 21) & 0x06) |
+                    ((c >>> 22) & 0x38)];
 
-            t = skb[4][ (d     )  & 0x3f                       ]|
-            skb[5][((d >>> 7) & 0x03) | ((d >>>  8) & 0x3c)]|
-            skb[6][ (d >>>15) & 0x3f                       ]|
-            skb[7][((d >>>21) & 0x0f) | ((d >>> 22) & 0x30)];
+            t = skb[4][(d) & 0x3f] |
+                skb[5][((d >>> 7) & 0x03) | ((d >>> 8) & 0x3c)] |
+                skb[6][(d >>> 15) & 0x3f] |
+                skb[7][((d >>> 21) & 0x0f) | ((d >>> 22) & 0x30)];
 
-            schedule[j++] = ((t <<  16) | (s & 0x0000ffff)) & 0xffffffff;
-            s             = ((s >>> 16) | (t & 0xffff0000));
+            schedule[j++] = ((t << 16) | (s & 0x0000ffff)) & 0xffffffff;
+            s = ((s >>> 16) | (t & 0xffff0000));
 
-            s             = (s << 4) | (s >>> 28);
+            s = (s << 4) | (s >>> 28);
             schedule[j++] = s & 0xffffffff;
         }
         return schedule;
@@ -450,57 +455,62 @@ public class Crypt {
         t = (v ^ (v << 16)) ^ R ^ s[S + 1];
         t = (t >>> 4) | (t << 28);
 
-        L ^= SPtrans[1][(t       ) & 0x3f] |
-        SPtrans[3][(t >>>  8) & 0x3f] |
-        SPtrans[5][(t >>> 16) & 0x3f] |
-        SPtrans[7][(t >>> 24) & 0x3f] |
-        SPtrans[0][(u       ) & 0x3f] |
-        SPtrans[2][(u >>>  8) & 0x3f] |
-        SPtrans[4][(u >>> 16) & 0x3f] |
-        SPtrans[6][(u >>> 24) & 0x3f];
+        L ^= SPtrans[1][(t) & 0x3f] |
+            SPtrans[3][(t >>> 8) & 0x3f] |
+            SPtrans[5][(t >>> 16) & 0x3f] |
+            SPtrans[7][(t >>> 24) & 0x3f] |
+            SPtrans[0][(u) & 0x3f] |
+            SPtrans[2][(u >>> 8) & 0x3f] |
+            SPtrans[4][(u >>> 16) & 0x3f] |
+            SPtrans[6][(u >>> 24) & 0x3f];
 
         return L;
     }
 
-    private static final int [] body(int schedule[], int Eswap0, int Eswap1) {
+    private static final int[] body(int schedule[], int Eswap0, int Eswap1) {
         int left = 0;
         int right = 0;
-        int t     = 0;
+        int t = 0;
 
-        for (int j = 0; j < 25; j ++) {
+        for (int j = 0; j < 25; j++) {
             for (int i = 0; i < ITERATIONS * 2; i += 4) {
-                left  = D_ENCRYPT(left,  right, i,     Eswap0, Eswap1, schedule);
-                right = D_ENCRYPT(right, left,  i + 2, Eswap0, Eswap1, schedule);
+                left = D_ENCRYPT(left, right, i, Eswap0, Eswap1, schedule);
+                right = D_ENCRYPT(right, left, i + 2, Eswap0, Eswap1, schedule);
             }
-            t     = left;
-            left  = right;
+            t = left;
+            left = right;
             right = t;
         }
 
         t = right;
 
         right = (left >>> 1) | (left << 31);
-        left  = (t    >>> 1) | (t    << 31);
+        left = (t >>> 1) | (t << 31);
 
-        left  &= 0xffffffff;
+        left &= 0xffffffff;
         right &= 0xffffffff;
 
         int results[] = new int[2];
 
         PERM_OP(right, left, 1, 0x55555555, results);
-        right = results[0]; left = results[1];
+        right = results[0];
+        left = results[1];
 
         PERM_OP(left, right, 8, 0x00ff00ff, results);
-        left = results[0]; right = results[1];
+        left = results[0];
+        right = results[1];
 
         PERM_OP(right, left, 2, 0x33333333, results);
-        right = results[0]; left = results[1];
+        right = results[0];
+        left = results[1];
 
         PERM_OP(left, right, 16, 0x0000ffff, results);
-        left = results[0]; right = results[1];
+        left = results[0];
+        right = results[1];
 
         PERM_OP(right, left, 4, 0x0f0f0f0f, results);
-        right = results[0]; left = results[1];
+        right = results[0];
+        left = results[1];
 
         int out[] = new int[2];
 
@@ -514,13 +524,13 @@ public class Crypt {
 
     public static final String crypt(String salt, String original) {
         // wwb -- Should do some sanity checks: salt needs to be 2 chars, in alpha.
-        while(salt.length() < 2)
+        while (salt.length() < 2)
             salt += "A";
 
-        char[] buffer = new char [13];
+        char[] buffer = new char[13];
 
         char charZero = salt.charAt(0);
-        char charOne  = salt.charAt(1);
+        char charOne = salt.charAt(1);
 
         buffer[0] = charZero;
         buffer[1] = charOne;
@@ -529,14 +539,14 @@ public class Crypt {
         int Eswap1 = alphabet.indexOf(charOne) << 4;
         byte key[] = new byte[8];
 
-        for(int i = 0; i < key.length; i ++)
-            key[i] = (byte)0;
+        for (int i = 0; i < key.length; i++)
+            key[i] = (byte) 0;
 
-        for(int i = 0; i < key.length && i < original.length(); i ++)
+        for (int i = 0; i < key.length && i < original.length(); i++)
             key[i] = (byte) ((original.charAt(i)) << 1);
 
         int schedule[] = des_set_key(key);
-        int out[]      = body(schedule, Eswap0, Eswap1);
+        int out[] = body(schedule, Eswap0, Eswap1);
 
         byte b[] = new byte[9];
 
@@ -544,11 +554,11 @@ public class Crypt {
         intToFourBytes(out[1], b, 4);
         b[8] = 0;
 
-        for(int i = 2, y = 0, u = 0x80; i < 13; i ++) {
-            for(int j = 0, c = 0; j < 6; j ++) {
+        for (int i = 2, y = 0, u = 0x80; i < 13; i++) {
+            for (int j = 0, c = 0; j < 6; j++) {
                 c <<= 1;
 
-                if((b[y] & u) != 0)
+                if ((b[y] & u) != 0)
                     c |= 1;
 
                 u >>>= 1;

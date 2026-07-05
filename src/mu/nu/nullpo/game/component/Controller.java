@@ -31,61 +31,91 @@ package mu.nu.nullpo.game.component;
 import java.io.Serializable;
 
 /**
- *  button input状態を管理するクラス
+ * button input状態を管理するクラス
  */
 public class Controller implements Serializable {
-    /** Serial version ID */
+    /**
+     * Serial version ID
+     */
     private static final long serialVersionUID = -4855072501928533723L;
 
-    /** ↑ (Hard drop) button */
+    /**
+     * ↑ (Hard drop) button
+     */
     public static final int BUTTON_UP = 0;
 
-    /** ↓ (Soft drop) button */
+    /**
+     * ↓ (Soft drop) button
+     */
     public static final int BUTTON_DOWN = 1;
 
-    /** ← (Left movement) button */
+    /**
+     * ← (Left movement) button
+     */
     public static final int BUTTON_LEFT = 2;
 
-    /** → (Right movement) button */
+    /**
+     * → (Right movement) button
+     */
     public static final int BUTTON_RIGHT = 3;
 
-    /** A (Regular rotation) button */
+    /**
+     * A (Regular rotation) button
+     */
     public static final int BUTTON_A = 4;
 
-    /** B (Reverse rotation)  button */
+    /**
+     * B (Reverse rotation)  button
+     */
     public static final int BUTTON_B = 5;
 
-    /** C (Regular rotation) button */
+    /**
+     * C (Regular rotation) button
+     */
     public static final int BUTTON_C = 6;
 
-    /** D (Hold) button */
+    /**
+     * D (Hold) button
+     */
     public static final int BUTTON_D = 7;
 
-    /** E (180-degree rotation) button */
+    /**
+     * E (180-degree rotation) button
+     */
     public static final int BUTTON_E = 8;
 
-    /** F (Use item, staff roll fast-forward, etc.) button */
+    /**
+     * F (Use item, staff roll fast-forward, etc.) button
+     */
     public static final int BUTTON_F = 9;
 
-    /** Number of buttons */
+    /**
+     * Number of buttons
+     */
     public static final int BUTTON_COUNT = 10;
 
-    /** ビット演算用定count */
+    /**
+     * ビット演算用定count
+     */
     public static final int BUTTON_BIT_UP = 1,
-                            BUTTON_BIT_DOWN = 2,
-                            BUTTON_BIT_LEFT = 4,
-                            BUTTON_BIT_RIGHT = 8,
-                            BUTTON_BIT_A = 16,
-                            BUTTON_BIT_B = 32,
-                            BUTTON_BIT_C = 64,
-                            BUTTON_BIT_D = 128,
-                            BUTTON_BIT_E = 256,
-                            BUTTON_BIT_F = 512;
+        BUTTON_BIT_DOWN = 2,
+        BUTTON_BIT_LEFT = 4,
+        BUTTON_BIT_RIGHT = 8,
+        BUTTON_BIT_A = 16,
+        BUTTON_BIT_B = 32,
+        BUTTON_BIT_C = 64,
+        BUTTON_BIT_D = 128,
+        BUTTON_BIT_E = 256,
+        BUTTON_BIT_F = 512;
 
-    /** Buttonを押した状態ならtrue */
+    /**
+     * Buttonを押した状態ならtrue
+     */
     public boolean[] buttonPress;
 
-    /** Buttonを押しっぱなしにしている time */
+    /**
+     * Buttonを押しっぱなしにしている time
+     */
     public int[] buttonTime;
 
     /**
@@ -97,6 +127,7 @@ public class Controller implements Serializable {
 
     /**
      * Copy constructor
+     *
      * @param c Copy source
      */
     public Controller(Controller c) {
@@ -113,38 +144,41 @@ public class Controller implements Serializable {
 
     /**
      * 他のController stateをコピー
+     *
      * @param c Copy source
      */
     public void copy(Controller c) {
         buttonPress = new boolean[BUTTON_COUNT];
         buttonTime = new int[BUTTON_COUNT];
 
-        for(int i = 0; i < BUTTON_COUNT; i++) {
+        for (int i = 0; i < BUTTON_COUNT; i++) {
             buttonPress[i] = c.buttonPress[i];
             buttonTime[i] = c.buttonTime[i];
         }
     }
 
     /**
-     *  buttonをすべて押していない状態にする
+     * buttonをすべて押していない状態にする
      */
     public void clearButtonState() {
-        for(int i = 0; i < BUTTON_COUNT; i++) buttonPress[i] = false;
+        for (int i = 0; i < BUTTON_COUNT; i++) buttonPress[i] = false;
     }
 
     /**
-     *  buttonを1 frame だけ押した状態かどうか判定
+     * buttonを1 frame だけ押した状態かどうか判定
+     *
      * @param btn Button number
-     * @return  buttonを1 frame だけ押した状態ならtrue
+     * @return buttonを1 frame だけ押した状態ならtrue
      */
     public boolean isPush(int btn) {
         return (buttonTime[btn] == 1);
     }
 
     /**
-     *  buttonを押している状態かどうか判定
+     * buttonを押している状態かどうか判定
+     *
      * @param btn Button number
-     * @return  buttonを押している状態ならtrue
+     * @return buttonを押している状態ならtrue
      */
     public boolean isPress(int btn) {
         return (buttonTime[btn] >= 1);
@@ -152,6 +186,7 @@ public class Controller implements Serializable {
 
     /**
      * Menu でカーソルが動くかどうか判定
+     *
      * @param key Button number
      * @return カーソルが動くならtrue
      */
@@ -161,14 +196,14 @@ public class Controller implements Serializable {
 
     /**
      * Menu でカーソルが動くかどうか判定
+     *
      * @param key Button number
      * @param enableCButton C buttonでの高速移動許可
      * @return カーソルが動くならtrue
      */
     public boolean isMenuRepeatKey(int key, boolean enableCButton) {
-        if( (buttonTime[key] == 1) || ((buttonTime[key] >= 25) && (buttonTime[key] % 3 == 0)) ||
-            ((buttonTime[key] >= 1) && isPress(BUTTON_C) && enableCButton) )
-        {
+        if ((buttonTime[key] == 1) || ((buttonTime[key] >= 25) && (buttonTime[key] % 3 == 0)) ||
+            ((buttonTime[key] >= 1) && isPress(BUTTON_C) && enableCButton)) {
             return true;
         }
 
@@ -176,85 +211,90 @@ public class Controller implements Serializable {
     }
 
     /**
-     *  buttonを押した状態にする
+     * buttonを押した状態にする
+     *
      * @param key Button number
      */
     public void setButtonPressed(int key) {
-        if((key >= 0) && (key < buttonPress.length)) buttonPress[key] = true;
+        if ((key >= 0) && (key < buttonPress.length)) buttonPress[key] = true;
     }
 
     /**
-     *  buttonを押してない状態にする
+     * buttonを押してない状態にする
+     *
      * @param key Button number
      */
     public void setButtonUnpressed(int key) {
-        if((key >= 0) && (key < buttonPress.length)) buttonPress[key] = false;
+        if ((key >= 0) && (key < buttonPress.length)) buttonPress[key] = false;
     }
 
     /**
-     *  buttonを押した状態を設定
+     * buttonを押した状態を設定
+     *
      * @param key Button number
      * @param pressed When true,押した, falseなら押してない
      */
     public void setButtonState(int key, boolean pressed) {
-        if((key >= 0) && (key < buttonPress.length)) buttonPress[key] = pressed;
+        if ((key >= 0) && (key < buttonPress.length)) buttonPress[key] = pressed;
     }
 
     /**
-     *  button input状態をビット flagで返す
-     * @return  button input状態のビット flag
+     * button input状態をビット flagで返す
+     *
+     * @return button input状態のビット flag
      */
     public int getButtonBit() {
         int input = 0;
 
-        if(buttonPress[BUTTON_UP]) input |= BUTTON_BIT_UP;
-        if(buttonPress[BUTTON_DOWN]) input |= BUTTON_BIT_DOWN;
-        if(buttonPress[BUTTON_LEFT]) input |= BUTTON_BIT_LEFT;
-        if(buttonPress[BUTTON_RIGHT]) input |= BUTTON_BIT_RIGHT;
-        if(buttonPress[BUTTON_A]) input |= BUTTON_BIT_A;
-        if(buttonPress[BUTTON_B]) input |= BUTTON_BIT_B;
-        if(buttonPress[BUTTON_C]) input |= BUTTON_BIT_C;
-        if(buttonPress[BUTTON_D]) input |= BUTTON_BIT_D;
-        if(buttonPress[BUTTON_E]) input |= BUTTON_BIT_E;
-        if(buttonPress[BUTTON_F]) input |= BUTTON_BIT_F;
+        if (buttonPress[BUTTON_UP]) input |= BUTTON_BIT_UP;
+        if (buttonPress[BUTTON_DOWN]) input |= BUTTON_BIT_DOWN;
+        if (buttonPress[BUTTON_LEFT]) input |= BUTTON_BIT_LEFT;
+        if (buttonPress[BUTTON_RIGHT]) input |= BUTTON_BIT_RIGHT;
+        if (buttonPress[BUTTON_A]) input |= BUTTON_BIT_A;
+        if (buttonPress[BUTTON_B]) input |= BUTTON_BIT_B;
+        if (buttonPress[BUTTON_C]) input |= BUTTON_BIT_C;
+        if (buttonPress[BUTTON_D]) input |= BUTTON_BIT_D;
+        if (buttonPress[BUTTON_E]) input |= BUTTON_BIT_E;
+        if (buttonPress[BUTTON_F]) input |= BUTTON_BIT_F;
 
         return input;
     }
 
     /**
-     *  button input状態をビット flagを元に設定
-     * @param input  button input状態のビット flag
+     * button input状態をビット flagを元に設定
+     *
+     * @param input button input状態のビット flag
      */
     public void setButtonBit(int input) {
         clearButtonState();
 
-        if((input & BUTTON_BIT_UP) != 0) buttonPress[BUTTON_UP] = true;
-        if((input & BUTTON_BIT_DOWN) != 0) buttonPress[BUTTON_DOWN] = true;
-        if((input & BUTTON_BIT_LEFT) != 0) buttonPress[BUTTON_LEFT] = true;
-        if((input & BUTTON_BIT_RIGHT) != 0) buttonPress[BUTTON_RIGHT] = true;
-        if((input & BUTTON_BIT_A) != 0) buttonPress[BUTTON_A] = true;
-        if((input & BUTTON_BIT_B) != 0) buttonPress[BUTTON_B] = true;
-        if((input & BUTTON_BIT_C) != 0) buttonPress[BUTTON_C] = true;
-        if((input & BUTTON_BIT_D) != 0) buttonPress[BUTTON_D] = true;
-        if((input & BUTTON_BIT_E) != 0) buttonPress[BUTTON_E] = true;
-        if((input & BUTTON_BIT_F) != 0) buttonPress[BUTTON_F] = true;
+        if ((input & BUTTON_BIT_UP) != 0) buttonPress[BUTTON_UP] = true;
+        if ((input & BUTTON_BIT_DOWN) != 0) buttonPress[BUTTON_DOWN] = true;
+        if ((input & BUTTON_BIT_LEFT) != 0) buttonPress[BUTTON_LEFT] = true;
+        if ((input & BUTTON_BIT_RIGHT) != 0) buttonPress[BUTTON_RIGHT] = true;
+        if ((input & BUTTON_BIT_A) != 0) buttonPress[BUTTON_A] = true;
+        if ((input & BUTTON_BIT_B) != 0) buttonPress[BUTTON_B] = true;
+        if ((input & BUTTON_BIT_C) != 0) buttonPress[BUTTON_C] = true;
+        if ((input & BUTTON_BIT_D) != 0) buttonPress[BUTTON_D] = true;
+        if ((input & BUTTON_BIT_E) != 0) buttonPress[BUTTON_E] = true;
+        if ((input & BUTTON_BIT_F) != 0) buttonPress[BUTTON_F] = true;
     }
 
     /**
-     *  button input timeを更新
+     * button input timeを更新
      */
     public void updateButtonTime() {
-        for(int i = 0; i < BUTTON_COUNT; i++) {
-            if(buttonPress[i]) buttonTime[i]++;
+        for (int i = 0; i < BUTTON_COUNT; i++) {
+            if (buttonPress[i]) buttonTime[i]++;
             else buttonTime[i] = 0;
         }
     }
 
     /**
-     *  button input状態をリセット
+     * button input状態をリセット
      */
     public void clearButtonTime() {
-        for(int i = 0; i < BUTTON_COUNT; i++) {
+        for (int i = 0; i < BUTTON_COUNT; i++) {
             buttonTime[i] = 0;
         }
     }

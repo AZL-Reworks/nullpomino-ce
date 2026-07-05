@@ -40,10 +40,14 @@ import org.newdawn.slick.state.StateBasedGame;
  * 全般の設定画面のステート
  */
 public class StateConfigGeneral extends BaseGameState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 6;
 
-    /** UI Text identifier Strings */
+    /**
+     * UI Text identifier Strings
+     */
     protected static final String[] UI_TEXT = {
         "ConfigGeneral_SE",
         "ConfigGeneral_BGM",
@@ -73,94 +77,152 @@ public class StateConfigGeneral extends BaseGameState {
         "ConfigGeneral_ScreenSizeType",
     };
 
-    /** Piece preview type options */
-    protected static final String[] NEXTTYPE_OPTIONS = {"TOP", "SIDE(SMALL)", "SIDE(BIG)"};
+    /**
+     * Piece preview type options
+     */
+    protected static final String[] NEXTTYPE_OPTIONS = { "TOP", "SIDE(SMALL)", "SIDE(BIG)" };
 
-    /** Screen size table */
+    /**
+     * Screen size table
+     */
     protected static final int[][] SCREENSIZE_TABLE =
-    {
-        {320,240}, {400,300}, {480,360}, {512,384}, {640,480}, {800,600}, {1024,768}, {1152,864}, {1280,960}
-    };
+        {
+            { 320, 240 }, { 400, 300 }, { 480, 360 }, { 512, 384 }, { 640, 480 }, { 800, 600 }, { 1024, 768 }, { 1152, 864 }, { 1280, 960 }
+        };
 
-    /** Cursor position */
+    /**
+     * Cursor position
+     */
     protected int cursor = 0;
 
-    /** フルスクリーン flag */
+    /**
+     * フルスクリーン flag
+     */
     protected boolean fullscreen;
 
-    /** Sound effectsON/OFF */
+    /**
+     * Sound effectsON/OFF
+     */
     protected boolean se;
 
-    /** BGMのON/OFF */
+    /**
+     * BGMのON/OFF
+     */
     protected boolean bgm;
 
-    /** BGMの事前読み込み */
+    /**
+     * BGMの事前読み込み
+     */
     protected boolean bgmpreload;
 
-    /** BGMストリーミングのON/OFF */
+    /**
+     * BGMストリーミングのON/OFF
+     */
     protected boolean bgmstreaming;
 
-    /** Background表示 */
+    /**
+     * Background表示
+     */
     protected boolean showbg;
 
-    /** FPS表示 */
+    /**
+     * FPS表示
+     */
     protected boolean showfps;
 
-    /**  frame ステップ is enabled */
+    /**
+     * frame ステップ is enabled
+     */
     protected boolean enableframestep;
 
-    /** MaximumFPS */
+    /**
+     * MaximumFPS
+     */
     protected int maxfps;
 
-    /** Line clearエフェクト表示 */
+    /**
+     * Line clearエフェクト表示
+     */
     protected boolean showlineeffect;
 
-    /** Line clear effect speed */
+    /**
+     * Line clear effect speed
+     */
     protected int lineeffectspeed;
 
-    /** 重い演出を使う */
+    /**
+     * 重い演出を使う
+     */
     protected boolean heavyeffect;
 
-    /** fieldBackgroundの明るさ */
+    /**
+     * fieldBackgroundの明るさ
+     */
     protected int fieldbgbright;
 
-    /** NEXT欄を暗くする */
+    /**
+     * NEXT欄を暗くする
+     */
     protected boolean darknextarea;
 
-    /** Sound effects volume */
+    /**
+     * Sound effects volume
+     */
     protected int sevolume;
 
-    /** BGM volume */
+    /**
+     * BGM volume
+     */
     protected int bgmvolume;
 
-    /** field右側にMeterを表示 */
+    /**
+     * field右側にMeterを表示
+     */
     protected boolean showmeter;
 
-    /** 垂直同期を待つ */
+    /**
+     * 垂直同期を待つ
+     */
     protected boolean vsync;
 
-    /** ghost ピースの上にNEXT表示 */
+    /**
+     * ghost ピースの上にNEXT表示
+     */
     protected boolean nextshadow;
 
-    /** 枠線型ghost ピース */
+    /**
+     * 枠線型ghost ピース
+     */
     protected boolean outlineghost;
 
-    /** Piece preview type (0=Top 1=Side small 2=Side big) */
+    /**
+     * Piece preview type (0=Top 1=Side small 2=Side big)
+     */
     protected int nexttype;
 
-    /** Timing of alternate FPS sleep (false=render true=update) */
+    /**
+     * Timing of alternate FPS sleep (false=render true=update)
+     */
     protected boolean alternateFPSTiming;
 
-    /** Allow dynamic adjust of target FPS (as seen in Swing version) */
+    /**
+     * Allow dynamic adjust of target FPS (as seen in Swing version)
+     */
     protected boolean alternateFPSDynamicAdjust;
 
-    /** Perfect FPS mode */
+    /**
+     * Perfect FPS mode
+     */
     protected boolean alternateFPSPerfectMode;
 
-    /** Execute Thread.yield() during Perfect FPS mode */
+    /**
+     * Execute Thread.yield() during Perfect FPS mode
+     */
     protected boolean alternateFPSPerfectYield;
 
-    /** Screen size type */
+    /**
+     * Screen size type
+     */
     protected int screenSizeType;
 
     /*
@@ -181,6 +243,7 @@ public class StateConfigGeneral extends BaseGameState {
 
     /**
      * Load settings
+     *
      * @param prop Property file to read from
      */
     protected void loadConfig(CustomProperties prop) {
@@ -196,11 +259,11 @@ public class StateConfigGeneral extends BaseGameState {
         showlineeffect = prop.getProperty("option.showlineeffect", true);
         lineeffectspeed = prop.getProperty("option.lineeffectspeed", 0);
         heavyeffect = prop.getProperty("option.heavyeffect", false);
-        if(prop.getProperty("option.fieldbgbright2") != null) {
+        if (prop.getProperty("option.fieldbgbright2") != null) {
             fieldbgbright = prop.getProperty("option.fieldbgbright2", 128);
         } else {
             fieldbgbright = prop.getProperty("option.fieldbgbright", 64) * 2;
-            if(fieldbgbright > 255) fieldbgbright = 255;
+            if (fieldbgbright > 255) fieldbgbright = 255;
         }
         darknextarea = prop.getProperty("option.darknextarea", true);
         sevolume = prop.getProperty("option.sevolume", 128);
@@ -210,9 +273,9 @@ public class StateConfigGeneral extends BaseGameState {
         nextshadow = prop.getProperty("option.nextshadow", false);
         outlineghost = prop.getProperty("option.outlineghost", false);
         nexttype = 0;
-        if((prop.getProperty("option.sidenext", false) == true) && (prop.getProperty("option.bigsidenext", false) == false)) {
+        if ((prop.getProperty("option.sidenext", false) == true) && (prop.getProperty("option.bigsidenext", false) == false)) {
             nexttype = 1;
-        } else if((prop.getProperty("option.sidenext", false) == true) && (prop.getProperty("option.bigsidenext", false) == true)) {
+        } else if ((prop.getProperty("option.sidenext", false) == true) && (prop.getProperty("option.bigsidenext", false) == true)) {
             nexttype = 2;
         }
         alternateFPSTiming = prop.getProperty("option.alternateFPSTiming", true);
@@ -223,8 +286,8 @@ public class StateConfigGeneral extends BaseGameState {
         screenSizeType = 4;    // Default to 640x480
         int sWidth = prop.getProperty("option.screenwidth", -1);
         int sHeight = prop.getProperty("option.screenheight", -1);
-        for(int i = 0; i < SCREENSIZE_TABLE.length; i++) {
-            if((sWidth == SCREENSIZE_TABLE[i][0]) && (sHeight == SCREENSIZE_TABLE[i][1])) {
+        for (int i = 0; i < SCREENSIZE_TABLE.length; i++) {
+            if ((sWidth == SCREENSIZE_TABLE[i][0]) && (sHeight == SCREENSIZE_TABLE[i][1])) {
                 screenSizeType = i;
                 break;
             }
@@ -233,6 +296,7 @@ public class StateConfigGeneral extends BaseGameState {
 
     /**
      * Save settings
+     *
      * @param prop Property file to save to
      */
     protected void saveConfig(CustomProperties prop) {
@@ -256,13 +320,13 @@ public class StateConfigGeneral extends BaseGameState {
         prop.setProperty("option.vsync", vsync);
         prop.setProperty("option.nextshadow", nextshadow);
         prop.setProperty("option.outlineghost", outlineghost);
-        if(nexttype == 0) {
+        if (nexttype == 0) {
             prop.setProperty("option.sidenext", false);
             prop.setProperty("option.bigsidenext", false);
-        } else if(nexttype == 1) {
+        } else if (nexttype == 1) {
             prop.setProperty("option.sidenext", true);
             prop.setProperty("option.bigsidenext", false);
-        } else if(nexttype == 2) {
+        } else if (nexttype == 2) {
             prop.setProperty("option.sidenext", true);
             prop.setProperty("option.bigsidenext", true);
         }
@@ -271,7 +335,7 @@ public class StateConfigGeneral extends BaseGameState {
         prop.setProperty("option.alternateFPSPerfectMode", alternateFPSPerfectMode);
         prop.setProperty("option.alternateFPSPerfectYield", alternateFPSPerfectYield);
 
-        if((screenSizeType >= 0) && (screenSizeType < SCREENSIZE_TABLE.length)) {
+        if ((screenSizeType >= 0) && (screenSizeType < SCREENSIZE_TABLE.length)) {
             prop.setProperty("option.screenwidth", SCREENSIZE_TABLE[screenSizeType][0]);
             prop.setProperty("option.screenheight", SCREENSIZE_TABLE[screenSizeType][1]);
         }
@@ -286,19 +350,19 @@ public class StateConfigGeneral extends BaseGameState {
         g.drawImage(ResourceHolder.imgMenu, 0, 0);
 
         // Basic Options
-        if(cursor < 15) {
+        if (cursor < 15) {
             NormalFont.printFontGrid(1, 1, "GENERAL OPTIONS: BASIC (1/3)", NormalFont.COLOR_ORANGE);
             NormalFont.printFontGrid(1, 3 + cursor, "b", NormalFont.COLOR_RED);
 
-            NormalFont.printFontGrid(2,  3, "SE:" + GeneralUtil.getOorX(se), (cursor == 0));
-            NormalFont.printFontGrid(2,  4, "BGM:" + GeneralUtil.getOorX(bgm), (cursor == 1));
-            NormalFont.printFontGrid(2,  5, "BGM PRELOAD:" + GeneralUtil.getOorX(bgmpreload), (cursor == 2));
-            NormalFont.printFontGrid(2,  6, "SE VOLUME:" + sevolume + "("+ (sevolume * 100 / 128) + "%)", (cursor == 3));
-            NormalFont.printFontGrid(2,  7, "BGM VOLUME:" + bgmvolume + "(" + (bgmvolume * 100 / 128) + "%)", (cursor == 4));
-            NormalFont.printFontGrid(2,  8, "SHOW BACKGROUND:" + GeneralUtil.getOorX(showbg), (cursor == 5));
-            NormalFont.printFontGrid(2,  9, "USE BACKGROUND FADE:" + GeneralUtil.getOorX(heavyeffect), (cursor == 6));
+            NormalFont.printFontGrid(2, 3, "SE:" + GeneralUtil.getOorX(se), (cursor == 0));
+            NormalFont.printFontGrid(2, 4, "BGM:" + GeneralUtil.getOorX(bgm), (cursor == 1));
+            NormalFont.printFontGrid(2, 5, "BGM PRELOAD:" + GeneralUtil.getOorX(bgmpreload), (cursor == 2));
+            NormalFont.printFontGrid(2, 6, "SE VOLUME:" + sevolume + "(" + (sevolume * 100 / 128) + "%)", (cursor == 3));
+            NormalFont.printFontGrid(2, 7, "BGM VOLUME:" + bgmvolume + "(" + (bgmvolume * 100 / 128) + "%)", (cursor == 4));
+            NormalFont.printFontGrid(2, 8, "SHOW BACKGROUND:" + GeneralUtil.getOorX(showbg), (cursor == 5));
+            NormalFont.printFontGrid(2, 9, "USE BACKGROUND FADE:" + GeneralUtil.getOorX(heavyeffect), (cursor == 6));
             NormalFont.printFontGrid(2, 10, "SHOW LINE EFFECT:" + GeneralUtil.getOorX(showlineeffect), (cursor == 7));
-            NormalFont.printFontGrid(2, 11, "LINE EFFECT SPEED:" + "X " + (lineeffectspeed+1), (cursor == 8));
+            NormalFont.printFontGrid(2, 11, "LINE EFFECT SPEED:" + "X " + (lineeffectspeed + 1), (cursor == 8));
             NormalFont.printFontGrid(2, 12, "SHOW METER:" + GeneralUtil.getOorX(showmeter), (cursor == 9));
             NormalFont.printFontGrid(2, 13, "DARK NEXT AREA:" + GeneralUtil.getOorX(darknextarea), (cursor == 10));
             NormalFont.printFontGrid(2, 14, "SHOW NEXT ABOVE SHADOW:" + GeneralUtil.getOorX(nextshadow), (cursor == 11));
@@ -307,31 +371,31 @@ public class StateConfigGeneral extends BaseGameState {
             NormalFont.printFontGrid(2, 17, "FIELD BG BRIGHT:" + fieldbgbright + "(" + (fieldbgbright * 100 / 255) + "%)", (cursor == 14));
         }
         // Advanced Options
-        else if(cursor < 21) {
+        else if (cursor < 21) {
             NormalFont.printFontGrid(1, 1, "GENERAL OPTIONS: ADVANCED (2/3)", NormalFont.COLOR_ORANGE);
             NormalFont.printFontGrid(1, 3 + (cursor - 15), "b", NormalFont.COLOR_RED);
 
-            NormalFont.printFontGrid(2,  3, "FULLSCREEN:" + GeneralUtil.getOorX(fullscreen), (cursor == 15));
-            NormalFont.printFontGrid(2,  4, "SHOW FPS:" + GeneralUtil.getOorX(showfps), (cursor == 16));
-            NormalFont.printFontGrid(2,  5, "MAX FPS:" + maxfps, (cursor == 17));
-            NormalFont.printFontGrid(2,  6, "FRAME STEP:" + GeneralUtil.getOorX(enableframestep), (cursor == 18));
-            NormalFont.printFontGrid(2,  7, "FPS PERFECT MODE:" + GeneralUtil.getOorX(alternateFPSPerfectMode), (cursor == 19));
-            NormalFont.printFontGrid(2,  8, "FPS PERFECT YIELD:" + GeneralUtil.getOorX(alternateFPSPerfectYield), (cursor == 20));
+            NormalFont.printFontGrid(2, 3, "FULLSCREEN:" + GeneralUtil.getOorX(fullscreen), (cursor == 15));
+            NormalFont.printFontGrid(2, 4, "SHOW FPS:" + GeneralUtil.getOorX(showfps), (cursor == 16));
+            NormalFont.printFontGrid(2, 5, "MAX FPS:" + maxfps, (cursor == 17));
+            NormalFont.printFontGrid(2, 6, "FRAME STEP:" + GeneralUtil.getOorX(enableframestep), (cursor == 18));
+            NormalFont.printFontGrid(2, 7, "FPS PERFECT MODE:" + GeneralUtil.getOorX(alternateFPSPerfectMode), (cursor == 19));
+            NormalFont.printFontGrid(2, 8, "FPS PERFECT YIELD:" + GeneralUtil.getOorX(alternateFPSPerfectYield), (cursor == 20));
         }
         // Slick Options
         else {
             NormalFont.printFontGrid(1, 1, "GENERAL OPTIONS: SLICK (3/3)", NormalFont.COLOR_ORANGE);
             NormalFont.printFontGrid(1, 3 + (cursor - 21), "b", NormalFont.COLOR_RED);
 
-            NormalFont.printFontGrid(2,  3, "BGM STREAMING:" + GeneralUtil.getOorX(bgmstreaming), (cursor == 21));
-            NormalFont.printFontGrid(2,  4, "VSYNC:" + GeneralUtil.getOorX(vsync), (cursor == 22));
-            NormalFont.printFontGrid(2,  5, "FPS SLEEP TIMING:" + (alternateFPSTiming ? "UPDATE" : "RENDER"), (cursor == 23));
-            NormalFont.printFontGrid(2,  6, "FPS DYNAMIC ADJUST:" + GeneralUtil.getOorX(alternateFPSDynamicAdjust), (cursor == 24));
-            NormalFont.printFontGrid(2,  7, "SCREEN SIZE:" + SCREENSIZE_TABLE[screenSizeType][0] + "e" + SCREENSIZE_TABLE[screenSizeType][1],
-                                     (cursor == 25));
+            NormalFont.printFontGrid(2, 3, "BGM STREAMING:" + GeneralUtil.getOorX(bgmstreaming), (cursor == 21));
+            NormalFont.printFontGrid(2, 4, "VSYNC:" + GeneralUtil.getOorX(vsync), (cursor == 22));
+            NormalFont.printFontGrid(2, 5, "FPS SLEEP TIMING:" + (alternateFPSTiming ? "UPDATE" : "RENDER"), (cursor == 23));
+            NormalFont.printFontGrid(2, 6, "FPS DYNAMIC ADJUST:" + GeneralUtil.getOorX(alternateFPSDynamicAdjust), (cursor == 24));
+            NormalFont.printFontGrid(2, 7, "SCREEN SIZE:" + SCREENSIZE_TABLE[screenSizeType][0] + "e" + SCREENSIZE_TABLE[screenSizeType][1],
+                (cursor == 25));
         }
 
-        if((cursor >= 0) && (cursor < UI_TEXT.length)) NormalFont.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
+        if ((cursor >= 0) && (cursor < UI_TEXT.length)) NormalFont.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
     }
 
     /*
@@ -340,140 +404,140 @@ public class StateConfigGeneral extends BaseGameState {
     @Override
     protected void updateImpl(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         // TTF font
-        if(ResourceHolder.ttfFont != null) ResourceHolder.ttfFont.loadGlyphs();
+        if (ResourceHolder.ttfFont != null) ResourceHolder.ttfFont.loadGlyphs();
 
         // Update key input states
         GameKey.gamekey[0].update(container.getInput());
 
         // Cursor movement
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_UP)) {
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_UP)) {
             cursor--;
-            if(cursor < 0) cursor = 25;
+            if (cursor < 0) cursor = 25;
             ResourceHolder.soundManager.play("cursor");
         }
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_DOWN)) {
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_DOWN)) {
             cursor++;
-            if(cursor > 25) cursor = 0;
+            if (cursor > 25) cursor = 0;
             ResourceHolder.soundManager.play("cursor");
         }
 
         // Configuration changes
         int change = 0;
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_LEFT)) change = -1;
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_RIGHT)) change = 1;
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_LEFT)) change = -1;
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_RIGHT)) change = 1;
 
-        if(change != 0) {
+        if (change != 0) {
             ResourceHolder.soundManager.play("change");
 
-            switch(cursor) {
-            case 0:
-                se = !se;
-                break;
-            case 1:
-                bgm = !bgm;
-                break;
-            case 2:
-                bgmpreload = !bgmpreload;
-                break;
-            case 3:
-                sevolume += change;
-                if(sevolume < 0) sevolume = 128;
-                if(sevolume > 128) sevolume = 0;
-                break;
-            case 4:
-                bgmvolume += change;
-                if(bgmvolume < 0) bgmvolume = 128;
-                if(bgmvolume > 128) bgmvolume = 0;
-                break;
-            case 5:
-                showbg = !showbg;
-                break;
-            case 6:
-                heavyeffect = !heavyeffect;
-                break;
-            case 7:
-                showlineeffect = !showlineeffect;
-                break;
-            case 8:
-                lineeffectspeed += change;
-                if(lineeffectspeed < 0) lineeffectspeed = 9;
-                if(lineeffectspeed > 9) lineeffectspeed = 0;
-                break;
-            case 9:
-                showmeter = !showmeter;
-                break;
-            case 10:
-                darknextarea = !darknextarea;
-                break;
-            case 11:
-                nextshadow = !nextshadow;
-                break;
-            case 12:
-                nexttype += change;
-                if(nexttype < 0) nexttype = 2;
-                if(nexttype > 2) nexttype = 0;
-                break;
-            case 13:
-                outlineghost = !outlineghost;
-                break;
-            case 14:
-                fieldbgbright += change;
-                if(fieldbgbright < 0) fieldbgbright = 255;
-                if(fieldbgbright > 255) fieldbgbright = 0;
-                break;
-            case 15:
-                fullscreen = !fullscreen;
-                break;
-            case 16:
-                showfps = !showfps;
-                break;
-            case 17:
-                maxfps += change;
-                if(maxfps < 0) maxfps = 99;
-                if(maxfps > 99) maxfps = 0;
-                break;
-            case 18:
-                enableframestep = !enableframestep;
-                break;
-            case 19:
-                alternateFPSPerfectMode = !alternateFPSPerfectMode;
-                break;
-            case 20:
-                alternateFPSPerfectYield = !alternateFPSPerfectYield;
-                break;
-            case 21:
-                bgmstreaming = !bgmstreaming;
-                break;
-            case 22:
-                vsync = !vsync;
-                break;
-            case 23:
-                alternateFPSTiming = !alternateFPSTiming;
-                break;
-            case 24:
-                alternateFPSDynamicAdjust = !alternateFPSDynamicAdjust;
-                break;
-            case 25:
-                screenSizeType += change;
-                if(screenSizeType < 0) screenSizeType = SCREENSIZE_TABLE.length - 1;
-                if(screenSizeType > SCREENSIZE_TABLE.length - 1) screenSizeType = 0;
-                break;
+            switch (cursor) {
+                case 0:
+                    se = !se;
+                    break;
+                case 1:
+                    bgm = !bgm;
+                    break;
+                case 2:
+                    bgmpreload = !bgmpreload;
+                    break;
+                case 3:
+                    sevolume += change;
+                    if (sevolume < 0) sevolume = 128;
+                    if (sevolume > 128) sevolume = 0;
+                    break;
+                case 4:
+                    bgmvolume += change;
+                    if (bgmvolume < 0) bgmvolume = 128;
+                    if (bgmvolume > 128) bgmvolume = 0;
+                    break;
+                case 5:
+                    showbg = !showbg;
+                    break;
+                case 6:
+                    heavyeffect = !heavyeffect;
+                    break;
+                case 7:
+                    showlineeffect = !showlineeffect;
+                    break;
+                case 8:
+                    lineeffectspeed += change;
+                    if (lineeffectspeed < 0) lineeffectspeed = 9;
+                    if (lineeffectspeed > 9) lineeffectspeed = 0;
+                    break;
+                case 9:
+                    showmeter = !showmeter;
+                    break;
+                case 10:
+                    darknextarea = !darknextarea;
+                    break;
+                case 11:
+                    nextshadow = !nextshadow;
+                    break;
+                case 12:
+                    nexttype += change;
+                    if (nexttype < 0) nexttype = 2;
+                    if (nexttype > 2) nexttype = 0;
+                    break;
+                case 13:
+                    outlineghost = !outlineghost;
+                    break;
+                case 14:
+                    fieldbgbright += change;
+                    if (fieldbgbright < 0) fieldbgbright = 255;
+                    if (fieldbgbright > 255) fieldbgbright = 0;
+                    break;
+                case 15:
+                    fullscreen = !fullscreen;
+                    break;
+                case 16:
+                    showfps = !showfps;
+                    break;
+                case 17:
+                    maxfps += change;
+                    if (maxfps < 0) maxfps = 99;
+                    if (maxfps > 99) maxfps = 0;
+                    break;
+                case 18:
+                    enableframestep = !enableframestep;
+                    break;
+                case 19:
+                    alternateFPSPerfectMode = !alternateFPSPerfectMode;
+                    break;
+                case 20:
+                    alternateFPSPerfectYield = !alternateFPSPerfectYield;
+                    break;
+                case 21:
+                    bgmstreaming = !bgmstreaming;
+                    break;
+                case 22:
+                    vsync = !vsync;
+                    break;
+                case 23:
+                    alternateFPSTiming = !alternateFPSTiming;
+                    break;
+                case 24:
+                    alternateFPSDynamicAdjust = !alternateFPSDynamicAdjust;
+                    break;
+                case 25:
+                    screenSizeType += change;
+                    if (screenSizeType < 0) screenSizeType = SCREENSIZE_TABLE.length - 1;
+                    if (screenSizeType > SCREENSIZE_TABLE.length - 1) screenSizeType = 0;
+                    break;
             }
         }
 
         // Confirm button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_A)) {
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_A)) {
             ResourceHolder.soundManager.play("decide");
             saveConfig(NullpoMinoSlick.propConfig);
             NullpoMinoSlick.saveConfig();
             NullpoMinoSlick.setGeneralConfig();
-            if(showlineeffect) ResourceHolder.loadLineClearEffectImages();
-            if(showbg) ResourceHolder.loadBackgroundImages();
+            if (showlineeffect) ResourceHolder.loadLineClearEffectImages();
+            if (showbg) ResourceHolder.loadBackgroundImages();
             game.enterState(StateConfigMainMenu.ID);
         }
 
         // Cancel button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_B)) {
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_B)) {
             loadConfig(NullpoMinoSlick.propConfig);
             game.enterState(StateConfigMainMenu.ID);
         }

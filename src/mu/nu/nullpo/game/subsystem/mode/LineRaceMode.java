@@ -43,43 +43,69 @@ import mu.nu.nullpo.util.GeneralUtil;
  */
 public class LineRaceMode extends NetDummyMode {
     /* ----- Main variables ----- */
-    /** Logger */
+    /**
+     * Logger
+     */
     static Logger log = Logger.getLogger(LineRaceMode.class);
 
-    /** Number of entries in rankings */
+    /**
+     * Number of entries in rankings
+     */
     private static final int RANKING_MAX = 10;
 
-    /** Target line count type */
+    /**
+     * Target line count type
+     */
     private static final int GOALTYPE_MAX = 3;
 
-    /** Target line count constants */
-    private static final int[] GOAL_TABLE = {20, 40, 100};
+    /**
+     * Target line count constants
+     */
+    private static final int[] GOAL_TABLE = { 20, 40, 100 };
 
-    /** Drawing and event handling EventReceiver */
+    /**
+     * Drawing and event handling EventReceiver
+     */
     private EventReceiver receiver;
 
-    /** BGM number */
+    /**
+     * BGM number
+     */
     private int bgmno;
 
-    /** Big */
+    /**
+     * Big
+     */
     private boolean big;
 
-    /** Target line count type (0=20,1=40,2=100) */
+    /**
+     * Target line count type (0=20,1=40,2=100)
+     */
     private int goaltype;
 
-    /** Last preset number used */
+    /**
+     * Last preset number used
+     */
     private int presetNumber;
 
-    /** Current round's ranking rank */
+    /**
+     * Current round's ranking rank
+     */
     private int rankingRank;
 
-    /** Rankings' times */
+    /**
+     * Rankings' times
+     */
     private int[][] rankingTime;
 
-    /** Rankings' piece counts */
+    /**
+     * Rankings' piece counts
+     */
     private int[][] rankingPiece;
 
-    /** Rankings' PPS values */
+    /**
+     * Rankings' PPS values
+     */
     private float[][] rankingPPS;
 
     /*
@@ -114,7 +140,7 @@ public class LineRaceMode extends NetDummyMode {
 
         netPlayerInit(engine, playerID);
 
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             presetNumber = engine.owner.modeConfig.getProperty("linerace.presetNumber", 0);
             loadPreset(engine, engine.owner.modeConfig, -1);
             loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
@@ -129,6 +155,7 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * Load options from a preset
+     *
      * @param engine GameEngine
      * @param prop Property file to read from
      * @param preset Preset number
@@ -148,6 +175,7 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * Save options to a preset
+     *
      * @param engine GameEngine
      * @param prop Property file to save to
      * @param preset Preset number
@@ -171,97 +199,97 @@ public class LineRaceMode extends NetDummyMode {
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
         // NET: Net Ranking
-        if(netIsNetRankingDisplayMode) {
+        if (netIsNetRankingDisplayMode) {
             netOnUpdateNetPlayRanking(engine, goaltype);
         }
         // Menu
-        else if(engine.owner.replayMode == false) {
+        else if (engine.owner.replayMode == false) {
             // Configuration changes
             int change = updateCursor(engine, 11, playerID);
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
                 int m = 1;
-                if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
-                if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
+                if (engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
+                if (engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
 
-                switch(engine.statc[2]) {
-                case 0:
-                    engine.speed.gravity += change * m;
-                    if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
-                    if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
-                    break;
-                case 1:
-                    engine.speed.denominator += change * m;
-                    if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
-                    if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
-                    break;
-                case 2:
-                    engine.speed.are += change;
-                    if(engine.speed.are < 0) engine.speed.are = 99;
-                    if(engine.speed.are > 99) engine.speed.are = 0;
-                    break;
-                case 3:
-                    engine.speed.areLine += change;
-                    if(engine.speed.areLine < 0) engine.speed.areLine = 99;
-                    if(engine.speed.areLine > 99) engine.speed.areLine = 0;
-                    break;
-                case 4:
-                    engine.speed.lineDelay += change;
-                    if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
-                    if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
-                    break;
-                case 5:
-                    engine.speed.lockDelay += change;
-                    if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
-                    if(engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
-                    break;
-                case 6:
-                    engine.speed.das += change;
-                    if(engine.speed.das < 0) engine.speed.das = 99;
-                    if(engine.speed.das > 99) engine.speed.das = 0;
-                    break;
-                case 7:
-                    bgmno += change;
-                    if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
-                    if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
-                    break;
-                case 8:
-                    big = !big;
-                    break;
-                case 9:
-                    goaltype += change;
-                    if(goaltype < 0) goaltype = 2;
-                    if(goaltype > 2) goaltype = 0;
-                    break;
-                case 10:
-                case 11:
-                    presetNumber += change;
-                    if(presetNumber < 0) presetNumber = 99;
-                    if(presetNumber > 99) presetNumber = 0;
-                    break;
+                switch (engine.statc[2]) {
+                    case 0:
+                        engine.speed.gravity += change * m;
+                        if (engine.speed.gravity < -1) engine.speed.gravity = 99999;
+                        if (engine.speed.gravity > 99999) engine.speed.gravity = -1;
+                        break;
+                    case 1:
+                        engine.speed.denominator += change * m;
+                        if (engine.speed.denominator < -1) engine.speed.denominator = 99999;
+                        if (engine.speed.denominator > 99999) engine.speed.denominator = -1;
+                        break;
+                    case 2:
+                        engine.speed.are += change;
+                        if (engine.speed.are < 0) engine.speed.are = 99;
+                        if (engine.speed.are > 99) engine.speed.are = 0;
+                        break;
+                    case 3:
+                        engine.speed.areLine += change;
+                        if (engine.speed.areLine < 0) engine.speed.areLine = 99;
+                        if (engine.speed.areLine > 99) engine.speed.areLine = 0;
+                        break;
+                    case 4:
+                        engine.speed.lineDelay += change;
+                        if (engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
+                        if (engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
+                        break;
+                    case 5:
+                        engine.speed.lockDelay += change;
+                        if (engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
+                        if (engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
+                        break;
+                    case 6:
+                        engine.speed.das += change;
+                        if (engine.speed.das < 0) engine.speed.das = 99;
+                        if (engine.speed.das > 99) engine.speed.das = 0;
+                        break;
+                    case 7:
+                        bgmno += change;
+                        if (bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
+                        if (bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
+                        break;
+                    case 8:
+                        big = !big;
+                        break;
+                    case 9:
+                        goaltype += change;
+                        if (goaltype < 0) goaltype = 2;
+                        if (goaltype > 2) goaltype = 0;
+                        break;
+                    case 10:
+                    case 11:
+                        presetNumber += change;
+                        if (presetNumber < 0) presetNumber = 99;
+                        if (presetNumber > 99) presetNumber = 0;
+                        break;
                 }
 
                 // NET: Signal options change
-                if(netIsNetPlay && (netNumSpectators > 0)) {
+                if (netIsNetPlay && (netNumSpectators > 0)) {
                     netSendOptions(engine);
                 }
             }
 
             // Confirm
-            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5) && (!netIsWatch)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5) && (!netIsWatch)) {
                 engine.playSE("decide");
 
-                if(engine.statc[2] == 10) {
+                if (engine.statc[2] == 10) {
                     // Load preset
                     loadPreset(engine, owner.modeConfig, presetNumber);
 
                     // NET: Signal options change
-                    if(netIsNetPlay && (netNumSpectators > 0)) {
+                    if (netIsNetPlay && (netNumSpectators > 0)) {
                         netSendOptions(engine);
                     }
-                } else if(engine.statc[2] == 11) {
+                } else if (engine.statc[2] == 11) {
                     // Save preset
                     savePreset(engine, owner.modeConfig, presetNumber);
                     receiver.saveModeConfig(owner.modeConfig);
@@ -272,19 +300,19 @@ public class LineRaceMode extends NetDummyMode {
                     receiver.saveModeConfig(owner.modeConfig);
 
                     // NET: Signal start of the game
-                    if(netIsNetPlay) netLobby.netPlayerClient.send("start1p\n");
+                    if (netIsNetPlay) netLobby.netPlayerClient.send("start1p\n");
 
                     return false;
                 }
             }
 
             // Cancel
-            if(engine.ctrl.isPush(Controller.BUTTON_B) && (!netIsNetPlay)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_B) && (!netIsNetPlay)) {
                 engine.quitflag = true;
             }
 
             // NET: Netplay Ranking
-            if(engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && !big && engine.ai == null) {
+            if (engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && !big && engine.ai == null) {
                 netEnterNetPlayRankingScreen(engine, playerID, goaltype);
             }
 
@@ -295,7 +323,7 @@ public class LineRaceMode extends NetDummyMode {
             engine.statc[3]++;
             engine.statc[2] = -1;
 
-            if(engine.statc[3] >= 60) {
+            if (engine.statc[3] >= 60) {
                 return false;
             }
         }
@@ -308,25 +336,25 @@ public class LineRaceMode extends NetDummyMode {
      */
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
-        if(netIsNetRankingDisplayMode) {
+        if (netIsNetRankingDisplayMode) {
             // NET: Netplay Ranking
             netOnRenderNetPlayRanking(engine, playerID, receiver);
-        } else if(engine.statc[2] < 10) {
+        } else if (engine.statc[2] < 10) {
             drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-                    "GRAVITY", String.valueOf(engine.speed.gravity),
-                    "G-MAX", String.valueOf(engine.speed.denominator),
-                    "ARE", String.valueOf(engine.speed.are),
-                    "ARE LINE", String.valueOf(engine.speed.areLine),
-                    "LINE DELAY", String.valueOf(engine.speed.lineDelay),
-                    "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
-                    "DAS", String.valueOf(engine.speed.das),
-                    "BGM", String.valueOf(bgmno),
-                    "BIG",  GeneralUtil.getONorOFF(big),
-                    "GOAL", String.valueOf(GOAL_TABLE[goaltype]));
+                "GRAVITY", String.valueOf(engine.speed.gravity),
+                "G-MAX", String.valueOf(engine.speed.denominator),
+                "ARE", String.valueOf(engine.speed.are),
+                "ARE LINE", String.valueOf(engine.speed.areLine),
+                "LINE DELAY", String.valueOf(engine.speed.lineDelay),
+                "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+                "DAS", String.valueOf(engine.speed.das),
+                "BGM", String.valueOf(bgmno),
+                "BIG", GeneralUtil.getONorOFF(big),
+                "GOAL", String.valueOf(GOAL_TABLE[goaltype]));
         } else {
             drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_GREEN, 10,
-                    "LOAD", String.valueOf(presetNumber),
-                    "SAVE", String.valueOf(presetNumber));
+                "LOAD", String.valueOf(presetNumber),
+                "SAVE", String.valueOf(presetNumber));
         }
     }
 
@@ -337,7 +365,7 @@ public class LineRaceMode extends NetDummyMode {
     public void startGame(GameEngine engine, int playerID) {
         engine.big = big;
 
-        if(netIsWatch) {
+        if (netIsWatch) {
             owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
         } else {
             owner.bgmStatus.bgm = bgmno;
@@ -352,40 +380,40 @@ public class LineRaceMode extends NetDummyMode {
      */
     @Override
     public void renderLast(GameEngine engine, int playerID) {
-        if(owner.menuOnly) return;
+        if (owner.menuOnly) return;
 
         receiver.drawScoreFont(engine, playerID, 0, 0, "LINE RACE", EventReceiver.COLOR_RED);
         receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)", EventReceiver.COLOR_RED);
 
-        if( (engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false)) ) {
-            if(!owner.replayMode && !big && (engine.ai == null) && !netIsWatch) {
+        if ((engine.stat == GameEngine.STAT_SETTING) || ((engine.stat == GameEngine.STAT_RESULT) && (owner.replayMode == false))) {
+            if (!owner.replayMode && !big && (engine.ai == null) && !netIsWatch) {
                 float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
                 int topY = (receiver.getNextDisplayType() == 2) ? 6 : 4;
-                receiver.drawScoreFont(engine, playerID, 3, topY-1, "TIME     PIECE PPS", EventReceiver.COLOR_BLUE, scale);
+                receiver.drawScoreFont(engine, playerID, 3, topY - 1, "TIME     PIECE PPS", EventReceiver.COLOR_BLUE, scale);
 
-                for(int i = 0; i < RANKING_MAX; i++) {
-                    receiver.drawScoreFont(engine, playerID,  0, topY+i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
-                    receiver.drawScoreFont(engine, playerID,  3, topY+i, GeneralUtil.getTime(rankingTime[goaltype][i]), (rankingRank == i), scale);
-                    receiver.drawScoreFont(engine, playerID, 12, topY+i, String.valueOf(rankingPiece[goaltype][i]), (rankingRank == i), scale);
-                    receiver.drawScoreFont(engine, playerID, 18, topY+i, String.format("%.5g", rankingPPS[goaltype][i]), (rankingRank == i), scale);
+                for (int i = 0; i < RANKING_MAX; i++) {
+                    receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
+                    receiver.drawScoreFont(engine, playerID, 3, topY + i, GeneralUtil.getTime(rankingTime[goaltype][i]), (rankingRank == i), scale);
+                    receiver.drawScoreFont(engine, playerID, 12, topY + i, String.valueOf(rankingPiece[goaltype][i]), (rankingRank == i), scale);
+                    receiver.drawScoreFont(engine, playerID, 18, topY + i, String.format("%.5g", rankingPPS[goaltype][i]), (rankingRank == i), scale);
                 }
             }
         } else {
             receiver.drawScoreFont(engine, playerID, 0, 3, "LINE", EventReceiver.COLOR_BLUE);
             int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
             String strLines = String.valueOf(remainLines);
-            if(remainLines < 0) strLines = "0";
+            if (remainLines < 0) strLines = "0";
             int fontcolor = EventReceiver.COLOR_WHITE;
-            if((remainLines <= 30) && (remainLines > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
-            if((remainLines <= 20) && (remainLines > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
-            if((remainLines <= 10) && (remainLines > 0)) fontcolor = EventReceiver.COLOR_RED;
+            if ((remainLines <= 30) && (remainLines > 0)) fontcolor = EventReceiver.COLOR_YELLOW;
+            if ((remainLines <= 20) && (remainLines > 0)) fontcolor = EventReceiver.COLOR_ORANGE;
+            if ((remainLines <= 10) && (remainLines > 0)) fontcolor = EventReceiver.COLOR_RED;
             receiver.drawScoreFont(engine, playerID, 0, 4, strLines, fontcolor);
 
-            if(strLines.length() == 1) {
+            if (strLines.length() == 1) {
                 receiver.drawMenuFont(engine, playerID, 4, 21, strLines, fontcolor, 2.0f);
-            } else if(strLines.length() == 2) {
+            } else if (strLines.length() == 2) {
                 receiver.drawMenuFont(engine, playerID, 3, 21, strLines, fontcolor, 2.0f);
-            } else if(strLines.length() == 3) {
+            } else if (strLines.length() == 3) {
                 receiver.drawMenuFont(engine, playerID, 2, 21, strLines, fontcolor, 2.0f);
             }
 
@@ -405,7 +433,7 @@ public class LineRaceMode extends NetDummyMode {
         // NET: Number of spectators
         netDrawSpectatorsCount(engine, 0, 18);
         // NET: All number of players
-        if(playerID == getPlayers() - 1) {
+        if (playerID == getPlayers() - 1) {
             netDrawAllPlayersCount(engine);
             netDrawGameRate(engine);
         }
@@ -421,20 +449,20 @@ public class LineRaceMode extends NetDummyMode {
         int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
         engine.meterValue = (remainLines * receiver.getMeterMax(engine)) / GOAL_TABLE[goaltype];
 
-        if(remainLines <= 30) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-        if(remainLines <= 20) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-        if(remainLines <= 10) engine.meterColor = GameEngine.METER_COLOR_RED;
+        if (remainLines <= 30) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+        if (remainLines <= 20) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+        if (remainLines <= 10) engine.meterColor = GameEngine.METER_COLOR_RED;
 
         // All clear
-        if((lines >= 1) && (engine.field.isEmpty())) {
+        if ((lines >= 1) && (engine.field.isEmpty())) {
             engine.playSE("bravo");
         }
 
         // Game completed
-        if(engine.statistics.lines >= GOAL_TABLE[goaltype]) {
+        if (engine.statistics.lines >= GOAL_TABLE[goaltype]) {
             engine.ending = 1;
             engine.gameEnded();
-        } else if(engine.statistics.lines >= GOAL_TABLE[goaltype] - 5) {
+        } else if (engine.statistics.lines >= GOAL_TABLE[goaltype] - 5) {
             owner.bgmStatus.fadesw = true;
         }
     }
@@ -445,18 +473,18 @@ public class LineRaceMode extends NetDummyMode {
     @Override
     public void renderResult(GameEngine engine, int playerID) {
         drawResultStats(engine, playerID, receiver, 1, EventReceiver.COLOR_BLUE,
-                STAT_LINES, STAT_PIECE, STAT_TIME, STAT_LPM, STAT_PPS);
+            STAT_LINES, STAT_PIECE, STAT_TIME, STAT_LPM, STAT_PPS);
         drawResultRank(engine, playerID, receiver, 11, EventReceiver.COLOR_BLUE, rankingRank);
         drawResultNetRank(engine, playerID, receiver, 13, EventReceiver.COLOR_BLUE, netRankingRank[0]);
         drawResultNetRankDaily(engine, playerID, receiver, 15, EventReceiver.COLOR_BLUE, netRankingRank[1]);
 
-        if(netIsPB) {
+        if (netIsPB) {
             receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", EventReceiver.COLOR_ORANGE);
         }
 
-        if(netIsNetPlay && (netReplaySendStatus == 1)) {
+        if (netIsNetPlay && (netReplaySendStatus == 1)) {
             receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", EventReceiver.COLOR_PINK);
-        } else if(netIsNetPlay && !netIsWatch && (netReplaySendStatus == 2)) {
+        } else if (netIsNetPlay && !netIsWatch && (netReplaySendStatus == 2)) {
             receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", EventReceiver.COLOR_RED);
         }
     }
@@ -469,16 +497,15 @@ public class LineRaceMode extends NetDummyMode {
         savePreset(engine, engine.owner.replayProp, -1);
 
         // NET: Save name
-        if((netPlayerName != null) && (netPlayerName.length() > 0)) {
+        if ((netPlayerName != null) && (netPlayerName.length() > 0)) {
             prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
         }
 
         // Update rankings
-        if((!owner.replayMode) && (engine.statistics.lines >= GOAL_TABLE[goaltype]) && (!big) && (engine.ai == null) && (!netIsWatch))
-        {
+        if ((!owner.replayMode) && (engine.statistics.lines >= GOAL_TABLE[goaltype]) && (!big) && (engine.ai == null) && (!netIsWatch)) {
             updateRanking(engine.statistics.time, engine.statistics.totalPieceLocked, engine.statistics.pps);
 
-            if(rankingRank != -1) {
+            if (rankingRank != -1) {
                 saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
                 receiver.saveModeConfig(owner.modeConfig);
             }
@@ -487,13 +514,14 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * Read rankings from property file
+     *
      * @param prop Property file
      * @param ruleName Rule name
      */
     @Override
     protected void loadRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < GOALTYPE_MAX; i++) {
-            for(int j = 0; j < RANKING_MAX; j++) {
+        for (int i = 0; i < GOALTYPE_MAX; i++) {
+            for (int j = 0; j < RANKING_MAX; j++) {
                 rankingTime[i][j] = prop.getProperty("linerace.ranking." + ruleName + "." + i + ".time." + j, -1);
                 rankingPiece[i][j] = prop.getProperty("linerace.ranking." + ruleName + "." + i + ".piece." + j, 0);
                 rankingPPS[i][j] = prop.getProperty("linerace.ranking." + ruleName + "." + i + ".pps." + j, 0f);
@@ -503,12 +531,13 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * Save rankings to property file
+     *
      * @param prop Property file
      * @param ruleName Rule name
      */
     private void saveRanking(CustomProperties prop, String ruleName) {
-        for(int i = 0; i < GOALTYPE_MAX; i++) {
-            for(int j = 0; j < RANKING_MAX; j++) {
+        for (int i = 0; i < GOALTYPE_MAX; i++) {
+            for (int j = 0; j < RANKING_MAX; j++) {
                 prop.setProperty("linerace.ranking." + ruleName + "." + i + ".time." + j, rankingTime[i][j]);
                 prop.setProperty("linerace.ranking." + ruleName + "." + i + ".piece." + j, rankingPiece[i][j]);
                 prop.setProperty("linerace.ranking." + ruleName + "." + i + ".pps." + j, rankingPPS[i][j]);
@@ -518,15 +547,16 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * Update rankings
+     *
      * @param time Time
      * @param piece Piece count
      */
     private void updateRanking(int time, int piece, float pps) {
         rankingRank = checkRanking(time, piece, pps);
 
-        if(rankingRank != -1) {
+        if (rankingRank != -1) {
             // Shift down ranking entries
-            for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+            for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
                 rankingTime[goaltype][i] = rankingTime[goaltype][i - 1];
                 rankingPiece[goaltype][i] = rankingPiece[goaltype][i - 1];
                 rankingPPS[goaltype][i] = rankingPPS[goaltype][i - 1];
@@ -541,17 +571,18 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * Calculate ranking position
+     *
      * @param time Time
      * @param piece Piece count
      * @return Position (-1 if unranked)
      */
     private int checkRanking(int time, int piece, float pps) {
-        for(int i = 0; i < RANKING_MAX; i++) {
-            if((time < rankingTime[goaltype][i]) || (rankingTime[goaltype][i] < 0)) {
+        for (int i = 0; i < RANKING_MAX; i++) {
+            if ((time < rankingTime[goaltype][i]) || (rankingTime[goaltype][i] < 0)) {
                 return i;
-            } else if((time == rankingTime[goaltype][i]) && ((piece < rankingPiece[goaltype][i]) || (rankingPiece[goaltype][i] == 0))) {
+            } else if ((time == rankingTime[goaltype][i]) && ((piece < rankingPiece[goaltype][i]) || (rankingPiece[goaltype][i] == 0))) {
                 return i;
-            } else if((time == rankingTime[goaltype][i]) && (piece == rankingPiece[goaltype][i]) && (pps > rankingPPS[goaltype][i])) {
+            } else if ((time == rankingTime[goaltype][i]) && (piece == rankingPiece[goaltype][i]) && (pps > rankingPPS[goaltype][i])) {
                 return i;
             }
         }
@@ -561,6 +592,7 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * NET: Send various in-game stats (as well as goaltype)
+     *
      * @param engine GameEngine
      */
     @Override
@@ -591,13 +623,14 @@ public class LineRaceMode extends NetDummyMode {
         // Update meter
         int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
         engine.meterValue = (remainLines * receiver.getMeterMax(engine)) / GOAL_TABLE[goaltype];
-        if(remainLines <= 30) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-        if(remainLines <= 20) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-        if(remainLines <= 10) engine.meterColor = GameEngine.METER_COLOR_RED;
+        if (remainLines <= 30) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+        if (remainLines <= 20) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
+        if (remainLines <= 10) engine.meterColor = GameEngine.METER_COLOR_RED;
     }
 
     /**
      * NET: Send end-of-game stats
+     *
      * @param engine GameEngine
      */
     @Override
@@ -615,6 +648,7 @@ public class LineRaceMode extends NetDummyMode {
 
     /**
      * NET: Send game options to all spectators
+     *
      * @param engine GameEngine
      */
     @Override

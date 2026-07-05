@@ -34,15 +34,23 @@ import mu.nu.nullpo.util.CustomProperties;
 
 public class AIRanksTool extends JFrame implements ActionListener {
     private static final long serialVersionUID = 1L;
-    /** Log */
+    /**
+     * Log
+     */
     static final Logger log = Logger.getLogger(AIRanksTool.class);
 
-    /** Default language file */
+    /**
+     * Default language file
+     */
     public static CustomProperties propLangDefault;
-    /** Primary language file */
+    /**
+     * Primary language file
+     */
     public static CustomProperties propLang;
 
-    /** UI */
+    /**
+     * UI
+     */
 
     //****************************
     //Tab 1 (Generation) variables
@@ -105,7 +113,6 @@ public class AIRanksTool extends JFrame implements ActionListener {
     //private JComboBox ranksFileInfoComboBox;
 
 
-
     //*****************
     //Default variables
     //*****************
@@ -131,38 +138,39 @@ public class AIRanksTool extends JFrame implements ActionListener {
             FileInputStream in = new FileInputStream(AIRanksConstants.RANKSAI_CONFIG_FILE);
             propRanksAI.load(in);
             in.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
 
         //Ranks File used
-        String ranksFile=propRanksAI.getProperty("ranksai.file");
+        String ranksFile = propRanksAI.getProperty("ranksai.file");
 
         //Number of previews used
-        int numPreviews=propRanksAI.getProperty("ranksai.numpreviews", 2);
+        int numPreviews = propRanksAI.getProperty("ranksai.numpreviews", 2);
 
         //Allow Hold ?
-        boolean allowHold=propRanksAI.getProperty("ranksai.allowhold", false);
+        boolean allowHold = propRanksAI.getProperty("ranksai.allowhold", false);
 
         //Speed Limit
-        int speedLimit=propRanksAI.getProperty("ranksai.speedlimit", 0);
+        int speedLimit = propRanksAI.getProperty("ranksai.speedlimit", 0);
 
         // Loads the ranks file list from the ranksAI directory (/res/ranksai)
-        String [] children=new File(AIRanksConstants.RANKSAI_DIR).list();
+        String[] children = new File(AIRanksConstants.RANKSAI_DIR).list();
 
-        int fileIndex=-1;
+        int fileIndex = -1;
 
         //Find the index of default Ranks File
-        if (children != null){
+        if (children != null) {
 
-            if (ranksFile!=null){
-                fileIndex=-1;
-                for (int i=0;i<children.length;i++){
-                    if (children[i].equals(ranksFile)){
-                        fileIndex=i;
+            if (ranksFile != null) {
+                fileIndex = -1;
+                for (int i = 0; i < children.length; i++) {
+                    if (children[i].equals(ranksFile)) {
+                        fileIndex = i;
                     }
                 }
             }
-            String []ranksList;
-            ranksList=new String[children.length+1];
+            String[] ranksList;
+            ranksList = new String[children.length + 1];
             System.arraycopy(children, 0, ranksList, 1, children.length);
         }
 
@@ -173,20 +181,19 @@ public class AIRanksTool extends JFrame implements ActionListener {
         inputFileLabel = new JLabel(getUIText("Main_Input_Label"));
 
         // Add the New File entry to combobox list
-        String []ranksList;
-        if (children!=null){
-            ranksList=new String[children.length+1];
+        String[] ranksList;
+        if (children != null) {
+            ranksList = new String[children.length + 1];
             System.arraycopy(children, 0, ranksList, 1, children.length);
+        } else {
+            ranksList = new String[1];
         }
-        else {
-            ranksList=new String[1];
-        }
-        newFileText=getUIText("Main_New_File_Text");
-        ranksList[0]=newFileText;
+        newFileText = getUIText("Main_New_File_Text");
+        ranksList[0] = newFileText;
 
         // Creates the combo box
-        inputFileComboBox=new JComboBox(ranksList);
-        inputFileComboBox.setSelectedIndex(fileIndex+1);
+        inputFileComboBox = new JComboBox(ranksList);
+        inputFileComboBox.setSelectedIndex(fileIndex + 1);
         inputFileComboBox.setToolTipText(getUIText("Main_Input_Tip"));
         inputFileComboBox.setActionCommand("input");
         inputFileComboBox.addActionListener(this);
@@ -196,7 +203,7 @@ public class AIRanksTool extends JFrame implements ActionListener {
         outputFileLabel = new JLabel(getUIText("Main_Output_Label"));
         outputFileField = new JTextField(AIRanksConstants.DEFAULT_RANKS_FILE);
         outputFileField.setColumns(20);
-        if (inputFileComboBox.getSelectedIndex()>0){
+        if (inputFileComboBox.getSelectedIndex() > 0) {
             outputFileField.setText((String) inputFileComboBox.getSelectedItem());
         }
         outputFileField.setToolTipText(getUIText("Main_Output_Tip"));
@@ -234,21 +241,20 @@ public class AIRanksTool extends JFrame implements ActionListener {
         //Tab 2
 
         //Ranks File Used
-        ranksFileUsedLabel=new JLabel(getUIText("Main_Ranks_File_Used_Label"));
+        ranksFileUsedLabel = new JLabel(getUIText("Main_Ranks_File_Used_Label"));
 
-        if (fileIndex>=0){
-            ranksFileUsedComboBox=new JComboBox(children);
+        if (fileIndex >= 0) {
+            ranksFileUsedComboBox = new JComboBox(children);
 
             ranksFileUsedComboBox.setSelectedIndex(fileIndex);
-        }
-        else {
+        } else {
 
-            if ((children==null)||(children.length==0)){
-                String[] list={" "};
-                ranksFileUsedComboBox=new JComboBox(list);
+            if ((children == null) || (children.length == 0)) {
+                String[] list = { " " };
+                ranksFileUsedComboBox = new JComboBox(list);
             }
 
-                ranksFileUsedComboBox.setSelectedIndex(0);
+            ranksFileUsedComboBox.setSelectedIndex(0);
 
         }
         ranksFileUsedComboBox.setToolTipText(getUIText("Main_Ranks_File_Used_Tooltip"));
@@ -260,25 +266,25 @@ public class AIRanksTool extends JFrame implements ActionListener {
         numPreviewsLabel = new JLabel(getUIText("Main_Num_Previews_Label"));
         numPreviewsSpinModel = new SpinnerNumberModel(2, 0, Integer.MAX_VALUE, 1);
         numPreviewsSpinner = new JSpinner(numPreviewsSpinModel);
-        if (numPreviews>=0){
+        if (numPreviews >= 0) {
             numPreviewsSpinner.setValue((Integer) numPreviews);
         }
         numPreviewsSpinner.setToolTipText(getUIText("Main_Num_Previews_Tip"));
 
 
         //Switch to allow hold
-        allowHoldLabel=new JLabel(getUIText("Main_Allow_Hold"));
-        allowHoldCheckBox= new JCheckBox();
+        allowHoldLabel = new JLabel(getUIText("Main_Allow_Hold"));
+        allowHoldCheckBox = new JCheckBox();
         allowHoldCheckBox.setSelected(allowHold);
         allowHoldCheckBox.setToolTipText(getUIText("Main_Allow_Hold_Tip"));
 
         //Speed Limit
-        speedLimitLabel=new JLabel(getUIText("Main_Speed_Limit_Label"));
-        speedLimitField=new JFormattedTextField(new Integer(speedLimit));
+        speedLimitLabel = new JLabel(getUIText("Main_Speed_Limit_Label"));
+        speedLimitField = new JFormattedTextField(new Integer(speedLimit));
         speedLimitField.setToolTipText(getUIText("Main_Speed_Limit_Tip"));
 
         // Save config Button
-        saveAIConfigButton=new JButton(getUIText("Main_Set_Default_Label"));
+        saveAIConfigButton = new JButton(getUIText("Main_Set_Default_Label"));
         saveAIConfigButton.setActionCommand("default");
         saveAIConfigButton.addActionListener(this);
         saveAIConfigButton.setToolTipText(getUIText("Main_Set_Default_Tip"));
@@ -289,87 +295,87 @@ public class AIRanksTool extends JFrame implements ActionListener {
         // Generates the panels
 
         // Tab 1
-        JPanel formPane=new JPanel();
-        GroupLayout layout=new GroupLayout(formPane);
+        JPanel formPane = new JPanel();
+        GroupLayout layout = new GroupLayout(formPane);
         formPane.setLayout(layout);
         layout.setAutocreateGaps(true);
         layout.setAutocreateContainerGaps(true);
-           GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
+        GroupLayout.SequentialGroup hGroup = layout.createSequentialGroup();
 
-           ParallelGroup labelsPg=layout.createParallelGroup();
-           labelsPg.add(inputFileLabel);
-           labelsPg.add(outputFileLabel);
-           labelsPg.add(numIterationsLabel);
-           hGroup.add(labelsPg);
+        ParallelGroup labelsPg = layout.createParallelGroup();
+        labelsPg.add(inputFileLabel);
+        labelsPg.add(outputFileLabel);
+        labelsPg.add(numIterationsLabel);
+        hGroup.add(labelsPg);
 
-           ParallelGroup fieldsPg=layout.createParallelGroup();
-            fieldsPg.add(inputFileComboBox);
-            fieldsPg.add(outputFileField);
-            fieldsPg.add(numIterationsSpinner);
-           hGroup.add(fieldsPg);
+        ParallelGroup fieldsPg = layout.createParallelGroup();
+        fieldsPg.add(inputFileComboBox);
+        fieldsPg.add(outputFileField);
+        fieldsPg.add(numIterationsSpinner);
+        hGroup.add(fieldsPg);
 
-           layout.setHorizontalGroup(hGroup);
+        layout.setHorizontalGroup(hGroup);
 
 
-           GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
+        GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
 
-           vGroup.add(layout.createParallelGroup(GroupLayout.BASELINE).
-                    add(inputFileLabel).add(inputFileComboBox));
-           vGroup.add(layout.createParallelGroup(GroupLayout.BASELINE).
-                    add(outputFileLabel).add(outputFileField));
-           vGroup.add(layout.createParallelGroup(GroupLayout.BASELINE).
-                    add(numIterationsLabel).add(numIterationsSpinner));
+        vGroup.add(layout.createParallelGroup(GroupLayout.BASELINE).
+            add(inputFileLabel).add(inputFileComboBox));
+        vGroup.add(layout.createParallelGroup(GroupLayout.BASELINE).
+            add(outputFileLabel).add(outputFileField));
+        vGroup.add(layout.createParallelGroup(GroupLayout.BASELINE).
+            add(numIterationsLabel).add(numIterationsSpinner));
 
-           layout.setVerticalGroup(vGroup);
+        layout.setVerticalGroup(vGroup);
 
         JPanel buttonsPane = new JPanel();
         buttonsPane.add(goButton);
         buttonsPane.add(viewBestsButton);
         buttonsPane.add(viewWorstsButton);
 
-    JPanel pane1 = new JPanel(new BorderLayout());
+        JPanel pane1 = new JPanel(new BorderLayout());
 
         pane1.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        pane1.add(formPane,BorderLayout.CENTER);
+        pane1.add(formPane, BorderLayout.CENTER);
         pane1.add(buttonsPane, BorderLayout.SOUTH);
 
         // Tab 2
 
-        JPanel formPane2=new JPanel();
-        GroupLayout layout2=new GroupLayout(formPane2);
+        JPanel formPane2 = new JPanel();
+        GroupLayout layout2 = new GroupLayout(formPane2);
         formPane2.setLayout(layout2);
         layout2.setAutocreateGaps(true);
         layout2.setAutocreateContainerGaps(true);
-           GroupLayout.SequentialGroup hGroup2 = layout2.createSequentialGroup();
+        GroupLayout.SequentialGroup hGroup2 = layout2.createSequentialGroup();
 
-           ParallelGroup labelsPg2=layout2.createParallelGroup();
-           labelsPg2.add(ranksFileUsedLabel);
-           labelsPg2.add(numPreviewsLabel);
-           labelsPg2.add(allowHoldLabel);
-           labelsPg2.add(speedLimitLabel);
-           hGroup2.add(labelsPg2);
+        ParallelGroup labelsPg2 = layout2.createParallelGroup();
+        labelsPg2.add(ranksFileUsedLabel);
+        labelsPg2.add(numPreviewsLabel);
+        labelsPg2.add(allowHoldLabel);
+        labelsPg2.add(speedLimitLabel);
+        hGroup2.add(labelsPg2);
 
-           ParallelGroup fieldsPg2=layout2.createParallelGroup();
-           fieldsPg2.add(ranksFileUsedComboBox);
-           fieldsPg2.add(numPreviewsSpinner);
-           fieldsPg2.add(allowHoldCheckBox);
-           fieldsPg2.add(speedLimitField);
-           hGroup2.add(fieldsPg2);
+        ParallelGroup fieldsPg2 = layout2.createParallelGroup();
+        fieldsPg2.add(ranksFileUsedComboBox);
+        fieldsPg2.add(numPreviewsSpinner);
+        fieldsPg2.add(allowHoldCheckBox);
+        fieldsPg2.add(speedLimitField);
+        hGroup2.add(fieldsPg2);
 
-           layout2.setHorizontalGroup(hGroup2);
+        layout2.setHorizontalGroup(hGroup2);
 
 
-           GroupLayout.SequentialGroup vGroup2 = layout2.createSequentialGroup();
+        GroupLayout.SequentialGroup vGroup2 = layout2.createSequentialGroup();
 
-           vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
-                    add(ranksFileUsedLabel).add(ranksFileUsedComboBox));
-           vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
-                    add(numPreviewsLabel).add(numPreviewsSpinner));
-           vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
-                    add(allowHoldLabel).add(allowHoldCheckBox));
-           vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
-                    add(speedLimitLabel).add(speedLimitField));
-           layout2.setVerticalGroup(vGroup2);
+        vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
+            add(ranksFileUsedLabel).add(ranksFileUsedComboBox));
+        vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
+            add(numPreviewsLabel).add(numPreviewsSpinner));
+        vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
+            add(allowHoldLabel).add(allowHoldCheckBox));
+        vGroup2.add(layout2.createParallelGroup(GroupLayout.BASELINE).
+            add(speedLimitLabel).add(speedLimitField));
+        layout2.setVerticalGroup(vGroup2);
 
 
         JPanel buttonsPane2 = new JPanel();
@@ -378,53 +384,51 @@ public class AIRanksTool extends JFrame implements ActionListener {
         JPanel pane2 = new JPanel(new BorderLayout());
 
         pane2.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        pane2.add(formPane2,BorderLayout.CENTER);
+        pane2.add(formPane2, BorderLayout.CENTER);
         pane2.add(buttonsPane2, BorderLayout.SOUTH);
 
         //Tab 3
 
 
-        tabbedPane=new JTabbedPane();
+        tabbedPane = new JTabbedPane();
         tabbedPane.addTab(getUIText("Main_Generation_Tab_Title"), pane1);
-        tabbedPane.addTab(getUIText("Main_AI_Config_Tab_Title"),pane2);
+        tabbedPane.addTab(getUIText("Main_AI_Config_Tab_Title"), pane2);
         add(tabbedPane);
     }
 
 
-
     public void actionPerformed(ActionEvent e) {
-        String inputFile=(String) inputFileComboBox.getSelectedItem();
-        if (inputFile.equals(newFileText)){
-            inputFile="";
+        String inputFile = (String) inputFileComboBox.getSelectedItem();
+        if (inputFile.equals(newFileText)) {
+            inputFile = "";
         }
         if ("go".equals(e.getActionCommand())) {
-            String outputFile=outputFileField.getText();
+            String outputFile = outputFileField.getText();
             goButton.setEnabled(false);
 
-            RanksIterator ranksIterator=new RanksIterator(this, inputFile,
-                    outputFile,
-                    (Integer) numIterationsSpinner.getValue());
+            RanksIterator ranksIterator = new RanksIterator(this, inputFile,
+                outputFile,
+                (Integer) numIterationsSpinner.getValue());
 
-            ranksIterator.addWindowListener(new WindowAdapter(){
+            ranksIterator.addWindowListener(new WindowAdapter() {
 
 
                 @Override
                 public void windowClosed(WindowEvent e) {
-                    boolean isInCombo=false;
-                    int index=0;
-                    for (int i=1;i<inputFileComboBox.getItemCount();i++){
-                        if (outputFileField.getText().equals(inputFileComboBox.getItemAt(i))){
-                            isInCombo=true;
-                            index=i;
+                    boolean isInCombo = false;
+                    int index = 0;
+                    for (int i = 1; i < inputFileComboBox.getItemCount(); i++) {
+                        if (outputFileField.getText().equals(inputFileComboBox.getItemAt(i))) {
+                            isInCombo = true;
+                            index = i;
                             break;
                         }
                     }
-                    if (!isInCombo){
+                    if (!isInCombo) {
                         inputFileComboBox.addItem(outputFileField.getText());
                         ranksFileUsedComboBox.addItem(outputFileField.getText());
-                        ranksFileUsedComboBox.setSelectedIndex(ranksFileUsedComboBox.getItemCount()-1);
-                    }
-                    else{
+                        ranksFileUsedComboBox.setSelectedIndex(ranksFileUsedComboBox.getItemCount() - 1);
+                    } else {
                         ranksFileUsedComboBox.setSelectedIndex(index);
                     }
 
@@ -437,7 +441,7 @@ public class AIRanksTool extends JFrame implements ActionListener {
 
 
         } else {
-            if ("bests".equals(e.getActionCommand()) || "worsts".equals(e.getActionCommand())){
+            if ("bests".equals(e.getActionCommand()) || "worsts".equals(e.getActionCommand())) {
                 setEnabledBWButtons(false);
                 Ranks ranks = null;
 
@@ -448,7 +452,7 @@ public class AIRanksTool extends JFrame implements ActionListener {
                     ranks = new Ranks(4, 9);
                 else {
                     try {
-                        fis = new FileInputStream(AIRanksConstants.RANKSAI_DIR+inputFile);
+                        fis = new FileInputStream(AIRanksConstants.RANKSAI_DIR + inputFile);
                         in = new ObjectInputStream(fis);
                         ranks = (Ranks) in.readObject();
                         in.close();
@@ -465,8 +469,8 @@ public class AIRanksTool extends JFrame implements ActionListener {
 
                 }
 
-                JDialog results=new RanksResult(this, ranks, 100, "worsts".equals(e.getActionCommand()));
-                results.addWindowListener(new WindowAdapter(){
+                JDialog results = new RanksResult(this, ranks, 100, "worsts".equals(e.getActionCommand()));
+                results.addWindowListener(new WindowAdapter() {
 
 
                     @Override
@@ -478,17 +482,14 @@ public class AIRanksTool extends JFrame implements ActionListener {
 
                 });
 
-            }
-            else {
-                if ("default".equals(e.getActionCommand())){
+            } else {
+                if ("default".equals(e.getActionCommand())) {
                     setDefaults();
-                }
-                else {
-                    if ("input".equals(e.getActionCommand())){
-                        if (inputFileComboBox.getSelectedIndex()>0){
+                } else {
+                    if ("input".equals(e.getActionCommand())) {
+                        if (inputFileComboBox.getSelectedIndex() > 0) {
                             outputFileField.setText((String) inputFileComboBox.getSelectedItem());
-                        }
-                        else {
+                        } else {
                             outputFileField.setText(AIRanksConstants.DEFAULT_RANKS_FILE);
                         }
                     }
@@ -497,12 +498,13 @@ public class AIRanksTool extends JFrame implements ActionListener {
         }
 
     }
-    public void setDefaults(){
-        CustomProperties ranksAIConfig=new CustomProperties();
-        ranksAIConfig.setProperty("ranksai.file",(String) ranksFileUsedComboBox.getSelectedItem());
-        ranksAIConfig.setProperty("ranksai.numpreviews",(Integer) numPreviewsSpinner.getValue());
+
+    public void setDefaults() {
+        CustomProperties ranksAIConfig = new CustomProperties();
+        ranksAIConfig.setProperty("ranksai.file", (String) ranksFileUsedComboBox.getSelectedItem());
+        ranksAIConfig.setProperty("ranksai.numpreviews", (Integer) numPreviewsSpinner.getValue());
         ranksAIConfig.setProperty("ranksai.allowhold", allowHoldCheckBox.isSelected());
-        ranksAIConfig.setProperty("ranksai.speedlimit", (Integer)speedLimitField.getValue());
+        ranksAIConfig.setProperty("ranksai.speedlimit", (Integer) speedLimitField.getValue());
         try {
             FileOutputStream out = new FileOutputStream(AIRanksConstants.RANKSAI_CONFIG_FILE);
             ranksAIConfig.store(out, "Ranks AI Config");
@@ -511,7 +513,8 @@ public class AIRanksTool extends JFrame implements ActionListener {
 
         }
     }
-    public void setEnabledBWButtons(boolean b){
+
+    public void setEnabledBWButtons(boolean b) {
         viewBestsButton.setEnabled(b);
         viewWorstsButton.setEnabled(b);
 
@@ -519,7 +522,7 @@ public class AIRanksTool extends JFrame implements ActionListener {
 
     public static String getUIText(String str) {
         String result = propLang.getProperty(str);
-        if(result == null) {
+        if (result == null) {
             result = propLangDefault.getProperty(str, str);
         }
         return result;
@@ -542,7 +545,8 @@ public class AIRanksTool extends JFrame implements ActionListener {
             FileInputStream in = new FileInputStream("config/lang/airankstool_" + Locale.getDefault().getCountry() + ".properties");
             propLang.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
 
         // Start
         new AIRanksTool();

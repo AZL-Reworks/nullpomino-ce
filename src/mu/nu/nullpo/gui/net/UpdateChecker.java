@@ -42,57 +42,80 @@ import org.apache.log4j.Logger;
  * 新Versionチェッカー
  */
 public class UpdateChecker implements Runnable {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(UpdateChecker.class);
 
-    /**  default のXMLのURL */
+    /**
+     * default のXMLのURL
+     */
     public static final String DEFAULT_XML_URL = "http://nullpomino.googlecode.com/svn/trunk/NullpoUpdate.xml";
 
-    /** 状態の定count */
+    /**
+     * 状態の定count
+     */
     public static final int STATUS_INACTIVE = 0,
-                            STATUS_LOADING = 1,
-                            STATUS_ERROR = 2,
-                            STATUS_COMPLETE = 3;
+        STATUS_LOADING = 1,
+        STATUS_ERROR = 2,
+        STATUS_COMPLETE = 3;
 
-    /** Current 状態 */
+    /**
+     * Current 状態
+     */
     private static volatile int status = 0;
 
-    /**  event リスナー */
+    /**
+     * event リスナー
+     */
     private static LinkedList<UpdateCheckerListener> listeners = null;
 
-    /** アップデート情報が書かれたXMLのURL */
+    /**
+     * アップデート情報が書かれたXMLのURL
+     */
     private static String strURLofXML = null;
 
-    /** 最新版のVersion number */
+    /**
+     * 最新版のVersion number
+     */
     private static String strLatestVersion = null;
 
-    /** リリース日 */
+    /**
+     * リリース日
+     */
     private static String strReleaseDate = null;
 
-    /** ダウンロードURL */
+    /**
+     * ダウンロードURL
+     */
     private static String strDownloadURL = null;
 
-    /** Installer for Windows URL */
+    /**
+     * Installer for Windows URL
+     */
     private static String strWindowsInstallerURL = null;
 
-    /** 更新 check 用スレッド */
+    /**
+     * 更新 check 用スレッド
+     */
     private static Thread thread = null;
 
     /**
      * XMLをダウンロードしてVersion numberなどを取得
+     *
      * @return true if successful
      */
     private static boolean checkUpdate() {
         try {
             URL url = new URL(strURLofXML);
-            HttpURLConnection httpCon = (HttpURLConnection)url.openConnection();
+            HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
             BufferedReader httpIn = new BufferedReader(new InputStreamReader(httpCon.getInputStream()));
 
             String str;
-            while((str = httpIn.readLine()) != null) {
+            while ((str = httpIn.readLine()) != null) {
                 Pattern pat = Pattern.compile("<Version>.*</Version>");
                 Matcher matcher = pat.matcher(str);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     String tempStr = matcher.group();
                     tempStr = tempStr.replace("<Version>", "");
                     tempStr = tempStr.replace("</Version>", "");
@@ -102,7 +125,7 @@ public class UpdateChecker implements Runnable {
 
                 pat = Pattern.compile("<Date>.*</Date>");
                 matcher = pat.matcher(str);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     String tempStr = matcher.group();
                     tempStr = tempStr.replace("<Date>", "");
                     tempStr = tempStr.replace("</Date>", "");
@@ -112,7 +135,7 @@ public class UpdateChecker implements Runnable {
 
                 pat = Pattern.compile("<DownloadURL>.*</DownloadURL>");
                 matcher = pat.matcher(str);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     String tempStr = matcher.group();
                     tempStr = tempStr.replace("<DownloadURL>", "");
                     tempStr = tempStr.replace("</DownloadURL>", "");
@@ -122,7 +145,7 @@ public class UpdateChecker implements Runnable {
 
                 pat = Pattern.compile("<WindowsInstallerURL>.*</WindowsInstallerURL>");
                 matcher = pat.matcher(str);
-                if(matcher.find()) {
+                if (matcher.find()) {
                     String tempStr = matcher.group();
                     tempStr = tempStr.replace("<WindowsInstallerURL>", "");
                     tempStr = tempStr.replace("</WindowsInstallerURL>", "");
@@ -142,19 +165,21 @@ public class UpdateChecker implements Runnable {
 
     /**
      * 最新版のメジャーVersionを取得
+     *
      * @return 最新版のメジャーVersion(float型)
      */
     public static float getLatestMajorVersionAsFloat() {
         float resultVersion = 0f;
-        if((strLatestVersion != null) && (strLatestVersion.length() > 0)) {
+        if ((strLatestVersion != null) && (strLatestVersion.length() > 0)) {
             String strDot = strLatestVersion.contains("_") ? "_" : ".";
             String[] strSplit = strLatestVersion.split(strDot);
 
-            if(strSplit.length >= 2) {
+            if (strSplit.length >= 2) {
                 String strTemp = strSplit[0] + "." + strSplit[1];
                 try {
                     resultVersion = Float.parseFloat(strTemp);
-                } catch (NumberFormatException e) {}
+                } catch (NumberFormatException e) {
+                }
             }
         }
         return resultVersion;
@@ -162,19 +187,21 @@ public class UpdateChecker implements Runnable {
 
     /**
      * 最新版のマイナーVersionを取得
+     *
      * @return 最新版のマイナーVersion(int型)
      */
     public static int getLatestMinorVersionAsInt() {
         int resultVersion = 0;
-        if((strLatestVersion != null) && (strLatestVersion.length() > 0)) {
+        if ((strLatestVersion != null) && (strLatestVersion.length() > 0)) {
             String strDot = strLatestVersion.contains("_") ? "_" : ".";
             String[] strSplit = strLatestVersion.split(strDot);
 
-            if(strSplit.length >= 1) {
+            if (strSplit.length >= 1) {
                 String strTemp = strSplit[strSplit.length - 1];
                 try {
                     resultVersion = Integer.parseInt(strTemp);
-                } catch (NumberFormatException e) {}
+                } catch (NumberFormatException e) {
+                }
             }
         }
         return resultVersion;
@@ -182,6 +209,7 @@ public class UpdateChecker implements Runnable {
 
     /**
      * 最新版のVersion numberのString型表現を取得
+     *
      * @return 最新版のVersion numberのString型表現("7.0.0"など)
      */
     public static String getLatestVersionFullString() {
@@ -190,28 +218,30 @@ public class UpdateChecker implements Runnable {
 
     /**
      * Current versionよりも最新版のVersionの方が新しいか判定
+     *
      * @param nowMajor Current メジャーVersion
      * @param nowMinor Current マイナーVersion
      * @return 最新版の方が新しいとtrue
      */
     public static boolean isNewVersionAvailable(float nowMajor, int nowMinor) {
-        if(!isCompleted()) return false;
+        if (!isCompleted()) return false;
 
         float latestMajor = getLatestMajorVersionAsFloat();
         int latestMinor = getLatestMinorVersionAsInt();
 
-        if(latestMajor > nowMajor) return true;
-        if((latestMajor == nowMajor) && (latestMinor > nowMinor)) return true;
+        if (latestMajor > nowMajor) return true;
+        if ((latestMajor == nowMajor) && (latestMinor > nowMinor)) return true;
 
         return false;
     }
 
     /**
      * Version check
+     *
      * @param strURL 最新版の情報が入ったXMLファイルのURL(nullまたは空文字列にすると default 値を使う)
      */
     public static void startCheckForUpdates(String strURL) {
-        if((strURL == null) || (strURL.length() <= 0)) {
+        if ((strURL == null) || (strURL.length() <= 0)) {
             strURLofXML = DEFAULT_XML_URL;
         } else {
             strURLofXML = strURL;
@@ -237,6 +267,7 @@ public class UpdateChecker implements Runnable {
 
     /**
      * Current 状態を取得
+     *
      * @return Current 状態
      */
     public static int getStatus() {
@@ -245,6 +276,7 @@ public class UpdateChecker implements Runnable {
 
     /**
      * XMLのURLを取得
+     *
      * @return XMLのURL
      */
     public static String getStrURLofXML() {
@@ -253,6 +285,7 @@ public class UpdateChecker implements Runnable {
 
     /**
      * 最新版のVersion number(未整形)を取得(7_0_0_0など)
+     *
      * @return 最新版のVersion number(未整形)
      */
     public static String getStrLatestVersion() {
@@ -261,6 +294,7 @@ public class UpdateChecker implements Runnable {
 
     /**
      * 最新版がリリースされた日を取得
+     *
      * @return 最新版がリリースされた日
      */
     public static String getStrReleaseDate() {
@@ -269,6 +303,7 @@ public class UpdateChecker implements Runnable {
 
     /**
      * 最新版のダウンロード先URLを取得
+     *
      * @return 最新版のダウンロード先URL
      */
     public static String getStrDownloadURL() {
@@ -277,6 +312,7 @@ public class UpdateChecker implements Runnable {
 
     /**
      * Get the URL of Installer (*.exe) for Windows
+     *
      * @return URL of Installer (*.exe) for Windows
      */
     public static String getStrWindowsInstallerURL() {
@@ -284,26 +320,28 @@ public class UpdateChecker implements Runnable {
     }
 
     /**
-     *  event リスナーを追加(もう追加されていると何も起こりません)
+     * event リスナーを追加(もう追加されていると何も起こりません)
+     *
      * @param l 追加する event リスナー
      */
     public static void addListener(UpdateCheckerListener l) {
-        if(listeners == null) {
+        if (listeners == null) {
             listeners = new LinkedList<UpdateCheckerListener>();
         }
-        if(listeners.contains(l)) {
+        if (listeners.contains(l)) {
             return;
         }
         listeners.add(l);
     }
 
     /**
-     *  event リスナーを削除
+     * event リスナーを削除
+     *
      * @param l 削除する event リスナー
      * @return 削除されたらtrue, 最初から登録されていなかったらfalse
      */
     public static boolean removeListener(UpdateCheckerListener l) {
-        if(listeners == null) {
+        if (listeners == null) {
             return false;
         }
         return listeners.remove(l);
@@ -315,22 +353,22 @@ public class UpdateChecker implements Runnable {
     public void run() {
         // 開始
         status = STATUS_LOADING;
-        if(listeners != null) {
-            for(UpdateCheckerListener l : listeners) {
+        if (listeners != null) {
+            for (UpdateCheckerListener l : listeners) {
                 l.onUpdateCheckerStart();
             }
         }
 
         // 更新 check
-        if(checkUpdate() == true) {
+        if (checkUpdate() == true) {
             status = STATUS_COMPLETE;
         } else {
             status = STATUS_ERROR;
         }
 
         // 終了
-        if(listeners != null) {
-            for(UpdateCheckerListener l : listeners) {
+        if (listeners != null) {
+            for (UpdateCheckerListener l : listeners) {
                 l.onUpdateCheckerEnd(status);
             }
         }

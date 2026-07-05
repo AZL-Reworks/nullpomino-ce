@@ -22,12 +22,12 @@ public class NetServerBan {
     public int banLength;
 
     public static final int BANLENGTH_1HOUR = 0,
-                            BANLENGTH_6HOURS = 1,
-                            BANLENGTH_24HOURS = 2,
-                            BANLENGTH_1WEEK = 3,
-                            BANLENGTH_1MONTH = 4,
-                            BANLENGTH_1YEAR = 5,
-                            BANLENGTH_PERMANENT = 6;
+        BANLENGTH_6HOURS = 1,
+        BANLENGTH_24HOURS = 2,
+        BANLENGTH_1WEEK = 3,
+        BANLENGTH_1MONTH = 4,
+        BANLENGTH_1YEAR = 5,
+        BANLENGTH_PERMANENT = 6;
 
     public static final int BANLENGTH_TOTAL = 7;
 
@@ -39,6 +39,7 @@ public class NetServerBan {
 
     /**
      * Creates a new NetServerBan object representing a permanent ban starting now.
+     *
      * @param addr the remote address this NetServerBan affects.
      */
     public NetServerBan(String addr) {
@@ -47,6 +48,7 @@ public class NetServerBan {
 
     /**
      * Creates a new NetServerBan object representing a ban starting now.
+     *
      * @param addr the remote address this NetServerBan affects.
      * @param banLength an integer representing the length of the ban.
      */
@@ -58,24 +60,39 @@ public class NetServerBan {
 
     /**
      * Returns the end date of the ban, or null if no such date exists (i.e. permanent).
+     *
      * @return the end date or null
      */
     public Calendar getEndDate() {
         Calendar res = (Calendar) startDate.clone();
         switch (banLength) {
-            case BANLENGTH_1HOUR: res.add(Calendar.HOUR, 1); break;
-            case BANLENGTH_6HOURS: res.add(Calendar.HOUR, 6); break;
-            case BANLENGTH_24HOURS: res.add(Calendar.HOUR, 24); break;
-            case BANLENGTH_1WEEK: res.add(Calendar.WEEK_OF_MONTH, 1); break;
-            case BANLENGTH_1MONTH: res.add(Calendar.MONTH, 1); break;
-            case BANLENGTH_1YEAR: res.add(Calendar.YEAR, 1); break;
-            default: res = null;
+            case BANLENGTH_1HOUR:
+                res.add(Calendar.HOUR, 1);
+                break;
+            case BANLENGTH_6HOURS:
+                res.add(Calendar.HOUR, 6);
+                break;
+            case BANLENGTH_24HOURS:
+                res.add(Calendar.HOUR, 24);
+                break;
+            case BANLENGTH_1WEEK:
+                res.add(Calendar.WEEK_OF_MONTH, 1);
+                break;
+            case BANLENGTH_1MONTH:
+                res.add(Calendar.MONTH, 1);
+                break;
+            case BANLENGTH_1YEAR:
+                res.add(Calendar.YEAR, 1);
+                break;
+            default:
+                res = null;
         }
         return res;
     }
 
     /**
      * Returns a boolean representing whether or not this NetServerBan is expired.
+     *
      * @return true if the ban is expired.
      */
     public boolean isExpired() {
@@ -89,6 +106,7 @@ public class NetServerBan {
 
     /**
      * Export startDate to String
+     *
      * @return String (null if fails)
      */
     public String exportStartDate() {
@@ -107,15 +125,16 @@ public class NetServerBan {
 
     /**
      * Import startDate from String
+     *
      * @param strInput String
      * @return true if success
      */
     public boolean importStartDate(String strInput) {
         try {
-            if(strInput.startsWith("GMT")) {
+            if (strInput.startsWith("GMT")) {
                 // GMT String
                 Calendar c = GeneralUtil.importCalendarString(strInput.substring(3));
-                if(c != null) {
+                if (c != null) {
                     startDate = c;
                     return true;
                 }
@@ -125,7 +144,7 @@ public class NetServerBan {
                 byte[] bTemp2 = NetUtil.decompressByteArray(bTemp);
                 ByteArrayInputStream bin = new ByteArrayInputStream(bTemp2);
                 ObjectInputStream oin = new ObjectInputStream(bin);
-                startDate = (Calendar)oin.readObject();
+                startDate = (Calendar) oin.readObject();
                 return true;
             }
         } catch (Exception e) {
@@ -136,18 +155,20 @@ public class NetServerBan {
 
     /**
      * Export to String
+     *
      * @return String
      */
     public String exportString() {
         //String strStartDate = exportStartDate();
         String strTemp = GeneralUtil.exportCalendarString(startDate);
         String strStartDate = "";
-        if(strTemp != null) strStartDate = "GMT" + strTemp;
+        if (strTemp != null) strStartDate = "GMT" + strTemp;
         return addr + ";" + banLength + ";" + strStartDate;
     }
 
     /**
      * Import from String
+     *
      * @param strInput String
      */
     public void importString(String strInput) {

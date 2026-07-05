@@ -43,22 +43,34 @@ import mu.nu.nullpo.util.CustomProperties;
  * TOOL-VS MAP EDIT
  */
 public class ToolVSMapEditMode extends DummyMode {
-    /** GameManager that owns this mode */
+    /**
+     * GameManager that owns this mode
+     */
     private GameManager owner;
 
-    /** Drawing and event handling EventReceiver */
+    /**
+     * Drawing and event handling EventReceiver
+     */
     private EventReceiver receiver;
 
-    /** Map dataの入ったProperty file */
+    /**
+     * Map dataの入ったProperty file
+     */
     private CustomProperties propMap;
 
-    /** Current Mapファイルに入っている全field data */
+    /**
+     * Current Mapファイルに入っている全field data
+     */
     private LinkedList<Field> listFields;
 
-    /** Current MapセットID */
+    /**
+     * Current MapセットID
+     */
     private int nowMapSetID;
 
-    /** Current MapID */
+    /**
+     * Current MapID
+     */
     private int nowMapID;
 
     /*
@@ -84,6 +96,7 @@ public class ToolVSMapEditMode extends DummyMode {
 
     /**
      * Map読み込み
+     *
      * @param field field
      * @param prop Property file to read from
      * @param preset 任意のID
@@ -99,6 +112,7 @@ public class ToolVSMapEditMode extends DummyMode {
 
     /**
      * Map保存
+     *
      * @param field field
      * @param prop Property file to save to
      * @param id 任意のID
@@ -110,16 +124,17 @@ public class ToolVSMapEditMode extends DummyMode {
 
     /**
      * 全Map読み込み
+     *
      * @param setID MapセットID
      */
     private void loadAllMaps(int setID) {
         propMap = receiver.loadProperties("config/map/vsbattle/" + setID + ".map");
-        if(propMap == null) propMap = new CustomProperties();
+        if (propMap == null) propMap = new CustomProperties();
 
         listFields.clear();
 
         int maxMap = propMap.getProperty("map.maxMapNumber", 0);
-        for(int i = 0; i < maxMap; i++) {
+        for (int i = 0; i < maxMap; i++) {
             Field fld = new Field();
             loadMap(fld, propMap, i);
             listFields.add(fld);
@@ -128,6 +143,7 @@ public class ToolVSMapEditMode extends DummyMode {
 
     /**
      * 全Map保存
+     *
      * @param setID MapセットID
      */
     private void saveAllMaps(int setID) {
@@ -136,7 +152,7 @@ public class ToolVSMapEditMode extends DummyMode {
         int maxMap = listFields.size();
         propMap.setProperty("map.maxMapNumber", maxMap);
 
-        for(int i = 0; i < maxMap; i++) {
+        for (int i = 0; i < maxMap; i++) {
             saveMap(listFields.get(i), propMap, i);
         }
 
@@ -146,14 +162,14 @@ public class ToolVSMapEditMode extends DummyMode {
     private void grayToRandomColor(Field field) {
         Random rand = new Random();
 
-        for(int i = (field.getHiddenHeight() * -1); i < field.getHeight(); i++) {
-            for(int j = 0; j < field.getWidth(); j++) {
-                if(field.getBlockColor(j, i) == Block.BLOCK_COLOR_GRAY) {
+        for (int i = (field.getHiddenHeight() * -1); i < field.getHeight(); i++) {
+            for (int j = 0; j < field.getWidth(); j++) {
+                if (field.getBlockColor(j, i) == Block.BLOCK_COLOR_GRAY) {
                     int color = -1;
                     do {
                         color = rand.nextInt(Block.BLOCK_COLOR_COUNT - 2) + 2;
                     } while ((color == field.getBlockColor(j - 1, i)) || (color == field.getBlockColor(j + 1, i)) ||
-                             (color == field.getBlockColor(j, i - 1)) || (color == field.getBlockColor(j, i - 1)));
+                        (color == field.getBlockColor(j, i - 1)) || (color == field.getBlockColor(j, i - 1)));
                     field.setBlockColor(j, i, color);
                 }
             }
@@ -178,68 +194,68 @@ public class ToolVSMapEditMode extends DummyMode {
         // Configuration changes
         int change = updateCursor(engine, 7);
 
-        if(change != 0) {
+        if (change != 0) {
             engine.playSE("change");
 
-            switch(engine.statc[2]) {
-            case 0:
-            case 1:
-            case 2:
-                break;
-            case 3:
-            case 4:
-            case 5:
-                nowMapID += change;
-                if(nowMapID < 0) nowMapID = listFields.size();
-                if(nowMapID > listFields.size()) nowMapID = 0;
-                break;
-            case 6:
-            case 7:
-                nowMapSetID += change;
-                if(nowMapSetID < 0) nowMapSetID = 99;
-                if(nowMapSetID > 99) nowMapSetID = 0;
-                break;
+            switch (engine.statc[2]) {
+                case 0:
+                case 1:
+                case 2:
+                    break;
+                case 3:
+                case 4:
+                case 5:
+                    nowMapID += change;
+                    if (nowMapID < 0) nowMapID = listFields.size();
+                    if (nowMapID > listFields.size()) nowMapID = 0;
+                    break;
+                case 6:
+                case 7:
+                    nowMapSetID += change;
+                    if (nowMapSetID < 0) nowMapSetID = 99;
+                    if (nowMapSetID > 99) nowMapSetID = 0;
+                    break;
             }
         }
 
         // 決定
-        if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+        if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
             engine.playSE("decide");
 
-            if(engine.statc[2] == 0) {
+            if (engine.statc[2] == 0) {
                 // EDIT
                 engine.enterFieldEdit();
-            } else if(engine.statc[2] == 1) {
+            } else if (engine.statc[2] == 1) {
                 // GRAY->?
                 grayToRandomColor(engine.field);
-            } else if(engine.statc[2] == 2) {
+            } else if (engine.statc[2] == 2) {
                 // CLEAR
                 engine.field.reset();
-            } else if(engine.statc[2] == 3) {
+            } else if (engine.statc[2] == 3) {
                 // SAVE
-                if((nowMapID >= 0) && (nowMapID < listFields.size())) {
+                if ((nowMapID >= 0) && (nowMapID < listFields.size())) {
                     listFields.get(nowMapID).copy(engine.field);
                 } else {
                     listFields.add(new Field(engine.field));
                 }
-            } else if(engine.statc[2] == 4) {
+            } else if (engine.statc[2] == 4) {
                 // LOAD
-                if((nowMapID >= 0) && (nowMapID < listFields.size())) {
+                if ((nowMapID >= 0) && (nowMapID < listFields.size())) {
                     engine.field.copy(listFields.get(nowMapID));
                     engine.field.setAllSkin(engine.getSkin());
                 } else {
                     engine.field.reset();
                 }
-            } else if(engine.statc[2] == 5) {
+            } else if (engine.statc[2] == 5) {
                 // DELETE
-                if((nowMapID >= 0) && (nowMapID < listFields.size())) {
+                if ((nowMapID >= 0) && (nowMapID < listFields.size())) {
                     listFields.remove(nowMapID);
-                    if(nowMapID >= listFields.size()) nowMapID = listFields.size();
+                    if (nowMapID >= listFields.size()) nowMapID = listFields.size();
                 }
-            } else if(engine.statc[2] == 6) {
+            } else if (engine.statc[2] == 6) {
                 // WRITE
                 saveAllMaps(nowMapSetID);
-            } else if(engine.statc[2] == 7) {
+            } else if (engine.statc[2] == 7) {
                 // READ
                 loadAllMaps(nowMapSetID);
                 nowMapID = 0;
@@ -248,7 +264,7 @@ public class ToolVSMapEditMode extends DummyMode {
         }
 
         // 終了
-        if(engine.ctrl.isPress(Controller.BUTTON_D) && engine.ctrl.isPress(Controller.BUTTON_E) && (engine.statc[3] >= 5)) {
+        if (engine.ctrl.isPress(Controller.BUTTON_D) && engine.ctrl.isPress(Controller.BUTTON_E) && (engine.statc[3] >= 5)) {
             engine.quitflag = true;
         }
 
@@ -262,7 +278,7 @@ public class ToolVSMapEditMode extends DummyMode {
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
         receiver.drawMenuFont(engine, playerID, 0, 1, "FIELD EDIT", EventReceiver.COLOR_DARKBLUE);
-        if((engine.statc[2] >= 0) && (engine.statc[2] <= 2)) {
+        if ((engine.statc[2] >= 0) && (engine.statc[2] <= 2)) {
             receiver.drawMenuFont(engine, playerID, 0, 2 + engine.statc[2], "b", EventReceiver.COLOR_RED);
         }
         receiver.drawMenuFont(engine, playerID, 1, 2, "[EDIT]", (engine.statc[2] == 0));
@@ -270,12 +286,12 @@ public class ToolVSMapEditMode extends DummyMode {
         receiver.drawMenuFont(engine, playerID, 1, 4, "[CLEAR]", (engine.statc[2] == 2));
 
         receiver.drawMenuFont(engine, playerID, 0, 6, "MAP DATA", EventReceiver.COLOR_DARKBLUE);
-        if(listFields.size() > 0) {
+        if (listFields.size() > 0) {
             receiver.drawMenuFont(engine, playerID, 0, 7, nowMapID + "/" + (listFields.size() - 1), (engine.statc[2] >= 3) && (engine.statc[2] <= 5));
         } else {
             receiver.drawMenuFont(engine, playerID, 0, 7, "NO MAPS", (engine.statc[2] >= 3) && (engine.statc[2] <= 5));
         }
-        if((engine.statc[2] >= 3) && (engine.statc[2] <= 5)) {
+        if ((engine.statc[2] >= 3) && (engine.statc[2] <= 5)) {
             receiver.drawMenuFont(engine, playerID, 0, 8 + engine.statc[2] - 3, "b", EventReceiver.COLOR_RED);
         }
         receiver.drawMenuFont(engine, playerID, 1, 8, "[SAVE]", (engine.statc[2] == 3));
@@ -284,7 +300,7 @@ public class ToolVSMapEditMode extends DummyMode {
 
         receiver.drawMenuFont(engine, playerID, 0, 12, "MAP FILE", EventReceiver.COLOR_DARKBLUE);
         receiver.drawMenuFont(engine, playerID, 0, 13, nowMapSetID + "/99", (engine.statc[2] >= 6) && (engine.statc[2] <= 7));
-        if((engine.statc[2] >= 6) && (engine.statc[2] <= 7)) {
+        if ((engine.statc[2] >= 6) && (engine.statc[2] <= 7)) {
             receiver.drawMenuFont(engine, playerID, 0, 14 + engine.statc[2] - 6, "b", EventReceiver.COLOR_RED);
         }
         receiver.drawMenuFont(engine, playerID, 1, 14, "[WRITE]", (engine.statc[2] == 6));

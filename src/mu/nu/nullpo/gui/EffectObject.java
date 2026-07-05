@@ -32,19 +32,29 @@ package mu.nu.nullpo.gui;
  * 各種エフェクト state
  */
 public class EffectObject {
-    /** エフェクト type */
+    /**
+     * エフェクト type
+     */
     public int effect;
 
-    /** X-coordinate */
+    /**
+     * X-coordinate
+     */
     public int x;
 
-    /** Y-coordinate */
+    /**
+     * Y-coordinate
+     */
     public int y;
 
-    /** エフェクトのパラメータ (Block colorなど) */
+    /**
+     * エフェクトのパラメータ (Block colorなど)
+     */
     public int param;
 
-    /** アニメーション counter */
+    /**
+     * アニメーション counter
+     */
     public int anim;
 
     /**
@@ -60,6 +70,7 @@ public class EffectObject {
 
     /**
      * パラメータ付きConstructor
+     *
      * @param effect エフェクト type
      * @param x X-coordinate
      * @param y Y-coordinate
@@ -75,6 +86,7 @@ public class EffectObject {
 
     /**
      * Copy constructor
+     *
      * @param src Copy source
      */
     public EffectObject(EffectObject src) {

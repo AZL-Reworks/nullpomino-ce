@@ -38,16 +38,24 @@ import org.apache.log4j.Logger;
  * クライアント(Observer用)
  */
 public class NetObserverClient extends NetBaseClient {
-    /** Log */
+    /**
+     * Log
+     */
     static final Logger log = Logger.getLogger(NetObserverClient.class);
 
-    /** サーバーVersion */
+    /**
+     * サーバーVersion
+     */
     protected volatile float serverVersion = 0f;
 
-    /** Number of players */
+    /**
+     * Number of players
+     */
     protected volatile int playerCount = 0;
 
-    /** Observercount */
+    /**
+     * Observercount
+     */
     protected volatile int observerCount = 0;
 
     /**
@@ -59,6 +67,7 @@ public class NetObserverClient extends NetBaseClient {
 
     /**
      * Constructor
+     *
      * @param host 接続先ホスト
      */
     public NetObserverClient(String host) {
@@ -67,6 +76,7 @@ public class NetObserverClient extends NetBaseClient {
 
     /**
      * Constructor
+     *
      * @param host 接続先ホスト
      * @param port 接続先ポート number
      */
@@ -82,21 +92,21 @@ public class NetObserverClient extends NetBaseClient {
         String[] message = fullMessage.split("\t");    // タブ区切り
 
         // 接続完了
-        if(message[0].equals("welcome")) {
+        if (message[0].equals("welcome")) {
             //welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[VERSION MINOR]\t[VERSION STRING]\t[PING INTERVAL]
             serverVersion = Float.parseFloat(message[1]);
             playerCount = Integer.parseInt(message[2]);
             observerCount = Integer.parseInt(message[3]);
 
             long pingInterval = (message.length > 6) ? Long.parseLong(message[6]) : PING_INTERVAL;
-            if(pingInterval != PING_INTERVAL) {
+            if (pingInterval != PING_INTERVAL) {
                 startPingTask(pingInterval);
             }
 
             send("observerlogin\t" + GameManager.getVersionMajor() + "\n");
         }
         // 人count更新
-        if(message[0].equals("observerupdate")) {
+        if (message[0].equals("observerupdate")) {
             //observerupdate\t[PLAYERS]\t[OBSERVERS]
             playerCount = Integer.parseInt(message[1]);
             observerCount = Integer.parseInt(message[2]);

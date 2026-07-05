@@ -36,10 +36,14 @@ import javax.swing.filechooser.FileFilter;
  * シンプルなファイルフィルタ
  */
 public class SimpleFileFilter extends FileFilter {
-    /** 拡張子 */
+    /**
+     * 拡張子
+     */
     protected String extension;
 
-    /** 表示名 */
+    /**
+     * 表示名
+     */
     protected String description;
 
     /**
@@ -53,6 +57,7 @@ public class SimpleFileFilter extends FileFilter {
 
     /**
      * Constructor
+     *
      * @param extension 拡張子
      */
     public SimpleFileFilter(String extension) {
@@ -63,6 +68,7 @@ public class SimpleFileFilter extends FileFilter {
 
     /**
      * Constructor
+     *
      * @param extension 拡張子
      * @param description 表示名
      */
@@ -74,8 +80,8 @@ public class SimpleFileFilter extends FileFilter {
 
     @Override
     public boolean accept(File f) {
-        if(f.isDirectory()) return true;
-        if(f.getName().endsWith(extension)) return true;
+        if (f.isDirectory()) return true;
+        if (f.getName().endsWith(extension)) return true;
         return false;
     }
 

@@ -12,14 +12,19 @@ import org.apache.log4j.Logger;
 
 /**
  * PoochyBot Combo Race AI
+ *
  * @author Poochy.EXE
- *         Poochy.Spambucket@gmail.com
+ * Poochy.Spambucket@gmail.com
  */
 public class ComboRaceBot extends DummyAI implements Runnable {
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(ComboRaceBot.class);
 
-    /** List of field state codes which are possible to sustain a stable combo */
+    /**
+     * List of field state codes which are possible to sustain a stable combo
+     */
     private static final int[] FIELDS = {
         0x7, 0xB, 0xD, 0xE,
         0x13, 0x15, 0x16, 0x19, 0x1A, 0x1C,
@@ -32,7 +37,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         0x111, 0x888
     };
 
-    protected int[] scores = {6, 7, 7, 6, 8, 3, 2, 9, 3, 4, 3, 1, 8, 4, 1, 3, 1, 1, 4, 3, 9, 2, 3, 8, 4, 8, 3, 3};
+    protected int[] scores = { 6, 7, 7, 6, 8, 3, 2, 9, 3, 4, 3, 1, 8, 4, 1, 3, 1, 1, 4, 3, 9, 2, 3, 8, 4, 8, 3, 3 };
 
     protected Transition[][] moves;
 
@@ -40,50 +45,84 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
     protected boolean createTablesRequest;
 
-    /** 接地したあとのDirection(0: None) */
+    /**
+     * 接地したあとのDirection(0: None)
+     */
     public int bestRtSub;
 
-    /** 最善手のEvaluation score */
+    /**
+     * 最善手のEvaluation score
+     */
     public int bestPts;
 
-    /** Movement state. 0 = initial, 1 = twist, 2 = post-twist */
+    /**
+     * Movement state. 0 = initial, 1 = twist, 2 = post-twist
+     */
     public int movestate;
 
-    /** 移動を遅らせる用の変count */
+    /**
+     * 移動を遅らせる用の変count
+     */
     public int delay;
 
-    /** The GameEngine that owns this AI */
+    /**
+     * The GameEngine that owns this AI
+     */
     public GameEngine gEngine;
 
-    /** The GameManager that owns this AI */
+    /**
+     * The GameManager that owns this AI
+     */
     public GameManager gManager;
 
-    /** When true,スレッドにThink routineの実行を指示 */
+    /**
+     * When true,スレッドにThink routineの実行を指示
+     */
     public boolean thinkRequest;
 
-    /** true when thread is executing the think routine. */
+    /**
+     * true when thread is executing the think routine.
+     */
     public boolean thinking;
 
-    /** スレッドを停止させる time */
+    /**
+     * スレッドを停止させる time
+     */
     public int thinkDelay;
 
-    /** When true,スレッド動作中 */
+    /**
+     * When true,スレッド動作中
+     */
     public volatile boolean threadRunning;
 
-    /** Thread for executing the think routine */
+    /**
+     * Thread for executing the think routine
+     */
     public Thread thread;
 
-    /** Last input if done in ARE */
+    /**
+     * Last input if done in ARE
+     */
     protected int inputARE;
-    /** Number of pieces to think ahead */
+    /**
+     * Number of pieces to think ahead
+     */
     protected static final int MAX_THINK_DEPTH = 5;
-    /** Set to true to print debug information */
+    /**
+     * Set to true to print debug information
+     */
     protected static final boolean DEBUG_ALL = false;
-    /** Did the thinking thread finish successfully? */
+    /**
+     * Did the thinking thread finish successfully?
+     */
     protected boolean thinkComplete;
-    /** Did the thinking thread find a possible position? */
+    /**
+     * Did the thinking thread find a possible position?
+     */
     protected boolean thinkSuccess;
-    /** Was the game in ARE as of the last frame? */
+    /**
+     * Was the game in ARE as of the last frame?
+     */
     protected boolean inARE;
 
     /*
@@ -112,7 +151,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         thinkSuccess = false;
         inARE = false;
 
-        if( ((thread == null) || !thread.isAlive()) && (engine.aiUseThread) ) {
+        if (((thread == null) || !thread.isAlive()) && (engine.aiUseThread)) {
             thread = new Thread(this, "AI_" + playerID);
             thread.setDaemon(true);
             thread.start();
@@ -127,7 +166,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
      */
     @Override
     public void shutdown(GameEngine engine, int playerID) {
-        if((thread != null) && (thread.isAlive())) {
+        if ((thread != null) && (thread.isAlive())) {
             thread.interrupt();
             threadRunning = false;
             thread = null;
@@ -139,10 +178,10 @@ public class ComboRaceBot extends DummyAI implements Runnable {
      */
     @Override
     public void newPiece(GameEngine engine, int playerID) {
-        if(!engine.aiUseThread) {
+        if (!engine.aiUseThread) {
             thinkBestPosition(engine, playerID);
         } else if ((!thinking && !thinkComplete) || !engine.aiPrethink
-                || engine.getARE() <= 0 || engine.getARELine() <= 0) {
+            || engine.getARE() <= 0 || engine.getARELine() <= 0) {
             thinkRequest = true;
             thinkCurrentPieceNo++;
         }
@@ -157,21 +196,19 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         inputARE = 0;
         boolean newInARE = engine.stat == GameEngine.STAT_ARE;
         if ((engine.aiPrethink && engine.getARE() > 0 && engine.getARELine() > 0)
-                && ((newInARE && !inARE) || (!thinking && !thinkSuccess)))
-        {
+            && ((newInARE && !inARE) || (!thinking && !thinkSuccess))) {
             if (DEBUG_ALL) log.debug("Begin pre-think of next piece.");
             thinkComplete = false;
             thinkRequest = true;
         }
         inARE = newInARE;
-        if(inARE && delay >= engine.aiMoveDelay) {
+        if (inARE && delay >= engine.aiMoveDelay) {
             int input = 0;
             Piece nextPiece = engine.getNextObject(engine.nextPieceCount);
-            if (bestHold && thinkComplete)
-            {
+            if (bestHold && thinkComplete) {
                 input |= Controller.BUTTON_BIT_D;
                 if (engine.holdPieceObject == null)
-                    nextPiece = engine.getNextObject(engine.nextPieceCount+1);
+                    nextPiece = engine.getNextObject(engine.nextPieceCount + 1);
                 else
                     nextPiece = engine.holdPieceObject;
             }
@@ -179,13 +216,12 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                 return;
             nextPiece = checkOffset(nextPiece, engine);
             //input |= calcIRS(nextPiece, engine);
-            if (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo))
-            {
+            if (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo)) {
                 int spawnX = engine.getSpawnPosX(engine.field, nextPiece);
-                if(bestX - spawnX > 1) {
+                if (bestX - spawnX > 1) {
                     // left
                     input |= Controller.BUTTON_BIT_LEFT;
-                } else if(spawnX - bestX > 1) {
+                } else if (spawnX - bestX > 1) {
                     // right
                     input |= Controller.BUTTON_BIT_RIGHT;
                 }
@@ -211,10 +247,9 @@ public class ComboRaceBot extends DummyAI implements Runnable {
      */
     @Override
     public void setControl(GameEngine engine, int playerID, Controller ctrl) {
-        if( (engine.nowPieceObject != null) && (engine.stat == GameEngine.STAT_MOVE) &&
+        if ((engine.nowPieceObject != null) && (engine.stat == GameEngine.STAT_MOVE) &&
             (delay >= engine.aiMoveDelay) && (engine.statc[0] > 0) &&
-            (!engine.aiUseThread || (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo))) )
-        {
+            (!engine.aiUseThread || (threadRunning && !thinking && (thinkCurrentPieceNo <= thinkLastPieceNo)))) {
             inputARE = 0;
             int input = 0;    // Button input data
             Piece pieceNow = checkOffset(engine.nowPieceObject, engine);
@@ -230,7 +265,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
             int rotateDir = 0; //-1 = left,  1 = right
             int drop = 0; //1 = up, -1 = down
 
-            if((bestHold == true) && thinkComplete && engine.isHoldOK()) {
+            if ((bestHold == true) && thinkComplete && engine.isHoldOK()) {
                 // Hold
                 input |= Controller.BUTTON_BIT_D;
                 /*
@@ -240,9 +275,9 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                 */
             } else {
                 if (DEBUG_ALL) log.debug("bestX = " + bestX + ", nowX = " + nowX +
-                        ", bestY = " + bestY + ", nowY = " + nowY +
-                        ", bestRt = " + bestRt + ", rt = " + rt +
-                        ", bestRtSub = " + bestRtSub);
+                    ", bestY = " + bestY + ", nowY = " + nowY +
+                    ", bestRt = " + bestRt + ", rt = " + rt +
+                    ", bestRtSub = " + bestRtSub);
                 printPieceAndDirection(nowType, rt);
                 // Rotation
                 /*
@@ -258,8 +293,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                         !(pieceNow.getMaximumBlockX()+nowX == width-2 && (rt&1) == 1) &&
                         !(pieceNow.getMinimumBlockY()+nowY == 2 && pieceTouchGround && (rt&1) == 0 && nowType != Piece.PIECE_I)))))
                 */
-                if (rt != bestRt)
-                {
+                if (rt != bestRt) {
                     boolean best180 = Math.abs(rt - bestRt) == 2;
                     //if (DEBUG_ALL) log.debug("Case 1 rotation");
 
@@ -267,20 +301,18 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                     int rrot = engine.getRotateDirection(1);
                     if (DEBUG_ALL) log.debug("lrot = " + lrot + ", rrot = " + rrot);
 
-                    if(best180 && (engine.ruleopt.rotateButtonAllowDouble) && !ctrl.isPress(Controller.BUTTON_E))
+                    if (best180 && (engine.ruleopt.rotateButtonAllowDouble) && !ctrl.isPress(Controller.BUTTON_E))
                         input |= Controller.BUTTON_BIT_E;
                     else if (bestRt == rrot)
                         rotateDir = 1;
-                    else if(bestRt == lrot)
+                    else if (bestRt == lrot)
                         rotateDir = -1;
-                    else if (engine.ruleopt.rotateButtonAllowReverse && best180 && (rt&1) == 1)
-                    {
-                        if(rrot == Piece.DIRECTION_UP)
+                    else if (engine.ruleopt.rotateButtonAllowReverse && best180 && (rt & 1) == 1) {
+                        if (rrot == Piece.DIRECTION_UP)
                             rotateDir = 1;
                         else
                             rotateDir = -1;
-                    }
-                    else
+                    } else
                         rotateDir = 1;
                 }
 
@@ -288,8 +320,8 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                 int minX = pieceNow.getMostMovableLeft(nowX, nowY, rt, fld);
                 int maxX = pieceNow.getMostMovableRight(nowX, nowY, rt, fld);
 
-                if(movestate == 0 && (rt == bestRt)
-                         && ((bestX < minX - 1) || (bestX > maxX + 1) || (bestY < nowY))) {
+                if (movestate == 0 && (rt == bestRt)
+                    && ((bestX < minX - 1) || (bestX > maxX + 1) || (bestY < nowY))) {
                     // 到達不能なので再度思考する
                     //thinkBestPosition(engine, playerID);
                     thinkRequest = true;
@@ -299,10 +331,10 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                     if (DEBUG_ALL) log.debug("Needs rethink - cannot reach desired position");
                 } else {
                     // 到達できる場合
-                    if((nowX == bestX) && (pieceTouchGround)) {
+                    if ((nowX == bestX) && (pieceTouchGround)) {
                         if (rt == bestRt) {
                             // 接地rotation
-                            if(bestRtSub != 0 && movestate == 0) {
+                            if (bestRtSub != 0 && movestate == 0) {
                                 bestRt = pieceNow.getRotateDirection(bestRtSub, bestRt);
                                 rotateDir = bestRtSub;
                                 bestRtSub = 0;
@@ -310,101 +342,121 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                             }
                         }
                     }
-                    if((nowX == bestX || movestate > 0) && (rt == bestRt)) {
+                    if ((nowX == bestX || movestate > 0) && (rt == bestRt)) {
                         moveDir = 0;
                         // 目標到達
-                        if(bestRtSub == 0) {
+                        if (bestRtSub == 0) {
                             if (pieceTouchGround && engine.ruleopt.softdropLock)
                                 drop = -1;
-                            else if(engine.ruleopt.harddropEnable)
+                            else if (engine.ruleopt.harddropEnable)
                                 drop = 1;
-                            else if(engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
+                            else if (engine.ruleopt.softdropEnable || engine.ruleopt.softdropLock)
                                 drop = -1;
                         } else {
-                            if(engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock)
+                            if (engine.ruleopt.harddropEnable && !engine.ruleopt.harddropLock)
                                 drop = 1;
-                            else if(engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
+                            else if (engine.ruleopt.softdropEnable && !engine.ruleopt.softdropLock)
                                 drop = -1;
                         }
-                    }
-                    else if (nowX > bestX)
+                    } else if (nowX > bestX)
                         moveDir = -1;
-                    else if(nowX < bestX)
+                    else if (nowX < bestX)
                         moveDir = 1;
                 }
             }
             //Convert parameters to input
-            if(moveDir == -1 && !ctrl.isPress(Controller.BUTTON_LEFT))
+            if (moveDir == -1 && !ctrl.isPress(Controller.BUTTON_LEFT))
                 input |= Controller.BUTTON_BIT_LEFT;
-            else if(moveDir == 1 && !ctrl.isPress(Controller.BUTTON_RIGHT))
+            else if (moveDir == 1 && !ctrl.isPress(Controller.BUTTON_RIGHT))
                 input |= Controller.BUTTON_BIT_RIGHT;
-            if(drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
+            if (drop == 1 && !ctrl.isPress(Controller.BUTTON_UP))
                 input |= Controller.BUTTON_BIT_UP;
-            else if(drop == -1)
+            else if (drop == -1)
                 input |= Controller.BUTTON_BIT_DOWN;
 
-            if (rotateDir != 0)
-            {
+            if (rotateDir != 0) {
                 boolean defaultRotateRight = (engine.owRotateButtonDefaultRight == 1 ||
-                        (engine.owRotateButtonDefaultRight == -1 &&
-                                engine.ruleopt.rotateButtonDefaultRight));
+                    (engine.owRotateButtonDefaultRight == -1 &&
+                        engine.ruleopt.rotateButtonDefaultRight));
 
-                if(engine.ruleopt.rotateButtonAllowDouble &&
-                        rotateDir == 2 && !ctrl.isPress(Controller.BUTTON_E))
+                if (engine.ruleopt.rotateButtonAllowDouble &&
+                    rotateDir == 2 && !ctrl.isPress(Controller.BUTTON_E))
                     input |= Controller.BUTTON_BIT_E;
-                else if(engine.ruleopt.rotateButtonAllowReverse &&
-                          !defaultRotateRight && (rotateDir == 1))
-                {
-                    if(!ctrl.isPress(Controller.BUTTON_B))
+                else if (engine.ruleopt.rotateButtonAllowReverse &&
+                    !defaultRotateRight && (rotateDir == 1)) {
+                    if (!ctrl.isPress(Controller.BUTTON_B))
                         input |= Controller.BUTTON_BIT_B;
-                }
-                else if(engine.ruleopt.rotateButtonAllowReverse &&
-                        defaultRotateRight && (rotateDir == -1))
-                {
-                    if(!ctrl.isPress(Controller.BUTTON_B))
+                } else if (engine.ruleopt.rotateButtonAllowReverse &&
+                    defaultRotateRight && (rotateDir == -1)) {
+                    if (!ctrl.isPress(Controller.BUTTON_B))
                         input |= Controller.BUTTON_BIT_B;
-                }
-                else if(!ctrl.isPress(Controller.BUTTON_A))
+                } else if (!ctrl.isPress(Controller.BUTTON_A))
                     input |= Controller.BUTTON_BIT_A;
             }
 
-            if (DEBUG_ALL) log.debug ("Input = " + input + ", moveDir = " + moveDir  + ", rotateDir = " + rotateDir +
-                     ", drop = " + drop);
+            if (DEBUG_ALL) log.debug("Input = " + input + ", moveDir = " + moveDir + ", rotateDir = " + rotateDir +
+                ", drop = " + drop);
 
             delay = 0;
             ctrl.setButtonBit(input);
-        }
-        else {
+        } else {
             delay++;
             ctrl.setButtonBit(inputARE);
         }
     }
 
-    protected void printPieceAndDirection(int pieceType, int rt)
-    {
+    protected void printPieceAndDirection(int pieceType, int rt) {
         String result = "Piece ";
-        switch (pieceType)
-        {
-            case Piece.PIECE_I: result = result + "I"; break;
-            case Piece.PIECE_L: result = result + "L"; break;
-            case Piece.PIECE_O: result = result + "O"; break;
-            case Piece.PIECE_Z: result = result + "Z"; break;
-            case Piece.PIECE_T: result = result + "T"; break;
-            case Piece.PIECE_J: result = result + "J"; break;
-            case Piece.PIECE_S: result = result + "S"; break;
-            case Piece.PIECE_I1: result = result + "I1"; break;
-            case Piece.PIECE_I2: result = result + "I2"; break;
-            case Piece.PIECE_I3: result = result + "I3"; break;
-            case Piece.PIECE_L3: result = result + "L3"; break;
+        switch (pieceType) {
+            case Piece.PIECE_I:
+                result = result + "I";
+                break;
+            case Piece.PIECE_L:
+                result = result + "L";
+                break;
+            case Piece.PIECE_O:
+                result = result + "O";
+                break;
+            case Piece.PIECE_Z:
+                result = result + "Z";
+                break;
+            case Piece.PIECE_T:
+                result = result + "T";
+                break;
+            case Piece.PIECE_J:
+                result = result + "J";
+                break;
+            case Piece.PIECE_S:
+                result = result + "S";
+                break;
+            case Piece.PIECE_I1:
+                result = result + "I1";
+                break;
+            case Piece.PIECE_I2:
+                result = result + "I2";
+                break;
+            case Piece.PIECE_I3:
+                result = result + "I3";
+                break;
+            case Piece.PIECE_L3:
+                result = result + "L3";
+                break;
         }
         result = result + ", direction ";
 
-        switch (rt)
-        {
-            case Piece.DIRECTION_LEFT:  result = result + "left";  break;
-            case Piece.DIRECTION_DOWN:  result = result + "down";  break;
-            case Piece.DIRECTION_UP:    result = result + "up";    break;
-            case Piece.DIRECTION_RIGHT: result = result + "right"; break;
+        switch (rt) {
+            case Piece.DIRECTION_LEFT:
+                result = result + "left";
+                break;
+            case Piece.DIRECTION_DOWN:
+                result = result + "down";
+                break;
+            case Piece.DIRECTION_UP:
+                result = result + "up";
+                break;
+            case Piece.DIRECTION_RIGHT:
+                result = result + "right";
+                break;
         }
         if (DEBUG_ALL) log.debug(result);
     }
@@ -465,6 +517,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
     /**
      * Search for the best choice
+     *
      * @param engine The GameEngine that owns this AI
      * @param playerID Player ID
      */
@@ -481,19 +534,18 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         Field fld;
         if (engine.field == null)
             fld = new Field(engine.fieldWidth, engine.fieldHeight,
-                    engine.fieldHiddenHeight, engine.ruleopt.fieldCeiling);
+                engine.fieldHiddenHeight, engine.ruleopt.fieldCeiling);
         else
             fld = new Field(engine.field);
         Piece pieceNow = engine.nowPieceObject;
         Piece pieceHold = engine.holdPieceObject;
         boolean holdBoxEmpty = (pieceHold == null);
         int nextIndex = engine.nextPieceCount;
-        if (inARE || pieceNow == null)
-        {
+        if (inARE || pieceNow == null) {
             pieceNow = engine.getNextObjectCopy(nextIndex);
             nextIndex++;
         }
-        if(holdBoxEmpty)
+        if (holdBoxEmpty)
             pieceHold = engine.getNextObjectCopy(nextIndex);
         else if (holdBoxEmpty)
             pieceHold = engine.getNextObjectCopy(engine.nextPieceCount);
@@ -501,27 +553,24 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         pieceHold = checkOffset(pieceHold, engine);
         boolean holdOK = engine.isHoldOK();
 
-        nextQueueIDs = new int[MAX_THINK_DEPTH-1];
+        nextQueueIDs = new int[MAX_THINK_DEPTH - 1];
         for (int i = 0; i < nextQueueIDs.length; i++)
-            nextQueueIDs[i] = engine.getNextID(nextIndex+i);
+            nextQueueIDs[i] = engine.getNextID(nextIndex + i);
 
         int state = fieldToIndex(fld);
-        if (state < 0)
-        {
+        if (state < 0) {
             thinkLastPieceNo++;
             return;
         }
         Transition t = moves[state][pieceNow.id];
 
-        while (t != null)
-        {
+        while (t != null) {
             int holdID = -1;
             if (engine.holdPieceObject != null)
                 holdID = engine.holdPieceObject.id;
             int pts = thinkMain(engine, t.newField, holdID, 0);
 
-            if (pts > bestPts)
-            {
+            if (pts > bestPts) {
                 bestPts = pts;
                 bestX = t.x + 3;
                 bestRt = t.rt;
@@ -533,16 +582,13 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
             t = t.next;
         }
-        if (pieceHold.id != pieceNow.id && holdOK)
-        {
+        if (pieceHold.id != pieceNow.id && holdOK) {
             t = moves[state][pieceHold.id];
 
-            while (t != null)
-            {
+            while (t != null) {
                 int pts = thinkMain(engine, t.newField, pieceNow.id, holdBoxEmpty ? 1 : 0);
 
-                if (pts > bestPts)
-                {
+                if (pts > bestPts) {
                     bestPts = pts;
                     bestX = t.x + 3;
                     bestRt = t.rt;
@@ -563,6 +609,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
     /**
      * Think routine
+     *
      * @param engine GameEngine
      * @param state Think state
      * @param holdID Hold piece ID
@@ -572,9 +619,8 @@ public class ComboRaceBot extends DummyAI implements Runnable {
     public int thinkMain(GameEngine engine, int state, int holdID, int depth) {
         if (state == -1)
             return 0;
-        if (depth == nextQueueIDs.length)
-        {
-            int result = scores[state]*10;
+        if (depth == nextQueueIDs.length) {
+            int result = scores[state] * 10;
             if (holdID == Piece.PIECE_I)
                 result += 1000;
             else if (holdID == Piece.PIECE_T)
@@ -587,24 +633,20 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         int bestPts = 0;
         Transition t = moves[state][nextQueueIDs[depth]];
 
-        while (t != null)
-        {
+        while (t != null) {
             bestPts = Math.max(bestPts,
-                    thinkMain(engine, t.newField, holdID, depth+1) + 1000);
+                thinkMain(engine, t.newField, holdID, depth + 1) + 1000);
             t = t.next;
         }
 
-        if (engine.ruleopt.holdEnable)
-        {
+        if (engine.ruleopt.holdEnable) {
             if (holdID == -1)
-                bestPts = Math.max(bestPts, thinkMain(engine, state, nextQueueIDs[depth], depth+1));
-            else
-            {
+                bestPts = Math.max(bestPts, thinkMain(engine, state, nextQueueIDs[depth], depth + 1));
+            else {
                 t = moves[state][holdID];
-                while (t != null)
-                {
+                while (t != null) {
                     bestPts = Math.max(bestPts,
-                            thinkMain(engine, t.newField, nextQueueIDs[depth], depth+1) + 1000);
+                        thinkMain(engine, t.newField, nextQueueIDs[depth], depth + 1) + 1000);
                     t = t.next;
                 }
             }
@@ -613,8 +655,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         return bestPts;
     }
 
-    public static Piece checkOffset(Piece p, GameEngine engine)
-    {
+    public static Piece checkOffset(Piece p, GameEngine engine) {
         Piece result = new Piece(p);
         result.big = engine.big;
         if (!p.offsetApplied)
@@ -629,8 +670,8 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         log.info("ComboRaceBot: Thread start");
         threadRunning = true;
 
-        while(threadRunning) {
-            if(thinkRequest) {
+        while (threadRunning) {
+            if (thinkRequest) {
                 thinkRequest = false;
                 thinking = true;
                 try {
@@ -641,11 +682,10 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                     log.debug("ComboRaceBot: thinkBestPosition Failed", e);
                 }
                 thinking = false;
-            }
-            else if (createTablesRequest)
+            } else if (createTablesRequest)
                 createTables(gEngine);
 
-            if(thinkDelay > 0) {
+            if (thinkDelay > 0) {
                 try {
                     Thread.sleep(thinkDelay);
                 } catch (InterruptedException e) {
@@ -661,8 +701,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
     /**
      * Constructs the moves table if necessary.
      */
-    public void createTables (GameEngine engine)
-    {
+    public void createTables(GameEngine engine) {
         if (moves != null)
             return;
 
@@ -673,49 +712,40 @@ public class ComboRaceBot extends DummyAI implements Runnable {
         Field fldTemp = new Field(fldEmpty);
 
         Piece[] pieces = new Piece[7];
-        for (int p = 0; p < 7; p++)
-        {
+        for (int p = 0; p < 7; p++) {
             pieces[p] = checkOffset(new Piece(p), engine);
             pieces[p].setColor(1);
         }
 
         int count = 0;
 
-        for (int i = 0; i < FIELDS.length; i++)
-        {
+        for (int i = 0; i < FIELDS.length; i++) {
             fldBackup.copy(fldEmpty);
             int code = FIELDS[i];
 
-            for (int y = Field.DEFAULT_HEIGHT-1; y > Field.DEFAULT_HEIGHT-4; y--)
-                for (int x = 3; x >= 0; x--)
-                {
+            for (int y = Field.DEFAULT_HEIGHT - 1; y > Field.DEFAULT_HEIGHT - 4; y--)
+                for (int x = 3; x >= 0; x--) {
                     if ((code & 1) == 1)
                         fldBackup.setBlockColor(x, y, 1);
                     code >>= 1;
                 }
 
-            for (int p = 0; p < 7; p++)
-            {
+            for (int p = 0; p < 7; p++) {
                 int tempX = engine.getSpawnPosX(fldBackup, pieces[p]);
-                for (int rt = 0; rt < Piece.DIRECTION_COUNT; rt++)
-                {
+                for (int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
                     int minX = pieces[p].getMostMovableLeft(tempX, 0, rt, fldBackup);
                     int maxX = pieces[p].getMostMovableRight(tempX, 0, rt, fldBackup);
 
-                    for (int x = minX; x <= maxX; x++)
-                    {
+                    for (int x = minX; x <= maxX; x++) {
                         int y = pieces[p].getBottom(x, 0, rt, fldBackup);
-                        if (p == Piece.PIECE_L || p == Piece.PIECE_T || p == Piece.PIECE_J || rt < 2)
-                        {
+                        if (p == Piece.PIECE_L || p == Piece.PIECE_T || p == Piece.PIECE_J || rt < 2) {
                             fldTemp.copy(fldBackup);
                             pieces[p].placeToField(x, y, rt, fldTemp);
-                            if (fldTemp.checkLine() == 1)
-                            {
+                            if (fldTemp.checkLine() == 1) {
                                 fldTemp.clearLine();
                                 fldTemp.downFloatingBlocks();
                                 int index = fieldToIndex(fldTemp, 0);
-                                if (index >= 0)
-                                {
+                                if (index >= 0) {
                                     moves[i][p] = new Transition(x, rt, index, moves[i][p]);
                                     count++;
                                 }
@@ -725,33 +755,30 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                         }
 
                         // Left rotation
-                        if(!engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
+                        if (!engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
                             int rot = pieces[p].getRotateDirection(-1, rt);
                             int newX = x;
                             int newY = y;
                             fldTemp.copy(fldBackup);
 
-                            if(pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
-                                    (engine.ruleopt.rotateWallkick)) {
+                            if (pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
+                                (engine.ruleopt.rotateWallkick)) {
                                 WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot,
-                                        (engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
+                                    (engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
 
-                                if(kick != null) {
+                                if (kick != null) {
                                     newX = x + kick.offsetX;
                                     newY = pieces[p].getBottom(newX, y + kick.offsetY, rot, fldTemp);
                                 }
                             }
                             if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
-                                    && newY > pieces[p].getBottom(newX, 0, rot, fldTemp))
-                            {
+                                && newY > pieces[p].getBottom(newX, 0, rot, fldTemp)) {
                                 pieces[p].placeToField(newX, newY, rot, fldTemp);
-                                if (fldTemp.checkLine() == 1)
-                                {
+                                if (fldTemp.checkLine() == 1) {
                                     fldTemp.clearLine();
                                     fldTemp.downFloatingBlocks();
                                     int index = fieldToIndex(fldTemp, 0);
-                                    if (index >= 0)
-                                    {
+                                    if (index >= 0) {
                                         moves[i][p] = new Transition(x, rt, -1, index, moves[i][p]);
                                         count++;
                                     }
@@ -760,33 +787,30 @@ public class ComboRaceBot extends DummyAI implements Runnable {
                         }
 
                         // Right rotation
-                        if(engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
+                        if (engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
                             int rot = pieces[p].getRotateDirection(1, rt);
                             int newX = x;
                             int newY = y;
                             fldTemp.copy(fldBackup);
 
-                            if(pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
-                                    (engine.ruleopt.rotateWallkick)) {
+                            if (pieces[p].checkCollision(x, y, rot, fldTemp) && (engine.wallkick != null) &&
+                                (engine.ruleopt.rotateWallkick)) {
                                 WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot,
-                                        (engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
+                                    (engine.ruleopt.rotateMaxUpwardWallkick != 0), pieces[p], fldTemp, null);
 
-                                if(kick != null) {
+                                if (kick != null) {
                                     newX = x + kick.offsetX;
                                     newY = pieces[p].getBottom(newX, y + kick.offsetY, rot, fldTemp);
                                 }
                             }
                             if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
-                                    && newY > pieces[p].getBottom(newX, 0, rot, fldTemp))
-                            {
+                                && newY > pieces[p].getBottom(newX, 0, rot, fldTemp)) {
                                 pieces[p].placeToField(newX, newY, rot, fldTemp);
-                                if (fldTemp.checkLine() == 1)
-                                {
+                                if (fldTemp.checkLine() == 1) {
                                     fldTemp.clearLine();
                                     fldTemp.downFloatingBlocks();
                                     int index = fieldToIndex(fldTemp, 0);
-                                    if (index >= 0)
-                                    {
+                                    if (index >= 0) {
                                         moves[i][p] = new Transition(x, rt, 1, index, moves[i][p]);
                                         count++;
                                     }
@@ -806,45 +830,43 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
     /**
      * Converts field to field state int code
+     *
      * @param field Field object
      * @param valleyX Leftmost x-coordinate of 4-block-wide valley to combo in
      * @return Field state int code.
      */
-    public static int fieldToCode(Field field, int valleyX)
-    {
+    public static int fieldToCode(Field field, int valleyX) {
         int height = field.getHeight();
         int result = 0;
-        for (int y = height-3; y < height; y++)
-            for (int x = 0; x < 4; x++)
-            {
+        for (int y = height - 3; y < height; y++)
+            for (int x = 0; x < 4; x++) {
                 result <<= 1;
-                if (!field.getBlockEmptyF(x+valleyX, y))
+                if (!field.getBlockEmptyF(x + valleyX, y))
                     result++;
             }
         return result;
     }
-    public static int fieldToCode(Field field)
-    {
+
+    public static int fieldToCode(Field field) {
         return fieldToCode(field, 3);
     }
 
     /**
      * Converts field state int code to FIELDS array index
+     *
      * @param field Field state int code
      * @return State index if found; -1 if not found.
      */
-    public static int fieldToIndex(int field)
-    {
+    public static int fieldToIndex(int field) {
         int min = 0;
-        int max = FIELDS.length-1;
+        int max = FIELDS.length - 1;
         int mid;
-        while (min <= max)
-        {
-            mid = (min+max) >> 1;
+        while (min <= max) {
+            mid = (min + max) >> 1;
             if (FIELDS[mid] > field)
-                max = mid-1;
+                max = mid - 1;
             else if (FIELDS[mid] < field)
-                min = mid+1;
+                min = mid + 1;
             else
                 return mid;
         }
@@ -853,47 +875,46 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
     /**
      * Converts field object to FIELDS array index
+     *
      * @param field Field object
      * @param valleyX Leftmost x-coordinate of 4-block-wide valley to combo in
      * @return State index if found; -1 if not found.
      */
-    public static int fieldToIndex(Field field, int valleyX)
-    {
+    public static int fieldToIndex(Field field, int valleyX) {
         return fieldToIndex(fieldToCode(field, valleyX));
     }
-    public static int fieldToIndex(Field field)
-    {
+
+    public static int fieldToIndex(Field field) {
         return fieldToIndex(fieldToCode(field));
     }
 
-    protected static class Transition
-    {
+    protected static class Transition {
         public int x, rt, rtSub, newField;
         public Transition next;
-        public Transition (int bestX, int bestRt, int bestRtSub, int newFld)
-        {
+
+        public Transition(int bestX, int bestRt, int bestRtSub, int newFld) {
             x = bestX;
             rt = bestRt;
             rtSub = bestRtSub;
             newField = newFld;
         }
-        public Transition (int bestX, int bestRt, int newFld)
-        {
+
+        public Transition(int bestX, int bestRt, int newFld) {
             x = bestX;
             rt = bestRt;
             rtSub = 0;
             newField = newFld;
         }
-        public Transition (int bestX, int bestRt, int bestRtSub, int newFld, Transition nxt)
-        {
+
+        public Transition(int bestX, int bestRt, int bestRtSub, int newFld, Transition nxt) {
             x = bestX;
             rt = bestRt;
             rtSub = bestRtSub;
             newField = newFld;
             next = nxt;
         }
-        public Transition (int bestX, int bestRt, int newFld, Transition nxt)
-        {
+
+        public Transition(int bestX, int bestRt, int newFld, Transition nxt) {
             x = bestX;
             rt = bestRt;
             rtSub = 0;

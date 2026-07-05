@@ -65,34 +65,54 @@ import org.apache.log4j.PropertyConfigurator;
  * MusicListEditor (音楽リスト編集ツール)
  */
 public class MusicListEditor extends JFrame implements ActionListener {
-    /** Serial version ID */
+    /**
+     * Serial version ID
+     */
     private static final long serialVersionUID = -6480034324392568869L;
 
-    /** Log */
+    /**
+     * Log
+     */
     static final Logger log = Logger.getLogger(MusicListEditor.class);
 
-    /** Swing版のSave settings用Property file */
+    /**
+     * Swing版のSave settings用Property file
+     */
     private CustomProperties propConfig;
 
-    /** Default language file */
+    /**
+     * Default language file
+     */
     private CustomProperties propLangDefault;
 
-    /** UI翻訳用Property file */
+    /**
+     * UI翻訳用Property file
+     */
     private CustomProperties propLang;
 
-    /** 音楽リストが含まれるProperty file */
+    /**
+     * 音楽リストが含まれるProperty file
+     */
     private CustomProperties propMusic;
 
-    /** 音楽のFilename用テキストボックス */
+    /**
+     * 音楽のFilename用テキストボックス
+     */
     private JTextField[] txtfldMusicFileNames;
 
-    /** ループなし check ボックス */
+    /**
+     * ループなし check ボックス
+     */
     private JCheckBox[] chkboxNoLoop;
 
-    /** ファイル選択ダイアログ */
+    /**
+     * ファイル選択ダイアログ
+     */
     private JFileChooser fileChooser;
 
-    /** ファイルフィルタのHashMap */
+    /**
+     * ファイルフィルタのHashMap
+     */
     private HashMap<String, SimpleFileFilter> hashmapFileFilters;
 
     /**
@@ -114,7 +134,8 @@ public class MusicListEditor extends JFrame implements ActionListener {
             FileInputStream in = new FileInputStream("config/setting/swing.cfg");
             propConfig.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
 
         // 言語ファイル読み込み
         propLangDefault = new CustomProperties();
@@ -131,17 +152,18 @@ public class MusicListEditor extends JFrame implements ActionListener {
             FileInputStream in = new FileInputStream("config/lang/musiclisteditor_" + Locale.getDefault().getCountry() + ".properties");
             propLang.load(in);
             in.close();
-        } catch(IOException e) {}
+        } catch (IOException e) {
+        }
 
         // 音楽リスト読み込み
         loadMusicList();
 
         // Look&Feel設定
-        if(propConfig.getProperty("option.usenativelookandfeel", true) == true) {
+        if (propConfig.getProperty("option.usenativelookandfeel", true) == true) {
             try {
                 UIManager.getInstalledLookAndFeels();
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch(Exception e) {
+            } catch (Exception e) {
                 log.warn("Failed to set native look&feel", e);
             }
         }
@@ -168,7 +190,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
         txtfldMusicFileNames = new JTextField[BGMStatus.BGM_COUNT];
         chkboxNoLoop = new JCheckBox[BGMStatus.BGM_COUNT];
 
-        for(int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+        for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
             JPanel pMusicTemp = new JPanel(new BorderLayout());
             pMusicSetting.add(pMusicTemp);
 
@@ -238,7 +260,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
         fileChooser = new JFileChooser();
 
         Iterator<SimpleFileFilter> it = hashmapFileFilters.values().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             SimpleFileFilter filter = it.next();
             fileChooser.addChoosableFileFilter(filter);
         }
@@ -246,12 +268,13 @@ public class MusicListEditor extends JFrame implements ActionListener {
 
     /**
      * 翻訳後のUIの文字列を取得
+     *
      * @param str 文字列
      * @return 翻訳後のUIの文字列 (無いならそのままstrを返す）
      */
     private String getUIText(String str) {
         String result = propLang.getProperty(str);
-        if(result == null) {
+        if (result == null) {
             result = propLangDefault.getProperty(str, str);
         }
         return result;
@@ -266,11 +289,13 @@ public class MusicListEditor extends JFrame implements ActionListener {
             FileInputStream in = new FileInputStream("config/setting/music.cfg");
             propMusic.load(in);
             in.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
 
     /**
      * 音楽リストを保存
+     *
      * @throws IOException 保存失敗
      */
     private void saveMusicList() throws IOException {
@@ -288,7 +313,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
      * Menu 実行時の処理
      */
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().startsWith("OpenFileDialog")) {
+        if (e.getActionCommand().startsWith("OpenFileDialog")) {
             // Button number取得
             int number = 0;
             try {
@@ -304,30 +329,30 @@ public class MusicListEditor extends JFrame implements ActionListener {
 
             //  default ディレクトリを設定
             String defaultDirectory = txtfldMusicFileNames[number].getText();
-            if(defaultDirectory.length() < 1) defaultDirectory = currentDirectory + "/res/bgm";
+            if (defaultDirectory.length() < 1) defaultDirectory = currentDirectory + "/res/bgm";
 
             File file = new File(defaultDirectory);
             fileChooser.setCurrentDirectory(file);
 
             // ファイル選択ダイアログの default 拡張子を設定
-            if(file.isFile()) {
+            if (file.isFile()) {
                 try {
                     String strName = file.getName();
                     int lastPeriod = strName.lastIndexOf('.');
-                    if(lastPeriod != -1) {
+                    if (lastPeriod != -1) {
                         String strExt = strName.substring(lastPeriod, strName.length());
                         fileChooser.setFileFilter(hashmapFileFilters.get(strExt));
                     }
-                } catch (Exception e2) {}
+                } catch (Exception e2) {
+                }
             }
 
             // ファイル選択ダイアログを表示
-            if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 String strPath = fileChooser.getSelectedFile().getPath();
                 txtfldMusicFileNames[number].setText(strPath);
             }
-        }
-        else if(e.getActionCommand().startsWith("Clear")) {
+        } else if (e.getActionCommand().startsWith("Clear")) {
             int number = 0;
             try {
                 String strNum = e.getActionCommand().replaceFirst("Clear", "");
@@ -338,9 +363,8 @@ public class MusicListEditor extends JFrame implements ActionListener {
             }
 
             txtfldMusicFileNames[number].setText("");
-        }
-        else if(e.getActionCommand() == "OK") {
-            for(int i = 0; i < txtfldMusicFileNames.length; i++) {
+        } else if (e.getActionCommand() == "OK") {
+            for (int i = 0; i < txtfldMusicFileNames.length; i++) {
                 propMusic.setProperty("music.filename." + i, txtfldMusicFileNames[i].getText());
                 propMusic.setProperty("music.noloop." + i, chkboxNoLoop[i].isSelected());
             }
@@ -349,18 +373,18 @@ public class MusicListEditor extends JFrame implements ActionListener {
                 saveMusicList();
             } catch (IOException e2) {
                 JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2.getLocalizedMessage(),
-                                              getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
+                    getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
             }
 
             this.dispose();
-        }
-        else if(e.getActionCommand() == "Cancel") {
+        } else if (e.getActionCommand() == "Cancel") {
             this.dispose();
         }
     }
 
     /**
      * メイン関count
+     *
      * @param args コマンドLines引count
      */
     public static void main(String[] args) {
@@ -388,30 +412,35 @@ public class MusicListEditor extends JFrame implements ActionListener {
 
             add(cutAction = new AbstractAction(getUIText("Popup_Cut")) {
                 private static final long serialVersionUID = 1L;
+
                 public void actionPerformed(ActionEvent evt) {
                     field.cut();
                 }
             });
             add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
                 private static final long serialVersionUID = 1L;
+
                 public void actionPerformed(ActionEvent evt) {
                     field.copy();
                 }
             });
             add(pasteAction = new AbstractAction(getUIText("Popup_Paste")) {
                 private static final long serialVersionUID = 1L;
+
                 public void actionPerformed(ActionEvent evt) {
                     field.paste();
                 }
             });
             add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
                 private static final long serialVersionUID = 1L;
+
                 public void actionPerformed(ActionEvent evt) {
                     field.replaceSelection(null);
                 }
             });
             add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
                 private static final long serialVersionUID = 1L;
+
                 public void actionPerformed(ActionEvent evt) {
                     field.selectAll();
                 }

@@ -47,254 +47,332 @@ import org.apache.log4j.Logger;
  * SPF VS-BATTLE mode (Beta)
  */
 public class SPFMode extends DummyMode {
-    /** Log (Apache log4j) */
+    /**
+     * Log (Apache log4j)
+     */
     static Logger log = Logger.getLogger(SPFMode.class);
 
-    /** Current version */
+    /**
+     * Current version
+     */
     private static final int CURRENT_VERSION = 0;
 
-    /** Enabled piece types */
-    private static final int[] PIECE_ENABLE = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+    /**
+     * Enabled piece types
+     */
+    private static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
-    /** Block colors */
+    /**
+     * Block colors
+     */
     private static final int[] BLOCK_COLORS =
-    {
-        Block.BLOCK_COLOR_RED,
-        Block.BLOCK_COLOR_RED,
-        Block.BLOCK_COLOR_RED,
-        Block.BLOCK_COLOR_RED,
-        Block.BLOCK_COLOR_GEM_RED,
-        Block.BLOCK_COLOR_GREEN,
-        Block.BLOCK_COLOR_GREEN,
-        Block.BLOCK_COLOR_GREEN,
-        Block.BLOCK_COLOR_GREEN,
-        Block.BLOCK_COLOR_GEM_GREEN,
-        Block.BLOCK_COLOR_BLUE,
-        Block.BLOCK_COLOR_BLUE,
-        Block.BLOCK_COLOR_BLUE,
-        Block.BLOCK_COLOR_BLUE,
-        Block.BLOCK_COLOR_GEM_BLUE,
-        Block.BLOCK_COLOR_YELLOW,
-        Block.BLOCK_COLOR_YELLOW,
-        Block.BLOCK_COLOR_YELLOW,
-        Block.BLOCK_COLOR_YELLOW,
-        Block.BLOCK_COLOR_GEM_YELLOW
-    };
+        {
+            Block.BLOCK_COLOR_RED,
+            Block.BLOCK_COLOR_RED,
+            Block.BLOCK_COLOR_RED,
+            Block.BLOCK_COLOR_RED,
+            Block.BLOCK_COLOR_GEM_RED,
+            Block.BLOCK_COLOR_GREEN,
+            Block.BLOCK_COLOR_GREEN,
+            Block.BLOCK_COLOR_GREEN,
+            Block.BLOCK_COLOR_GREEN,
+            Block.BLOCK_COLOR_GEM_GREEN,
+            Block.BLOCK_COLOR_BLUE,
+            Block.BLOCK_COLOR_BLUE,
+            Block.BLOCK_COLOR_BLUE,
+            Block.BLOCK_COLOR_BLUE,
+            Block.BLOCK_COLOR_GEM_BLUE,
+            Block.BLOCK_COLOR_YELLOW,
+            Block.BLOCK_COLOR_YELLOW,
+            Block.BLOCK_COLOR_YELLOW,
+            Block.BLOCK_COLOR_YELLOW,
+            Block.BLOCK_COLOR_GEM_YELLOW
+        };
 
     private static final double[] ROW_VALUES =
-    {
-        2.3, 2.2, 2.1, 2.0, 1.9, 1.8, 1.7, 1.6, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0
-    };
+        {
+            2.3, 2.2, 2.1, 2.0, 1.9, 1.8, 1.7, 1.6, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0
+        };
 
     private static final int DIAMOND_COLOR = Block.BLOCK_COLOR_GEM_RAINBOW;
 
-    /** Number of players */
+    /**
+     * Number of players
+     */
     private static final int MAX_PLAYERS = 2;
 
-    /** Names of drop map sets */
-    private static final String[] DROP_SET_NAMES = {"CLASSIC", "REMIX", "SWORD", "S-MIRROR", "AVALANCHE", "A-MIRROR"};
+    /**
+     * Names of drop map sets
+     */
+    private static final String[] DROP_SET_NAMES = { "CLASSIC", "REMIX", "SWORD", "S-MIRROR", "AVALANCHE", "A-MIRROR" };
 
     private static final int[][][][] DROP_PATTERNS = {
         {
-            {{2,2,2,2}, {5,5,5,5}, {7,7,7,7}, {4,4,4,4}},
-            {{2,2,4,4}, {2,2,4,4}, {5,5,2,2}, {5,5,2,2}, {7,7,5,5}, {7,7,5,5}},
-            {{5,5,5,5}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {4,4,4,4}},
-            {{2,5,7,4}},
-            {{7,7,4,4}, {4,4,7,7}, {2,2,5,5}, {2,2,5,5}, {4,4,7,7}, {7,7,4,4}},
-            {{4,7,7,5}, {7,7,5,5}, {7,5,5,2}, {5,5,2,2}, {5,2,2,4}, {2,2,4,4}},
-            {{2,2,5,5}, {4,4,5,5}, {2,2,5,5}, {4,4,7,7}, {2,2,7,7}, {4,4,7,7}},
-            {{5,5,5,5}, {2,2,7,7}, {2,2,7,7}, {7,7,2,2}, {7,7,2,2}, {4,4,4,4}},
-            {{5,7,4,2}, {2,5,7,4}, {4,2,5,7}, {7,4,2,5}},
-            {{2,5,7,4}, {5,7,4,2}, {7,4,2,5}, {4,2,5,7}},
-            {{2,2,2,2}}
+            { { 2, 2, 2, 2 }, { 5, 5, 5, 5 }, { 7, 7, 7, 7 }, { 4, 4, 4, 4 } },
+            { { 2, 2, 4, 4 }, { 2, 2, 4, 4 }, { 5, 5, 2, 2 }, { 5, 5, 2, 2 }, { 7, 7, 5, 5 }, { 7, 7, 5, 5 } },
+            { { 5, 5, 5, 5 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 4, 4, 4, 4 } },
+            { { 2, 5, 7, 4 } },
+            { { 7, 7, 4, 4 }, { 4, 4, 7, 7 }, { 2, 2, 5, 5 }, { 2, 2, 5, 5 }, { 4, 4, 7, 7 }, { 7, 7, 4, 4 } },
+            { { 4, 7, 7, 5 }, { 7, 7, 5, 5 }, { 7, 5, 5, 2 }, { 5, 5, 2, 2 }, { 5, 2, 2, 4 }, { 2, 2, 4, 4 } },
+            { { 2, 2, 5, 5 }, { 4, 4, 5, 5 }, { 2, 2, 5, 5 }, { 4, 4, 7, 7 }, { 2, 2, 7, 7 }, { 4, 4, 7, 7 } },
+            { { 5, 5, 5, 5 }, { 2, 2, 7, 7 }, { 2, 2, 7, 7 }, { 7, 7, 2, 2 }, { 7, 7, 2, 2 }, { 4, 4, 4, 4 } },
+            { { 5, 7, 4, 2 }, { 2, 5, 7, 4 }, { 4, 2, 5, 7 }, { 7, 4, 2, 5 } },
+            { { 2, 5, 7, 4 }, { 5, 7, 4, 2 }, { 7, 4, 2, 5 }, { 4, 2, 5, 7 } },
+            { { 2, 2, 2, 2 } }
         },
         {
-            {{2,2,7,2}, {5,5,4,5}, {7,7,5,7}, {4,4,2,4}},
-            {{2,2,4,4}, {2,2,4,4}, {5,5,2,2}, {5,5,2,2}, {7,7,5,5}, {7,7,5,5}},
-            {{5,5,4,4}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {2,7,2,7}, {4,4,5,5}},
-            {{2,5,7,4}},
-            {{7,7,4,4}, {4,4,7,7}, {2,5,5,5}, {2,2,2,5}, {4,4,7,7}, {7,7,4,4}},
-            {{7,7,7,7}, {5,7,4,2}, {7,4,2,5}, {4,2,5,7}, {2,5,7,4}, {5,5,5,5}},
-            {{2,2,5,5}, {4,4,5,5}, {2,2,5,5}, {4,4,7,7}, {2,2,7,7}, {4,4,7,7}},
-            {{5,4,5,4}, {2,2,2,7}, {2,7,7,7}, {7,2,2,2}, {7,7,7,2}, {4,5,4,5}},
-            {{5,7,4,2}, {2,5,7,4}, {4,2,5,7}, {7,4,2,5}},
-            {{2,5,7,4}, {5,7,4,2}, {7,4,2,5}, {4,2,5,7}},
-            {{2,2,2,2}}
+            { { 2, 2, 7, 2 }, { 5, 5, 4, 5 }, { 7, 7, 5, 7 }, { 4, 4, 2, 4 } },
+            { { 2, 2, 4, 4 }, { 2, 2, 4, 4 }, { 5, 5, 2, 2 }, { 5, 5, 2, 2 }, { 7, 7, 5, 5 }, { 7, 7, 5, 5 } },
+            { { 5, 5, 4, 4 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 2, 7, 2, 7 }, { 4, 4, 5, 5 } },
+            { { 2, 5, 7, 4 } },
+            { { 7, 7, 4, 4 }, { 4, 4, 7, 7 }, { 2, 5, 5, 5 }, { 2, 2, 2, 5 }, { 4, 4, 7, 7 }, { 7, 7, 4, 4 } },
+            { { 7, 7, 7, 7 }, { 5, 7, 4, 2 }, { 7, 4, 2, 5 }, { 4, 2, 5, 7 }, { 2, 5, 7, 4 }, { 5, 5, 5, 5 } },
+            { { 2, 2, 5, 5 }, { 4, 4, 5, 5 }, { 2, 2, 5, 5 }, { 4, 4, 7, 7 }, { 2, 2, 7, 7 }, { 4, 4, 7, 7 } },
+            { { 5, 4, 5, 4 }, { 2, 2, 2, 7 }, { 2, 7, 7, 7 }, { 7, 2, 2, 2 }, { 7, 7, 7, 2 }, { 4, 5, 4, 5 } },
+            { { 5, 7, 4, 2 }, { 2, 5, 7, 4 }, { 4, 2, 5, 7 }, { 7, 4, 2, 5 } },
+            { { 2, 5, 7, 4 }, { 5, 7, 4, 2 }, { 7, 4, 2, 5 }, { 4, 2, 5, 7 } },
+            { { 2, 2, 2, 2 } }
         },
         {
-            {{2,5,5,5}, {5,2,2,5}, {5,5,2,2}, {4,4,7,7}, {4,7,7,4}, {7,4,4,4}},
-            {{2,2,2,5,5,5}, {5,3,7,5,4,5}, {5,5,7,7,4,4}, {4,4,2,4,4,7}, {4,2,4,4,7,4}, {2,4,4,7,4,4}},
-            {{4,4,5,5,7,2}, {4,4,5,5,7,2}, {5,5,7,7,7,5}, {5,7,7,7,4,5}, {7,7,2,2,5,4}, {7,2,2,2,5,4}},
-            {{2,2,5,4,2,7}, {2,7,4,5,7,2}, {2,7,4,4,7,7}, {2,7,5,5,2,2}, {2,7,5,4,2,7}, {7,7,4,5,7,2}},
-            {{2,7,7,7,7}, {2,7,5,7,7}, {2,2,5,5,5}, {2,2,2,5,5}, {2,4,2,4,4}, {4,4,4,4,4}},
-            {{2,2,5,5}, {2,7,7,5}, {5,7,4,4}, {5,5,2,4}, {4,2,2,7}, {4,4,7,7}},
-            {{2,2,5,5}, {2,2,5,5}, {5,5,7,7}, {5,5,7,7}, {7,7,4,4}, {7,7,4,4}},
-            {{2,2,5,4,2,7}, {2,2,4,5,7,2}, {7,7,4,5,7,2}, {7,7,5,4,2,7}, {2,2,5,4,2,7}, {2,2,4,5,7,2}},
-            {{7,7,4,4,7,7}, {7,7,7,7,5,7}, {2,5,2,2,5,2}, {2,5,2,2,5,2}, {4,4,4,4,5,4}, {4,4,7,7,4,4}},
-            {{2,5,5,5,5,4}, {5,2,5,5,4,4}, {2,2,2,2,2,2}, {7,7,7,7,7,7}, {4,7,4,4,5,5}, {7,4,4,4,4,5}},
-            {{2,2,5,2,2,4}, {2,5,5,2,5,5}, {5,5,5,7,7,2}, {7,7,7,5,5,4}, {4,7,7,4,7,7}, {4,4,7,4,4,2}},
-            {{7,7,5,5,5,5}, {7,2,2,5,5,7}, {7,2,2,4,4,7}, {2,7,7,4,4,2}, {2,7,7,5,5,2}, {7,7,5,5,5,5}},
-            {{7,7,5,5}, {7,2,5,2}, {5,5,5,2}, {4,4,4,2}, {7,2,4,2}, {7,7,4,4}},
-            {{2,2,5,5}, {2,7,5,5}, {5,5,7,7}, {5,5,7,7}, {4,7,4,4}, {7,7,4,4}},
-            {{7,7,5,5,5}, {4,7,7,7,5}, {5,4,4,4,4}, {5,2,2,2,2}, {2,7,7,7,5}, {7,7,5,5,5}},
-            {{2,2,4}, {2,2,2}, {7,7,7}, {7,7,7}, {5,5,5}, {5,5,4}},
-            {{7,7,7,7}, {7,2,2,7}, {2,7,5,4}, {4,5,7,2}, {5,4,4,5}, {5,5,5,5}}
+            { { 2, 5, 5, 5 }, { 5, 2, 2, 5 }, { 5, 5, 2, 2 }, { 4, 4, 7, 7 }, { 4, 7, 7, 4 }, { 7, 4, 4, 4 } },
+            { { 2, 2, 2, 5, 5, 5 }, { 5, 3, 7, 5, 4, 5 }, { 5, 5, 7, 7, 4, 4 }, { 4, 4, 2, 4, 4, 7 }, { 4, 2, 4, 4, 7, 4 }, { 2, 4, 4, 7, 4, 4 } },
+            { { 4, 4, 5, 5, 7, 2 }, { 4, 4, 5, 5, 7, 2 }, { 5, 5, 7, 7, 7, 5 }, { 5, 7, 7, 7, 4, 5 }, { 7, 7, 2, 2, 5, 4 }, { 7, 2, 2, 2, 5, 4 } },
+            { { 2, 2, 5, 4, 2, 7 }, { 2, 7, 4, 5, 7, 2 }, { 2, 7, 4, 4, 7, 7 }, { 2, 7, 5, 5, 2, 2 }, { 2, 7, 5, 4, 2, 7 }, { 7, 7, 4, 5, 7, 2 } },
+            { { 2, 7, 7, 7, 7 }, { 2, 7, 5, 7, 7 }, { 2, 2, 5, 5, 5 }, { 2, 2, 2, 5, 5 }, { 2, 4, 2, 4, 4 }, { 4, 4, 4, 4, 4 } },
+            { { 2, 2, 5, 5 }, { 2, 7, 7, 5 }, { 5, 7, 4, 4 }, { 5, 5, 2, 4 }, { 4, 2, 2, 7 }, { 4, 4, 7, 7 } },
+            { { 2, 2, 5, 5 }, { 2, 2, 5, 5 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 7, 7, 4, 4 }, { 7, 7, 4, 4 } },
+            { { 2, 2, 5, 4, 2, 7 }, { 2, 2, 4, 5, 7, 2 }, { 7, 7, 4, 5, 7, 2 }, { 7, 7, 5, 4, 2, 7 }, { 2, 2, 5, 4, 2, 7 }, { 2, 2, 4, 5, 7, 2 } },
+            { { 7, 7, 4, 4, 7, 7 }, { 7, 7, 7, 7, 5, 7 }, { 2, 5, 2, 2, 5, 2 }, { 2, 5, 2, 2, 5, 2 }, { 4, 4, 4, 4, 5, 4 }, { 4, 4, 7, 7, 4, 4 } },
+            { { 2, 5, 5, 5, 5, 4 }, { 5, 2, 5, 5, 4, 4 }, { 2, 2, 2, 2, 2, 2 }, { 7, 7, 7, 7, 7, 7 }, { 4, 7, 4, 4, 5, 5 }, { 7, 4, 4, 4, 4, 5 } },
+            { { 2, 2, 5, 2, 2, 4 }, { 2, 5, 5, 2, 5, 5 }, { 5, 5, 5, 7, 7, 2 }, { 7, 7, 7, 5, 5, 4 }, { 4, 7, 7, 4, 7, 7 }, { 4, 4, 7, 4, 4, 2 } },
+            { { 7, 7, 5, 5, 5, 5 }, { 7, 2, 2, 5, 5, 7 }, { 7, 2, 2, 4, 4, 7 }, { 2, 7, 7, 4, 4, 2 }, { 2, 7, 7, 5, 5, 2 }, { 7, 7, 5, 5, 5, 5 } },
+            { { 7, 7, 5, 5 }, { 7, 2, 5, 2 }, { 5, 5, 5, 2 }, { 4, 4, 4, 2 }, { 7, 2, 4, 2 }, { 7, 7, 4, 4 } },
+            { { 2, 2, 5, 5 }, { 2, 7, 5, 5 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 4, 7, 4, 4 }, { 7, 7, 4, 4 } },
+            { { 7, 7, 5, 5, 5 }, { 4, 7, 7, 7, 5 }, { 5, 4, 4, 4, 4 }, { 5, 2, 2, 2, 2 }, { 2, 7, 7, 7, 5 }, { 7, 7, 5, 5, 5 } },
+            { { 2, 2, 4 }, { 2, 2, 2 }, { 7, 7, 7 }, { 7, 7, 7 }, { 5, 5, 5 }, { 5, 5, 4 } },
+            { { 7, 7, 7, 7 }, { 7, 2, 2, 7 }, { 2, 7, 5, 4 }, { 4, 5, 7, 2 }, { 5, 4, 4, 5 }, { 5, 5, 5, 5 } }
         },
         {
-            {{7,4,4,4}, {4,7,7,4}, {4,4,7,7}, {5,5,2,2}, {5,2,2,5}, {2,5,5,5}},
-            {{2,4,4,7,4,4}, {4,2,4,4,7,4}, {4,4,2,4,4,7}, {5,5,7,7,4,4}, {5,3,7,5,4,5}, {2,2,2,5,5,5}},
-            {{7,2,2,2,5,4}, {7,7,2,2,5,4}, {5,7,7,7,4,5}, {5,5,7,7,7,5}, {4,4,5,5,7,2}, {4,4,5,5,7,2}},
-            {{7,7,4,5,7,2}, {2,7,5,4,2,7}, {2,7,5,5,2,2}, {2,7,4,4,7,7}, {2,7,4,5,7,2}, {2,2,5,4,2,7}},
-            {{4,4,4,4,4}, {2,4,2,4,4}, {2,2,2,5,5}, {2,2,5,5,5}, {2,7,5,7,7}, {2,7,7,7,7}},
-            {{4,4,7,7}, {4,2,2,7}, {5,5,2,4}, {5,7,4,4}, {2,7,7,5}, {2,2,5,5}},
-            {{7,7,4,4}, {7,7,4,4}, {5,5,7,7}, {5,5,7,7}, {2,2,5,5}, {2,2,5,5}},
-            {{2,2,4,5,7,2}, {2,2,5,4,2,7}, {7,7,5,4,2,7}, {7,7,4,5,7,2}, {2,2,4,5,7,2}, {2,2,5,4,2,7}},
-            {{4,4,7,7,4,4}, {4,4,4,4,5,4}, {2,5,2,2,5,2}, {2,5,2,2,5,2}, {7,7,7,7,5,7}, {7,7,4,4,7,7}},
-            {{7,4,4,4,4,5}, {4,7,4,4,5,5}, {7,7,7,7,7,7}, {2,2,2,2,2,2}, {5,2,5,5,4,4}, {2,5,5,5,5,4}},
-            {{4,4,7,4,4,2}, {4,7,7,4,7,7}, {7,7,7,5,5,4}, {5,5,5,7,7,2}, {2,5,5,2,5,5}, {2,2,5,2,2,4}},
-            {{7,7,5,5,5,5}, {2,7,7,5,5,2}, {2,7,7,4,4,2}, {7,2,2,4,4,7}, {7,2,2,5,5,7}, {7,7,5,5,5,5}},
-            {{7,7,4,4}, {7,2,4,2}, {4,4,4,2}, {5,5,5,2}, {7,2,5,2}, {7,7,5,5}},
-            {{7,7,4,4}, {4,7,4,4}, {5,5,7,7}, {5,5,7,7}, {2,7,5,5}, {2,2,5,5}},
-            {{7,7,5,5,5}, {2,7,7,7,5}, {5,2,2,2,2}, {5,4,4,4,4}, {4,7,7,7,5}, {7,7,5,5,5}},
-            {{5,5,4}, {5,5,5}, {7,7,7}, {7,7,7}, {2,2,2}, {2,2,4}},
-            {{5,5,5,5}, {5,4,4,5}, {4,5,7,2}, {2,7,5,4}, {7,2,2,7}, {7,7,7,7}}
+            { { 7, 4, 4, 4 }, { 4, 7, 7, 4 }, { 4, 4, 7, 7 }, { 5, 5, 2, 2 }, { 5, 2, 2, 5 }, { 2, 5, 5, 5 } },
+            { { 2, 4, 4, 7, 4, 4 }, { 4, 2, 4, 4, 7, 4 }, { 4, 4, 2, 4, 4, 7 }, { 5, 5, 7, 7, 4, 4 }, { 5, 3, 7, 5, 4, 5 }, { 2, 2, 2, 5, 5, 5 } },
+            { { 7, 2, 2, 2, 5, 4 }, { 7, 7, 2, 2, 5, 4 }, { 5, 7, 7, 7, 4, 5 }, { 5, 5, 7, 7, 7, 5 }, { 4, 4, 5, 5, 7, 2 }, { 4, 4, 5, 5, 7, 2 } },
+            { { 7, 7, 4, 5, 7, 2 }, { 2, 7, 5, 4, 2, 7 }, { 2, 7, 5, 5, 2, 2 }, { 2, 7, 4, 4, 7, 7 }, { 2, 7, 4, 5, 7, 2 }, { 2, 2, 5, 4, 2, 7 } },
+            { { 4, 4, 4, 4, 4 }, { 2, 4, 2, 4, 4 }, { 2, 2, 2, 5, 5 }, { 2, 2, 5, 5, 5 }, { 2, 7, 5, 7, 7 }, { 2, 7, 7, 7, 7 } },
+            { { 4, 4, 7, 7 }, { 4, 2, 2, 7 }, { 5, 5, 2, 4 }, { 5, 7, 4, 4 }, { 2, 7, 7, 5 }, { 2, 2, 5, 5 } },
+            { { 7, 7, 4, 4 }, { 7, 7, 4, 4 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 2, 2, 5, 5 }, { 2, 2, 5, 5 } },
+            { { 2, 2, 4, 5, 7, 2 }, { 2, 2, 5, 4, 2, 7 }, { 7, 7, 5, 4, 2, 7 }, { 7, 7, 4, 5, 7, 2 }, { 2, 2, 4, 5, 7, 2 }, { 2, 2, 5, 4, 2, 7 } },
+            { { 4, 4, 7, 7, 4, 4 }, { 4, 4, 4, 4, 5, 4 }, { 2, 5, 2, 2, 5, 2 }, { 2, 5, 2, 2, 5, 2 }, { 7, 7, 7, 7, 5, 7 }, { 7, 7, 4, 4, 7, 7 } },
+            { { 7, 4, 4, 4, 4, 5 }, { 4, 7, 4, 4, 5, 5 }, { 7, 7, 7, 7, 7, 7 }, { 2, 2, 2, 2, 2, 2 }, { 5, 2, 5, 5, 4, 4 }, { 2, 5, 5, 5, 5, 4 } },
+            { { 4, 4, 7, 4, 4, 2 }, { 4, 7, 7, 4, 7, 7 }, { 7, 7, 7, 5, 5, 4 }, { 5, 5, 5, 7, 7, 2 }, { 2, 5, 5, 2, 5, 5 }, { 2, 2, 5, 2, 2, 4 } },
+            { { 7, 7, 5, 5, 5, 5 }, { 2, 7, 7, 5, 5, 2 }, { 2, 7, 7, 4, 4, 2 }, { 7, 2, 2, 4, 4, 7 }, { 7, 2, 2, 5, 5, 7 }, { 7, 7, 5, 5, 5, 5 } },
+            { { 7, 7, 4, 4 }, { 7, 2, 4, 2 }, { 4, 4, 4, 2 }, { 5, 5, 5, 2 }, { 7, 2, 5, 2 }, { 7, 7, 5, 5 } },
+            { { 7, 7, 4, 4 }, { 4, 7, 4, 4 }, { 5, 5, 7, 7 }, { 5, 5, 7, 7 }, { 2, 7, 5, 5 }, { 2, 2, 5, 5 } },
+            { { 7, 7, 5, 5, 5 }, { 2, 7, 7, 7, 5 }, { 5, 2, 2, 2, 2 }, { 5, 4, 4, 4, 4 }, { 4, 7, 7, 7, 5 }, { 7, 7, 5, 5, 5 } },
+            { { 5, 5, 4 }, { 5, 5, 5 }, { 7, 7, 7 }, { 7, 7, 7 }, { 2, 2, 2 }, { 2, 2, 4 } },
+            { { 5, 5, 5, 5 }, { 5, 4, 4, 5 }, { 4, 5, 7, 2 }, { 2, 7, 5, 4 }, { 7, 2, 2, 7 }, { 7, 7, 7, 7 } }
         },
         {
-            {{5,4,4,5,5}, {2,5,5,2,2}, {4,2,2,4,4}, {7,4,4,7,7}, {5,7,7,5,5}, {2,5,5,2,2}},
-            {{2,7,7,7,2}, {5,2,2,2,5}, {5,4,4,4,5}, {4,5,5,5,4}, {4,7,7,7,4}, {7,2,2,2,7}},
-            {{2,2,5,5,5}, {5,7,7,2,2}, {7,7,2,2,5}, {5,4,4,7,7}, {4,4,7,7,5}, {5,5,5,4,4}},
-            {{7,2,2,5,5}, {4,4,5,5,2}, {4,7,7,2,2}, {7,7,4,4,5}, {5,4,4,7,7}, {2,2,7,7,4}},
-            {{7,2,7,2,2}, {7,4,7,7,2}, {5,4,4,7,4}, {5,5,4,5,4}, {2,5,2,5,5}, {2,7,2,2,4}},
-            {{5,5,4,2,2}, {5,4,4,2,7}, {4,2,2,7,7}, {4,2,7,5,5}, {2,7,7,5,4}, {7,5,5,4,4}},
-            {{7,7,4,7,7}, {5,5,7,5,5}, {2,2,5,2,2}, {4,4,2,4,4}},
-            {{4,4,2,2,5}, {2,2,5,5,7}, {5,5,7,7,4}, {7,7,4,4,2}},
-            {{5,5,5,2,4}, {7,7,7,5,2}, {4,4,4,7,5}, {2,2,2,4,7}},
-            {{4,4,4,5,7}, {2,2,2,7,4}, {5,5,5,4,2}, {7,7,7,2,5}},
-            {{4,2,5,5,5}, {7,4,2,2,2}, {5,7,4,4,4}, {2,5,7,7,7}}
+            { { 5, 4, 4, 5, 5 }, { 2, 5, 5, 2, 2 }, { 4, 2, 2, 4, 4 }, { 7, 4, 4, 7, 7 }, { 5, 7, 7, 5, 5 }, { 2, 5, 5, 2, 2 } },
+            { { 2, 7, 7, 7, 2 }, { 5, 2, 2, 2, 5 }, { 5, 4, 4, 4, 5 }, { 4, 5, 5, 5, 4 }, { 4, 7, 7, 7, 4 }, { 7, 2, 2, 2, 7 } },
+            { { 2, 2, 5, 5, 5 }, { 5, 7, 7, 2, 2 }, { 7, 7, 2, 2, 5 }, { 5, 4, 4, 7, 7 }, { 4, 4, 7, 7, 5 }, { 5, 5, 5, 4, 4 } },
+            { { 7, 2, 2, 5, 5 }, { 4, 4, 5, 5, 2 }, { 4, 7, 7, 2, 2 }, { 7, 7, 4, 4, 5 }, { 5, 4, 4, 7, 7 }, { 2, 2, 7, 7, 4 } },
+            { { 7, 2, 7, 2, 2 }, { 7, 4, 7, 7, 2 }, { 5, 4, 4, 7, 4 }, { 5, 5, 4, 5, 4 }, { 2, 5, 2, 5, 5 }, { 2, 7, 2, 2, 4 } },
+            { { 5, 5, 4, 2, 2 }, { 5, 4, 4, 2, 7 }, { 4, 2, 2, 7, 7 }, { 4, 2, 7, 5, 5 }, { 2, 7, 7, 5, 4 }, { 7, 5, 5, 4, 4 } },
+            { { 7, 7, 4, 7, 7 }, { 5, 5, 7, 5, 5 }, { 2, 2, 5, 2, 2 }, { 4, 4, 2, 4, 4 } },
+            { { 4, 4, 2, 2, 5 }, { 2, 2, 5, 5, 7 }, { 5, 5, 7, 7, 4 }, { 7, 7, 4, 4, 2 } },
+            { { 5, 5, 5, 2, 4 }, { 7, 7, 7, 5, 2 }, { 4, 4, 4, 7, 5 }, { 2, 2, 2, 4, 7 } },
+            { { 4, 4, 4, 5, 7 }, { 2, 2, 2, 7, 4 }, { 5, 5, 5, 4, 2 }, { 7, 7, 7, 2, 5 } },
+            { { 4, 2, 5, 5, 5 }, { 7, 4, 2, 2, 2 }, { 5, 7, 4, 4, 4 }, { 2, 5, 7, 7, 7 } }
         },
         {
-            {{2,5,5,2,2}, {5,7,7,5,5}, {7,4,4,7,7}, {4,2,2,4,4}, {2,5,5,2,2}, {5,4,4,5,5}},
-            {{7,2,2,2,7}, {4,7,7,7,4}, {4,5,5,5,4}, {5,4,4,4,5}, {5,2,2,2,5}, {2,7,7,7,2}},
-            {{5,5,5,4,4}, {4,4,7,7,5}, {5,4,4,7,7}, {7,7,2,2,5}, {5,7,7,2,2}, {2,2,5,5,5}},
-            {{2,2,7,7,4}, {5,4,4,7,7}, {7,7,4,4,5}, {4,7,7,2,2}, {4,4,5,5,2}, {7,2,2,5,5}},
-            {{2,7,2,2,4}, {2,5,2,5,5}, {5,5,4,5,4}, {5,4,4,7,4}, {7,4,7,7,2}, {7,2,7,2,2}},
-            {{7,5,5,4,4}, {2,7,7,5,4}, {4,2,7,5,5}, {4,2,2,7,7}, {5,4,4,2,7}, {5,5,4,2,2}},
-            {{5,5,7,5,5}, {7,7,4,7,7}, {4,4,2,4,4}, {2,2,5,2,2}},
-            {{2,2,5,5,7}, {4,4,2,2,5}, {7,7,4,4,2}, {5,5,7,7,4}},
-            {{7,7,7,5,2}, {5,5,5,2,4}, {2,2,2,4,7}, {4,4,4,7,5}},
-            {{2,2,2,7,4}, {4,4,4,5,7}, {7,7,7,2,5}, {5,5,5,4,2}},
-            {{7,4,2,2,2}, {4,2,5,5,5}, {2,5,7,7,7}, {5,7,4,4,4}}
+            { { 2, 5, 5, 2, 2 }, { 5, 7, 7, 5, 5 }, { 7, 4, 4, 7, 7 }, { 4, 2, 2, 4, 4 }, { 2, 5, 5, 2, 2 }, { 5, 4, 4, 5, 5 } },
+            { { 7, 2, 2, 2, 7 }, { 4, 7, 7, 7, 4 }, { 4, 5, 5, 5, 4 }, { 5, 4, 4, 4, 5 }, { 5, 2, 2, 2, 5 }, { 2, 7, 7, 7, 2 } },
+            { { 5, 5, 5, 4, 4 }, { 4, 4, 7, 7, 5 }, { 5, 4, 4, 7, 7 }, { 7, 7, 2, 2, 5 }, { 5, 7, 7, 2, 2 }, { 2, 2, 5, 5, 5 } },
+            { { 2, 2, 7, 7, 4 }, { 5, 4, 4, 7, 7 }, { 7, 7, 4, 4, 5 }, { 4, 7, 7, 2, 2 }, { 4, 4, 5, 5, 2 }, { 7, 2, 2, 5, 5 } },
+            { { 2, 7, 2, 2, 4 }, { 2, 5, 2, 5, 5 }, { 5, 5, 4, 5, 4 }, { 5, 4, 4, 7, 4 }, { 7, 4, 7, 7, 2 }, { 7, 2, 7, 2, 2 } },
+            { { 7, 5, 5, 4, 4 }, { 2, 7, 7, 5, 4 }, { 4, 2, 7, 5, 5 }, { 4, 2, 2, 7, 7 }, { 5, 4, 4, 2, 7 }, { 5, 5, 4, 2, 2 } },
+            { { 5, 5, 7, 5, 5 }, { 7, 7, 4, 7, 7 }, { 4, 4, 2, 4, 4 }, { 2, 2, 5, 2, 2 } },
+            { { 2, 2, 5, 5, 7 }, { 4, 4, 2, 2, 5 }, { 7, 7, 4, 4, 2 }, { 5, 5, 7, 7, 4 } },
+            { { 7, 7, 7, 5, 2 }, { 5, 5, 5, 2, 4 }, { 2, 2, 2, 4, 7 }, { 4, 4, 4, 7, 5 } },
+            { { 2, 2, 2, 7, 4 }, { 4, 4, 4, 5, 7 }, { 7, 7, 7, 2, 5 }, { 5, 5, 5, 4, 2 } },
+            { { 7, 4, 2, 2, 2 }, { 4, 2, 5, 5, 5 }, { 2, 5, 7, 7, 7 }, { 5, 7, 4, 4, 4 } }
         }
     };
     private static final double[][] DROP_PATTERNS_ATTACK_MULTIPLIERS = {
-        {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.7, 1.0},
-        {1.0, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.85, 1.0}
+        { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.7, 1.0 },
+        { 1.0, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.85, 1.0 }
     };
     private static final double[][] DROP_PATTERNS_DEFEND_MULTIPLIERS = {
-        {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
-        {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.0, 1.0}
+        { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 },
+        { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.0, 1.0 }
     };
 
-    /** Names of rainbow power settings */
-    private static final String[] RAINBOW_POWER_NAMES = {"NONE", "50%", "80%", "100%", "50/100%"};
+    /**
+     * Names of rainbow power settings
+     */
+    private static final String[] RAINBOW_POWER_NAMES = { "NONE", "50%", "80%", "100%", "50/100%" };
 
-    /** Each player's frame color */
-    private static final int[] PLAYER_COLOR_FRAME = {GameEngine.FRAME_COLOR_RED, GameEngine.FRAME_COLOR_BLUE};
+    /**
+     * Each player's frame color
+     */
+    private static final int[] PLAYER_COLOR_FRAME = { GameEngine.FRAME_COLOR_RED, GameEngine.FRAME_COLOR_BLUE };
 
-    /** GameManager that owns this mode */
+    /**
+     * GameManager that owns this mode
+     */
     private GameManager owner;
 
-    /** Drawing and event handling EventReceiver */
+    /**
+     * Drawing and event handling EventReceiver
+     */
     private EventReceiver receiver;
 
-    /** 溜まっているojama blockのcount */
+    /**
+     * 溜まっているojama blockのcount
+     */
     private int[] ojama;
 
-    /** 送ったojama blockのcount */
+    /**
+     * 送ったojama blockのcount
+     */
     private int[] ojamaSent;
 
-    /** Time to display the most recent increase in score */
+    /**
+     * Time to display the most recent increase in score
+     */
     private int[] scgettime;
 
-    /** 使用するBGM */
+    /**
+     * 使用するBGM
+     */
     private int bgmno;
 
     /** Big */
     //private boolean[] big;
 
-    /** Sound effectsON/OFF */
+    /**
+     * Sound effectsON/OFF
+     */
     private boolean[] enableSE;
 
-    /** Map使用 flag */
+    /**
+     * Map使用 flag
+     */
     private boolean[] useMap;
 
-    /** 使用するMapセット number */
+    /**
+     * 使用するMapセット number
+     */
     private int[] mapSet;
 
-    /** Map number(-1でランダム) */
+    /**
+     * Map number(-1でランダム)
+     */
     private int[] mapNumber;
 
-    /** Last preset number used */
+    /**
+     * Last preset number used
+     */
     private int[] presetNumber;
 
-    /** 勝者 */
+    /**
+     * 勝者
+     */
     private int winnerID;
 
-    /** MapセットのProperty file */
+    /**
+     * MapセットのProperty file
+     */
     private CustomProperties[] propMap;
 
-    /** MaximumMap number */
+    /**
+     * MaximumMap number
+     */
     private int[] mapMaxNo;
 
-    /** バックアップ用field (Mapをリプレイに保存するときに使用) */
+    /**
+     * バックアップ用field (Mapをリプレイに保存するときに使用)
+     */
     private Field[] fldBackup;
 
-    /** Map選択用乱count */
+    /**
+     * Map選択用乱count
+     */
     private Random randMap;
 
-    /** Version */
+    /**
+     * Version
+     */
     private int version;
 
-    /** Amount of points earned from most recent clear */
+    /**
+     * Amount of points earned from most recent clear
+     */
     private int[] lastscore;
 
-    /** Score */
+    /**
+     * Score
+     */
     private int[] score;
 
-    /** Settings for starting countdown for ojama blocks */
+    /**
+     * Settings for starting countdown for ojama blocks
+     */
     private int[] ojamaCountdown;
 
-    /** True if use bigger field display */
+    /**
+     * True if use bigger field display
+     */
     private boolean bigDisplay;
 
-    /** Hurryup開始までの秒count(0でHurryupなし) */
+    /**
+     * Hurryup開始までの秒count(0でHurryupなし)
+     */
     private int[] hurryupSeconds;
 
-    /** Time to display "ZENKESHI!" */
+    /**
+     * Time to display "ZENKESHI!"
+     */
     private int[] zenKeshiDisplay;
 
-    /** Time to display "TECH BONUS" */
+    /**
+     * Time to display "TECH BONUS"
+     */
     private int[] techBonusDisplay;
 
-    /** Drop patterns */
+    /**
+     * Drop patterns
+     */
     private int[][][] dropPattern;
 
-    /** Drop map set selected */
+    /**
+     * Drop map set selected
+     */
     private int[] dropSet;
 
-    /** Drop map selected */
+    /**
+     * Drop map selected
+     */
     private int[] dropMap;
 
-    /** Drop multipliers */
+    /**
+     * Drop multipliers
+     */
     private double[] attackMultiplier, defendMultiplier;
 
-    /** Rainbow power settings for each player */
+    /**
+     * Rainbow power settings for each player
+     */
     private int[] diamondPower;
 
-    /** Frame when squares were last checked */
+    /**
+     * Frame when squares were last checked
+     */
     private int[] lastSquareCheck;
 
-    /** Flag set when counters have been decremented */
+    /**
+     * Flag set when counters have been decremented
+     */
     private boolean[] countdownDecremented;
 
     /*
@@ -367,6 +445,7 @@ public class SPFMode extends DummyMode {
 
     /**
      * Read speed presets
+     *
      * @param engine GameEngine
      * @param prop Property file to read from
      * @param preset Preset number
@@ -383,6 +462,7 @@ public class SPFMode extends DummyMode {
 
     /**
      * Save speed presets
+     *
      * @param engine GameEngine
      * @param prop Property file to save to
      * @param preset Preset number
@@ -399,6 +479,7 @@ public class SPFMode extends DummyMode {
 
     /**
      * Load settings not related to speeds
+     *
      * @param engine GameEngine
      * @param prop Property file to read from
      */
@@ -421,6 +502,7 @@ public class SPFMode extends DummyMode {
 
     /**
      * Save settings not related to speeds
+     *
      * @param engine GameEngine
      * @param prop Property file to save to
      */
@@ -443,6 +525,7 @@ public class SPFMode extends DummyMode {
 
     /**
      * Map読み込み
+     *
      * @param field field
      * @param prop Property file to read from
      * @param preset 任意のID
@@ -458,6 +541,7 @@ public class SPFMode extends DummyMode {
 
     /**
      * Map保存
+     *
      * @param field field
      * @param prop Property file to save to
      * @param id 任意のID
@@ -469,20 +553,21 @@ public class SPFMode extends DummyMode {
 
     /**
      * プレビュー用にMapを読み込み
+     *
      * @param engine GameEngine
      * @param playerID Player number
      * @param id MapID
      * @param forceReload trueにするとMapファイルを強制再読み込み
      */
     private void loadMapPreview(GameEngine engine, int playerID, int id, boolean forceReload) {
-        if((propMap[playerID] == null) || (forceReload)) {
+        if ((propMap[playerID] == null) || (forceReload)) {
             mapMaxNo[playerID] = 0;
             propMap[playerID] = receiver.loadProperties("config/map/spf/" + mapSet[playerID] + ".map");
         }
 
-        if((propMap[playerID] == null) && (engine.field != null)) {
+        if ((propMap[playerID] == null) && (engine.field != null)) {
             engine.field.reset();
-        } else if(propMap[playerID] != null) {
+        } else if (propMap[playerID] != null) {
             mapMaxNo[playerID] = propMap[playerID].getProperty("map.maxMapNumber", 0);
             engine.createFieldIfNeeded();
             loadMap(engine.field, propMap[playerID], id);
@@ -491,22 +576,20 @@ public class SPFMode extends DummyMode {
     }
 
     private void loadDropMapPreview(GameEngine engine, int playerID, int[][] pattern) {
-        if((pattern == null) && (engine.field != null)) {
+        if ((pattern == null) && (engine.field != null)) {
             engine.field.reset();
-        } else if(pattern != null) {
+        } else if (pattern != null) {
             log.debug("Loading drop map preview");
             engine.createFieldIfNeeded();
             engine.field.reset();
             int patternCol = 0;
-            int maxHeight = engine.field.getHeight()-1;
-            for (int x = 0; x < engine.field.getWidth(); x++)
-            {
+            int maxHeight = engine.field.getHeight() - 1;
+            for (int x = 0; x < engine.field.getWidth(); x++) {
                 if (patternCol >= pattern.length)
                     patternCol = 0;
-                for (int patternRow = 0; patternRow < pattern[patternCol].length; patternRow++)
-                {
-                    engine.field.setBlockColor(x, maxHeight-patternRow, pattern[patternCol][patternRow]);
-                    Block blk = engine.field.getBlock(x, maxHeight-patternRow);
+                for (int patternRow = 0; patternRow < pattern[patternCol].length; patternRow++) {
+                    engine.field.setBlockColor(x, maxHeight - patternRow, pattern[patternCol][patternRow]);
+                    Block blk = engine.field.getBlock(x, maxHeight - patternRow);
                     blk.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
                     blk.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
                 }
@@ -521,7 +604,7 @@ public class SPFMode extends DummyMode {
      */
     @Override
     public void playerInit(GameEngine engine, int playerID) {
-        if(playerID == 1) {
+        if (playerID == 1) {
             engine.randSeed = owner.engine[0].randSeed;
             engine.random = new Random(owner.engine[0].randSeed);
         }
@@ -530,7 +613,7 @@ public class SPFMode extends DummyMode {
         engine.clearMode = GameEngine.CLEAR_GEM_COLOR;
         engine.garbageColorClear = true;
         engine.lineGravityType = GameEngine.LINE_GRAVITY_CASCADE;
-        for(int i = 0; i < Piece.PIECE_COUNT; i++)
+        for (int i = 0; i < Piece.PIECE_COUNT; i++)
             engine.nextPieceEnable[i] = (PIECE_ENABLE[i] == 1);
         engine.blockColors = BLOCK_COLORS;
         engine.randomBlockColor = true;
@@ -545,7 +628,7 @@ public class SPFMode extends DummyMode {
         lastSquareCheck[playerID] = -1;
         countdownDecremented[playerID] = true;
 
-        if(engine.owner.replayMode == false) {
+        if (engine.owner.replayMode == false) {
             loadOtherSetting(engine, engine.owner.modeConfig);
             loadPreset(engine, engine.owner.modeConfig, -1 - playerID);
             version = CURRENT_VERSION;
@@ -562,151 +645,149 @@ public class SPFMode extends DummyMode {
     @Override
     public boolean onSetting(GameEngine engine, int playerID) {
         // Menu
-        if((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
+        if ((engine.owner.replayMode == false) && (engine.statc[4] == 0)) {
             // Up
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
                 engine.statc[2]--;
-                if(engine.statc[2] < 0){
+                if (engine.statc[2] < 0) {
                     engine.statc[2] = 19;
                     loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-                }
-                else if (engine.statc[2] == 17)
+                } else if (engine.statc[2] == 17)
                     engine.field = null;
                 engine.playSE("cursor");
             }
             // Down
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
                 engine.statc[2]++;
-                if(engine.statc[2] > 19) {
+                if (engine.statc[2] > 19) {
                     engine.statc[2] = 0;
                     engine.field = null;
-                }
-                else if (engine.statc[2] == 18)
+                } else if (engine.statc[2] == 18)
                     loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
                 engine.playSE("cursor");
             }
 
             // Configuration changes
             int change = 0;
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT)) change = -1;
-            if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) change = 1;
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT)) change = -1;
+            if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) change = 1;
 
-            if(change != 0) {
+            if (change != 0) {
                 engine.playSE("change");
 
                 int m = 1;
-                if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
-                if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
+                if (engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
+                if (engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
 
-                switch(engine.statc[2]) {
-                case 0:
-                    engine.speed.gravity += change * m;
-                    if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
-                    if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
-                    break;
-                case 1:
-                    engine.speed.denominator += change * m;
-                    if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
-                    if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
-                    break;
-                case 2:
-                    engine.speed.are += change;
-                    if(engine.speed.are < 0) engine.speed.are = 99;
-                    if(engine.speed.are > 99) engine.speed.are = 0;
-                    break;
-                case 3:
-                    engine.speed.areLine += change;
-                    if(engine.speed.areLine < 0) engine.speed.areLine = 99;
-                    if(engine.speed.areLine > 99) engine.speed.areLine = 0;
-                    break;
-                case 4:
-                    engine.speed.lineDelay += change;
-                    if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
-                    if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
-                    break;
-                case 5:
-                    engine.speed.lockDelay += change;
-                    if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
-                    if(engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
-                    break;
-                case 6:
-                    engine.speed.das += change;
-                    if(engine.speed.das < 0) engine.speed.das = 99;
-                    if(engine.speed.das > 99) engine.speed.das = 0;
-                    break;
-                case 7:
-                case 8:
-                    presetNumber[playerID] += change;
-                    if(presetNumber[playerID] < 0) presetNumber[playerID] = 99;
-                    if(presetNumber[playerID] > 99) presetNumber[playerID] = 0;
-                    break;
-                case 9:
-                    bgmno += change;
-                    if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
-                    if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
-                    break;
-                case 10:
-                    useMap[playerID] = !useMap[playerID];
-                    if(!useMap[playerID]) {
-                        if(engine.field != null) engine.field.reset();
-                    } else {
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    }
-                    break;
-                case 11:
-                    mapSet[playerID] += change;
-                    if(mapSet[playerID] < 0) mapSet[playerID] = 99;
-                    if(mapSet[playerID] > 99) mapSet[playerID] = 0;
-                    if(useMap[playerID]) {
-                        mapNumber[playerID] = -1;
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    }
-                    break;
-                case 12:
-                    if(useMap[playerID]) {
-                        mapNumber[playerID] += change;
-                        if(mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
-                        if(mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
-                        loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
-                    } else {
-                        mapNumber[playerID] = -1;
-                    }
-                    break;
-                case 13:
-                    enableSE[playerID] = !enableSE[playerID];
-                    break;
-                case 14:
-                    if (m > 10) hurryupSeconds[playerID] += change*m/10;
-                    else hurryupSeconds[playerID] += change;
-                    if(hurryupSeconds[playerID] < 0) hurryupSeconds[playerID] = 300;
-                    if(hurryupSeconds[playerID] > 300) hurryupSeconds[playerID] = 0;
-                    break;
-                case 15:
-                    ojamaCountdown[playerID] += change;
-                    if(ojamaCountdown[playerID] < 1) ojamaCountdown[playerID] = 9;
-                    if(ojamaCountdown[playerID] > 9) ojamaCountdown[playerID] = 1;
-                    break;
-                case 16:
-                    bigDisplay = !bigDisplay;
-                    break;
-                case 17:
-                    diamondPower[playerID] += change;
-                    if(diamondPower[playerID] < 0) diamondPower[playerID] = 3;
-                    if(diamondPower[playerID] > 3) diamondPower[playerID] = 0;
-                    break;
-                case 18:
-                    dropSet[playerID] += change;
-                    if(dropSet[playerID] < 0) dropSet[playerID] = DROP_PATTERNS.length-1;
-                    if(dropSet[playerID] >= DROP_PATTERNS.length) dropSet[playerID] = 0;
-                    if(dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
-                    loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-                    break;
-                case 19:
-                    dropMap[playerID] += change;
-                    if(dropMap[playerID] < 0) dropMap[playerID] = DROP_PATTERNS[dropSet[playerID]].length-1;
-                    if(dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
-                    loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-                    break;
+                switch (engine.statc[2]) {
+                    case 0:
+                        engine.speed.gravity += change * m;
+                        if (engine.speed.gravity < -1) engine.speed.gravity = 99999;
+                        if (engine.speed.gravity > 99999) engine.speed.gravity = -1;
+                        break;
+                    case 1:
+                        engine.speed.denominator += change * m;
+                        if (engine.speed.denominator < -1) engine.speed.denominator = 99999;
+                        if (engine.speed.denominator > 99999) engine.speed.denominator = -1;
+                        break;
+                    case 2:
+                        engine.speed.are += change;
+                        if (engine.speed.are < 0) engine.speed.are = 99;
+                        if (engine.speed.are > 99) engine.speed.are = 0;
+                        break;
+                    case 3:
+                        engine.speed.areLine += change;
+                        if (engine.speed.areLine < 0) engine.speed.areLine = 99;
+                        if (engine.speed.areLine > 99) engine.speed.areLine = 0;
+                        break;
+                    case 4:
+                        engine.speed.lineDelay += change;
+                        if (engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
+                        if (engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
+                        break;
+                    case 5:
+                        engine.speed.lockDelay += change;
+                        if (engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
+                        if (engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
+                        break;
+                    case 6:
+                        engine.speed.das += change;
+                        if (engine.speed.das < 0) engine.speed.das = 99;
+                        if (engine.speed.das > 99) engine.speed.das = 0;
+                        break;
+                    case 7:
+                    case 8:
+                        presetNumber[playerID] += change;
+                        if (presetNumber[playerID] < 0) presetNumber[playerID] = 99;
+                        if (presetNumber[playerID] > 99) presetNumber[playerID] = 0;
+                        break;
+                    case 9:
+                        bgmno += change;
+                        if (bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
+                        if (bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
+                        break;
+                    case 10:
+                        useMap[playerID] = !useMap[playerID];
+                        if (!useMap[playerID]) {
+                            if (engine.field != null) engine.field.reset();
+                        } else {
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        }
+                        break;
+                    case 11:
+                        mapSet[playerID] += change;
+                        if (mapSet[playerID] < 0) mapSet[playerID] = 99;
+                        if (mapSet[playerID] > 99) mapSet[playerID] = 0;
+                        if (useMap[playerID]) {
+                            mapNumber[playerID] = -1;
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        }
+                        break;
+                    case 12:
+                        if (useMap[playerID]) {
+                            mapNumber[playerID] += change;
+                            if (mapNumber[playerID] < -1) mapNumber[playerID] = mapMaxNo[playerID] - 1;
+                            if (mapNumber[playerID] > mapMaxNo[playerID] - 1) mapNumber[playerID] = -1;
+                            loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
+                        } else {
+                            mapNumber[playerID] = -1;
+                        }
+                        break;
+                    case 13:
+                        enableSE[playerID] = !enableSE[playerID];
+                        break;
+                    case 14:
+                        if (m > 10) hurryupSeconds[playerID] += change * m / 10;
+                        else hurryupSeconds[playerID] += change;
+                        if (hurryupSeconds[playerID] < 0) hurryupSeconds[playerID] = 300;
+                        if (hurryupSeconds[playerID] > 300) hurryupSeconds[playerID] = 0;
+                        break;
+                    case 15:
+                        ojamaCountdown[playerID] += change;
+                        if (ojamaCountdown[playerID] < 1) ojamaCountdown[playerID] = 9;
+                        if (ojamaCountdown[playerID] > 9) ojamaCountdown[playerID] = 1;
+                        break;
+                    case 16:
+                        bigDisplay = !bigDisplay;
+                        break;
+                    case 17:
+                        diamondPower[playerID] += change;
+                        if (diamondPower[playerID] < 0) diamondPower[playerID] = 3;
+                        if (diamondPower[playerID] > 3) diamondPower[playerID] = 0;
+                        break;
+                    case 18:
+                        dropSet[playerID] += change;
+                        if (dropSet[playerID] < 0) dropSet[playerID] = DROP_PATTERNS.length - 1;
+                        if (dropSet[playerID] >= DROP_PATTERNS.length) dropSet[playerID] = 0;
+                        if (dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
+                        loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
+                        break;
+                    case 19:
+                        dropMap[playerID] += change;
+                        if (dropMap[playerID] < 0) dropMap[playerID] = DROP_PATTERNS[dropSet[playerID]].length - 1;
+                        if (dropMap[playerID] >= DROP_PATTERNS[dropSet[playerID]].length) dropMap[playerID] = 0;
+                        loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
+                        break;
                 /*
                 case 20:
                     big[playerID] = !big[playerID];
@@ -716,12 +797,12 @@ public class SPFMode extends DummyMode {
             }
 
             // 決定
-            if(engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_A) && (engine.statc[3] >= 5)) {
                 engine.playSE("decide");
 
-                if(engine.statc[2] == 7) {
+                if (engine.statc[2] == 7) {
                     loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
-                } else if(engine.statc[2] == 8) {
+                } else if (engine.statc[2] == 8) {
                     savePreset(engine, owner.modeConfig, presetNumber[playerID]);
                     receiver.saveModeConfig(owner.modeConfig);
                 } else {
@@ -733,50 +814,48 @@ public class SPFMode extends DummyMode {
             }
 
             // Cancel
-            if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.quitflag = true;
             }
 
             // プレビュー用Map読み込み
-            if(useMap[playerID] && (engine.statc[3] == 0)) {
+            if (useMap[playerID] && (engine.statc[3] == 0)) {
                 loadMapPreview(engine, playerID, (mapNumber[playerID] < 0) ? 0 : mapNumber[playerID], true);
             }
 
             // Random map preview
-            if(useMap[playerID] && (propMap[playerID] != null) && (mapNumber[playerID] < 0)) {
-                if(engine.statc[3] % 30 == 0) {
+            if (useMap[playerID] && (propMap[playerID] != null) && (mapNumber[playerID] < 0)) {
+                if (engine.statc[3] % 30 == 0) {
                     engine.statc[5]++;
-                    if(engine.statc[5] >= mapMaxNo[playerID]) engine.statc[5] = 0;
+                    if (engine.statc[5] >= mapMaxNo[playerID]) engine.statc[5] = 0;
                     loadMapPreview(engine, playerID, engine.statc[5], false);
                 }
             }
 
             engine.statc[3]++;
-        } else if(engine.statc[4] == 0) {
+        } else if (engine.statc[4] == 0) {
             engine.statc[3]++;
             engine.statc[2] = 0;
 
-            if(engine.statc[3] >= 180)
+            if (engine.statc[3] >= 180)
                 engine.statc[4] = 1;
-            else if(engine.statc[3] > 120)
+            else if (engine.statc[3] > 120)
                 engine.statc[2] = 18;
-            else if (engine.statc[3] == 120)
-            {
+            else if (engine.statc[3] == 120) {
                 engine.statc[2] = 18;
                 loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
-            }
-            else if(engine.statc[3] >= 60)
+            } else if (engine.statc[3] >= 60)
                 engine.statc[2] = 9;
         } else {
             // 開始
-            if((owner.engine[0].statc[4] == 1) && (owner.engine[1].statc[4] == 1) && (playerID == 1)) {
+            if ((owner.engine[0].statc[4] == 1) && (owner.engine[1].statc[4] == 1) && (playerID == 1)) {
                 owner.engine[0].stat = GameEngine.STAT_READY;
                 owner.engine[1].stat = GameEngine.STAT_READY;
                 owner.engine[0].resetStatc();
                 owner.engine[1].resetStatc();
             }
             // Cancel
-            else if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+            else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
                 engine.statc[4] = 0;
             }
         }
@@ -789,62 +868,62 @@ public class SPFMode extends DummyMode {
      */
     @Override
     public void renderSetting(GameEngine engine, int playerID) {
-        if(engine.statc[4] == 0) {
-            if(engine.statc[2] < 9) {
+        if (engine.statc[4] == 0) {
+            if (engine.statc[2] < 9) {
                 initMenu(EventReceiver.COLOR_ORANGE, 0);
                 drawMenu(engine, playerID, receiver,
-                        "GRAVITY", String.valueOf(engine.speed.gravity),
-                        "G-MAX", String.valueOf(engine.speed.denominator),
-                        "ARE", String.valueOf(engine.speed.are),
-                        "ARE LINE", String.valueOf(engine.speed.areLine),
-                        "LINE DELAY", String.valueOf(engine.speed.lineDelay),
-                        "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
-                        "DAS", String.valueOf(engine.speed.das));
+                    "GRAVITY", String.valueOf(engine.speed.gravity),
+                    "G-MAX", String.valueOf(engine.speed.denominator),
+                    "ARE", String.valueOf(engine.speed.are),
+                    "ARE LINE", String.valueOf(engine.speed.areLine),
+                    "LINE DELAY", String.valueOf(engine.speed.lineDelay),
+                    "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+                    "DAS", String.valueOf(engine.speed.das));
                 menuColor = EventReceiver.COLOR_GREEN;
                 drawMenu(engine, playerID, receiver,
-                        "LOAD", String.valueOf(presetNumber[playerID]),
-                        "SAVE", String.valueOf(presetNumber[playerID]));
+                    "LOAD", String.valueOf(presetNumber[playerID]),
+                    "SAVE", String.valueOf(presetNumber[playerID]));
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/3", EventReceiver.COLOR_YELLOW);
-            } else if (engine.statc[2] < 18){
+            } else if (engine.statc[2] < 18) {
                 initMenu(EventReceiver.COLOR_PINK, 9);
                 drawMenu(engine, playerID, receiver, "BGM", String.valueOf(bgmno));
                 menuColor = EventReceiver.COLOR_CYAN;
                 drawMenu(engine, playerID, receiver,
-                        "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
-                        "MAP SET", String.valueOf(mapSet[playerID]),
-                        "MAP NO.", (mapNumber[playerID] < 0) ? "RANDOM" : mapNumber[playerID]+"/"+(mapMaxNo[playerID]-1),
-                        "SE", GeneralUtil.getONorOFF(enableSE[playerID]),
-                        "HURRYUP", (hurryupSeconds[playerID] == 0) ? "NONE" : hurryupSeconds[playerID]+"SEC",
-                        "COUNTDOWN", String.valueOf(ojamaCountdown[playerID]));
+                    "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
+                    "MAP SET", String.valueOf(mapSet[playerID]),
+                    "MAP NO.", (mapNumber[playerID] < 0) ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1),
+                    "SE", GeneralUtil.getONorOFF(enableSE[playerID]),
+                    "HURRYUP", (hurryupSeconds[playerID] == 0) ? "NONE" : hurryupSeconds[playerID] + "SEC",
+                    "COUNTDOWN", String.valueOf(ojamaCountdown[playerID]));
                 menuColor = EventReceiver.COLOR_PINK;
                 drawMenu(engine, playerID, receiver,
-                        "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+                    "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
                 menuColor = EventReceiver.COLOR_CYAN;
                 drawMenu(engine, playerID, receiver, "RAINBOW");
                 drawMenu(engine, playerID, receiver,
-                        "GEM POWER", RAINBOW_POWER_NAMES[diamondPower[playerID]]);
+                    "GEM POWER", RAINBOW_POWER_NAMES[diamondPower[playerID]]);
 
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/3", EventReceiver.COLOR_YELLOW);
             } else {
-                receiver.drawMenuFont(engine, playerID, 0,  0, "ATTACK", EventReceiver.COLOR_CYAN);
+                receiver.drawMenuFont(engine, playerID, 0, 0, "ATTACK", EventReceiver.COLOR_CYAN);
                 int multiplier = (int) (100 * getAttackMultiplier(dropSet[playerID], dropMap[playerID]));
                 if (multiplier >= 100)
-                    receiver.drawMenuFont(engine, playerID, 2,  1, multiplier + "%",
-                            multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_GREEN);
+                    receiver.drawMenuFont(engine, playerID, 2, 1, multiplier + "%",
+                        multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_GREEN);
                 else
-                    receiver.drawMenuFont(engine, playerID, 3,  1, multiplier + "%", EventReceiver.COLOR_RED);
-                receiver.drawMenuFont(engine, playerID, 0,  2, "DEFEND", EventReceiver.COLOR_CYAN);
+                    receiver.drawMenuFont(engine, playerID, 3, 1, multiplier + "%", EventReceiver.COLOR_RED);
+                receiver.drawMenuFont(engine, playerID, 0, 2, "DEFEND", EventReceiver.COLOR_CYAN);
                 multiplier = (int) (100 * getDefendMultiplier(dropSet[playerID], dropMap[playerID]));
                 if (multiplier >= 100)
-                    receiver.drawMenuFont(engine, playerID, 2,  3, multiplier + "%",
-                            multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_RED);
+                    receiver.drawMenuFont(engine, playerID, 2, 3, multiplier + "%",
+                        multiplier == 100 ? EventReceiver.COLOR_YELLOW : EventReceiver.COLOR_RED);
                 else
-                    receiver.drawMenuFont(engine, playerID, 3,  3, multiplier + "%", EventReceiver.COLOR_GREEN);
+                    receiver.drawMenuFont(engine, playerID, 3, 3, multiplier + "%", EventReceiver.COLOR_GREEN);
 
                 drawMenu(engine, playerID, receiver, 14, EventReceiver.COLOR_CYAN, 18,
-                        "DROP SET", DROP_SET_NAMES[dropSet[playerID]],
-                        "DROP MAP", String.format("%2d", dropMap[playerID]+1) + "/" +
-                                    String.format("%2d", DROP_PATTERNS[dropSet[playerID]].length));
+                    "DROP SET", DROP_SET_NAMES[dropSet[playerID]],
+                    "DROP MAP", String.format("%2d", dropMap[playerID] + 1) + "/" +
+                        String.format("%2d", DROP_PATTERNS[dropSet[playerID]].length));
 
                 receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/3", EventReceiver.COLOR_YELLOW);
             }
@@ -853,28 +932,28 @@ public class SPFMode extends DummyMode {
         }
     }
 
-    public static double getAttackMultiplier(int set, int map)
-    {
+    public static double getAttackMultiplier(int set, int map) {
         try {
             return DROP_PATTERNS_ATTACK_MULTIPLIERS[set][map];
         } catch (ArrayIndexOutOfBoundsException e) {
             return 1.0;
         }
     }
-    public static double getDefendMultiplier(int set, int map)
-    {
+
+    public static double getDefendMultiplier(int set, int map) {
         try {
             return DROP_PATTERNS_DEFEND_MULTIPLIERS[set][map];
         } catch (ArrayIndexOutOfBoundsException e) {
             return 1.0;
         }
     }
+
     /*
      * Called for initialization during Ready (before initialization)
      */
     @Override
     public boolean onReady(GameEngine engine, int playerID) {
-        if(engine.statc[0] == 0) {
+        if (engine.statc[0] == 0) {
             engine.numColors = BLOCK_COLORS.length;
             engine.rainbowAnimate = (playerID == 0);
             engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
@@ -885,21 +964,21 @@ public class SPFMode extends DummyMode {
             defendMultiplier[playerID] = getDefendMultiplier(dropSet[playerID], dropMap[playerID]);
 
             // Map読み込み・リプレイ保存用にバックアップ
-            if(useMap[playerID]) {
-                if(owner.replayMode) {
+            if (useMap[playerID]) {
+                if (owner.replayMode) {
                     engine.createFieldIfNeeded();
                     loadMap(engine.field, owner.replayProp, playerID);
                     engine.field.setAllSkin(engine.getSkin());
                 } else {
-                    if(propMap[playerID] == null) {
+                    if (propMap[playerID] == null) {
                         propMap[playerID] = receiver.loadProperties("config/map/spf/" + mapSet[playerID] + ".map");
                     }
 
-                    if(propMap[playerID] != null) {
+                    if (propMap[playerID] != null) {
                         engine.createFieldIfNeeded();
 
-                        if(mapNumber[playerID] < 0) {
-                            if((playerID == 1) && (useMap[0]) && (mapNumber[0] < 0)) {
+                        if (mapNumber[playerID] < 0) {
+                            if ((playerID == 1) && (useMap[0]) && (mapNumber[0] < 0)) {
                                 engine.field.copy(owner.engine[0].field);
                             } else {
                                 int no = (mapMaxNo[playerID] < 1) ? 0 : randMap.nextInt(mapMaxNo[playerID]);
@@ -913,11 +992,10 @@ public class SPFMode extends DummyMode {
                         fldBackup[playerID] = new Field(engine.field);
                     }
                 }
-            } else if(engine.field != null) {
+            } else if (engine.field != null) {
                 engine.field.reset();
             }
-        }
-        else if (engine.statc[0] == 1 && diamondPower[playerID] > 0)
+        } else if (engine.statc[0] == 1 && diamondPower[playerID] > 0)
             for (int x = 24; x < engine.nextPieceArraySize; x += 25)
                 engine.nextPieceArrayObject[x].block[1].color = DIAMOND_COLOR;
         return false;
@@ -932,7 +1010,7 @@ public class SPFMode extends DummyMode {
         engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
         //engine.big = big[playerID];
         engine.enableSE = enableSE[playerID];
-        if(playerID == 1) owner.bgmStatus.bgm = bgmno;
+        if (playerID == 1) owner.bgmStatus.bgm = bgmno;
         //engine.colorClearSize = big[playerID] ? 8 : 2;
         engine.colorClearSize = 2;
         engine.ignoreHidden = false;
@@ -953,25 +1031,25 @@ public class SPFMode extends DummyMode {
         int fontColor = EventReceiver.COLOR_WHITE;
 
         // Timer
-        if(playerID == 0) {
+        if (playerID == 0) {
             receiver.drawDirectFont(engine, playerID, 224, 0, GeneralUtil.getTime(engine.statistics.time));
         }
 
         // Ojama Counter
         fontColor = EventReceiver.COLOR_WHITE;
-        if(ojama[playerID] >= 1) fontColor = EventReceiver.COLOR_YELLOW;
-        if(ojama[playerID] >= 6) fontColor = EventReceiver.COLOR_ORANGE;
-        if(ojama[playerID] >= 12) fontColor = EventReceiver.COLOR_RED;
+        if (ojama[playerID] >= 1) fontColor = EventReceiver.COLOR_YELLOW;
+        if (ojama[playerID] >= 6) fontColor = EventReceiver.COLOR_ORANGE;
+        if (ojama[playerID] >= 12) fontColor = EventReceiver.COLOR_RED;
 
         String strOjama = String.valueOf(ojama[playerID]);
-        if(!strOjama.equals("0")) {
+        if (!strOjama.equals("0")) {
             receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 32, strOjama, fontColor);
         }
 
         // Score
-        if(engine.displaysize == 1) {
+        if (engine.displaysize == 1) {
             receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 472, String.format("%12d", score[playerID]), playerColor);
-        } else if(engine.gameStarted) {
+        } else if (engine.gameStarted) {
             receiver.drawDirectFont(engine, playerID, fldPosX - 28, fldPosY + 264, String.format("%8d", score[playerID]), playerColor);
         }
         //receiver.drawDirectFont(engine, playerID, fldPosX + 209, fldPosY + 456, String.valueOf(score[playerID]), playerColor);
@@ -979,13 +1057,11 @@ public class SPFMode extends DummyMode {
         // Countdown Blocks
         Block b;
         int blockColor, textColor;
-        if((engine.field != null) && (engine.gameActive))
+        if ((engine.field != null) && (engine.gameActive))
             for (int x = 0; x < engine.field.getWidth(); x++)
-                for (int y = 0; y < engine.field.getHeight(); y++)
-                {
+                for (int y = 0; y < engine.field.getHeight(); y++) {
                     b = engine.field.getBlock(x, y);
-                    if (!b.isEmpty() && b.countdown > 0)
-                    {
+                    if (!b.isEmpty() && b.countdown > 0) {
                         blockColor = b.secondaryColor;
                         textColor = EventReceiver.COLOR_WHITE;
                         if (blockColor == Block.BLOCK_COLOR_BLUE)
@@ -997,7 +1073,7 @@ public class SPFMode extends DummyMode {
                         else if (blockColor == Block.BLOCK_COLOR_YELLOW)
                             textColor = EventReceiver.COLOR_YELLOW;
 
-                        if(engine.displaysize == 1)
+                        if (engine.displaysize == 1)
                             receiver.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(b.countdown), textColor, 2.0f);
                         else
                             receiver.drawMenuFont(engine, playerID, x, y, String.valueOf(b.countdown), textColor);
@@ -1010,17 +1086,17 @@ public class SPFMode extends DummyMode {
             textHeight = engine.field.getHeight();
             textHeight += 3;
         }
-        if(engine.displaysize == 1) textHeight = 11;
+        if (engine.displaysize == 1) textHeight = 11;
         int baseX = (engine.displaysize == 1) ? 1 : -2;
 
-        if(techBonusDisplay[playerID] > 0)
+        if (techBonusDisplay[playerID] > 0)
             receiver.drawMenuFont(engine, playerID, baseX, textHeight, "TECH BONUS", EventReceiver.COLOR_YELLOW);
-        if(zenKeshiDisplay[playerID] > 0)
-            receiver.drawMenuFont(engine, playerID, baseX+1, textHeight+1, "ZENKESHI!", EventReceiver.COLOR_YELLOW);
+        if (zenKeshiDisplay[playerID] > 0)
+            receiver.drawMenuFont(engine, playerID, baseX + 1, textHeight + 1, "ZENKESHI!", EventReceiver.COLOR_YELLOW);
     }
 
     @Override
-    public boolean onMove (GameEngine engine, int playerID) {
+    public boolean onMove(GameEngine engine, int playerID) {
         countdownDecremented[playerID] = false;
         return false;
     }
@@ -1046,7 +1122,7 @@ public class SPFMode extends DummyMode {
             return;
 
         int enemyID = 0;
-        if(playerID == 0) enemyID = 1;
+        if (playerID == 0) enemyID = 1;
 
         int width = engine.field.getWidth();
         int height = engine.field.getHeight();
@@ -1054,48 +1130,42 @@ public class SPFMode extends DummyMode {
 
         int diamondBreakColor = Block.BLOCK_COLOR_INVALID;
         if (diamondPower[playerID] > 0)
-            for (int y = (-1*hiddenHeight); y < height && diamondBreakColor == Block.BLOCK_COLOR_INVALID; y++)
+            for (int y = (-1 * hiddenHeight); y < height && diamondBreakColor == Block.BLOCK_COLOR_INVALID; y++)
                 for (int x = 0; x < width && diamondBreakColor == Block.BLOCK_COLOR_INVALID; x++)
-                    if (engine.field.getBlockColor(x, y) == DIAMOND_COLOR)
-                    {
-                        if(engine.displaysize == 1) {
-                            receiver.blockBreak(engine, playerID, 2*x, 2*y, engine.field.getBlock(x, y));
-                            receiver.blockBreak(engine, playerID, 2*x+1, 2*y, engine.field.getBlock(x, y));
-                            receiver.blockBreak(engine, playerID, 2*x, 2*y+1, engine.field.getBlock(x, y));
-                            receiver.blockBreak(engine, playerID, 2*x+1, 2*y+1, engine.field.getBlock(x, y));
+                    if (engine.field.getBlockColor(x, y) == DIAMOND_COLOR) {
+                        if (engine.displaysize == 1) {
+                            receiver.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
+                            receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
+                            receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
+                            receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, engine.field.getBlock(x, y));
                         } else {
                             receiver.blockBreak(engine, playerID, x, y, engine.field.getBlock(x, y));
                         }
 
                         engine.field.setBlockColor(x, y, Block.BLOCK_COLOR_NONE);
-                        if (y+1 >= height)
-                        {
+                        if (y + 1 >= height) {
                             techBonusDisplay[playerID] = 120;
                             engine.statistics.score += 10000;
                             score[playerID] += 10000;
-                        }
-                        else
-                            diamondBreakColor = engine.field.getBlockColor(x, y+1, true);
+                        } else
+                            diamondBreakColor = engine.field.getBlockColor(x, y + 1, true);
                     }
         double pts = 0;
         double add, multiplier;
         Block b;
         //Clear blocks from diamond
-        if (diamondBreakColor > Block.BLOCK_COLOR_NONE)
-        {
+        if (diamondBreakColor > Block.BLOCK_COLOR_NONE) {
             engine.field.allClearColor(diamondBreakColor, true, true);
-            for (int y = (-1*hiddenHeight); y < height; y++)
-            {
+            for (int y = (-1 * hiddenHeight); y < height; y++) {
                 multiplier = getRowValue(y);
                 for (int x = 0; x < width; x++)
-                    if (engine.field.getBlockColor(x, y, true) == diamondBreakColor)
-                    {
+                    if (engine.field.getBlockColor(x, y, true) == diamondBreakColor) {
                         pts += multiplier * 7;
-                        if(engine.displaysize == 1) {
-                            receiver.blockBreak(engine, playerID, 2*x, 2*y, engine.field.getBlock(x, y));
-                            receiver.blockBreak(engine, playerID, 2*x+1, 2*y, engine.field.getBlock(x, y));
-                            receiver.blockBreak(engine, playerID, 2*x, 2*y+1, engine.field.getBlock(x, y));
-                            receiver.blockBreak(engine, playerID, 2*x+1, 2*y+1, engine.field.getBlock(x, y));
+                        if (engine.displaysize == 1) {
+                            receiver.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
+                            receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
+                            receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
+                            receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, engine.field.getBlock(x, y));
                         } else {
                             receiver.blockBreak(engine, playerID, x, y, engine.field.getBlock(x, y));
                         }
@@ -1110,11 +1180,9 @@ public class SPFMode extends DummyMode {
         //TODO: Add diamond glitch
         //Clear blocks
         //engine.field.gemColorCheck(engine.colorClearSize, true, engine.garbageColorClear, engine.ignoreHidden);
-        for (int y = (-1*hiddenHeight); y < height; y++)
-        {
+        for (int y = (-1 * hiddenHeight); y < height; y++) {
             multiplier = getRowValue(y);
-            for (int x = 0; x < width; x++)
-            {
+            for (int x = 0; x < width; x++) {
                 b = engine.field.getBlock(x, y);
                 if (b == null)
                     continue;
@@ -1123,16 +1191,15 @@ public class SPFMode extends DummyMode {
                 add = multiplier * 7;
                 if (b.bonusValue > 1)
                     add *= b.bonusValue;
-                if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE))
-                {
+                if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
                     add /= 2.0;
                     b.secondaryColor = 0;
                 }
-                if(engine.displaysize == 1) {
-                    receiver.blockBreak(engine, playerID, 2*x, 2*y, b);
-                    receiver.blockBreak(engine, playerID, 2*x+1, 2*y, b);
-                    receiver.blockBreak(engine, playerID, 2*x, 2*y+1, b);
-                    receiver.blockBreak(engine, playerID, 2*x+1, 2*y+1, b);
+                if (engine.displaysize == 1) {
+                    receiver.blockBreak(engine, playerID, 2 * x, 2 * y, b);
+                    receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, b);
+                    receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, b);
+                    receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, b);
                 } else {
                     receiver.blockBreak(engine, playerID, x, y, b);
                 }
@@ -1141,12 +1208,12 @@ public class SPFMode extends DummyMode {
             }
         }
         if (engine.chain > 1)
-            pts += (engine.chain-1)*20.0;
+            pts += (engine.chain - 1) * 20.0;
 
-        if(engine.chain >= 1)
+        if (engine.chain >= 1)
             engine.playSE("combo" + Math.min(engine.chain, 20));
 
-        double ojamaNew = (int) (pts*attackMultiplier[playerID]/7.0);
+        double ojamaNew = (int) (pts * attackMultiplier[playerID] / 7.0);
 
         if (engine.field.isEmpty()) {
             engine.playSE("bravo");
@@ -1163,8 +1230,7 @@ public class SPFMode extends DummyMode {
         if (hurryupSeconds[playerID] > 0 && engine.statistics.time > hurryupSeconds[playerID])
             ojamaNew *= 1 << (engine.statistics.time / (hurryupSeconds[playerID] * 60));
 
-        if (ojama[playerID] > 0 && ojamaNew > 0.0)
-        {
+        if (ojama[playerID] > 0 && ojamaNew > 0.0) {
             int delta = Math.min(ojama[playerID] << 1, (int) ojamaNew);
             ojama[playerID] -= delta >> 1;
             ojamaNew -= delta;
@@ -1174,9 +1240,8 @@ public class SPFMode extends DummyMode {
             ojama[enemyID] += ojamaSend;
     }
 
-    public static double getRowValue(int row)
-    {
-        return ROW_VALUES[Math.min(Math.max(row, 0), ROW_VALUES.length-1)];
+    public static double getRowValue(int row) {
+        return ROW_VALUES[Math.min(Math.max(row, 0), ROW_VALUES.length - 1)];
     }
 
     public void checkAll(GameEngine engine, int playerID) {
@@ -1186,21 +1251,19 @@ public class SPFMode extends DummyMode {
         checkSquares(engine, playerID, recheck);
     }
 
-    public boolean checkCountdown (GameEngine engine, int playerID) {
+    public boolean checkCountdown(GameEngine engine, int playerID) {
         if (countdownDecremented[playerID])
             return false;
         countdownDecremented[playerID] = true;
         boolean result = false;
         for (int y = (engine.field.getHiddenHeight() * -1); y < engine.field.getHeight(); y++)
-            for (int x = 0; x < engine.field.getWidth(); x++)
-            {
+            for (int x = 0; x < engine.field.getWidth(); x++) {
                 Block b = engine.field.getBlock(x, y);
                 if (b == null)
                     continue;
                 if (b.countdown > 1)
                     b.countdown--;
-                else if (b.countdown == 1)
-                {
+                else if (b.countdown == 1) {
                     b.countdown = 0;
                     b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
                     b.color = b.secondaryColor;
@@ -1210,8 +1273,7 @@ public class SPFMode extends DummyMode {
         return result;
     }
 
-    public void checkSquares (GameEngine engine, int playerID, boolean forceRecheck)
-    {
+    public void checkSquares(GameEngine engine, int playerID, boolean forceRecheck) {
         if (engine.field == null)
             return;
         if (engine.statistics.time == lastSquareCheck[playerID] && !forceRecheck)
@@ -1228,8 +1290,7 @@ public class SPFMode extends DummyMode {
         Block b;
         int minX, minY, maxX, maxY;
         for (int x = 0; x < width; x++)
-            for (int y = (-1*hiddenHeight); y < height; y++)
-            {
+            for (int y = (-1 * hiddenHeight); y < height; y++) {
                 color = engine.field.getBlockColor(x, y);
                 if (color < Block.BLOCK_COLOR_RED || color > Block.BLOCK_COLOR_PURPLE)
                     continue;
@@ -1240,25 +1301,21 @@ public class SPFMode extends DummyMode {
                 boolean expanded = false;
                 b = engine.field.getBlock(x, y);
                 if (!b.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN) &&
-                        b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT) &&
-                        b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN) &&
-                        !b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP) &&
-                        !b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT))
-                {
+                    b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT) &&
+                    b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN) &&
+                    !b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP) &&
+                    !b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
                     //Find boundaries of existing gem block
                     maxX++;
                     maxY++;
                     Block test;
-                    while (maxX < width)
-                    {
+                    while (maxX < width) {
                         test = engine.field.getBlock(maxX, y);
-                        if (test == null)
-                        {
+                        if (test == null) {
                             maxX--;
                             break;
                         }
-                        if (test.color != color)
-                        {
+                        if (test.color != color) {
                             maxX--;
                             break;
                         }
@@ -1266,16 +1323,13 @@ public class SPFMode extends DummyMode {
                             break;
                         maxX++;
                     }
-                    while (maxY < height)
-                    {
+                    while (maxY < height) {
                         test = engine.field.getBlock(x, maxY);
-                        if (test == null)
-                        {
+                        if (test == null) {
                             maxY--;
                             break;
                         }
-                        if (test.color != color)
-                        {
+                        if (test.color != color) {
                             maxY--;
                             break;
                         }
@@ -1284,24 +1338,21 @@ public class SPFMode extends DummyMode {
                         maxY++;
                     }
                     log.debug("Pre-existing square found: (" + minX + ", " + minY + ") to (" +
-                             maxX + ", " + maxY + ")");
-                }
-                else if (b.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN) &&
-                        color == engine.field.getBlockColor(x+1, y) &&
-                        color == engine.field.getBlockColor(x, y+1) &&
-                        color == engine.field.getBlockColor(x+1, y+1))
-                {
-                    Block bR = engine.field.getBlock(x+1, y);
-                    Block bD = engine.field.getBlock(x, y+1);
-                    Block bDR = engine.field.getBlock(x+1, y+1);
+                        maxX + ", " + maxY + ")");
+                } else if (b.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN) &&
+                    color == engine.field.getBlockColor(x + 1, y) &&
+                    color == engine.field.getBlockColor(x, y + 1) &&
+                    color == engine.field.getBlockColor(x + 1, y + 1)) {
+                    Block bR = engine.field.getBlock(x + 1, y);
+                    Block bD = engine.field.getBlock(x, y + 1);
+                    Block bDR = engine.field.getBlock(x + 1, y + 1);
                     if (
-                            bR.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN) &&
+                        bR.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN) &&
                             bD.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN) &&
-                            bDR.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN))
-                    {
+                            bDR.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)) {
                         //Form new gem block
-                        maxX = x+1;
-                        maxY = y+1;
+                        maxX = x + 1;
+                        maxY = y + 1;
                         b.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, false);
                         bR.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, false);
                         bD.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, false);
@@ -1309,7 +1360,7 @@ public class SPFMode extends DummyMode {
                         expanded = true;
                     }
                     log.debug("New square formed: (" + minX + ", " + minY + ") to (" +
-                             maxX + ", " + maxY + ")");
+                        maxX + ", " + maxY + ")");
                 }
                 if (maxX <= minX || maxY <= minY)
                     continue; //No gem block, skip to next block
@@ -1317,122 +1368,100 @@ public class SPFMode extends DummyMode {
                 int testX, testY;
                 Block bTest;
                 log.debug("Testing square for expansion. Coordinates before: (" + minX + ", " + minY + ") to (" +
-                         maxX + ", " + maxY + ")");
+                    maxX + ", " + maxY + ")");
                 //Expand up
-                for (testY = minY-1, done = false; testY >= (-1 * hiddenHeight) && !done; testY--)
-                {
+                for (testY = minY - 1, done = false; testY >= (-1 * hiddenHeight) && !done; testY--) {
                     log.debug("Testing to expand up. testY = " + testY);
                     if (color != engine.field.getBlockColor(minX, testY) ||
-                            color != engine.field.getBlockColor(maxX, testY))
+                        color != engine.field.getBlockColor(maxX, testY))
                         break;
                     if (engine.field.getBlock(minX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT) ||
-                            engine.field.getBlock(maxX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT))
+                        engine.field.getBlock(maxX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT))
                         break;
                     expandHere = true;
-                    for (testX = minX; testX <= maxX && !done; testX++)
-                    {
-                        if (engine.field.getBlockColor(testX, testY) != color)
-                        {
+                    for (testX = minX; testX <= maxX && !done; testX++) {
+                        if (engine.field.getBlockColor(testX, testY) != color) {
                             done = true;
                             expandHere = false;
-                        }
-                        else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP))
+                        } else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP))
                             expandHere = false;
                     }
-                    if (expandHere)
-                    {
+                    if (expandHere) {
                         minY = testY;
                         expanded = true;
                     }
                 }
                 //Expand left
-                for (testX = minX-1, done = false; testX >= 0 && !done; testX--)
-                {
+                for (testX = minX - 1, done = false; testX >= 0 && !done; testX--) {
                     if (color != engine.field.getBlockColor(testX, minY) ||
-                            color != engine.field.getBlockColor(testX, maxY))
+                        color != engine.field.getBlockColor(testX, maxY))
                         break;
                     if (engine.field.getBlock(testX, minY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP) ||
-                            engine.field.getBlock(testX, maxY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
+                        engine.field.getBlock(testX, maxY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
                         break;
                     expandHere = true;
-                    for (testY = minY; testY <= maxY && !done; testY++)
-                    {
-                        if (engine.field.getBlockColor(testX, testY) != color)
-                        {
+                    for (testY = minY; testY <= maxY && !done; testY++) {
+                        if (engine.field.getBlockColor(testX, testY) != color) {
                             done = true;
                             expandHere = false;
-                        }
-                        else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT))
+                        } else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT))
                             expandHere = false;
                     }
-                    if (expandHere)
-                    {
+                    if (expandHere) {
                         minX = testX;
                         expanded = true;
                     }
                 }
                 //Expand right
-                for (testX = maxX+1, done = false; testX < width && !done; testX++)
-                {
+                for (testX = maxX + 1, done = false; testX < width && !done; testX++) {
                     if (color != engine.field.getBlockColor(testX, minY) ||
-                            color != engine.field.getBlockColor(testX, maxY))
+                        color != engine.field.getBlockColor(testX, maxY))
                         break;
                     if (engine.field.getBlock(testX, minY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP) ||
-                            engine.field.getBlock(testX, maxY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
+                        engine.field.getBlock(testX, maxY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
                         break;
                     expandHere = true;
-                    for (testY = minY; testY <= maxY && !done; testY++)
-                    {
-                        if (engine.field.getBlockColor(testX, testY) != color)
-                        {
+                    for (testY = minY; testY <= maxY && !done; testY++) {
+                        if (engine.field.getBlockColor(testX, testY) != color) {
                             done = true;
                             expandHere = false;
-                        }
-                        else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT))
+                        } else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT))
                             expandHere = false;
                     }
-                    if (expandHere)
-                    {
+                    if (expandHere) {
                         maxX = testX;
                         expanded = true;
                     }
                 }
                 //Expand down
-                for (testY = maxY+1, done = false; testY < height && !done; testY++)
-                {
+                for (testY = maxY + 1, done = false; testY < height && !done; testY++) {
                     if (color != engine.field.getBlockColor(minX, testY) ||
-                            color != engine.field.getBlockColor(maxX, testY))
+                        color != engine.field.getBlockColor(maxX, testY))
                         break;
                     if (engine.field.getBlock(minX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT) ||
-                            engine.field.getBlock(maxX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT))
+                        engine.field.getBlock(maxX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT))
                         break;
                     expandHere = true;
-                    for (testX = minX; testX <= maxX && !done; testX++)
-                    {
-                        if (engine.field.getBlockColor(testX, testY) != color)
-                        {
+                    for (testX = minX; testX <= maxX && !done; testX++) {
+                        if (engine.field.getBlockColor(testX, testY) != color) {
                             done = true;
                             expandHere = false;
-                        }
-                        else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
+                        } else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN))
                             expandHere = false;
                     }
-                    if (expandHere)
-                    {
+                    if (expandHere) {
                         maxY = testY;
                         expanded = true;
                     }
                 }
                 log.debug("expanded = " + expanded);
-                if (expanded)
-                {
+                if (expanded) {
 
                     log.debug("Expanding square. Coordinates after: (" + minX + ", " + minY + ") to (" +
-                             maxX + ", " + maxY + ")");
+                        maxX + ", " + maxY + ")");
                     int size = Math.min(maxX - minX + 1, maxY - minY + 1);
                     for (testX = minX; testX <= maxX; testX++)
-                        for (testY = minY; testY <= maxY; testY++)
-                        {
+                        for (testY = minY; testY <= maxY; testY++) {
                             bTest = engine.field.getBlock(testX, testY);
                             bTest.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, false);
                             bTest.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, testX != minX);
@@ -1441,8 +1470,8 @@ public class SPFMode extends DummyMode {
                             bTest.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, testX != maxX);
                             bTest.bonusValue = size;
                         }
-                    }
                 }
+            }
     }
 
     public boolean lineClearEnd(GameEngine engine, int playerID) {
@@ -1453,10 +1482,9 @@ public class SPFMode extends DummyMode {
         int height = engine.field.getHeight();
         int hiddenHeight = engine.field.getHiddenHeight();
 
-        for (int y = (-1*hiddenHeight); y < height; y++)
+        for (int y = (-1 * hiddenHeight); y < height; y++)
             for (int x = 0; x < width; x++)
-                if (engine.field.getBlockColor(x, y) == DIAMOND_COLOR)
-                {
+                if (engine.field.getBlockColor(x, y) == DIAMOND_COLOR) {
                     calcScore(engine, playerID, 0);
                     return true;
                 }
@@ -1464,10 +1492,9 @@ public class SPFMode extends DummyMode {
         checkAll(engine, playerID);
 
         //Drop garbage if needed.
-        if (ojama[playerID] > 0)
-        {
+        if (ojama[playerID] > 0) {
             int enemyID = 0;
-            if(playerID == 0) enemyID = 1;
+            if (playerID == 0) enemyID = 1;
 
             int dropRows = Math.min((ojama[playerID] + width - 1) / width, engine.field.getHighestBlockY(3));
             if (dropRows <= 0)
@@ -1478,16 +1505,13 @@ public class SPFMode extends DummyMode {
             engine.field.garbageDrop(engine, drop, false, 0, ojamaCountdown[playerID], 3);
             engine.field.setAllSkin(engine.getSkin());
             int patternCol = 0;
-            for (int x = 0; x < engine.field.getWidth(); x++)
-            {
+            for (int x = 0; x < engine.field.getWidth(); x++) {
                 if (patternCol >= dropPattern[enemyID].length)
                     patternCol = 0;
                 int patternRow = 0;
-                for (int y = dropRows - hiddenHeight; y >= (-1 * hiddenHeight); y--)
-                {
+                for (int y = dropRows - hiddenHeight; y >= (-1 * hiddenHeight); y--) {
                     Block b = engine.field.getBlock(x, y);
-                    if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.secondaryColor == 0)
-                    {
+                    if (b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) && b.secondaryColor == 0) {
                         if (patternRow >= dropPattern[enemyID][patternCol].length)
                             patternRow = 0;
                         b.secondaryColor = dropPattern[enemyID][patternCol][patternRow];
@@ -1514,24 +1538,24 @@ public class SPFMode extends DummyMode {
             width = engine.field.getWidth();
         int blockHeight = receiver.getBlockGraphicsHeight(engine, playerID);
         // せり上がりMeter
-        if(ojama[playerID] * blockHeight / width > engine.meterValue) {
+        if (ojama[playerID] * blockHeight / width > engine.meterValue) {
             engine.meterValue++;
-        } else if(ojama[playerID] * blockHeight / width < engine.meterValue) {
+        } else if (ojama[playerID] * blockHeight / width < engine.meterValue) {
             engine.meterValue--;
         }
-        if(ojama[playerID] > 30) engine.meterColor = GameEngine.METER_COLOR_RED;
-        else if(ojama[playerID] > 10) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
+        if (ojama[playerID] > 30) engine.meterColor = GameEngine.METER_COLOR_RED;
+        else if (ojama[playerID] > 10) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
         else engine.meterColor = GameEngine.METER_COLOR_GREEN;
 
         // 決着
-        if((playerID == 1) && (owner.engine[0].gameActive)) {
-            if((owner.engine[0].stat == GameEngine.STAT_GAMEOVER) && (owner.engine[1].stat == GameEngine.STAT_GAMEOVER)) {
+        if ((playerID == 1) && (owner.engine[0].gameActive)) {
+            if ((owner.engine[0].stat == GameEngine.STAT_GAMEOVER) && (owner.engine[1].stat == GameEngine.STAT_GAMEOVER)) {
                 // Draw
                 winnerID = -1;
                 owner.engine[0].gameEnded();
                 owner.engine[1].gameEnded();
                 owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-            } else if((owner.engine[0].stat != GameEngine.STAT_GAMEOVER) && (owner.engine[1].stat == GameEngine.STAT_GAMEOVER)) {
+            } else if ((owner.engine[0].stat != GameEngine.STAT_GAMEOVER) && (owner.engine[1].stat == GameEngine.STAT_GAMEOVER)) {
                 // 1P win
                 winnerID = 0;
                 owner.engine[0].gameEnded();
@@ -1540,7 +1564,7 @@ public class SPFMode extends DummyMode {
                 owner.engine[0].resetStatc();
                 owner.engine[0].statc[1] = 1;
                 owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
-            } else if((owner.engine[0].stat == GameEngine.STAT_GAMEOVER) && (owner.engine[1].stat != GameEngine.STAT_GAMEOVER)) {
+            } else if ((owner.engine[0].stat == GameEngine.STAT_GAMEOVER) && (owner.engine[1].stat != GameEngine.STAT_GAMEOVER)) {
                 // 2P win
                 winnerID = 1;
                 owner.engine[0].gameEnded();
@@ -1559,23 +1583,23 @@ public class SPFMode extends DummyMode {
     @Override
     public void renderResult(GameEngine engine, int playerID) {
         receiver.drawMenuFont(engine, playerID, 0, 1, "RESULT", EventReceiver.COLOR_ORANGE);
-        if(winnerID == -1) {
+        if (winnerID == -1) {
             receiver.drawMenuFont(engine, playerID, 6, 2, "DRAW", EventReceiver.COLOR_GREEN);
-        } else if(winnerID == playerID) {
+        } else if (winnerID == playerID) {
             receiver.drawMenuFont(engine, playerID, 6, 2, "WIN!", EventReceiver.COLOR_YELLOW);
         } else {
             receiver.drawMenuFont(engine, playerID, 6, 2, "LOSE", EventReceiver.COLOR_WHITE);
         }
 
-        float apm = (float)(ojamaSent[playerID] * 3600) / (float)(engine.statistics.time);
+        float apm = (float) (ojamaSent[playerID] * 3600) / (float) (engine.statistics.time);
         drawResult(engine, playerID, receiver, 3, EventReceiver.COLOR_ORANGE,
-                "ATTACK", String.format("%10d", ojamaSent[playerID]));
+            "ATTACK", String.format("%10d", ojamaSent[playerID]));
         drawResultStats(engine, playerID, receiver, 5, EventReceiver.COLOR_ORANGE,
-                STAT_LINES, STAT_PIECE);
+            STAT_LINES, STAT_PIECE);
         drawResult(engine, playerID, receiver, 9, EventReceiver.COLOR_ORANGE,
-                "ATTACK/MIN", String.format("%10g", apm));
+            "ATTACK/MIN", String.format("%10g", apm));
         drawResultStats(engine, playerID, receiver, 11, EventReceiver.COLOR_ORANGE,
-                STAT_LPM, STAT_PPS, STAT_TIME);
+            STAT_LPM, STAT_PPS, STAT_TIME);
     }
 
     /*
@@ -1586,7 +1610,7 @@ public class SPFMode extends DummyMode {
         saveOtherSetting(engine, owner.replayProp);
         savePreset(engine, owner.replayProp, -1 - playerID);
 
-        if(useMap[playerID] && (fldBackup[playerID] != null)) {
+        if (useMap[playerID] && (fldBackup[playerID] != null)) {
             saveMap(fldBackup[playerID], owner.replayProp, playerID);
         }
 

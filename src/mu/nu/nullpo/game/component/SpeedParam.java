@@ -34,28 +34,44 @@ import java.io.Serializable;
  * Blockピースの落下速度や出現待ち timeなどの data
  */
 public class SpeedParam implements Serializable {
-    /** Serial version ID */
+    /**
+     * Serial version ID
+     */
     private static final long serialVersionUID = -955934100998757270L;
 
-    /** 落下速度 */
+    /**
+     * 落下速度
+     */
     public int gravity;
 
-    /** 落下速度の分母 (gravity==denominatorなら1Gになる) */
+    /**
+     * 落下速度の分母 (gravity==denominatorなら1Gになる)
+     */
     public int denominator;
 
-    /** 出現待ち time */
+    /**
+     * 出現待ち time
+     */
     public int are;
 
-    /** Line clear後の出現待ち time */
+    /**
+     * Line clear後の出現待ち time
+     */
     public int areLine;
 
-    /** Line clear time */
+    /**
+     * Line clear time
+     */
     public int lineDelay;
 
-    /** 固定 time */
+    /**
+     * 固定 time
+     */
     public int lockDelay;
 
-    /** 横移動 time */
+    /**
+     * 横移動 time
+     */
     public int das;
 
     /**
@@ -67,6 +83,7 @@ public class SpeedParam implements Serializable {
 
     /**
      * Copy constructor
+     *
      * @param s Copy source
      */
     public SpeedParam(SpeedParam s) {
@@ -88,6 +105,7 @@ public class SpeedParam implements Serializable {
 
     /**
      * 別のSpeedParamからコピー
+     *
      * @param s Copy source
      */
     public void copy(SpeedParam s) {

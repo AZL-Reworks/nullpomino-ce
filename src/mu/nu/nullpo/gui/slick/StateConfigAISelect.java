@@ -46,44 +46,68 @@ import org.newdawn.slick.state.StateBasedGame;
  * AI config screen state
  */
 public class StateConfigAISelect extends BaseGameState {
-    /** This state's ID */
+    /**
+     * This state's ID
+     */
     public static final int ID = 8;
 
-    /** 1画面に表示するMaximumAIcount */
+    /**
+     * 1画面に表示するMaximumAIcount
+     */
     public static final int MAX_AI_IN_ONE_PAGE = 20;
 
-    /** Log */
+    /**
+     * Log
+     */
     static Logger log = Logger.getLogger(StateConfigAISelect.class);
 
-    /** Player ID */
+    /**
+     * Player ID
+     */
     public int player = 0;
 
-    /** AIのクラス一覧 */
+    /**
+     * AIのクラス一覧
+     */
     protected String[] aiPathList;
 
-    /** AIのName一覧 */
+    /**
+     * AIのName一覧
+     */
     protected String[] aiNameList;
 
-    /** Current AIのクラス */
+    /**
+     * Current AIのクラス
+     */
     protected String currentAI;
 
-    /** AIのID */
+    /**
+     * AIのID
+     */
     protected int aiID = 0;
 
-    /** AIの移動間隔 */
+    /**
+     * AIの移動間隔
+     */
     protected int aiMoveDelay = 0;
 
-    /** AIの思考の待ち time */
+    /**
+     * AIの思考の待ち time
+     */
     protected int aiThinkDelay = 0;
 
-    /** AIでスレッドを使う */
+    /**
+     * AIでスレッドを使う
+     */
     protected boolean aiUseThread = false;
 
     protected boolean aiShowHint = false;
-    
+
     protected boolean aiPrethink = false;
 
-    /** Cursor position */
+    /**
+     * Cursor position
+     */
     protected int cursor = 0;
 
     /*
@@ -118,52 +142,54 @@ public class StateConfigAISelect extends BaseGameState {
         aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(player + ".aiMoveDelay", 0);
         aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(player + ".aiThinkDelay", 0);
         aiUseThread = NullpoMinoSlick.propGlobal.getProperty(player + ".aiUseThread", true);
-        aiShowHint = NullpoMinoSlick.propGlobal.getProperty(player+ ".aiShowHint", false);
-        aiPrethink = NullpoMinoSlick.propGlobal.getProperty(player+ ".aiPrethink", false);
+        aiShowHint = NullpoMinoSlick.propGlobal.getProperty(player + ".aiShowHint", false);
+        aiPrethink = NullpoMinoSlick.propGlobal.getProperty(player + ".aiPrethink", false);
 
         aiID = -1;
-        for(int i = 0; i < aiPathList.length; i++) {
-            if(currentAI.equals(aiPathList[i])) aiID = i;
+        for (int i = 0; i < aiPathList.length; i++) {
+            if (currentAI.equals(aiPathList[i])) aiID = i;
         }
     }
 
     /**
      * AI一覧を読み込み
+     *
      * @param bf 読み込み元のテキストファイル
      * @return AI一覧
      */
     public String[] loadAIList(BufferedReader bf) {
         ArrayList<String> aiArrayList = new ArrayList<String>();
 
-        while(true) {
+        while (true) {
             String name = null;
             try {
                 name = bf.readLine();
             } catch (Exception e) {
                 break;
             }
-            if(name == null) break;
-            if(name.length() == 0) break;
+            if (name == null) break;
+            if (name.length() == 0) break;
 
-            if(!name.startsWith("#"))
+            if (!name.startsWith("#"))
                 aiArrayList.add(name);
         }
 
         String[] aiStringList = new String[aiArrayList.size()];
-        for(int i = 0; i < aiArrayList.size(); i++) aiStringList[i] = aiArrayList.get(i);
+        for (int i = 0; i < aiArrayList.size(); i++) aiStringList[i] = aiArrayList.get(i);
 
         return aiStringList;
     }
 
     /**
      * AIのName一覧を作成
+     *
      * @param aiPath AIのクラスのリスト
      * @return AIのName一覧
      */
     public String[] loadAINames(String[] aiPath) {
         String[] aiName = new String[aiPath.length];
 
-        for(int i = 0; i < aiPath.length; i++) {
+        for (int i = 0; i < aiPath.length; i++) {
             Class<?> aiClass;
             AIPlayer aiObj;
             aiName[i] = "(INVALID)";
@@ -172,9 +198,9 @@ public class StateConfigAISelect extends BaseGameState {
                 aiClass = Class.forName(aiPath[i]);
                 aiObj = (AIPlayer) aiClass.newInstance();
                 aiName[i] = aiObj.getName();
-            } catch(ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 log.error("AI class " + aiPath[i] + " not found", e);
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 log.error("AI class " + aiPath[i] + " load failed", e);
             }
         }
@@ -196,7 +222,7 @@ public class StateConfigAISelect extends BaseGameState {
         NormalFont.printFontGrid(1, 3 + cursor, "b", NormalFont.COLOR_RED);
 
         String aiName = "";
-        if(aiID < 0) aiName = "(DISABLE)";
+        if (aiID < 0) aiName = "(DISABLE)";
         else aiName = aiNameList[aiID].toUpperCase();
         NormalFont.printFontGrid(2, 3, "AI TYPE:" + aiName, (cursor == 0));
         NormalFont.printFontGrid(2, 4, "AI MOVE DELAY:" + aiMoveDelay, (cursor == 1));
@@ -217,64 +243,64 @@ public class StateConfigAISelect extends BaseGameState {
         GameKey.gamekey[0].update(container.getInput());
 
         // Cursor movement
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_UP)) {
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_UP)) {
             cursor--;
-            if(cursor < 0) cursor = 5;
+            if (cursor < 0) cursor = 5;
             ResourceHolder.soundManager.play("cursor");
         }
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_DOWN)) {
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_DOWN)) {
             cursor++;
-            if(cursor > 5) cursor = 0;
+            if (cursor > 5) cursor = 0;
             ResourceHolder.soundManager.play("cursor");
         }
 
         // Configuration changes
         int change = 0;
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_LEFT)) change = -1;
-        if(GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_RIGHT)) change = 1;
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_LEFT)) change = -1;
+        if (GameKey.gamekey[0].isMenuRepeatKey(GameKey.BUTTON_RIGHT)) change = 1;
 
-        if(change != 0) {
+        if (change != 0) {
             ResourceHolder.soundManager.play("change");
 
-            switch(cursor) {
-            case 0:
-                aiID += change;
-                if(aiID < -1) aiID = aiNameList.length - 1;
-                if(aiID > aiNameList.length - 1) aiID = -1;
-                break;
-            case 1:
-                aiMoveDelay += change;
-                if(aiMoveDelay < -1) aiMoveDelay = 99;
-                if(aiMoveDelay > 99) aiMoveDelay = -1;
-                break;
-            case 2:
-                aiThinkDelay += change * 10;
-                if(aiThinkDelay < 0) aiThinkDelay = 1000;
-                if(aiThinkDelay > 1000) aiThinkDelay = 0;
-                break;
-            case 3:
-                aiUseThread = !aiUseThread;
-                break;
-            case 4:
-                aiShowHint = !aiShowHint;
-                break;
-            case 5:
-                aiPrethink = !aiPrethink;
-                break;
+            switch (cursor) {
+                case 0:
+                    aiID += change;
+                    if (aiID < -1) aiID = aiNameList.length - 1;
+                    if (aiID > aiNameList.length - 1) aiID = -1;
+                    break;
+                case 1:
+                    aiMoveDelay += change;
+                    if (aiMoveDelay < -1) aiMoveDelay = 99;
+                    if (aiMoveDelay > 99) aiMoveDelay = -1;
+                    break;
+                case 2:
+                    aiThinkDelay += change * 10;
+                    if (aiThinkDelay < 0) aiThinkDelay = 1000;
+                    if (aiThinkDelay > 1000) aiThinkDelay = 0;
+                    break;
+                case 3:
+                    aiUseThread = !aiUseThread;
+                    break;
+                case 4:
+                    aiShowHint = !aiShowHint;
+                    break;
+                case 5:
+                    aiPrethink = !aiPrethink;
+                    break;
             }
         }
 
         // Confirm button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_A)) {
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_A)) {
             ResourceHolder.soundManager.play("decide");
 
-            if(aiID >= 0) NullpoMinoSlick.propGlobal.setProperty(player + ".ai", aiPathList[aiID]);
+            if (aiID >= 0) NullpoMinoSlick.propGlobal.setProperty(player + ".ai", aiPathList[aiID]);
             else NullpoMinoSlick.propGlobal.setProperty(player + ".ai", "");
             NullpoMinoSlick.propGlobal.setProperty(player + ".aiMoveDelay", aiMoveDelay);
             NullpoMinoSlick.propGlobal.setProperty(player + ".aiThinkDelay", aiThinkDelay);
             NullpoMinoSlick.propGlobal.setProperty(player + ".aiUseThread", aiUseThread);
-            NullpoMinoSlick.propGlobal.setProperty(player + ".aiShowHint",aiShowHint);
-            NullpoMinoSlick.propGlobal.setProperty(player + ".aiPrethink",aiPrethink);
+            NullpoMinoSlick.propGlobal.setProperty(player + ".aiShowHint", aiShowHint);
+            NullpoMinoSlick.propGlobal.setProperty(player + ".aiPrethink", aiPrethink);
             NullpoMinoSlick.saveConfig();
 
             game.enterState(StateConfigMainMenu.ID);
@@ -282,7 +308,7 @@ public class StateConfigAISelect extends BaseGameState {
         }
 
         // Cancel button
-        if(GameKey.gamekey[0].isPushKey(GameKey.BUTTON_B)) {
+        if (GameKey.gamekey[0].isPushKey(GameKey.BUTTON_B)) {
             game.enterState(StateConfigMainMenu.ID);
             return;
         }
