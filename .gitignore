@@ -9,3 +9,6 @@
 # Ignore build files.
 *.class
 *.exe
+
+# Ignore log files/
+/log/*
