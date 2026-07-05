@@ -287,7 +287,7 @@ public class Piece implements Serializable {
         this.offsetApplied = false;
         this.connectBlocks = true;
 
-        int maxBlock = getMaxBlock();
+        int maxBlock = DEFAULT_PIECE_DATA_X[this.direction].length;
         dataX = new int[DIRECTION_COUNT][maxBlock];
         dataY = new int[DIRECTION_COUNT][maxBlock];
         block = new Block[maxBlock];

@@ -29,7 +29,6 @@
 package mu.nu.nullpo.gui.slick;
 
 import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.gui.net.UpdateChecker;
 
 import org.apache.log4j.Logger;
 import org.newdawn.slick.AppGameContainer;
@@ -101,7 +100,7 @@ public class StateTitle extends DummyMenuChooseState {
 
         // Update title bar
         if (container instanceof AppGameContainer) {
-            ((AppGameContainer) container).setTitle("NullpoMino version" + GameManager.getVersionString());
+            ((AppGameContainer) container).setTitle("NullpoMino v" + GameManager.getVersionString());
             ((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
         }
     }
@@ -121,12 +120,6 @@ public class StateTitle extends DummyMenuChooseState {
         renderChoices(2, 4, CHOICES);
 
         NormalFont.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
-
-        if (UpdateChecker.isNewVersionAvailable(GameManager.getVersionMajor(), GameManager.getVersionMinor())) {
-            String strTemp = String.format(NullpoMinoSlick.getUIText("Title_NewVersion"),
-                UpdateChecker.getLatestVersionFullString(), UpdateChecker.getStrReleaseDate());
-            NormalFont.printTTFFont(16, 416, strTemp);
-        }
     }
 
     @Override
