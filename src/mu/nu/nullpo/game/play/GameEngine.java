@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2010, NullNoname
+    Copyright (c) 2010, Nullnoname, NullpoMino CE Contributors
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without

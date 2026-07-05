@@ -1,0 +1,11 @@
+# Ignore IDE junk.
+/.idea/*
+/.vscode/*
+*.iml
+
+# Ignore some legacy things.
+/legacy-doc/*
+
+# Ignore build files.
+*.class
+*.exe
